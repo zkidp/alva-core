@@ -1,0 +1,302 @@
+(module
+  (name "store.storage_fs")
+  (version "0.1.0")
+  (cap io unsafe-ffi)
+  (export create_temp write_bytes read_bytes read_string file_size
+          fsync_file rename fsync_dir list_dir exists mkdir_p remove
+          remove_dir env_string secure_id sha256_hex sha256_file_hex failpoint)
+
+  (extern fs.create_temp
+    (params
+      (param dir (prim string))
+      (param prefix (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_create_temp({dir}, {prefix})"))
+
+  (extern fs.write_bytes
+    (params
+      (param path (prim string))
+      (param data (prim bytes)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_write_bytes({path}, {data})"))
+
+  (extern fs.read_bytes
+    (params
+      (param path (prim string)))
+    (returns (result (prim bytes) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_read_bytes({path})"))
+
+  (extern fs.read_string
+    (params
+      (param path (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_read_string({path})"))
+
+  (extern fs.file_size
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_file_size({path})"))
+
+  (extern fs.fsync_file
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_fsync_file({path})"))
+
+  (extern fs.rename
+    (params
+      (param src (prim string))
+      (param dst (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_rename({src}, {dst})"))
+
+  (extern fs.fsync_dir
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_fsync_dir({path})"))
+
+  (extern fs.list_dir
+    (params
+      (param path (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_list_dir({path})"))
+
+  (extern fs.exists
+    (params
+      (param path (prim string)))
+    (returns (prim bool))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_exists({path})"))
+
+  (extern fs.mkdir_p
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_mkdir_p({path})"))
+
+  (extern fs.remove
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_remove({path})"))
+
+  (extern fs.remove_dir
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_remove_dir({path})"))
+
+  (extern fs.env_string
+    (params
+      (param name (prim string))
+      (param default (prim string)))
+    (returns (prim string))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_env_string({name}, {default})"))
+
+  (extern fs.secure_id
+    (params)
+    (returns (prim string))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_secure_id()"))
+
+  (extern fs.sha256_hex
+    (params
+      (param data (prim bytes)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::fs_sha256({data})"))
+
+  (extern fs.sha256_file_hex
+    (params
+      (param path (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_sha256_file({path})"))
+
+  (extern fs.failpoint
+    (params
+      (param name (prim string)))
+    (returns (prim i64))
+    (eff io)
+    (unsafe)
+    (rust "glue::fs_failpoint({name})"))
+
+  (fn create_temp
+    (params
+      (param dir (prim string))
+      (param prefix (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (call fs.create_temp (ref dir) (ref prefix))))
+
+  (fn write_bytes
+    (params
+      (param path (prim string))
+      (param data (prim bytes)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.write_bytes (ref path) (ref data))))
+
+  (fn read_bytes
+    (params
+      (param path (prim string)))
+    (returns (result (prim bytes) (prim string)))
+    (eff io)
+    (body
+      (call fs.read_bytes (ref path))))
+
+  (fn read_string
+    (params
+      (param path (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (call fs.read_string (ref path))))
+
+  (fn file_size
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.file_size (ref path))))
+
+  (fn fsync_file
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.fsync_file (ref path))))
+
+  (fn rename
+    (params
+      (param src (prim string))
+      (param dst (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.rename (ref src) (ref dst))))
+
+  (fn fsync_dir
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.fsync_dir (ref path))))
+
+  (fn list_dir
+    (params
+      (param path (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (call fs.list_dir (ref path))))
+
+  (fn exists
+    (params
+      (param path (prim string)))
+    (returns (prim bool))
+    (eff io)
+    (body
+      (call fs.exists (ref path))))
+
+  (fn mkdir_p
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.mkdir_p (ref path))))
+
+  (fn remove
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.remove (ref path))))
+
+  (fn remove_dir
+    (params
+      (param path (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (eff io)
+    (body
+      (call fs.remove_dir (ref path))))
+
+  (fn env_string
+    (params
+      (param name (prim string))
+      (param default (prim string)))
+    (returns (prim string))
+    (eff io)
+    (body
+      (call fs.env_string (ref name) (ref default))))
+
+  (fn secure_id
+    (params)
+    (returns (prim string))
+    (eff io)
+    (body
+      (call fs.secure_id)))
+
+  (fn sha256_hex
+    (params
+      (param data (prim bytes)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call fs.sha256_hex (ref data))))
+
+  (fn sha256_file_hex
+    (params
+      (param path (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (call fs.sha256_file_hex (ref path))))
+
+  (fn failpoint
+    (params
+      (param name (prim string)))
+    (returns (prim i64))
+    (eff io)
+    (body
+      (call fs.failpoint (ref name))))
+)

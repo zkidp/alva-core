@@ -1,0 +1,10 @@
+(module
+  (name "pre_non_bool")
+  (version "0.1.0")
+  (export f)
+  (fn f
+    (params)
+    (returns (prim i64))
+    (pure)
+    (pre (int 1))
+    (body (int 1))))

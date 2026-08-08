@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_NAME_002",
+      "module": "duplicate_param"
+    }
+  ]
+}

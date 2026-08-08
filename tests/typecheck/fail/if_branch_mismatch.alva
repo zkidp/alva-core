@@ -1,0 +1,10 @@
+(module
+  (name "if_branch_mismatch")
+  (version "0.1.0")
+  (export main)
+  (fn main
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (if (bool true) (int 1) (string "x")))))

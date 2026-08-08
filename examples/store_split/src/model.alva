@@ -1,0 +1,61 @@
+(module
+  (name "store.model")
+  (version "0.1.0")
+  (export HttpRequest RouteResult text_response xml_response xml_error)
+
+  (type HttpRequest
+    (record
+      (field method (prim string))
+      (field path (prim string))
+      (field query (prim string))
+      (field headers (map (prim string) (prim string)))
+      (field body (prim bytes))))
+
+  (type RouteResult
+    (record
+      (field status (prim i64))
+      (field content_type (prim string))
+      (field body (prim bytes))
+      (field head_content_length (prim i64))))
+
+  (fn text_response
+    (params
+      (param status (prim i64))
+      (param body (prim bytes)))
+    (returns RouteResult)
+    (pure)
+    (body
+      (record RouteResult
+        (status (ref status))
+        (content_type (string "text/plain"))
+        (body (ref body))
+        (head_content_length (int 0)))))
+
+  (fn xml_response
+    (params
+      (param status (prim i64))
+      (param body (prim bytes)))
+    (returns RouteResult)
+    (pure)
+    (body
+      (record RouteResult
+        (status (ref status))
+        (content_type (string "application/xml"))
+        (body (ref body))
+        (head_content_length (int 0)))))
+
+  (fn xml_error
+    (params
+      (param status (prim i64))
+      (param code (prim string))
+      (param message (prim string)))
+    (returns RouteResult)
+    (pure)
+    (body
+      (call xml_response (ref status)
+        (call to-bytes
+          (call concat
+            (call concat (string "<?xml version=\"1.0\"?><Error><Code>") (ref code))
+            (call concat (string "</Code><Message>")
+              (call concat (ref message) (string "</Message></Error>"))))))))
+)

@@ -1,0 +1,16 @@
+(module
+  (name "arg_count")
+  (version "0.1.0")
+  (export main)
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (+ (ref a) (ref b))))
+  (fn main
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body (call add (int 1)))))

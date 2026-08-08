@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_MODULE_004",
+      "module": "type_not_defined"
+    }
+  ]
+}

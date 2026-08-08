@@ -1,0 +1,42 @@
+(module
+  (name "demo.model")
+  (version "0.1.0")
+  (export Meta make_meta size_of touch_size)
+
+  (type Meta
+    (record
+      (field key (prim string))
+      (field size (prim i64))
+      (field etag (prim string))))
+
+  (fn make_meta
+    (params
+      (param key (prim string))
+      (param size (prim i64))
+      (param etag (prim string)))
+    (returns Meta)
+    (pure)
+    (body
+      (record Meta
+        (key (ref key))
+        (size (ref size))
+        (etag (ref etag)))))
+
+  (fn size_of
+    (params
+      (param m Meta))
+    (returns (prim i64))
+    (pure)
+    (body
+      (field (ref m) "size")))
+
+  (fn touch_size
+    (params
+      (param m Meta))
+    (returns Meta)
+    (pure)
+    (body
+      (record Meta
+        (key (field (ref m) "key"))
+        (size (+ (field (ref m) "size") (int 1)))
+        (etag (field (ref m) "etag"))))))

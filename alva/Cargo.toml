@@ -1,0 +1,17 @@
+[package]
+name = "alva-lang"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "alva"
+path = "src/main.rs"
+
+[dependencies]
+sha2 = "0.10"
+
+# dev profile 默认 O0 下巨型 match 函数帧可达 ~80KB/层，512 层合法输入在
+# 默认线程栈（Windows 1MB / Linux 8MB）上会溢出。opt-level=1 让 LLVM 复用
+# 栈槽，把帧压回几百字节，从而无需任何超大 worker 线程栈。
+[profile.dev]
+opt-level = 1

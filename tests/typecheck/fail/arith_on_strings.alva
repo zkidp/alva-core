@@ -1,0 +1,9 @@
+(module
+  (name "arith_on_strings")
+  (version "0.1.0")
+  (export main)
+  (fn main
+    (params)
+    (returns (prim string))
+    (pure)
+    (body (+ (string "a") (string "b")))))

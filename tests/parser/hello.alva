@@ -1,0 +1,12 @@
+(module
+  (name "hello")
+  (version "0.1.0")
+  (cap io)
+  (export main)
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call io.print (string "hello, alva"))
+      (nil))))

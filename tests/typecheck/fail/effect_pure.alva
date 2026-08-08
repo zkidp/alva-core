@@ -1,0 +1,12 @@
+(module
+  (name "effect_pure")
+  (version "0.1.0")
+  (cap io)
+  (export bad)
+  (fn bad
+    (params)
+    (returns (prim nil))
+    (pure)
+    (body
+      (call io.print (string "x"))
+      (nil))))

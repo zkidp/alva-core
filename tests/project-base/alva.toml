@@ -1,0 +1,6 @@
+[project]
+name = "demo"
+
+[modules]
+"demo.model" = "src/model.alva"
+"demo.app" = "src/app.alva"

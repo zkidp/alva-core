@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_NAME_001",
+      "function": "bad"
+    }
+  ]
+}

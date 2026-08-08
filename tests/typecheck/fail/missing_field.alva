@@ -1,0 +1,14 @@
+(module
+  (name "missing_field")
+  (version "0.1.0")
+  (type Meta
+    (record
+      (field key (prim string))
+      (field size (prim i64))))
+  (export main)
+  (fn main
+    (params)
+    (returns Meta)
+    (pure)
+    (body
+      (record Meta (key (string "k"))))))

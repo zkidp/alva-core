@@ -1,0 +1,17 @@
+(module
+  (name "missing_unsafe")
+  (version "0.1.0")
+  (cap unsafe-ffi)
+  (extern custom.frobnicate
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (rust "frobnicate({x})"))
+  (export go)
+  (fn go
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call custom.frobnicate (int 1)))))

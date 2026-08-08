@@ -1,0 +1,25 @@
+(module
+  (name "partial_effect")
+  (version "0.1.0")
+  (cap network io unsafe-ffi)
+  (extern http.fetch
+    (params (param url (prim string)))
+    (returns (prim string))
+    (eff network)
+    (unsafe)
+    (rust "http_fetch({url})"))
+  (extern http.log
+    (params (param msg (prim string)))
+    (returns (prim nil))
+    (eff io)
+    (unsafe)
+    (rust "http_log({msg})"))
+  (export bad)
+  (fn bad
+    (params)
+    (returns (prim nil))
+    (eff network)
+    (body
+      (call http.fetch (string "http://x"))
+      (call http.log (string "hi"))
+      (nil))))

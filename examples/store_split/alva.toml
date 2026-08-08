@@ -1,0 +1,14 @@
+[project]
+name = "store"
+
+[modules]
+"store.model" = "src/model.alva"
+"store.auth" = "src/auth.alva"
+"store.xml" = "src/xml.alva"
+"store.router" = "src/router.alva"
+"store.server" = "src/server.alva"
+"store.storage_fs" = "src/storage_fs.alva"
+"store.storage_model" = "src/storage_model.alva"
+"store.storage_commit" = "src/storage_commit.alva"
+"store.storage_recovery" = "src/storage_recovery.alva"
+"store.storage_gc" = "src/storage_gc.alva"

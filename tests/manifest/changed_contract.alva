@@ -1,0 +1,12 @@
+(module
+  (name "hashbase")
+  (version "0.1.0")
+  (export add)
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (>= (ref a) (int 1)))
+    (body (+ (ref a) (ref b)))))

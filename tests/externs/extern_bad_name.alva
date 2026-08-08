@@ -1,0 +1,16 @@
+(module
+  (name "extern_bad_name")
+  (version "0.1.0")
+  (cap unsafe-ffi)
+  (extern httpfetch
+    (params (param url (prim string)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "http_fetch({url})"))
+  (export go)
+  (fn go
+    (params)
+    (returns (prim string))
+    (pure)
+    (body (call httpfetch (string "http://x")))))

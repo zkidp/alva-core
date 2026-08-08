@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_EXTERN_002",
+      "module": "extern_missing_decl"
+    }
+  ]
+}

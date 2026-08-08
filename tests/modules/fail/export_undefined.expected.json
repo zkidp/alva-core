@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_MODULE_002",
+      "module": "export_undefined"
+    }
+  ]
+}

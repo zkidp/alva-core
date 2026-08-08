@@ -1,0 +1,16 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_EXTERN_002",
+      "module": "extern_both_decls"
+    },
+    {
+      "code": "E_EFFECT_002",
+      "function": "go",
+      "repairs": [
+        {"kind": "remove_pure", "target": "go"}
+      ]
+    }
+  ]
+}

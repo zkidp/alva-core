@@ -1,0 +1,9 @@
+(module
+  (name "modules.placeholder")
+  (version "0.1.0")
+  (export value)
+  (fn value
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body (int 42))))

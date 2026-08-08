@@ -1,0 +1,159 @@
+(module
+  (name "store.storage_recovery")
+  (version "0.1.0")
+  (dep "store.storage_model" "0.1.0")
+  (dep "store.storage_fs" "0.1.0")
+  (cap io unsafe-ffi)
+  (export recover)
+
+  (fn ensure_base_dirs
+    (params
+      (param data_root (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let blobs (call concat (ref data_root) (string "/blobs"))
+        (let objects (call concat (ref data_root) (string "/objects"))
+          (let tmp (call store.storage_model.tmp_dir (ref data_root))
+            (let quar (call store.storage_model.quarantine_dir (ref data_root))
+              (block
+                (try (call store.storage_fs.mkdir_p (ref data_root))
+                  (catch e (raise (ref e))))
+                (try (call store.storage_fs.mkdir_p (ref blobs))
+                  (catch e (raise (ref e))))
+                (try (call store.storage_fs.mkdir_p (ref objects))
+                  (catch e (raise (ref e))))
+                (try (call store.storage_fs.mkdir_p (ref tmp))
+                  (catch e (raise (ref e))))
+                (try (call store.storage_fs.mkdir_p (ref quar))
+                  (catch e (raise (ref e))))
+                (ok (nil)))))))))
+
+  (fn cleanup_tmp
+    (params
+      (param data_root (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let tmp (call store.storage_model.tmp_dir (ref data_root))
+        (let names (try (call store.storage_fs.list_dir (ref tmp))
+                     (catch e (raise (ref e))))
+          (let parts (call split (ref names) (string "\n"))
+            (block
+              (fold i (range (int 0) (call len (ref parts)))
+                (acc out (prim nil) (nil))
+                (let name (call get (ref parts) (ref i))
+                  (if (== (ref name) (string ""))
+                    (ref out)
+                    (block
+                      (try (call store.storage_fs.remove (call concat (ref tmp) (call concat (string "/") (ref name))))
+                        (catch e (raise (ref e))))
+                      (ref out)))))
+              (ok (nil))))))))
+
+  (fn quarantine_meta
+    (params
+      (param data_root (prim string))
+      (param bucket_dir (prim string))
+      (param name (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let src (call concat (ref bucket_dir) (call concat (string "/") (ref name)))
+        (let dst (call concat
+                   (call concat (call store.storage_model.quarantine_dir (ref data_root)) (string "/"))
+                   (call concat (call store.storage_fs.secure_id) (call concat (string "-") (ref name))))
+          (block
+            (try (call store.storage_fs.rename (ref src) (ref dst))
+              (catch e (raise (ref e))))
+            (try (call store.storage_fs.fsync_dir (call store.storage_model.quarantine_dir (ref data_root)))
+              (catch e (raise (ref e))))
+            (try (call store.storage_fs.fsync_dir (ref bucket_dir))
+              (catch e (raise (ref e))))
+            (ok (nil)))))))
+
+  (fn meta_is_valid
+    (params
+      (param data_root (prim string))
+      (param meta (prim string)))
+    (returns (prim bool))
+    (eff io)
+    (body
+      (let fv (try (call store.storage_model.meta_format_version (ref meta))
+               (catch e (int -1)))
+        (if (not (== (ref fv) (int 1)))
+          (bool false)
+          (let sha (call store.storage_model.meta_sha (ref meta))
+            (if (== (ref sha) (string ""))
+              (bool false)
+              (call store.storage_fs.exists
+                (call store.storage_model.blob_path (ref data_root) (ref sha)))))))))
+
+  (fn scan_bucket
+    (params
+      (param data_root (prim string))
+      (param bucket_dir (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let names (try (call store.storage_fs.list_dir (ref bucket_dir))
+                   (catch e (raise (ref e))))
+        (let parts (call split (ref names) (string "\n"))
+          (block
+            (fold i (range (int 0) (call len (ref parts)))
+              (acc out (prim nil) (nil))
+              (let name (call get (ref parts) (ref i))
+                (if (and (call ends-with (ref name) (string ".tmp"))
+                         (not (== (ref name) (string ""))))
+                  (block
+                    (try (call store.storage_fs.remove (call concat (ref bucket_dir) (call concat (string "/") (ref name))))
+                      (catch e (raise (ref e))))
+                    (ref out))
+                  (if (and (call ends-with (ref name) (string ".json"))
+                           (not (== (ref name) (string ""))))
+                    (let meta (try (call store.storage_fs.read_string (call concat (ref bucket_dir) (call concat (string "/") (ref name))))
+                                (catch e (string "!corrupt!")))
+                      (if (call meta_is_valid (ref data_root) (ref meta))
+                        (ref out)
+                        (block
+                          (try (call quarantine_meta (ref data_root) (ref bucket_dir) (ref name))
+                            (catch e (raise (ref e))))
+                          (ref out))))
+                    (ref out)))))
+            (ok (nil)))))))
+
+  (fn recover
+    (params
+      (param data_root (prim string)))
+    (returns (result (prim nil) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let objects (call concat (ref data_root) (string "/objects"))
+        (block
+          (try (call ensure_base_dirs (ref data_root))
+            (catch e (raise (call store.storage_model.storage_error
+                              (string "E_STORAGE_008") (string "store.storage_recovery")
+                              (string "recover") (string "") (string "") (string "ensure_dirs") (ref e)))))
+          (try (call cleanup_tmp (ref data_root))
+            (catch e (raise (call store.storage_model.storage_error
+                              (string "E_STORAGE_008") (string "store.storage_recovery")
+                              (string "recover") (string "") (string "") (string "cleanup_tmp") (ref e)))))
+          (let dirs (try (call store.storage_fs.list_dir (ref objects))
+                       (catch e (raise (call store.storage_model.storage_error
+                                         (string "E_STORAGE_008") (string "store.storage_recovery")
+                                         (string "recover") (string "") (string "") (string "scan_objects") (ref e)))))
+            (let parts (call split (ref dirs) (string "\n"))
+              (block
+                (fold i (range (int 0) (call len (ref parts)))
+                  (acc out (prim nil) (nil))
+                  (let d (call get (ref parts) (ref i))
+                    (if (or (== (ref d) (string "")) (or (== (ref d) (string ".")) (== (ref d) (string ".."))))
+                      (ref out)
+                      (block
+                        (try (call scan_bucket (ref data_root) (call concat (ref objects) (call concat (string "/") (ref d))))
+                          (catch e (raise (call store.storage_model.storage_error
+                                            (string "E_STORAGE_008") (string "store.storage_recovery")
+                                            (string "recover") (ref d) (string "") (string "scan_bucket") (ref e)))))
+                        (ref out)))))
+                (ok (nil)))))))))
+)

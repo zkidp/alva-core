@@ -1,0 +1,697 @@
+;; 单机 S3 风格对象存储服务器（垂直切片：HTTP API 层）
+;; 路由与存储状态逻辑全部用语言实现；HTTP 传输走编译器的运行时胶水（glue）
+(module
+  (name "store.server")
+  (version "0.1.0")
+  (cap io network unsafe-ffi)
+  (use rust "sha2" "0.10")
+  (use rust "hmac" "0.12")
+  (export new_store put_bucket put_object get_object delete_object delete_bucket
+          list_bucket_names list_object_keys list_buckets_xml list_objects_xml
+          route_head handle main)
+
+  (type HttpRequest
+    (record
+      (field method (prim string))
+      (field path (prim string))
+      (field query (prim string))
+      (field headers (map (prim string) (prim string)))
+      (field body (prim bytes))))
+
+  (type Bucket
+    (record
+      (field name (prim string))
+      (field objects (map (prim string) (prim bytes)))))
+
+  (type Store
+    (record
+      (field buckets (map (prim string) Bucket))))
+
+  (type RouteResult
+    (record
+      (field store Store)
+      (field status (prim i64))
+      (field content_type (prim string))
+      (field body (prim bytes))
+      (field head_content_length (prim i64))))
+
+  ;; ===== HTTP 运行时（编译器的 glue 模块）=====
+  (extern http.start_server
+    (params (param port (prim i64)))
+    (returns (prim u64))
+    (eff network)
+    (unsafe)
+    (rust "glue::start_server({port})"))
+
+  (extern http.accept
+    (params (param handle (prim u64)))
+    (returns (prim u64))
+    (eff network)
+    (unsafe)
+    (rust "glue::accept_connection({handle})"))
+
+  (extern http.read_request
+    (params (param stream (prim u64)))
+    (returns HttpRequest)
+    (eff network)
+    (unsafe)
+    (rust "{ let __r = glue::read_request({stream}); HttpRequest { method: __r.method, path: __r.path, query: __r.query, headers: __r.headers, body: __r.body } }"))
+
+  (extern http.write_response
+    (params
+      (param stream (prim u64))
+      (param status (prim i64))
+      (param content_type (prim string))
+      (param body (prim bytes)))
+    (returns (prim i64))
+    (eff network)
+    (unsafe)
+    (rust "glue::write_response({stream}, {status}, {content_type}, {body})"))
+
+  (extern http.close_stream
+    (params (param stream (prim u64)))
+    (returns (prim i64))
+    (eff network)
+    (unsafe)
+    (rust "glue::close_stream({stream})"))
+
+  ;; ===== SigV4 authentication =====
+  (extern sha2.sha256
+    (params (param data (prim bytes)))
+    (returns (prim bytes))
+    (pure)
+    (unsafe)
+    (rust "<sha2::Sha256 as sha2::Digest>::digest({data}).to_vec()"))
+
+  (extern hmac.sha256
+    (params (param key (prim bytes)) (param data (prim bytes)))
+    (returns (prim bytes))
+    (pure)
+    (unsafe)
+    (rust "{ let mut __m = <hmac::Hmac<sha2::Sha256> as hmac::Mac>::new_from_slice(&{key}).unwrap(); hmac::Mac::update(&mut __m, &{data}); hmac::Mac::finalize(__m).into_bytes().to_vec() }"))
+
+  (extern http.write_head_response
+    (params
+      (param stream (prim u64))
+      (param status (prim i64))
+      (param content_length (prim i64)))
+    (returns (prim i64))
+    (eff network)
+    (unsafe)
+    (rust "glue::write_head_response({stream}, {status}, {content_length})"))
+
+  ;; ===== 存储操作（纯函数式，每次返回新状态）=====
+  (fn new_store
+    (params)
+    (returns Store)
+    (pure)
+    (body
+      (record Store
+        (buckets (map (prim string) Bucket)))))
+
+  (fn get_bucket
+    (params
+      (param store Store)
+      (param name (prim string)))
+    (returns (result Bucket (prim nil)))
+    (pure)
+    (body
+      (call lookup (field (ref store) "buckets") (ref name))))
+
+  (fn put_bucket
+    (params
+      (param store Store)
+      (param name (prim string)))
+    (returns Store)
+    (pure)
+    (pre (not (== (call len (ref name)) (int 0))))
+    (body
+      (record Store
+        (buckets (call set (field (ref store) "buckets")
+                           (ref name)
+                           (record Bucket
+                             (name (ref name))
+                             (objects (map (prim string) (prim bytes)))))))))
+
+  (fn put_object
+    (params
+      (param store Store)
+      (param bucket_name (prim string))
+      (param key (prim string))
+      (param data (prim bytes)))
+    (returns Store)
+    (pure)
+    (body
+      (let bucket
+        (if (call contains (field (ref store) "buckets") (ref bucket_name))
+          (call unwrap (call get_bucket (ref store) (ref bucket_name)))
+          (record Bucket
+            (name (ref bucket_name))
+            (objects (map (prim string) (prim bytes)))))
+        (record Store
+          (buckets (call set (field (ref store) "buckets")
+                           (ref bucket_name)
+                           (record Bucket
+                             (name (field (ref bucket) "name"))
+                             (objects (call set (field (ref bucket) "objects")
+                                              (ref key)
+                                              (ref data))))))))))
+
+  (fn get_object
+    (params
+      (param store Store)
+      (param bucket_name (prim string))
+      (param key (prim string)))
+    (returns (result (prim bytes) (prim nil)))
+    (pure)
+    (body
+      (if (call contains (field (ref store) "buckets") (ref bucket_name))
+        (let bucket (call unwrap (call get_bucket (ref store) (ref bucket_name)))
+          (call lookup (field (ref bucket) "objects") (ref key)))
+        (err (nil)))))
+
+  (fn delete_object
+    (params
+      (param store Store)
+      (param bucket_name (prim string))
+      (param key (prim string)))
+    (returns Store)
+    (pure)
+    (body
+      (if (call contains (field (ref store) "buckets") (ref bucket_name))
+        (let bucket (call unwrap (call get_bucket (ref store) (ref bucket_name)))
+          (record Store
+            (buckets (call set (field (ref store) "buckets")
+                             (ref bucket_name)
+                             (record Bucket
+                               (name (field (ref bucket) "name"))
+                               (objects (call remove (field (ref bucket) "objects") (ref key))))))))
+        (ref store))))
+
+  (fn delete_bucket
+    (params
+      (param store Store)
+      (param name (prim string)))
+    (returns Store)
+    (pure)
+    (body
+      (record Store
+        (buckets (call remove (field (ref store) "buckets") (ref name))))))
+
+  (fn list_bucket_names
+    (params
+      (param store Store))
+    (returns (prim string))
+    (pure)
+    (body
+      (call join (call keys (field (ref store) "buckets")) (string "\n"))))
+
+  (fn list_object_keys
+    (params
+      (param store Store)
+      (param bucket_name (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (call contains (field (ref store) "buckets") (ref bucket_name))
+        (let bucket (call unwrap (call get_bucket (ref store) (ref bucket_name)))
+          (call join (call keys (field (ref bucket) "objects")) (string "\n")))
+        (string ""))))
+
+  ;; ===== 响应构造 =====
+  (fn text_response
+    (params
+      (param store Store)
+      (param status (prim i64))
+      (param body (prim bytes)))
+    (returns RouteResult)
+    (pure)
+    (body
+      (record RouteResult
+        (store (ref store))
+        (status (ref status))
+        (content_type (string "text/plain"))
+        (body (ref body))
+        (head_content_length (int 0)))))
+
+  (fn xml_response
+    (params
+      (param store Store)
+      (param status (prim i64))
+      (param body (prim bytes)))
+    (returns RouteResult)
+    (pure)
+    (body
+      (record RouteResult
+        (store (ref store))
+        (status (ref status))
+        (content_type (string "application/xml"))
+        (body (ref body))
+        (head_content_length (int 0)))))
+
+  (fn xml_error
+    (params
+      (param store Store)
+      (param status (prim i64))
+      (param code (prim string)))
+    (returns RouteResult)
+    (pure)
+    (body
+      (call xml_response (ref store) (ref status)
+            (call to-bytes
+              (call concat
+                (call concat (string "<?xml version=\"1.0\"?><Error><Code>") (ref code))
+                (string "</Code></Error>"))))))
+
+  (fn list_buckets_xml
+    (params
+      (param store Store))
+    (returns (prim string))
+    (pure)
+    (body
+      (let names (call keys (field (ref store) "buckets"))
+        (call concat
+          (string "<?xml version=\"1.0\"?><ListAllMyBucketsResult><Buckets>")
+          (call concat
+            (fold i (range (int 0) (call len (ref names)))
+              (acc xml (prim string) (string ""))
+              (call concat (ref xml)
+                (call concat (string "<Bucket><Name>")
+                  (call concat (call get (ref names) (ref i))
+                    (string "</Name><CreationDate>2026-01-05T00:00:00Z</CreationDate></Bucket>")))))
+            (string "</Buckets></ListAllMyBucketsResult>"))))))
+
+  ;; 从查询串提取 prefix= 的值
+  ;; extract prefix= from the query string
+  (fn parse_prefix
+    (params
+      (param query (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (== (ref query) (string ""))
+        (string "")
+        (let parts (call split (ref query) (string "&"))
+          (fold i (range (int 0) (call len (ref parts)))
+            (acc found (prim string) (string ""))
+            (let part (call get (ref parts) (ref i))
+              (let rest (call strip-prefix (ref part) (string "prefix="))
+                (if (== (ref rest) (ref part))
+                  (ref found)
+                  (call url-decode (ref rest))))))))))
+
+  ;; 从查询串提取 delimiter= 的值（默认空串）
+  (fn parse_delimiter
+    (params
+      (param query (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (== (ref query) (string ""))
+        (string "")
+        (let parts (call split (ref query) (string "&"))
+          (fold i (range (int 0) (call len (ref parts)))
+            (acc found (prim string) (string ""))
+            (let part (call get (ref parts) (ref i))
+              (let rest (call strip-prefix (ref part) (string "delimiter="))
+                (if (== (ref rest) (ref part))
+                  (ref found)
+                  (call url-decode (ref rest))))))))))
+
+  ;; 鍏叡鍓嶇紑鍘婚噸杈撳嚭
+  (fn emit_common_prefix
+    (params
+      (param xml (prim string))
+      (param cp (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (call ends-with (ref xml)
+                (call concat (ref cp) (string "</Prefix></CommonPrefixes>")))
+        (ref xml)
+        (call concat (ref xml)
+          (call concat (string "<CommonPrefixes><Prefix>")
+            (call concat (ref cp) (string "</Prefix></CommonPrefixes>")))))))
+
+  (fn emit_leaf
+    (params
+      (param xml (prim string))
+      (param bucket Bucket)
+      (param key (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat (ref xml)
+        (call concat (string "<Contents><Key>")
+          (call concat (ref key)
+            (call concat (string "</Key><Size>")
+              (call concat
+                (call to-string
+                  (call len
+                    (call unwrap
+                      (call lookup (field (ref bucket) "objects") (ref key)))))
+                (string "</Size><LastModified>2026-01-05T00:00:00Z</LastModified></Contents>"))))))))
+
+  (fn list_objects_xml
+    (params
+      (param store Store)
+      (param bucket_name (prim string))
+      (param prefix (prim string))
+      (param delimiter (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let bucket (call unwrap (call get_bucket (ref store) (ref bucket_name)))
+        (let keys (call sort (call keys (field (ref bucket) "objects")))
+          (call concat
+            (string "<?xml version=\"1.0\"?><ListBucketResult>")
+            (call concat
+              (fold i (range (int 0) (call len (ref keys)))
+                (acc xml (prim string) (string ""))
+                (let key (call get (ref keys) (ref i))
+                  (let rest (call strip-prefix (ref key) (ref prefix))
+                    (if (and (not (== (ref prefix) (string "")))
+                             (== (ref rest) (ref key)))
+                      (ref xml)
+                      (if (and (== (ref delimiter) (string "/"))
+                               (not (== (call before (ref rest) (string "/")) (ref rest))))
+                        (call emit_common_prefix (ref xml)
+                          (call concat (ref prefix)
+                            (call concat (call before (ref rest) (string "/")) (string "/"))))
+                        (call emit_leaf (ref xml) (ref bucket) (ref key)))))))
+              (string "</ListBucketResult>")))))))
+
+  ;; key = 桶之后的所有路径段，用 / 连接（支持嵌套）
+  (fn key_from_segments
+    (params
+      (param segments (vec (prim string))))
+    (returns (prim string))
+    (pure)
+    (body
+      (let key_parts (call slice (ref segments) (int 2) (call len (ref segments)))
+        (call url-decode (call join (ref key_parts) (string "/"))))))
+
+  ;; ===== 路由 =====
+
+  ;; ===== SigV4 authentication =====
+  ;; bounds-safe index: returns empty string when out of range
+  (fn safe_get
+    (params
+      (param v (vec (prim string)))
+      (param i (prim i64)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (and (>= (ref i) (int 0)) (< (ref i) (call len (ref v))))
+        (call get (ref v) (ref i))
+        (string ""))))
+  (fn parse_auth_part
+    (params
+      (param part (prim string))
+      (param prefix (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let rest (call strip-prefix (ref part) (ref prefix))
+        (if (== (ref rest) (ref part))
+          (string "")
+          (ref rest)))))
+
+  ;; canonical headers: each signed header as "name:value\n"
+  (fn canonical_headers
+    (params
+      (param req HttpRequest)
+      (param names (vec (prim string))))
+    (returns (prim string))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref names)))
+        (acc out (prim string) (string ""))
+        (let name (call get (ref names) (ref i))
+          (let val (call lookup (field (ref req) "headers") (ref name))
+            (if (call is-ok (ref val))
+              (call concat (ref out)
+                (call concat (ref name)
+                  (call concat (string ":")
+                    (call concat (call unwrap (ref val)) (string "\n")))))
+              (ref out)))))))
+
+  ;; 瑙勮寖璇锋眰锛歮ethod\nuri\nquery\nheaders\nsigned\npayload-hash
+  (fn canonical_request
+    (params
+      (param req HttpRequest)
+      (param signed_headers_str (prim string))
+      (param payload_hash (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let signed_names (call split (ref signed_headers_str) (string ";"))
+        (let canon_headers (call canonical_headers (ref req) (ref signed_names))
+          (call concat
+            (call concat (field (ref req) "method") (string "\n"))
+            (call concat
+              (call concat (field (ref req) "path") (string "\n"))
+              (call concat
+                (call concat (field (ref req) "query") (string "\n"))
+                (call concat
+                  (call concat (ref canon_headers) (string "\n"))
+                  (call concat
+                    (call concat (ref signed_headers_str) (string "\n"))
+                    (ref payload_hash))))))))))
+
+  ;; HMAC 瀵嗛挜閾?+ 绛惧悕
+  (fn compute_signature
+    (params
+      (param date (prim string))
+      (param region (prim string))
+      (param secret (prim string))
+      (param string_to_sign (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let k_date (call hmac.sha256
+                    (call to-bytes (call concat (string "AWS4") (ref secret)))
+                    (call to-bytes (ref date)))
+        (let k_region (call hmac.sha256 (ref k_date) (call to-bytes (ref region)))
+          (let k_service (call hmac.sha256 (ref k_region) (call to-bytes (string "s3")))
+            (let k_signing (call hmac.sha256 (ref k_service) (call to-bytes (string "aws4_request")))
+              (call to-hex (call hmac.sha256 (ref k_signing) (call to-bytes (ref string_to_sign))))))))))
+
+  ;; SigV4 楠岃瘉锛氳В鏋?Authorization 澶村苟閲嶇畻绛惧悕
+  (fn verify_sigv4
+    (params
+      (param req HttpRequest)
+      (param access_key (prim string))
+      (param secret (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (let auth (call lookup (field (ref req) "headers") (string "authorization"))
+        (if (not (call is-ok (ref auth)))
+          (bool false)
+          (let auth_str (call unwrap (ref auth))
+            (let rest (call strip-prefix (ref auth_str) (string "AWS4-HMAC-SHA256 "))
+              (if (== (ref rest) (ref auth_str))
+                (bool false)
+                (let parts (call split (ref rest) (string ", "))
+                  (let credential (call parse_auth_part (call safe_get (ref parts) (int 0)) (string "Credential="))
+                    (let signed_headers_str (call parse_auth_part (call safe_get (ref parts) (int 1)) (string "SignedHeaders="))
+                      (let signature (call parse_auth_part (call safe_get (ref parts) (int 2)) (string "Signature="))
+                        (let cred_parts (call split (ref credential) (string "/"))
+                          (let ak (call safe_get (ref cred_parts) (int 0))
+                            (let date (call safe_get (ref cred_parts) (int 1))
+                              (let region (call safe_get (ref cred_parts) (int 2))
+                                (let ts (call lookup (field (ref req) "headers") (string "x-amz-date"))
+                                  (if (not (call is-ok (ref ts)))
+                                    (bool false)
+                                    (let ts_str (call unwrap (ref ts))
+                                      (let payload_hash (if (call contains (field (ref req) "headers") (string "x-amz-content-sha256"))
+                                                         (call unwrap (call lookup (field (ref req) "headers") (string "x-amz-content-sha256")))
+                                                         (call to-hex (call sha2.sha256 (field (ref req) "body"))))
+                                        (let canon_req (call canonical_request (ref req) (ref signed_headers_str) (ref payload_hash))
+                                          (let scope (call concat
+                                                     (call concat (call concat (ref date) (string "/")) (ref region))
+                                                     (string "/s3/aws4_request"))
+                                            (let sts (call concat
+                                                       (call concat
+                                                         (call concat (string "AWS4-HMAC-SHA256\n") (ref ts_str))
+                                                         (string "\n"))
+                                                       (call concat
+                                                         (call concat (ref scope) (string "\n"))
+                                                         (call to-hex (call sha2.sha256 (call to-bytes (ref canon_req))))))
+                                              (let expected (call compute_signature (ref date) (ref region) (ref secret) (ref sts))
+                                                (and (== (ref ak) (ref access_key))
+                                                     (call ct-eq (ref expected) (ref signature))))))))))))))))))))))))))
+  (fn route_put
+    (params
+      (param store Store)
+      (param segments (vec (prim string)))
+      (param req HttpRequest))
+    (returns RouteResult)
+    (pure)
+    (body
+      (if (> (call len (ref segments)) (int 2))
+        ;; PUT /bucket/key → 写入对象
+        (let store2 (call put_object (ref store)
+                          (call get (ref segments) (int 1))
+                          (call key_from_segments (ref segments))
+                          (field (ref req) "body"))
+          (record RouteResult
+            (store (ref store2))
+            (status (int 201))
+            (content_type (string "text/plain"))
+            (body (call to-bytes (string "created")))
+            (head_content_length (int 0))))
+        ;; PUT /bucket → 建桶（空桶名拒绝）
+        (if (== (call get (ref segments) (int 1)) (string ""))
+          (call xml_error (ref store) (int 400) (string "InvalidBucketName"))
+          (let store2 (call put_bucket (ref store) (call get (ref segments) (int 1)))
+            (record RouteResult
+              (store (ref store2))
+              (status (int 200))
+              (content_type (string "text/plain"))
+              (body (call to-bytes (string "ok")))
+              (head_content_length (int 0))))))))
+
+  (fn route_get
+    (params
+      (param store Store)
+      (param segments (vec (prim string)))
+      (param req HttpRequest))
+    (returns RouteResult)
+    (pure)
+    (body
+      (let bucket_name (call get (ref segments) (int 1))
+        (if (== (ref bucket_name) (string ""))
+          ;; GET / → 列出所有桶
+          (call xml_response (ref store) (int 200)
+                (call to-bytes (call list_buckets_xml (ref store))))
+          (if (> (call len (ref segments)) (int 2))
+            ;; GET /bucket/key → 读对象
+            (let got (call get_object (ref store) (ref bucket_name)
+                           (call key_from_segments (ref segments)))
+              (if (call is-ok (ref got))
+                (record RouteResult
+                  (store (ref store))
+                  (status (int 200))
+                  (content_type (string "application/octet-stream"))
+                  (body (call unwrap (ref got)))
+                  (head_content_length (int 0)))
+                (call xml_error (ref store) (int 404) (string "NoSuchKey"))))
+            ;; GET /bucket → 列出对象
+            (if (call contains (field (ref store) "buckets") (ref bucket_name))
+              (call xml_response (ref store) (int 200)
+                    (call to-bytes
+                      (call list_objects_xml (ref store) (ref bucket_name)
+                            (call parse_prefix (field (ref req) "query"))
+                            (call parse_delimiter (field (ref req) "query")))))
+              (call xml_error (ref store) (int 404) (string "NoSuchBucket"))))))))
+
+  (fn route_delete
+    (params
+      (param store Store)
+      (param segments (vec (prim string)))
+      (param req HttpRequest))
+    (returns RouteResult)
+    (pure)
+    (body
+      (if (> (call len (ref segments)) (int 2))
+        (let store2 (call delete_object (ref store)
+                          (call get (ref segments) (int 1))
+                          (call key_from_segments (ref segments)))
+          (call text_response (ref store2) (int 204) (call to-bytes (string ""))))
+        ;; DELETE /bucket → 删桶
+        (let store2 (call delete_bucket (ref store) (call get (ref segments) (int 1)))
+          (call text_response (ref store2) (int 204) (call to-bytes (string "")))))))
+
+  (fn route_head
+    (params
+      (param store Store)
+      (param segments (vec (prim string)))
+      (param req HttpRequest))
+    (returns RouteResult)
+    (pure)
+    (body
+      (let bucket_name (call get (ref segments) (int 1))
+        (if (> (call len (ref segments)) (int 2))
+          ;; HEAD /bucket/key → 对象存在性 + 真实大小
+          (let got (call get_object (ref store) (ref bucket_name)
+                         (call key_from_segments (ref segments)))
+            (if (call is-ok (ref got))
+              (record RouteResult
+                (store (ref store))
+                (status (int 200))
+                (content_type (string "application/octet-stream"))
+                (body (call to-bytes (string "")))
+                (head_content_length (call len (call unwrap (ref got)))))
+              (record RouteResult
+                (store (ref store))
+                (status (int 404))
+                (content_type (string "application/xml"))
+                (body (call to-bytes (string "")))
+                (head_content_length (int 0)))))
+          ;; HEAD /bucket → 桶存在性
+          (if (call contains (field (ref store) "buckets") (ref bucket_name))
+            (record RouteResult
+              (store (ref store))
+              (status (int 200))
+              (content_type (string "text/plain"))
+              (body (call to-bytes (string "")))
+              (head_content_length (int 0)))
+            (record RouteResult
+              (store (ref store))
+              (status (int 404))
+              (content_type (string "application/xml"))
+              (body (call to-bytes (string "")))
+              (head_content_length (int 0))))))))
+
+  (fn handle
+    (params
+      (param store Store)
+      (param req HttpRequest))
+    (returns RouteResult)
+    (pure)
+    (body
+      (if (call verify_sigv4 (ref req) (string "test") (string "testtest"))
+        (let segments (call split (field (ref req) "path") (string "/"))
+          (let method (field (ref req) "method")
+            (if (== (ref method) (string "PUT"))
+              (call route_put (ref store) (ref segments) (ref req))
+              (if (== (ref method) (string "GET"))
+                (call route_get (ref store) (ref segments) (ref req))
+                (if (== (ref method) (string "DELETE"))
+                  (call route_delete (ref store) (ref segments) (ref req))
+                  (if (== (ref method) (string "HEAD"))
+                    (call route_head (ref store) (ref segments) (ref req))
+                    (call xml_error (ref store) (int 400) (string "MethodNotAllowed"))))))))
+        (call xml_error (ref store) (int 403) (string "SignatureDoesNotMatch")))))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io network)
+    (body
+      (call io.print (string "store server listening on http://127.0.0.1:9000"))
+      (let srv (call http.start_server (int 9000))
+        (block
+          (loop (acc store Store (call new_store))
+            (bool true)
+            (block
+              (let stream (call http.accept (ref srv))
+                (if (== (ref stream) (uint 0))
+                  (ref store)
+                  (block
+                    (let req (call http.read_request (ref stream))
+                      (let route (call handle (ref store) (ref req))
+                        (block
+                          (if (== (field (ref req) "method") (string "HEAD"))
+                            (call http.write_head_response (ref stream)
+                                  (field (ref route) "status")
+                                  (field (ref route) "head_content_length"))
+                            (call http.write_response (ref stream)
+                                  (field (ref route) "status")
+                                  (field (ref route) "content_type")
+                                  (field (ref route) "body")))
+                          (call http.close_stream (ref stream))
+  (field (ref route) "store")))))))))
+          (nil))))))

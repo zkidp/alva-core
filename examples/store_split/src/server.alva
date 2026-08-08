@@ -1,0 +1,100 @@
+(module
+  (name "store.server")
+  (version "0.1.0")
+  (dep "store.router" "0.1.0")
+  (dep "store.model" "0.1.0")
+  (dep "store.storage_recovery" "0.1.0")
+  (dep "store.storage_gc" "0.1.0")
+  (dep "store.storage_model" "0.1.0")
+  (dep "store.storage_fs" "0.1.0")
+  (cap io network unsafe-ffi)
+  (export main)
+
+  (extern http.start_server
+    (params (param port (prim i64)))
+    (returns (prim u64))
+    (eff network)
+    (unsafe)
+    (rust "glue::start_server({port})"))
+
+  (extern http.accept
+    (params (param handle (prim u64)))
+    (returns (prim u64))
+    (eff network)
+    (unsafe)
+    (rust "glue::accept_connection({handle})"))
+
+  (extern http.read_request
+    (params (param stream (prim u64)))
+    (returns store.model.HttpRequest)
+    (eff network)
+    (unsafe)
+    (rust "{ let __r = glue::read_request({stream}); crate::store_model::HttpRequest { method: __r.method, path: __r.path, query: __r.query, headers: __r.headers, body: __r.body } }"))
+
+  (extern http.write_response
+    (params
+      (param stream (prim u64))
+      (param status (prim i64))
+      (param content_type (prim string))
+      (param body (prim bytes)))
+    (returns (prim i64))
+    (eff network)
+    (unsafe)
+    (rust "glue::write_response({stream}, {status}, {content_type}, {body})"))
+
+  (extern http.close_stream
+    (params (param stream (prim u64)))
+    (returns (prim i64))
+    (eff network)
+    (unsafe)
+    (rust "glue::close_stream({stream})"))
+
+  (extern http.write_head_response
+    (params
+      (param stream (prim u64))
+      (param status (prim i64))
+      (param content_length (prim i64)))
+    (returns (prim i64))
+    (eff network)
+    (unsafe)
+    (rust "glue::write_head_response({stream}, {status}, {content_length})"))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io network)
+    (body
+      (let data_root
+        (call store.storage_fs.env_string (string "ALVA_DATA_ROOT") (string "./store-data"))
+        (block
+          (call io.print (call concat (string "store server: data root ") (ref data_root)))
+          (try (call store.storage_recovery.recover (ref data_root))
+            (catch e (raise (call concat (string "recovery failed: ")
+                                (field (ref e) "cause")))))
+          (try (call store.storage_gc.gc (ref data_root))
+            (catch e (raise (string "gc failed"))))
+          (call io.print (string "store server listening on http://127.0.0.1:9000"))
+          (let srv
+            (call http.start_server (int 9000))
+            (block
+              (loop (acc root (prim string) (ref data_root))
+                (bool true)
+                (block
+                  (let stream (call http.accept (ref srv))
+                    (if (== (ref stream) (uint 0))
+                      (ref root)
+                      (block
+                        (let req (call http.read_request (ref stream))
+                          (let route (call store.router.handle (ref root) (ref req))
+                            (block
+                              (if (== (field (ref req) "method") (string "HEAD"))
+                                (call http.write_head_response (ref stream)
+                                      (field (ref route) "status")
+                                      (field (ref route) "head_content_length"))
+                                (call http.write_response (ref stream)
+                                      (field (ref route) "status")
+                                      (field (ref route) "content_type")
+                                      (field (ref route) "body")))
+                              (call http.close_stream (ref stream))
+                              (ref root)))))))))))
+          (nil))))))

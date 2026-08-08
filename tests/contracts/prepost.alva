@@ -1,0 +1,18 @@
+(module
+  (name "prepost")
+  (version "0.1.0")
+  (export add)
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (>= (ref a) (int 0)))
+    (pre (>= (ref b) (int 0)))
+    (post (>= (ref result) (ref a)))
+    (post (>= (ref result) (ref b)))
+    (body (+ (ref a) (ref b))))
+  (test add_ok
+    (body
+      (== (call add (int 2) (int 3)) (int 5)))))

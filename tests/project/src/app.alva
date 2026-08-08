@@ -1,0 +1,18 @@
+(module
+  (name "demo.app")
+  (version "0.1.0")
+  (dep "demo.model" "0.1.0")
+  (export run)
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call demo.model.size_of
+        (call demo.model.touch_size
+          (call demo.model.make_meta (string "a") (int 5) (string "e1"))))))
+
+  (test run_works
+    (body
+      (== (call run) (int 6)))))

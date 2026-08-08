@@ -1,0 +1,10 @@
+(module
+  (name "pre_unknown_ref")
+  (version "0.1.0")
+  (export f)
+  (fn f
+    (params)
+    (returns (prim i64))
+    (pure)
+    (pre (ref nope))
+    (body (int 1))))

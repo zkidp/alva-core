@@ -1,0 +1,300 @@
+(module
+  (name "store.storage_model")
+  (version "0.1.0")
+  (dep "store.storage_fs" "0.1.0")
+  (export StorageError StorageMeta StoredObject
+          storage_error recovery_for
+          bucket_hash key_hash
+          bucket_dir meta_path blob_path blob_dir tmp_dir quarantine_dir
+          json_escape extract_str_field extract_num_field
+          meta_format_version meta_bucket meta_key meta_sha meta_etag
+          meta_size meta_content_type meta_modified meta_generation
+          build_meta_json)
+
+  (type StorageError
+    (record
+      (field code (prim string))
+      (field module (prim string))
+      (field function (prim string))
+      (field bucket (prim string))
+      (field key (prim string))
+      (field operation (prim string))
+      (field cause (prim string))
+      (field recovery (prim string))))
+
+  (type StorageMeta
+    (record
+      (field format_version (prim i64))
+      (field bucket (prim string))
+      (field key (prim string))
+      (field blob_sha256 (prim string))
+      (field etag (prim string))
+      (field size (prim i64))
+      (field content_type (prim string))
+      (field modified_at (prim string))
+      (field generation (prim i64))))
+
+  (type StoredObject
+    (record
+      (field body (prim bytes))
+      (field size (prim i64))
+      (field etag (prim string))
+      (field content_type (prim string))
+      (field modified_at (prim string))))
+
+  (fn recovery_for
+    (params
+      (param code (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (== (ref code) (string "E_STORAGE_001"))
+        (string "refuse the unsafe path; report the bucket/key")
+        (if (== (ref code) (string "E_STORAGE_005"))
+          (string "quarantine the corrupt metadata and rescan")
+          (if (== (ref code) (string "E_STORAGE_006"))
+            (string "quarantine metadata that references a missing blob")
+            (if (== (ref code) (string "E_STORAGE_007"))
+              (string "re-upload the object; blob checksum mismatch")
+              (string "retry the operation; if it persists, check disk health")))))))
+
+  (fn storage_error
+    (params
+      (param code (prim string))
+      (param module_name (prim string))
+      (param function (prim string))
+      (param bucket (prim string))
+      (param key (prim string))
+      (param operation (prim string))
+      (param cause (prim string)))
+    (returns StorageError)
+    (pure)
+    (body
+      (record StorageError
+        (code (ref code))
+        (module (ref module_name))
+        (function (ref function))
+        (bucket (ref bucket))
+        (key (ref key))
+        (operation (ref operation))
+        (cause (ref cause))
+        (recovery (call recovery_for (ref code))))))
+
+  (fn bucket_hash
+    (params
+      (param bucket (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call store.storage_fs.sha256_hex (call to-bytes (ref bucket)))))
+
+  (fn key_hash
+    (params
+      (param key (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call store.storage_fs.sha256_hex (call to-bytes (ref key)))))
+
+  (fn bucket_dir
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat
+        (call concat (ref data_root) (string "/objects/"))
+        (call bucket_hash (ref bucket)))))
+
+  (fn meta_path
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string))
+      (param key (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat
+        (call concat (call bucket_dir (ref data_root) (ref bucket)) (string "/"))
+        (call concat (call key_hash (ref key)) (string ".json")))))
+
+  (fn blob_path
+    (params
+      (param data_root (prim string))
+      (param sha (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat
+        (call concat (ref data_root) (string "/blobs/"))
+        (call concat
+          (call join (call slice (call split (ref sha) (string "")) (int 0) (int 2)) (string ""))
+          (call concat (string "/") (ref sha))))))
+
+  (fn blob_dir
+    (params
+      (param data_root (prim string))
+      (param sha (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat
+        (call concat (ref data_root) (string "/blobs/"))
+        (call join (call slice (call split (ref sha) (string "")) (int 0) (int 2)) (string "")))))
+
+  (fn tmp_dir
+    (params
+      (param data_root (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat (ref data_root) (string "/tmp"))))
+
+  (fn quarantine_dir
+    (params
+      (param data_root (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat (ref data_root) (string "/quarantine"))))
+
+  (fn json_escape
+    (params
+      (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let s1 (call join (call split (ref s) (string "\\")) (string "\\\\"))
+        (let s2 (call join (call split (ref s1) (string "\"")) (string "\\\""))
+          (let s3 (call join (call split (ref s2) (string "\n")) (string "\\n"))
+            (let s4 (call join (call split (ref s3) (string "\r")) (string "\\r"))
+              (call join (call split (ref s4) (string "\t")) (string "\\t"))))))))
+
+  (fn build_meta_json
+    (params
+      (param bucket (prim string))
+      (param key (prim string))
+      (param sha (prim string))
+      (param etag (prim string))
+      (param size (prim i64))
+      (param content_type (prim string))
+      (param modified_at (prim string))
+      (param generation (prim i64)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let parts
+        (vec (prim string)
+          (string "{\"format_version\":1")
+          (call concat (string ",\"bucket\":\"") (call json_escape (ref bucket)))
+          (call concat (string "\",\"key\":\"") (call json_escape (ref key)))
+          (call concat (string "\",\"blob_sha256\":\"") (ref sha))
+          (call concat (string "\",\"etag\":\"") (ref etag))
+          (call concat (string "\",\"size\":") (call to-string (ref size)))
+          (call concat (string ",\"generation\":") (call to-string (ref generation)))
+          (call concat (string ",\"content_type\":\"") (call json_escape (ref content_type)))
+          (call concat (string "\",\"modified_at\":\"") (call json_escape (ref modified_at)))
+          (string "\"}"))
+        (fold i (range (int 0) (call len (ref parts)))
+          (acc out (prim string) (string ""))
+          (call concat (ref out) (call get (ref parts) (ref i)))))))
+
+  (fn extract_str_field
+    (params
+      (param meta (prim string))
+      (param field (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let marker (call concat (string "\"") (call concat (ref field) (string "\":\"")))
+        (let parts (call split (ref meta) (ref marker))
+          (if (> (call len (ref parts)) (int 1))
+            (call before (call get (ref parts) (int 1)) (string "\""))
+            (string ""))))))
+
+  (fn extract_num_field
+    (params
+      (param meta (prim string))
+      (param field (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let marker (call concat (string "\"") (call concat (ref field) (string "\":")))
+        (let parts (call split (ref meta) (ref marker))
+          (if (> (call len (ref parts)) (int 1))
+            (call before (call get (ref parts) (int 1)) (string ","))
+            (string ""))))))
+
+  (fn meta_format_version
+    (params
+      (param meta (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (parse-int (call extract_num_field (ref meta) (string "format_version")))))
+
+  (fn meta_bucket
+    (params
+      (param meta (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call extract_str_field (ref meta) (string "bucket"))))
+
+  (fn meta_key
+    (params
+      (param meta (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call extract_str_field (ref meta) (string "key"))))
+
+  (fn meta_sha
+    (params
+      (param meta (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call extract_str_field (ref meta) (string "blob_sha256"))))
+
+  (fn meta_etag
+    (params
+      (param meta (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call extract_str_field (ref meta) (string "etag"))))
+
+  (fn meta_size
+    (params
+      (param meta (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (parse-int (call extract_num_field (ref meta) (string "size")))))
+
+  (fn meta_content_type
+    (params
+      (param meta (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call extract_str_field (ref meta) (string "content_type"))))
+
+  (fn meta_modified
+    (params
+      (param meta (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call extract_str_field (ref meta) (string "modified_at"))))
+
+  (fn meta_generation
+    (params
+      (param meta (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (parse-int (call extract_num_field (ref meta) (string "generation")))))
+)

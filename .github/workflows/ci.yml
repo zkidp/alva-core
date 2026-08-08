@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-wasip1
+
+      - name: Format check
+        working-directory: alva
+        run: cargo fmt --check
+
+      - name: Clippy
+        working-directory: alva
+        run: cargo clippy -- -D warnings
+
+      - name: Compiler unit tests
+        working-directory: alva
+        run: cargo test
+
+      - name: Build toolchain
+        working-directory: alva
+        run: cargo build
+
+      - name: Conformance tests (parser / typecheck / contracts / effects)
+        run: bash tests/run_conformance.sh
+
+      - name: All examples check
+        run: |
+          for f in alva/examples/*.alva; do
+            ./alva/target/debug/alva check "$f"
+          done
+
+      - name: All example tests
+        run: |
+          for f in calc calculator pi store_metadata store_checksum; do
+            ./alva/target/debug/alva build "alva/examples/$f.alva" --test
+          done
+
+      - name: Durable store project check
+        run: ./alva/target/debug/alva project check examples/store_split/alva.toml
+
+      - name: Native hello + WASM build
+        run: |
+          ./alva/target/debug/alva run alva/examples/hello.alva
+          ./alva/target/debug/alva build alva/examples/hello.alva --target wasm
+
+      - name: Durable storage acceptance (smoke)
+        run: |
+          ./alva/target/debug/alva project build examples/store_split/alva.toml --out-dir out/durable
+          ALVA_STORE_BIN="$PWD/out/durable/store/target/debug/store" python3 tests/storage/durable_test.py
+        env:
+          ALVA_DURABLE_FULL: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: rclone compatibility test
+        run: bash tests/s3-rclone/run_rclone_test.sh
+
+      - name: SigV4 auth fuzz
+        run: bash tests/s3-rclone/fuzz_auth.sh

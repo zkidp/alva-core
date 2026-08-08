@@ -1,0 +1,349 @@
+(module
+  (name "store.storage_commit")
+  (version "0.1.0")
+  (dep "store.storage_model" "0.1.0")
+  (dep "store.storage_fs" "0.1.0")
+  (cap io unsafe-ffi)
+  (export put_object get_object head_object delete_object
+          list_objects list_buckets bucket_exists
+          create_bucket delete_bucket)
+
+  (fn storage_error
+    (params
+      (param code (prim string))
+      (param fn_name (prim string))
+      (param bucket (prim string))
+      (param key (prim string))
+      (param operation (prim string))
+      (param cause (prim string)))
+    (returns store.storage_model.StorageError)
+    (pure)
+    (body
+      (call store.storage_model.storage_error
+        (ref code)
+        (string "store.storage_commit")
+        (ref fn_name)
+        (ref bucket)
+        (ref key)
+        (ref operation)
+        (ref cause))))
+
+  (fn put_object
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string))
+      (param key (prim string))
+      (param data (prim bytes))
+      (param content_type (prim string))
+      (param modified_at (prim string)))
+    (returns (result (prim nil) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let sha (call store.storage_fs.sha256_hex (ref data))
+        (let blob_path (call store.storage_model.blob_path (ref data_root) (ref sha))
+          (let blob_dir (call store.storage_model.blob_dir (ref data_root) (ref sha))
+            (let meta_path (call store.storage_model.meta_path (ref data_root) (ref bucket) (ref key))
+              (let objects_dir (call store.storage_model.bucket_dir (ref data_root) (ref bucket))
+                (let tmp_blob
+                  (try (call store.storage_fs.create_temp (call store.storage_model.tmp_dir (ref data_root)) (string "blob-"))
+                    (catch e (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "create_temp_blob") (ref e)))))
+                  (let written
+                    (try (call store.storage_fs.write_bytes (ref tmp_blob) (ref data))
+                      (catch e (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "write_blob") (ref e)))))
+                    (if (not (== (ref written) (call len (ref data))))
+                      (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "write_blob") (string "short write")))
+                      (block
+                        (call store.storage_fs.failpoint (string "after_temp_blob_write"))
+                        (try (call store.storage_fs.fsync_file (ref tmp_blob))
+                          (catch e (raise (call storage_error (string "E_STORAGE_003") (string "put_object") (ref bucket) (ref key) (string "fsync_blob") (ref e)))))
+                        (call store.storage_fs.failpoint (string "after_blob_fsync"))
+                        (try (call store.storage_fs.mkdir_p (ref blob_dir))
+                          (catch e (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "mkdir_blob_dir") (ref e)))))
+                        (if (call store.storage_fs.exists (ref blob_path))
+                          (try (call store.storage_fs.remove (ref tmp_blob))
+                            (catch e (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "dedupe_cleanup") (ref e)))))
+                          (block
+                            (try (call store.storage_fs.rename (ref tmp_blob) (ref blob_path))
+                              (catch e (raise (call storage_error (string "E_STORAGE_004") (string "put_object") (ref bucket) (ref key) (string "commit_blob") (ref e)))))
+                            (call store.storage_fs.failpoint (string "after_blob_rename"))))
+                        (try (call store.storage_fs.fsync_dir (ref blob_dir))
+                          (catch e (raise (call storage_error (string "E_STORAGE_003") (string "put_object") (ref bucket) (ref key) (string "fsync_blob_dir") (ref e)))))
+                        (let gen
+                          (if (call store.storage_fs.exists (ref meta_path))
+                            (let old (try (call store.storage_fs.read_string (ref meta_path))
+                                      (catch e (string "!bad!")))
+                              (if (== (ref old) (string "!bad!"))
+                                (int 1)
+                                (let og (try (call store.storage_model.meta_generation (ref old))
+                                          (catch e (int 0)))
+                                  (if (== (ref og) (int 0))
+                                    (int 1)
+                                    (+ (ref og) (int 1))))))
+                            (int 1))
+                          (let meta_json
+                            (call store.storage_model.build_meta_json
+                              (ref bucket) (ref key) (ref sha) (ref sha)
+                              (call len (ref data)) (ref content_type) (ref modified_at) (ref gen))
+                            (block
+                              (try (call store.storage_fs.mkdir_p (ref objects_dir))
+                                (catch e (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "mkdir_objects_dir") (ref e)))))
+                              (let tmp_meta
+                                (try (call store.storage_fs.create_temp (ref objects_dir) (string "meta-"))
+                                  (catch e (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "create_temp_meta") (ref e)))))
+                                (block
+                                  (try (call store.storage_fs.write_bytes (ref tmp_meta) (call to-bytes (ref meta_json)))
+                                    (catch e (raise (call storage_error (string "E_STORAGE_002") (string "put_object") (ref bucket) (ref key) (string "write_meta") (ref e)))))
+                                  (call store.storage_fs.failpoint (string "after_metadata_write"))
+                                  (try (call store.storage_fs.fsync_file (ref tmp_meta))
+                                    (catch e (raise (call storage_error (string "E_STORAGE_003") (string "put_object") (ref bucket) (ref key) (string "fsync_meta") (ref e)))))
+                                  (call store.storage_fs.failpoint (string "after_metadata_fsync"))
+                                  (try (call store.storage_fs.rename (ref tmp_meta) (ref meta_path))
+                                    (catch e (raise (call storage_error (string "E_STORAGE_004") (string "put_object") (ref bucket) (ref key) (string "commit_meta") (ref e)))))
+                                  (call store.storage_fs.failpoint (string "after_metadata_rename"))
+                                  (try (call store.storage_fs.fsync_dir (ref objects_dir))
+                                    (catch e (raise (call storage_error (string "E_STORAGE_003") (string "put_object") (ref bucket) (ref key) (string "fsync_meta_dir") (ref e)))))
+                                  (ok (nil))))))))))))))))))
+
+  (fn checksum_ok
+    (params
+      (param blob_path (prim string))
+      (param sha (prim string)))
+    (returns (prim bool))
+    (eff io)
+    (body
+      (let h (try (call store.storage_fs.sha256_file_hex (ref blob_path))
+              (catch e (string "")))
+        (if (== (ref h) (string ""))
+          (bool false)
+          (== (ref h) (ref sha))))))
+
+  (fn build_stored
+    (params
+      (param meta (prim string))
+      (param body (prim bytes)))
+    (returns store.storage_model.StoredObject)
+    (pure)
+    (body
+      (record store.storage_model.StoredObject
+        (body (ref body))
+        (size (call unwrap (call store.storage_model.meta_size (ref meta))))
+        (etag (call store.storage_model.meta_etag (ref meta)))
+        (content_type (call store.storage_model.meta_content_type (ref meta)))
+        (modified_at (call store.storage_model.meta_modified (ref meta))))))
+
+  (fn load_object
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string))
+      (param key (prim string))
+      (param verify (prim bool))
+      (param include_body (prim bool)))
+    (returns (result store.storage_model.StoredObject store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let meta_path (call store.storage_model.meta_path (ref data_root) (ref bucket) (ref key))
+        (if (not (call store.storage_fs.exists (ref meta_path)))
+          (err (call storage_error (string "E_STORAGE_009") (string "load_object") (ref bucket) (ref key) (string "read_meta") (string "object not found")))
+          (let meta (try (call store.storage_fs.read_string (ref meta_path))
+                     (catch e (raise (call storage_error (string "E_STORAGE_005") (string "load_object") (ref bucket) (ref key) (string "read_meta") (ref e)))))
+            (let fv (try (call store.storage_model.meta_format_version (ref meta))
+                      (catch e (raise (call storage_error (string "E_STORAGE_005") (string "load_object") (ref bucket) (ref key) (string "parse_meta") (ref e)))))
+              (if (not (== (ref fv) (int 1)))
+                (err (call storage_error (string "E_STORAGE_005") (string "load_object") (ref bucket) (ref key) (string "parse_meta") (string "unsupported format version")))
+                (let sha (call store.storage_model.meta_sha (ref meta))
+                  (let blob_path (call store.storage_model.blob_path (ref data_root) (ref sha))
+                    (if (not (call store.storage_fs.exists (ref blob_path)))
+                      (err (call storage_error (string "E_STORAGE_006") (string "load_object") (ref bucket) (ref key) (string "open_blob") (string "referenced blob missing")))
+                      (let bsize (try (call store.storage_fs.file_size (ref blob_path))
+                                   (catch e (raise (call storage_error (string "E_STORAGE_002") (string "load_object") (ref bucket) (ref key) (string "stat_blob") (ref e)))))
+                        (let msize (try (call store.storage_model.meta_size (ref meta))
+                                     (catch e (raise (call storage_error (string "E_STORAGE_005") (string "load_object") (ref bucket) (ref key) (string "parse_size") (ref e)))))
+                          (if (not (== (ref bsize) (ref msize)))
+                            (err (call storage_error (string "E_STORAGE_007") (string "load_object") (ref bucket) (ref key) (string "verify_blob") (string "size mismatch")))
+                            (if (and (ref verify) (not (call checksum_ok (ref blob_path) (ref sha))))
+                              (err (call storage_error (string "E_STORAGE_007") (string "load_object") (ref bucket) (ref key) (string "verify_blob") (string "checksum mismatch")))
+                              (if (ref include_body)
+                                (ok (call build_stored (ref meta)
+                                      (try (call store.storage_fs.read_bytes (ref blob_path))
+                                        (catch e (raise (call storage_error (string "E_STORAGE_002") (string "load_object") (ref bucket) (ref key) (string "read_blob") (ref e)))))))
+                                (ok (call build_stored (ref meta) (call to-bytes (string "")))))))))))))))))))
+
+  (fn get_object
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string))
+      (param key (prim string)))
+    (returns (result store.storage_model.StoredObject store.storage_model.StorageError))
+    (eff io)
+    (body
+      (call load_object (ref data_root) (ref bucket) (ref key) (bool true) (bool true))))
+
+  (fn head_object
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string))
+      (param key (prim string)))
+    (returns (result store.storage_model.StoredObject store.storage_model.StorageError))
+    (eff io)
+    (body
+      (call load_object (ref data_root) (ref bucket) (ref key) (bool true) (bool false))))
+
+  (fn delete_object
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string))
+      (param key (prim string)))
+    (returns (result (prim nil) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let meta_path (call store.storage_model.meta_path (ref data_root) (ref bucket) (ref key))
+        (if (not (call store.storage_fs.exists (ref meta_path)))
+          (err (call storage_error (string "E_STORAGE_009") (string "delete_object") (ref bucket) (ref key) (string "delete_meta") (string "object not found")))
+          (block
+            (try (call store.storage_fs.remove (ref meta_path))
+              (catch e (raise (call storage_error (string "E_STORAGE_002") (string "delete_object") (ref bucket) (ref key) (string "delete_meta") (ref e)))))
+            (try (call store.storage_fs.fsync_dir (call store.storage_model.bucket_dir (ref data_root) (ref bucket)))
+              (catch e (raise (call storage_error (string "E_STORAGE_003") (string "delete_object") (ref bucket) (ref key) (string "fsync_meta_dir") (ref e)))))
+            (ok (nil)))))))
+
+  (fn line_for_meta
+    (params
+      (param meta (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let sz (try (call store.storage_model.meta_size (ref meta))
+               (catch e (int -1)))
+        (if (== (ref sz) (int -1))
+          (string "!corrupt!")
+          (call join
+            (vec (prim string)
+              (call store.storage_model.meta_bucket (ref meta))
+              (call store.storage_model.meta_key (ref meta))
+              (call store.storage_model.meta_etag (ref meta))
+              (call to-string (ref sz))
+              (call store.storage_model.meta_modified (ref meta))
+              (call store.storage_model.meta_content_type (ref meta)))
+            (string "\t"))))))
+
+  (fn list_objects
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string)))
+    (returns (result (prim string) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let obj_dir (call store.storage_model.bucket_dir (ref data_root) (ref bucket))
+        (if (not (call store.storage_fs.exists (ref obj_dir)))
+          (ok (string ""))
+          (let names (try (call store.storage_fs.list_dir (ref obj_dir))
+                       (catch e (raise (call storage_error (string "E_STORAGE_002") (string "list_objects") (ref bucket) (string "") (string "list_dir") (ref e)))))
+            (let parts (call split (ref names) (string "\n"))
+              (ok
+                (fold i (range (int 0) (call len (ref parts)))
+                  (acc out (prim string) (string ""))
+                  (let name (call get (ref parts) (ref i))
+                    (if (call ends-with (ref name) (string ".json"))
+                      (let meta (try (call store.storage_fs.read_string (call concat (ref obj_dir) (call concat (string "/") (ref name))))
+                                  (catch e (string "")))
+                        (let line (if (== (ref meta) (string ""))
+                                    (string "!corrupt!")
+                                    (call line_for_meta (ref meta)))
+                          (if (== (ref line) (string "!corrupt!"))
+                            (ref out)
+                            (call concat (ref out) (call concat (ref line) (string "\n"))))))
+                      (ref out)))))))))))
+
+  (fn first_meta
+    (params
+      (param objects_root (prim string))
+      (param dir (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (let full (call concat (ref objects_root) (call concat (string "/") (ref dir)))
+        (let names (call split (try (call store.storage_fs.list_dir (ref full))
+                                 (catch e (string ""))) (string "\n"))
+          (fold i (range (int 0) (call len (ref names)))
+            (acc found (prim string) (string ""))
+            (if (not (== (ref found) (string "")))
+              (ref found)
+              (let name (call get (ref names) (ref i))
+                (if (call ends-with (ref name) (string ".json"))
+                  (try (call store.storage_fs.read_string (call concat (ref full) (call concat (string "/") (ref name))))
+                    (catch e (string "")))
+                  (ref found)))))))))
+
+  (fn list_buckets
+    (params
+      (param data_root (prim string)))
+    (returns (result (prim string) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let objects_root (call concat (ref data_root) (string "/objects"))
+        (if (not (call store.storage_fs.exists (ref objects_root)))
+          (ok (string ""))
+          (let dirs (try (call store.storage_fs.list_dir (ref objects_root))
+                      (catch e (raise (call storage_error (string "E_STORAGE_002") (string "list_buckets") (string "") (string "") (string "list_dir") (ref e)))))
+            (let parts (call split (ref dirs) (string "\n"))
+              (ok
+                (fold i (range (int 0) (call len (ref parts)))
+                  (acc out (prim string) (string ""))
+                  (let d (call get (ref parts) (ref i))
+                    (let first (try (call first_meta (ref objects_root) (ref d))
+                                 (catch e (string "")))
+                      (if (== (ref first) (string ""))
+                        (ref out)
+                        (let bn (call store.storage_model.meta_bucket (ref first))
+                          (if (== (ref bn) (string ""))
+                            (ref out)
+                            (call concat (ref out) (call concat (ref bn) (string "\n"))))))))))))))))
+
+  (fn bucket_exists
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string)))
+    (returns (prim bool))
+    (eff io)
+    (body
+      (call store.storage_fs.exists (call store.storage_model.bucket_dir (ref data_root) (ref bucket)))))
+
+  (fn create_bucket
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string)))
+    (returns (result (prim nil) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let objects_root (call concat (ref data_root) (string "/objects"))
+        (block
+          (try (call store.storage_fs.mkdir_p (ref objects_root))
+            (catch e (raise (call storage_error (string "E_STORAGE_002") (string "create_bucket") (ref bucket) (string "") (string "mkdir_objects") (ref e)))))
+          (try (call store.storage_fs.mkdir_p (call store.storage_model.bucket_dir (ref data_root) (ref bucket)))
+            (catch e (raise (call storage_error (string "E_STORAGE_002") (string "create_bucket") (ref bucket) (string "") (string "mkdir_bucket") (ref e)))))
+          (try (call store.storage_fs.fsync_dir (ref objects_root))
+            (catch e (raise (call storage_error (string "E_STORAGE_003") (string "create_bucket") (ref bucket) (string "") (string "fsync_objects") (ref e)))))
+          (ok (nil))))))
+
+  (fn delete_bucket
+    (params
+      (param data_root (prim string))
+      (param bucket (prim string)))
+    (returns (result (prim nil) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let objects_root (call concat (ref data_root) (string "/objects"))
+        (let bdir (call store.storage_model.bucket_dir (ref data_root) (ref bucket))
+          (if (not (call store.storage_fs.exists (ref bdir)))
+            (err (call storage_error (string "E_STORAGE_009") (string "delete_bucket") (ref bucket) (string "") (string "delete_bucket") (string "bucket not found")))
+            (let objs (try (call list_objects (ref data_root) (ref bucket))
+                        (catch e (raise (ref e))))
+              (if (not (== (ref objs) (string "")))
+                (err (call storage_error (string "E_STORAGE_010") (string "delete_bucket") (ref bucket) (string "") (string "delete_bucket") (string "bucket not empty")))
+                (block
+                  (try (call store.storage_fs.remove_dir (ref bdir))
+                    (catch e (raise (call storage_error (string "E_STORAGE_002") (string "delete_bucket") (ref bucket) (string "") (string "remove_dir") (ref e)))))
+                  (try (call store.storage_fs.fsync_dir (ref objects_root))
+                    (catch e (raise (call storage_error (string "E_STORAGE_003") (string "delete_bucket") (ref bucket) (string "") (string "fsync_objects") (ref e)))))
+                  (ok (nil))))))))))
+)

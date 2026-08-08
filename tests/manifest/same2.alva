@@ -1,0 +1,24 @@
+;; 语义相同：不同格式、注释、参数名、私有函数
+(module
+  (name "hashbase")
+  (version "0.1.0")
+
+  (export add)
+
+  ;; private helper: 移动/重命名不应改变 interface hash
+  (fn private_impl
+    (params
+      (param v (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (+ (ref v) (int 1))))
+
+  (fn add
+    (params
+      (param x (prim i64))
+      (param y (prim i64)))
+    (returns (prim i64))
+    (pure)
+
+    (pre (>= (ref x) (int 0)))
+    (body (+ (ref x) (ref y)))))

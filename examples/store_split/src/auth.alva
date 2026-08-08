@@ -1,0 +1,147 @@
+(module
+  (name "store.auth")
+  (version "0.1.0")
+  (dep "store.model" "0.1.0")
+  (use rust "sha2" "0.10")
+  (use rust "hmac" "0.12")
+  (cap unsafe-ffi)
+  (export verify_sigv4)
+
+  (extern sha2.sha256
+    (params (param data (prim bytes)))
+    (returns (prim bytes))
+    (pure)
+    (unsafe)
+    (rust "<sha2::Sha256 as sha2::Digest>::digest({data}).to_vec()"))
+
+  (extern hmac.sha256
+    (params (param key (prim bytes)) (param data (prim bytes)))
+    (returns (prim bytes))
+    (pure)
+    (unsafe)
+    (rust "{ let mut __m = <hmac::Hmac<sha2::Sha256> as hmac::Mac>::new_from_slice(&{key}).unwrap(); hmac::Mac::update(&mut __m, &{data}); hmac::Mac::finalize(__m).into_bytes().to_vec() }"))
+
+  (fn safe_get
+    (params
+      (param v (vec (prim string)))
+      (param i (prim i64)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (and (>= (ref i) (int 0)) (< (ref i) (call len (ref v))))
+        (call get (ref v) (ref i))
+        (string ""))))
+
+  (fn parse_auth_part
+    (params
+      (param part (prim string))
+      (param prefix (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let rest (call strip-prefix (ref part) (ref prefix))
+        (if (== (ref rest) (ref part))
+          (string "")
+          (ref rest)))))
+
+  (fn canonical_headers
+    (params
+      (param req store.model.HttpRequest)
+      (param names (vec (prim string))))
+    (returns (prim string))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref names)))
+        (acc out (prim string) (string ""))
+        (let name (call get (ref names) (ref i))
+          (let val (call lookup (field (ref req) "headers") (ref name))
+            (if (call is-ok (ref val))
+              (call concat (ref out)
+                (call concat (ref name)
+                  (call concat (string ":")
+                    (call concat (call unwrap (ref val)) (string "\n")))))
+              (ref out)))))))
+
+  (fn canonical_request
+    (params
+      (param req store.model.HttpRequest)
+      (param signed_headers_str (prim string))
+      (param payload_hash (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let signed_names (call split (ref signed_headers_str) (string ";"))
+        (let canon_headers (call canonical_headers (ref req) (ref signed_names))
+          (call concat
+            (call concat (field (ref req) "method") (string "\n"))
+            (call concat
+              (call concat (field (ref req) "path") (string "\n"))
+              (call concat
+                (call concat (field (ref req) "query") (string "\n"))
+                (call concat
+                  (call concat (ref canon_headers) (string "\n"))
+                  (call concat
+                    (call concat (ref signed_headers_str) (string "\n"))
+                    (ref payload_hash))))))))))
+
+  (fn compute_signature
+    (params
+      (param date (prim string))
+      (param region (prim string))
+      (param secret (prim string))
+      (param string_to_sign (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let k_date (call hmac.sha256
+                    (call to-bytes (call concat (string "AWS4") (ref secret)))
+                    (call to-bytes (ref date)))
+        (let k_region (call hmac.sha256 (ref k_date) (call to-bytes (ref region)))
+          (let k_service (call hmac.sha256 (ref k_region) (call to-bytes (string "s3")))
+            (let k_signing (call hmac.sha256 (ref k_service) (call to-bytes (string "aws4_request")))
+              (call to-hex (call hmac.sha256 (ref k_signing) (call to-bytes (ref string_to_sign))))))))))
+
+  (fn verify_sigv4
+    (params
+      (param req store.model.HttpRequest)
+      (param access_key (prim string))
+      (param secret (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (let auth (call lookup (field (ref req) "headers") (string "authorization"))
+        (if (not (call is-ok (ref auth)))
+          (bool false)
+          (let auth_str (call unwrap (ref auth))
+            (let rest (call strip-prefix (ref auth_str) (string "AWS4-HMAC-SHA256 "))
+              (if (== (ref rest) (ref auth_str))
+                (bool false)
+                (let parts (call split (ref rest) (string ", "))
+                  (let credential (call parse_auth_part (call safe_get (ref parts) (int 0)) (string "Credential="))
+                    (let signed_headers_str (call parse_auth_part (call safe_get (ref parts) (int 1)) (string "SignedHeaders="))
+                      (let signature (call parse_auth_part (call safe_get (ref parts) (int 2)) (string "Signature="))
+                        (let cred_parts (call split (ref credential) (string "/"))
+                          (let ak (call safe_get (ref cred_parts) (int 0))
+                            (let date (call safe_get (ref cred_parts) (int 1))
+                              (let region (call safe_get (ref cred_parts) (int 2))
+                                (let ts (call lookup (field (ref req) "headers") (string "x-amz-date"))
+                                  (if (not (call is-ok (ref ts)))
+                                    (bool false)
+                                    (let ts_str (call unwrap (ref ts))
+                                      (let payload_hash (if (call contains (field (ref req) "headers") (string "x-amz-content-sha256"))
+                                                         (call unwrap (call lookup (field (ref req) "headers") (string "x-amz-content-sha256")))
+                                                         (call to-hex (call sha2.sha256 (field (ref req) "body"))))
+                                        (let canon_req (call canonical_request (ref req) (ref signed_headers_str) (ref payload_hash))
+                                          (let scope (call concat
+                                                     (call concat (call concat (ref date) (string "/")) (ref region))
+                                                     (string "/s3/aws4_request"))
+                                            (let sts (call concat
+                                                       (call concat
+                                                         (call concat (string "AWS4-HMAC-SHA256\n") (ref ts_str))
+                                                         (string "\n"))
+                                                       (call concat
+                                                         (call concat (ref scope) (string "\n"))
+                                                         (call to-hex (call sha2.sha256 (call to-bytes (ref canon_req))))))
+                                              (let expected (call compute_signature (ref date) (ref region) (ref secret) (ref sts))
+                                                (and (== (ref ak) (ref access_key))
+                                                     (call ct-eq (ref expected) (ref signature)))))))))))))))))))))))))))

@@ -1,0 +1,15 @@
+(module
+  (name "extern_missing_decl")
+  (version "0.1.0")
+  (cap unsafe-ffi)
+  (extern http.fetch
+    (params (param url (prim string)))
+    (returns (prim string))
+    (unsafe)
+    (rust "http_fetch({url})"))
+  (export go)
+  (fn go
+    (params)
+    (returns (prim string))
+    (pure)
+    (body (call http.fetch (string "http://x")))))

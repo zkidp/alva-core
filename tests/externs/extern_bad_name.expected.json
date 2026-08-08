@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_EXTERN_004",
+      "module": "extern_bad_name"
+    }
+  ]
+}

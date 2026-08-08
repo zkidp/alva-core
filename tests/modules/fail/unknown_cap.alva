@@ -1,0 +1,4 @@
+(module
+  (name "unknown_cap")
+  (version "0.1.0")
+  (cap nope))

@@ -1,0 +1,10 @@
+(module
+  (name "cycle.b")
+  (version "0.1.0")
+  (dep "cycle.a" "0.1.0")
+  (export b)
+  (fn b
+    (params (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (call cycle.a.a (ref x)))))

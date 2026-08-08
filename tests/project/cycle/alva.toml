@@ -1,0 +1,6 @@
+[project]
+name = "cycle"
+
+[modules]
+"cycle.a" = "src/a.alva"
+"cycle.b" = "src/b.alva"

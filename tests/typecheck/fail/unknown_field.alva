@@ -1,0 +1,13 @@
+(module
+  (name "unknown_field")
+  (version "0.1.0")
+  (type Meta
+    (record
+      (field key (prim string))))
+  (export main)
+  (fn main
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (field (record Meta (key (string "k"))) "nope"))))

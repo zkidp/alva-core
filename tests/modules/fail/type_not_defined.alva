@@ -1,0 +1,9 @@
+(module
+  (name "type_not_defined")
+  (version "0.1.0")
+  (export f)
+  (fn f
+    (params)
+    (returns missing_type)
+    (pure)
+    (body (int 1))))

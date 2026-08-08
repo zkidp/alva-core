@@ -1,0 +1,89 @@
+;; π 基准：BBP 公式（快速收敛）+ Leibniz 级数（纯循环吞吐）+ 语言内计时
+(module
+  (name "pi")
+  (version "0.1.0")
+  (cap io clock)
+  (export pi_bbp pi_leibniz main)
+
+  ;; 16 的 k 次幂（迭代除法）
+  (fn pow16
+    (params
+      (param k (prim i64)))
+    (returns (prim f64))
+    (pure)
+    (body
+      (fold i (range (int 0) (ref k))
+        (acc p (prim f64) (float 1.0))
+        (/ (ref p) (float 16.0)))))
+
+  ;; BBP 公式：pi = sum 1/16^k * (4/(8k+1) - 2/(8k+4) - 1/(8k+5) - 1/(8k+6))
+  (fn pi_bbp
+    (params
+      (param n (prim i64)))
+    (returns (prim f64))
+    (pure)
+    (pre (>= (ref n) (int 1)))
+    (post (>= (ref result) (float 3.0)))
+    (post (<= (ref result) (float 3.2)))
+    (body
+      (fold k (range (int 0) (ref n))
+        (acc sum (prim f64) (float 0.0))
+        (+ (ref sum)
+          (* (call pow16 (ref k))
+            (-
+              (-
+                (/ (float 4.0) (as (prim f64) (+ (* (int 8) (ref k)) (int 1))))
+                (/ (float 2.0) (as (prim f64) (+ (* (int 8) (ref k)) (int 4)))))
+              (+
+                (/ (float 1.0) (as (prim f64) (+ (* (int 8) (ref k)) (int 5))))
+                (/ (float 1.0) (as (prim f64) (+ (* (int 8) (ref k)) (int 6)))))))))))
+
+  ;; Leibniz 级数：pi/4 = 1 - 1/3 + 1/5 - ...（收敛慢，适合压循环性能）
+  (fn pi_leibniz
+    (params
+      (param n (prim i64)))
+    (returns (prim f64))
+    (pure)
+    (pre (>= (ref n) (int 1)))
+    (post (>= (ref result) (float 3.0)))
+    (post (<= (ref result) (float 3.2)))
+    (body
+      (* (float 4.0)
+        (fold k (range (int 0) (ref n))
+          (acc sum (prim f64) (float 0.0))
+          (+ (ref sum)
+            (*
+              (if (== (mod (ref k) (int 2)) (int 0))
+                (float 1.0)
+                (float -1.0))
+              (/ (float 1.0) (as (prim f64) (+ (* (int 2) (ref k)) (int 1))))))))))
+
+  (test pi_bbp_accuracy
+    (body
+      (and
+        (>= (call pi_bbp (int 100)) (float 3.14159))
+        (<= (call pi_bbp (int 100)) (float 3.1416)))))
+
+  ;; 基准：Leibniz 1000 万项，预算 100ms（debug 下约 46ms，release 下约 9ms）
+  (bench pi_leibniz_10m
+    (budget (ms 100))
+    (body (call pi_leibniz (int 10000000))))
+
+  (bench pi_bbp_1000
+    (budget (ms 50))
+    (body (call pi_bbp (int 1000))))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io clock)
+    (body
+      (let t0 (prim i64) (call sys.now_ms)
+        (block
+          (call io.print (string "pi via BBP (1000 terms): "))
+          (call io.print (call pi_bbp (int 1000)))
+          (call io.print (string "pi via Leibniz (10,000,000 terms): "))
+          (call io.print (call pi_leibniz (int 10000000)))
+          (call io.print (string "elapsed (ms): "))
+          (call io.print (- (call sys.now_ms) (ref t0)))
+          (nil))))))

@@ -1,0 +1,10 @@
+(module
+  (name "post_non_bool")
+  (version "0.1.0")
+  (export f)
+  (fn f
+    (params)
+    (returns (prim i64))
+    (pure)
+    (post (string "x"))
+    (body (int 1))))

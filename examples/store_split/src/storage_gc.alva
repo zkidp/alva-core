@@ -1,0 +1,116 @@
+(module
+  (name "store.storage_gc")
+  (version "0.1.0")
+  (dep "store.storage_model" "0.1.0")
+  (dep "store.storage_fs" "0.1.0")
+  (cap io unsafe-ffi)
+  (export gc)
+
+  (fn collect_refs_bucket
+    (params
+      (param bucket_dir (prim string))
+      (param acc (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (let names (try (call store.storage_fs.list_dir (ref bucket_dir))
+                   (catch e (raise (ref e))))
+        (let parts (call split (ref names) (string "\n"))
+          (ok
+            (fold i (range (int 0) (call len (ref parts)))
+              (acc out (prim string) (ref acc))
+              (let name (call get (ref parts) (ref i))
+                (if (and (call ends-with (ref name) (string ".json"))
+                         (not (== (ref name) (string ""))))
+                  (let meta (try (call store.storage_fs.read_string (call concat (ref bucket_dir) (call concat (string "/") (ref name))))
+                              (catch e (string "")))
+                    (let sha (if (== (ref meta) (string ""))
+                                (string "")
+                                (call store.storage_model.meta_sha (ref meta)))
+                      (if (== (ref sha) (string ""))
+                        (ref out)
+                        (call concat (ref out) (call concat (string "\n") (call concat (ref sha) (string "\n")))))))
+                  (ref out)))))))))
+
+  (fn collect_refs
+    (params
+      (param data_root (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (let objects (call concat (ref data_root) (string "/objects"))
+        (if (not (call store.storage_fs.exists (ref objects)))
+          (ok (string ""))
+          (let dirs (try (call store.storage_fs.list_dir (ref objects))
+                       (catch e (raise (ref e))))
+            (let parts (call split (ref dirs) (string "\n"))
+              (fold i (range (int 0) (call len (ref parts)))
+                (acc out (result (prim string) (prim string)) (ok (string "")))
+                (let d (call get (ref parts) (ref i))
+                  (if (or (== (ref d) (string "")) (or (== (ref d) (string ".")) (== (ref d) (string ".."))))
+                    (ref out)
+                    (let cur (try (ref out)
+                               (catch e (string "")))
+                      (let next (try (call collect_refs_bucket (call concat (ref objects) (call concat (string "/") (ref d))) (ref cur))
+                                  (catch e (string "!error!")))
+                        (if (== (ref next) (string "!error!"))
+                          (ref out)
+                          (ok (ref next))))))))))))))
+
+  (fn scan_shard
+    (params
+      (param shard_dir (prim string))
+      (param refs (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let names (try (call store.storage_fs.list_dir (ref shard_dir))
+                   (catch e (raise (ref e))))
+        (let parts (call split (ref names) (string "\n"))
+          (block
+            (fold i (range (int 0) (call len (ref parts)))
+              (acc out (prim nil) (nil))
+              (let name (call get (ref parts) (ref i))
+                (if (or (== (ref name) (string "")) (or (== (ref name) (string ".")) (== (ref name) (string ".."))))
+                  (ref out)
+                  (if (> (call len (call split (ref refs) (call concat (string "\n") (call concat (ref name) (string "\n"))))) (int 1))
+                    (ref out)
+                    (block
+                      (try (call store.storage_fs.remove (call concat (ref shard_dir) (call concat (string "/") (ref name))))
+                        (catch e (raise (ref e))))
+                      (ref out))))))
+            (try (call store.storage_fs.fsync_dir (ref shard_dir))
+              (catch e (raise (ref e))))
+            (ok (nil)))))))
+
+  (fn gc
+    (params
+      (param data_root (prim string)))
+    (returns (result (prim nil) store.storage_model.StorageError))
+    (eff io)
+    (body
+      (let blobs (call concat (ref data_root) (string "/blobs"))
+        (let refs (try (call collect_refs (ref data_root))
+                    (catch e (raise (call store.storage_model.storage_error
+                                      (string "E_STORAGE_008") (string "store.storage_gc")
+                                      (string "gc") (string "") (string "") (string "collect_refs") (ref e)))))
+          (if (not (call store.storage_fs.exists (ref blobs)))
+            (ok (nil))
+            (let shards (try (call store.storage_fs.list_dir (ref blobs))
+                          (catch e (raise (call store.storage_model.storage_error
+                                            (string "E_STORAGE_008") (string "store.storage_gc")
+                                            (string "gc") (string "") (string "") (string "list_shards") (ref e)))))
+              (let parts (call split (ref shards) (string "\n"))
+                (block
+                  (fold i (range (int 0) (call len (ref parts)))
+                    (acc out (prim nil) (nil))
+                    (let d (call get (ref parts) (ref i))
+                      (if (or (== (ref d) (string "")) (or (== (ref d) (string ".")) (== (ref d) (string ".."))))
+                        (ref out)
+                        (block
+                          (try (call scan_shard (call concat (ref blobs) (call concat (string "/") (ref d))) (ref refs))
+                            (catch e (raise (call store.storage_model.storage_error
+                                              (string "E_STORAGE_008") (string "store.storage_gc")
+                                              (string "gc") (string "") (string "") (string "scan_shard") (ref e)))))
+                          (ref out)))))
+                  (ok (nil)))))))))))

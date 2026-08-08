@@ -1,0 +1,17 @@
+(module
+  (name "caller_missing_effect")
+  (version "0.1.0")
+  (cap network unsafe-ffi)
+  (extern http.fetch
+    (params (param url (prim string)))
+    (returns (prim string))
+    (eff network)
+    (unsafe)
+    (rust "http_fetch({url})"))
+  (export bad)
+  (fn bad
+    (params)
+    (returns (prim nil))
+    (body
+      (call http.fetch (string "http://x"))
+      (nil))))

@@ -1,0 +1,6 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {"code": "E_PARSE_001"}
+  ]
+}

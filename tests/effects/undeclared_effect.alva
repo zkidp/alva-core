@@ -1,0 +1,11 @@
+(module
+  (name "undeclared_effect")
+  (version "0.1.0")
+  (cap io)
+  (export bad)
+  (fn bad
+    (params)
+    (returns (prim nil))
+    (body
+      (call io.print (string "x"))
+      (nil))))

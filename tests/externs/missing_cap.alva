@@ -1,0 +1,17 @@
+(module
+  (name "missing_cap")
+  (version "0.1.0")
+  (extern custom.frobnicate
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (unsafe)
+    (rust "frobnicate({x})"))
+  (export go)
+  (fn go
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call custom.frobnicate (int 1)))))

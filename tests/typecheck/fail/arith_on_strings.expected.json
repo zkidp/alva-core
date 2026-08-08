@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_TYPE_001",
+      "function": "main"
+    }
+  ]
+}

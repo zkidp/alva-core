@@ -1,0 +1,12 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_EFFECT_002",
+      "function": "bad",
+      "repairs": [
+        {"kind": "remove_pure", "target": "bad"}
+      ]
+    }
+  ]
+}

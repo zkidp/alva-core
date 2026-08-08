@@ -1,0 +1,44 @@
+;; 对象校验：blake3 checksum（通过 use rust 扩展机制接入）
+(module
+  (name "store.checksum")
+  (version "0.1.0")
+  (use rust "blake3" "1")
+  (cap unsafe-ffi)
+  (export compute verify)
+
+  ;; FFI 声明：签名 + Rust 表达式模板（{data} 会被替换为参数表达式）
+  (extern blake3.hash
+    (params
+      (param data (prim bytes)))
+    (returns (prim bytes))
+    (pure)
+    (unsafe)
+    (rust "blake3::hash(&{data}).as_bytes().to_vec()"))
+
+  (fn compute
+    (params
+      (param data (prim bytes)))
+    (returns (prim bytes))
+    (pure)
+    (post (== (call len (ref result)) (int 32)))
+    (body
+      (call blake3.hash (ref data))))
+
+  (fn verify
+    (params
+      (param data (prim bytes))
+      (param expected (prim bytes)))
+    (returns (prim bool))
+    (pure)
+    (pre (== (call len (ref expected)) (int 32)))
+    (body
+      (== (call compute (ref data)) (ref expected))))
+
+  (test checksum_roundtrip
+    (body
+      (call verify (bytes "68656c6c6f") (call compute (bytes "68656c6c6f")))))
+
+  (test checksum_detects_corruption
+    (body
+      (not (call verify (bytes "68656c6c6f")
+                    (bytes "0000000000000000000000000000000000000000000000000000000000000000"))))))

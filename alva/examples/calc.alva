@@ -1,0 +1,33 @@
+;; 带契约和属性测试的计算模块
+(module
+  (name "calc")
+  (version "0.1.0")
+  (cap io)
+  (export add main)
+
+  ;; 纯函数：前置条件 + 后置条件
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (>= (ref a) (int 0)))
+    (pre (>= (ref b) (int 0)))
+    (post (>= (ref result) (ref a)))
+    (post (>= (ref result) (ref b)))
+    (body
+      (+ (ref a) (ref b))))
+
+  ;; 属性测试：契约由编译器检查，行为由测试验证
+  (test add_returns_sum
+    (body
+      (== (call add (int 2) (int 3)) (int 5))))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call io.print (call add (int 2) (int 3)))
+      (nil))))

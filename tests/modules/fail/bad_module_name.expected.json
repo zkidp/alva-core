@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_MODULE_003",
+      "module": "Bad Name"
+    }
+  ]
+}

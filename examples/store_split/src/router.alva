@@ -1,0 +1,160 @@
+(module
+  (name "store.router")
+  (version "0.1.0")
+  (dep "store.model" "0.1.0")
+  (dep "store.auth" "0.1.0")
+  (dep "store.xml" "0.1.0")
+  (dep "store.storage_commit" "0.1.0")
+  (dep "store.storage_model" "0.1.0")
+  (cap io)
+  (export handle)
+
+  (fn key_from_segments
+    (params
+      (param segments (vec (prim string))))
+    (returns (prim string))
+    (pure)
+    (body
+      (let key_parts (call slice (ref segments) (int 2) (call len (ref segments)))
+        (call url-decode (call join (ref key_parts) (string "/"))))))
+
+  (fn storage_error_response
+    (params
+      (param e store.storage_model.StorageError))
+    (returns store.model.RouteResult)
+    (pure)
+    (body
+      (if (== (field (ref e) "code") (string "E_STORAGE_009"))
+        (call store.model.xml_error (int 404) (string "NoSuchKey")
+          (field (ref e) "cause"))
+        (if (== (field (ref e) "code") (string "E_STORAGE_010"))
+          (call store.model.xml_error (int 409) (string "BucketNotEmpty")
+            (field (ref e) "cause"))
+          (call store.model.xml_error (int 500) (string "InternalError")
+            (call concat (field (ref e) "code")
+              (call concat (string ":") (field (ref e) "cause"))))))))
+
+  (fn route_put
+    (params
+      (param data_root (prim string))
+      (param segments (vec (prim string)))
+      (param req store.model.HttpRequest))
+    (returns store.model.RouteResult)
+    (eff io)
+    (body
+      (if (> (call len (ref segments)) (int 2))
+        (let r (call store.storage_commit.put_object (ref data_root)
+                     (call get (ref segments) (int 1))
+                     (call key_from_segments (ref segments))
+                     (field (ref req) "body")
+                     (string "application/octet-stream")
+                     (string "2026-01-05T00:00:00Z"))
+          (if (call is-ok (ref r))
+            (call store.model.text_response (int 201) (call to-bytes (string "created")))
+            (call storage_error_response (err-value (ref r)))))
+        (if (== (call get (ref segments) (int 1)) (string ""))
+          (call store.model.xml_error (int 400) (string "InvalidBucketName") (string "empty bucket name"))
+          (let r (call store.storage_commit.create_bucket (ref data_root) (call get (ref segments) (int 1)))
+            (if (call is-ok (ref r))
+              (call store.model.text_response (int 200) (call to-bytes (string "ok")))
+              (call storage_error_response (err-value (ref r)))))))))
+
+  (fn route_get
+    (params
+      (param data_root (prim string))
+      (param segments (vec (prim string)))
+      (param req store.model.HttpRequest))
+    (returns store.model.RouteResult)
+    (eff io)
+    (body
+      (let bucket_name (call get (ref segments) (int 1))
+        (if (== (ref bucket_name) (string ""))
+          (let r (call store.storage_commit.list_buckets (ref data_root))
+            (if (call is-ok (ref r))
+              (call store.model.xml_response (int 200)
+                (call to-bytes (call store.xml.list_buckets_xml (call unwrap (ref r)))))
+              (call storage_error_response (err-value (ref r)))))
+          (if (> (call len (ref segments)) (int 2))
+            (let r (call store.storage_commit.get_object (ref data_root) (ref bucket_name)
+                         (call key_from_segments (ref segments)))
+              (if (call is-ok (ref r))
+                (record store.model.RouteResult
+                  (status (int 200))
+                  (content_type (field (call unwrap (ref r)) "content_type"))
+                  (body (field (call unwrap (ref r)) "body"))
+                  (head_content_length (int 0)))
+                (call storage_error_response (err-value (ref r)))))
+            (if (call store.storage_commit.bucket_exists (ref data_root) (ref bucket_name))
+              (let r (call store.storage_commit.list_objects (ref data_root) (ref bucket_name))
+                (if (call is-ok (ref r))
+                  (call store.model.xml_response (int 200)
+                    (call to-bytes
+                      (call store.xml.list_objects_xml (call unwrap (ref r))
+                            (call store.xml.parse_prefix (field (ref req) "query"))
+                            (call store.xml.parse_delimiter (field (ref req) "query")))))
+                  (call storage_error_response (err-value (ref r)))))
+              (call store.model.xml_error (int 404) (string "NoSuchBucket") (string "bucket not found"))))))))
+
+  (fn route_head
+    (params
+      (param data_root (prim string))
+      (param segments (vec (prim string)))
+      (param req store.model.HttpRequest))
+    (returns store.model.RouteResult)
+    (eff io)
+    (body
+      (let bucket_name (call get (ref segments) (int 1))
+        (if (> (call len (ref segments)) (int 2))
+          (let r (call store.storage_commit.head_object (ref data_root) (ref bucket_name)
+                       (call key_from_segments (ref segments)))
+            (if (call is-ok (ref r))
+              (record store.model.RouteResult
+                (status (int 200))
+                (content_type (field (call unwrap (ref r)) "content_type"))
+                (body (call to-bytes (string "")))
+                (head_content_length (field (call unwrap (ref r)) "size")))
+              (call storage_error_response (err-value (ref r)))))
+          (if (call store.storage_commit.bucket_exists (ref data_root) (ref bucket_name))
+            (call store.model.text_response (int 200) (call to-bytes (string "")))
+            (call store.model.xml_error (int 404) (string "NoSuchBucket") (string "bucket not found")))))))
+
+  (fn route_delete
+    (params
+      (param data_root (prim string))
+      (param segments (vec (prim string)))
+      (param req store.model.HttpRequest))
+    (returns store.model.RouteResult)
+    (eff io)
+    (body
+      (if (> (call len (ref segments)) (int 2))
+        (let r (call store.storage_commit.delete_object (ref data_root)
+                     (call get (ref segments) (int 1))
+                     (call key_from_segments (ref segments)))
+          (if (call is-ok (ref r))
+            (call store.model.text_response (int 204) (call to-bytes (string "")))
+            (call storage_error_response (err-value (ref r)))))
+        (let r (call store.storage_commit.delete_bucket (ref data_root) (call get (ref segments) (int 1)))
+          (if (call is-ok (ref r))
+            (call store.model.text_response (int 204) (call to-bytes (string "")))
+            (call storage_error_response (err-value (ref r))))))))
+
+  (fn handle
+    (params
+      (param data_root (prim string))
+      (param req store.model.HttpRequest))
+    (returns store.model.RouteResult)
+    (eff io)
+    (body
+      (if (call store.auth.verify_sigv4 (ref req) (string "test") (string "testtest"))
+        (let segments (call split (field (ref req) "path") (string "/"))
+          (let method (field (ref req) "method")
+            (if (== (ref method) (string "PUT"))
+              (call route_put (ref data_root) (ref segments) (ref req))
+              (if (== (ref method) (string "GET"))
+                (call route_get (ref data_root) (ref segments) (ref req))
+                (if (== (ref method) (string "DELETE"))
+                  (call route_delete (ref data_root) (ref segments) (ref req))
+                  (if (== (ref method) (string "HEAD"))
+                    (call route_head (ref data_root) (ref segments) (ref req))
+                    (call store.model.xml_error (int 400) (string "MethodNotAllowed") (string "unsupported method"))))))))
+        (call store.model.xml_error (int 403) (string "SignatureDoesNotMatch") (string "invalid signature"))))))

@@ -1,0 +1,124 @@
+(module
+  (name "store.xml")
+  (version "0.1.0")
+  (export parse_prefix parse_delimiter list_buckets_xml list_objects_xml)
+
+  (fn parse_prefix
+    (params
+      (param query (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (== (ref query) (string ""))
+        (string "")
+        (let parts (call split (ref query) (string "&"))
+          (fold i (range (int 0) (call len (ref parts)))
+            (acc found (prim string) (string ""))
+            (let part (call get (ref parts) (ref i))
+              (let rest (call strip-prefix (ref part) (string "prefix="))
+                (if (== (ref rest) (ref part))
+                  (ref found)
+                  (call url-decode (ref rest))))))))))
+
+  (fn parse_delimiter
+    (params
+      (param query (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (== (ref query) (string ""))
+        (string "")
+        (let parts (call split (ref query) (string "&"))
+          (fold i (range (int 0) (call len (ref parts)))
+            (acc found (prim string) (string ""))
+            (let part (call get (ref parts) (ref i))
+              (let rest (call strip-prefix (ref part) (string "delimiter="))
+                (if (== (ref rest) (ref part))
+                  (ref found)
+                  (call url-decode (ref rest))))))))))
+
+  (fn emit_common_prefix
+    (params
+      (param xml (prim string))
+      (param cp (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (if (call ends-with (ref xml)
+                (call concat (ref cp) (string "</Prefix></CommonPrefixes>")))
+        (ref xml)
+        (call concat (ref xml)
+          (call concat (string "<CommonPrefixes><Prefix>")
+            (call concat (ref cp) (string "</Prefix></CommonPrefixes>")))))))
+
+  (fn emit_leaf
+    (params
+      (param xml (prim string))
+      (param fields (vec (prim string))))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat (ref xml)
+        (call concat (string "<Contents><Key>")
+          (call concat (call get (ref fields) (int 1))
+            (call concat (string "</Key><LastModified>")
+              (call concat (call get (ref fields) (int 4))
+                (call concat (string "</LastModified><ETag>")
+                  (call concat (call get (ref fields) (int 2))
+                    (call concat (string "</ETag><Size>")
+                      (call concat (call get (ref fields) (int 3))
+                        (string "</Size><StorageClass>STANDARD</StorageClass></Contents>"))))))))))))
+
+  (fn list_buckets_xml
+    (params
+      (param buckets_line (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let names (call split (ref buckets_line) (string "\n"))
+        (call concat
+          (string "<?xml version=\"1.0\"?><ListAllMyBucketsResult><Buckets>")
+          (call concat
+            (fold i (range (int 0) (call len (ref names)))
+              (acc xml (prim string) (string ""))
+              (let name (call get (ref names) (ref i))
+                (if (== (ref name) (string ""))
+                  (ref xml)
+                  (call concat (ref xml)
+                    (call concat (string "<Bucket><Name>")
+                      (call concat (ref name) (string "</Name><CreationDate>2026-01-05T00:00:00Z</CreationDate></Bucket>")))))))
+            (string "</Buckets></ListAllMyBucketsResult>"))))))
+
+  (fn list_objects_xml
+    (params
+      (param lines (prim string))
+      (param prefix (prim string))
+      (param delimiter (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let parts (call split (ref lines) (string "\n"))
+        (call concat
+          (string "<?xml version=\"1.0\"?><ListBucketResult>")
+          (call concat
+            (fold i (range (int 0) (call len (ref parts)))
+              (acc xml (prim string) (string ""))
+              (let line (call get (ref parts) (ref i))
+                (let fields (call split (ref line) (string "\t"))
+                  (if (< (call len (ref fields)) (int 2))
+                    (ref xml)
+                    (let key (call get (ref fields) (int 1))
+                      (if (== (ref key) (string ""))
+                        (ref xml)
+                        (let rest (call strip-prefix (ref key) (ref prefix))
+                          (if (and (not (== (ref prefix) (string "")))
+                                   (== (ref rest) (ref key)))
+                            (ref xml)
+                            (if (and (== (ref delimiter) (string "/"))
+                                     (not (== (call before (ref rest) (string "/")) (ref rest))))
+                              (call emit_common_prefix (ref xml)
+                                (call concat (ref prefix)
+                                  (call concat (call before (ref rest) (string "/")) (string "/"))))
+                              (call emit_leaf (ref xml) (ref fields)))))))))))
+            (string "</ListBucketResult>"))))))
+)

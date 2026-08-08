@@ -1,0 +1,11 @@
+(module
+  (name "duplicate_param")
+  (version "0.1.0")
+  (export f)
+  (fn f
+    (params
+      (param a (prim i64))
+      (param a (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (ref a))))

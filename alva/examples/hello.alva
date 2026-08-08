@@ -1,0 +1,14 @@
+;; hello world —— 第一个 AI 原生语言程序
+(module
+  (name "hello")
+  (version "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call io.print (string "hello, ai-native world"))
+      (nil))))

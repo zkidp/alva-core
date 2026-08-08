@@ -1,0 +1,113 @@
+;; 简单计算器：算术函数 + fold 循环 + 示例计算
+(module
+  (name "calculator")
+  (version "0.1.0")
+  (cap io)
+  (export add sub mul div factorial power sqrt main)
+
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (+ (ref a) (ref b))))
+
+  (fn sub
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (- (ref a) (ref b))))
+
+  (fn mul
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (* (ref a) (ref b))))
+
+  (fn div
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (not (== (ref b) (int 0))))
+    (body (/ (ref a) (ref b))))
+
+  ;; 阶乘：fold 循环 1..n
+  (fn factorial
+    (params
+      (param n (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (>= (ref n) (int 0)))
+    (body
+      (fold i (range (int 1) (+ (ref n) (int 1)))
+        (acc total (prim i64) (int 1))
+        (* (ref total) (ref i)))))
+
+  ;; 幂：fold 循环 exp 次
+  (fn power
+    (params
+      (param base (prim i64))
+      (param exp (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (>= (ref exp) (int 0)))
+    (body
+      (fold i (range (int 0) (ref exp))
+        (acc product (prim i64) (int 1))
+        (* (ref product) (ref base)))))
+
+  ;; 平方根：牛顿迭代 50 轮
+  (fn sqrt
+    (params
+      (param x (prim f64)))
+    (returns (prim f64))
+    (pure)
+    (pre (>= (ref x) (float 0.0)))
+    (body
+      (fold i (range (int 0) (int 50))
+        (acc guess (prim f64) (ref x))
+        (/ (+ (ref guess) (/ (ref x) (ref guess))) (float 2.0)))))
+
+  (test calculator_basics
+    (body
+      (and
+        (== (call add (int 2) (int 3)) (int 5))
+        (and
+          (== (call factorial (int 10)) (int 3628800))
+          (and
+            (== (call power (int 2) (int 10)) (int 1024))
+            (== (call len (vec (prim i64) (int 1) (int 2) (int 3))) (int 3)))))))
+
+  (test vec_access
+    (body
+      (== (call get (vec (prim i64) (int 7) (int 8) (int 9)) (int 1)) (int 8))))
+
+  (bench factorial_10
+    (budget (ms 5))
+    (body (call factorial (int 10))))
+
+  (bench sqrt_2
+    (budget (ms 5))
+    (body (call sqrt (float 2.0))))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call io.print (string "2 + 3 = "))
+      (call io.print (call add (int 2) (int 3)))
+      (call io.print (string "10! = "))
+      (call io.print (call factorial (int 10)))
+      (call io.print (string "2^10 = "))
+      (call io.print (call power (int 2) (int 10)))
+      (call io.print (string "sqrt(2) = "))
+      (call io.print (call sqrt (float 2.0)))
+      (nil))))

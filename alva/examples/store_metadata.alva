@@ -1,0 +1,215 @@
+;; 对象存储元数据核心：桶与对象（垂直切片第一块）
+;; 演示：enum + match + map + 契约 + 属性测试
+(module
+  (name "store.metadata")
+  (version "0.1.0")
+  (export ObjectState ObjectMeta Bucket new_bucket put_object get_object delete_object
+          list_objects list_objects_page object_count state_label)
+
+  (type ObjectState
+    (enum
+      (variant active)
+      (variant archived)))
+
+  (type ObjectMeta
+    (record
+      (field key (prim string))
+      (field size (prim i64))
+      (field checksum (prim bytes))
+      (field state ObjectState)))
+
+  (type Bucket
+    (record
+      (field name (prim string))
+      (field objects (map (prim string) ObjectMeta))))
+
+  (fn new_bucket
+    (params
+      (param name (prim string)))
+    (returns Bucket)
+    (pure)
+    (pre (not (== (call len (ref name)) (int 0))))
+    (body
+      (record Bucket
+        (name (ref name))
+        (objects (map (prim string) ObjectMeta)))))
+
+  (fn put_object
+    (params
+      (param bucket Bucket)
+      (param meta ObjectMeta))
+    (returns Bucket)
+    (pure)
+    (pre (not (== (call len (field (ref meta) "key")) (int 0))))
+    (post (== (call len (field (ref result) "objects"))
+              (+ (call len (field (ref bucket) "objects"))
+                 (if (call contains (field (ref bucket) "objects")
+                           (field (ref meta) "key"))
+                   (int 0)
+                   (int 1)))))
+    (body
+      (record Bucket
+        (name (field (ref bucket) "name"))
+        (objects (call set (field (ref bucket) "objects")
+                         (field (ref meta) "key")
+                         (ref meta))))))
+
+  (fn get_object
+    (params
+      (param bucket Bucket)
+      (param key (prim string)))
+    (returns (result ObjectMeta (prim nil)))
+    (pure)
+    (body
+      (call lookup (field (ref bucket) "objects") (ref key))))
+
+  (fn delete_object
+    (params
+      (param bucket Bucket)
+      (param key (prim string)))
+    (returns Bucket)
+    (pure)
+    (post (not (call contains (field (ref result) "objects") (ref key))))
+    (body
+      (record Bucket
+        (name (field (ref bucket) "name"))
+        (objects (call remove (field (ref bucket) "objects") (ref key))))))
+
+  (fn list_objects
+    (params
+      (param bucket Bucket))
+    (returns (vec (prim string)))
+    (pure)
+    (body
+      (call keys (field (ref bucket) "objects"))))
+
+  ;; 列表分页：offset/limit，越界自动裁剪
+  (fn list_objects_page
+    (params
+      (param bucket Bucket)
+      (param offset (prim i64))
+      (param limit (prim i64)))
+    (returns (vec (prim string)))
+    (pure)
+    (pre (>= (ref offset) (int 0)))
+    (pre (>= (ref limit) (int 0)))
+    (body
+      (let keys (vec (prim string)) (call keys (field (ref bucket) "objects"))
+        (let total (call len (ref keys))
+          (if (> (ref offset) (ref total))
+            (vec (prim string))
+            (let end (+ (ref offset) (ref limit))
+              (if (> (ref end) (ref total))
+                (call slice (ref keys) (ref offset) (ref total))
+                (call slice (ref keys) (ref offset) (ref end)))))))))
+
+  (fn object_count
+    (params
+      (param bucket Bucket))
+    (returns (prim i64))
+    (pure)
+    (body
+      (call len (field (ref bucket) "objects"))))
+
+  (fn state_label
+    (params
+      (param s ObjectState))
+    (returns (prim string))
+    (pure)
+    (body
+      (match ObjectState (ref s)
+        (case active (string "active"))
+        (case archived (string "archived")))))
+
+  (test put_then_get_roundtrip
+    (body
+      (let b0 (call new_bucket (string "test"))
+        (let b1 (call put_object (ref b0)
+                   (record ObjectMeta
+                     (key (string "hello.txt"))
+                     (size (int 5))
+                     (checksum (bytes "68656c6c6f"))
+                     (state (variant ObjectState active))))
+          (let got (call get_object (ref b1) (string "hello.txt"))
+            (== (field (call unwrap (ref got)) "size") (int 5)))))))
+
+  (test delete_removes_object
+    (body
+      (let b0 (call new_bucket (string "t"))
+        (let b1 (call put_object (ref b0)
+                   (record ObjectMeta
+                     (key (string "a"))
+                     (size (int 1))
+                     (checksum (bytes "00"))
+                     (state (variant ObjectState active))))
+          (let b2 (call delete_object (ref b1) (string "a"))
+            (== (call object_count (ref b2)) (int 0)))))))
+
+  (test list_returns_keys
+    (body
+      (let b0 (call new_bucket (string "t"))
+        (let b1 (call put_object (ref b0)
+                   (record ObjectMeta
+                     (key (string "x"))
+                     (size (int 2))
+                     (checksum (bytes "01"))
+                     (state (variant ObjectState active))))
+          (let b2 (call put_object (ref b1)
+                     (record ObjectMeta
+                       (key (string "y"))
+                       (size (int 3))
+                       (checksum (bytes "02"))
+                       (state (variant ObjectState active))))
+            (== (call len (call list_objects (ref b2))) (int 2)))))))
+
+  (test state_label_works
+    (body
+      (and
+        (== (call state_label (variant ObjectState active)) (string "active"))
+        (== (call state_label (variant ObjectState archived)) (string "archived")))))
+
+  (test overwrite_replaces_meta
+    (body
+      (let b0 (call new_bucket (string "t"))
+        (let b1 (call put_object (ref b0)
+                   (record ObjectMeta
+                     (key (string "k"))
+                     (size (int 1))
+                     (checksum (bytes "00"))
+                     (state (variant ObjectState active))))
+          (let b2 (call put_object (ref b1)
+                     (record ObjectMeta
+                       (key (string "k"))
+                       (size (int 99))
+                       (checksum (bytes "01"))
+                       (state (variant ObjectState active))))
+            (let got (call get_object (ref b2) (string "k"))
+              (and
+                (== (call object_count (ref b2)) (int 1))
+                (== (field (call unwrap (ref got)) "size") (int 99)))))))))
+
+  (test pagination_works
+    (body
+      (let b0 (call new_bucket (string "t"))
+        (let b1 (call put_object (ref b0)
+                   (record ObjectMeta
+                     (key (string "a"))
+                     (size (int 1))
+                     (checksum (bytes "00"))
+                     (state (variant ObjectState active))))
+          (let b2 (call put_object (ref b1)
+                     (record ObjectMeta
+                       (key (string "b"))
+                       (size (int 2))
+                       (checksum (bytes "01"))
+                       (state (variant ObjectState active))))
+            (let b3 (call put_object (ref b2)
+                       (record ObjectMeta
+                         (key (string "c"))
+                         (size (int 3))
+                         (checksum (bytes "02"))
+                         (state (variant ObjectState active))))
+              (and
+                (== (call len (call list_objects_page (ref b3) (int 0) (int 2))) (int 2))
+                (== (call len (call list_objects_page (ref b3) (int 2) (int 10))) (int 1)))))))))
+)
