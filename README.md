@@ -4,7 +4,7 @@
 
 Alva is an experimental programming system designed around AI agents as the primary program authors.
 
-Instead of requiring agents to mutate source text directly, Alva provides a typed, content-addressed program representation (AIR) and a transactional semantic editing interface (AEP).
+Instead of requiring agents to mutate source text directly, Alva provides a typed, content-addressed program representation and a transactional, semantically verified editing interface.
 
 Alva currently compiles to Rust and targets native binaries and WASM/WASI.
 
@@ -22,10 +22,10 @@ Alva explores a different model:
 
 ```mermaid
 flowchart LR
-    A[AI Agent] --> B[Budgeted semantic view]
-    B --> C[AEP typed edit operations]
+    A[AI Agent] --> B[Semantic view]
+    B --> C[Typed edit operations]
     C --> D[Staged transaction]
-    D --> E[AIR typed program graph]
+    D --> E[Program graph]
     E --> F[Structural verification]
     F --> G[Semantic / contract checking]
     G -->|valid| H[Commit]
@@ -39,9 +39,9 @@ The authoritative state does not have to be hand-written source text.
 
 ## The core idea
 
-### AIR — Agent Intermediate Representation
+### The program representation
 
-The authoritative program representation is a typed Merkle graph:
+The authoritative program representation is a typed, content-addressed graph:
 
 - stable named entities
 - content-addressed revisions
@@ -52,9 +52,9 @@ The authoritative program representation is a typed Merkle graph:
 - integrity verification
 - cycle and dangling-reference detection
 - crash-safe generations
-- source text is only a projection/import format when AIR authority is enabled
+- source text is only a projection/import format when graph authority is enabled
 
-### AEP — Agent Edit Protocol
+### The edit protocol
 
 Agents modify programs through structured, transactional operations instead of arbitrary text patches:
 
@@ -91,14 +91,14 @@ alva hole fill ...
 - typed Rust FFI
 - structured machine-readable diagnostics
 - parser/resource limits with stable error codes
-- AIR typed program graphs: content-addressed revisions, authoritative storage, crash-safe generations
-- AEP transactional edits
+- typed program graphs: content-addressed revisions, authoritative storage, crash-safe generations
+- transactional structured edits
 - typed holes with lexical-scope-aware candidate generation
 - semantic diff
 - dependency / caller / impact views
 - stale-revision conflict detection
 - cross-process commit locking
-- adversarial AIR validation and fuzz testing
+- adversarial validation and fuzz testing
 
 ## 30-second quickstart
 
@@ -182,11 +182,11 @@ See [alva/README.md](alva/README.md) for the current implementation details and 
 
 ## What Alva is not claiming
 
-- AIR/AEP has already solved agentic programming
+- the system has already solved agentic programming
 - Alva is ready to replace Rust, C++, Python, or existing application languages
 - the S3 implementation is equivalent to MinIO or production cloud object storage
 - source text is useless
-- ASTs, type systems, contracts, Merkle DAGs, or transactions are individually novel ideas
+- typed graphs, contracts, content addressing, or transactions are individually novel ideas
 
 The research question is about what happens when these ideas become the authoritative interface between an AI coding agent and a program.
 
@@ -196,7 +196,7 @@ The research question is about what happens when these ideas become the authorit
 alva/
   compiler, CLI, runtime and examples
 tests/
-  language, AIR and storage test suites
+  language, graph and storage test suites
 examples/store_split/
   S3-style object store (multi-module)
 设计方案.md
