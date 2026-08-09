@@ -199,6 +199,10 @@ tests/
   language, graph and storage test suites
 examples/store_split/
   S3-style object store (multi-module)
+examples/build_system/
+  incremental build system (multi-module, B1-B11 acceptance)
+v0.8-EVIDENCE-BACKLOG.md
+  evidence-backed v0.8 language/agent backlog (from three workloads)
 设计方案.md
   architecture and design notes
 语法草案.md
@@ -217,6 +221,21 @@ Useful starting points:
 - **Language and compiler**: ownership / resource model, stronger static verification, native backend exploration
 - **Agent runtime**: better semantic views, planning and impact analysis, efficient structured-edit workflows
 - **Self-hosting**: eventually compile more of Alva using Alva itself
+
+## Validation workloads
+
+Two full multi-module systems are shipped as examples:
+
+- `examples/store_split/` - an S3-style object store (PUT/GET/DELETE/HEAD,
+  SigV4, persistent blobs, atomic metadata commits, crash recovery, GC;
+  rclone-interoperable, 85 MB byte-identical round trip).
+- `examples/build_system/` - an incremental build graph (content-based cache,
+  deterministic topo order, reverse invalidation, persistence/restart,
+  crash-safe promote, B1-B11 acceptance suite).
+
+`v0.8-EVIDENCE-BACKLOG.md` records which language/agent-interface gaps these
+workloads evidence, and separates confirmed language gaps from compiler
+correctness bugs and agent-interface hypotheses.
 
 Issues, experiments, counterexamples, and critical feedback are welcome.
 

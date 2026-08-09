@@ -1,0 +1,388 @@
+(module
+  (name "build.model")
+  (version "0.8.0-dev")
+  (export BuildState Package
+          state_label state_from_label
+          deps_to_string deps_from_string
+          dep_outputs_to_string dep_outputs_from_string
+          serialize_package parse_package
+          find_package
+          has_cycle topo_order reverse_dependents vec_contains
+          dep_output_changed needs_build
+          report_line)
+
+  ;; M3 增量构建：Package = manifest 条目 + build 决策状态
+  (type BuildState
+    (enum (variant pending) (variant built) (variant cached) (variant failed)))
+
+  (type Package
+    (record
+      (field name (prim string))
+      (field source_hash (prim string))
+      (field deps (vec (prim string)))
+      (field state BuildState)
+      (field output_hash (prim string))
+      (field prev_source_hash (prim string))
+      (field dep_outputs (map (prim string) (prim string)))))
+
+  ;; ---- 状态标签 ----
+  (fn state_label
+    (params
+      (param s BuildState))
+    (returns (prim string))
+    (pure)
+    (body
+      (match BuildState (ref s)
+        (case pending (string "PENDING"))
+        (case built (string "BUILT"))
+        (case cached (string "CACHED"))
+        (case failed (string "FAILED")))))
+
+  (fn state_from_label
+    (params
+      (param s (prim string)))
+    (returns BuildState)
+    (pure)
+    (body
+      (if (== (ref s) (string "BUILT"))
+        (variant BuildState built)
+        (if (== (ref s) (string "CACHED"))
+          (variant BuildState cached)
+          (if (== (ref s) (string "FAILED"))
+            (variant BuildState failed)
+            (variant BuildState pending))))))
+
+  ;; ---- 序列化 ----
+  (fn deps_to_string
+    (params
+      (param deps (vec (prim string))))
+    (returns (prim string))
+    (pure)
+    (body
+      (call join (ref deps) (string ","))))
+
+  (fn deps_from_string
+    (params
+      (param s (prim string)))
+    (returns (vec (prim string)))
+    (pure)
+    (body
+      ;; manifest 文件可能带换行（CRLF）；先取第一行再按逗号拆分
+      (let no_nl (call before (ref s) (string "\n"))
+        (let line (call before (ref no_nl) (string "\r"))
+          (if (== (ref line) (string ""))
+            (vec (prim string))
+            (call split (ref line) (string ",")))))))
+
+  ;; dep_outputs: "A:h1;B:h2"（name:hash 用 ; 分隔；name/hash 不含这些字符）
+  (fn dep_outputs_to_string
+    (params
+      (param m (map (prim string) (prim string))))
+    (returns (prim string))
+    (pure)
+    (body
+      (let ks (call sort (call keys (ref m)))
+        (fold i (range (int 0) (call len (ref ks)))
+          (acc out (prim string) (string ""))
+          (let k (call get (ref ks) (ref i))
+            (let v (call lookup (ref m) (ref k))
+              (call concat (ref out)
+                (call concat (ref k)
+                  (call concat (string ":")
+                    (call concat (call unwrap (ref v))
+                      (string ";")))))))))))
+
+  (fn dep_outputs_from_string
+    (params
+      (param s (prim string)))
+    (returns (map (prim string) (prim string)))
+    (pure)
+    (body
+      (let parts (call split (ref s) (string ";"))
+        (fold i (range (int 0) (call len (ref parts)))
+          (acc out (map (prim string) (prim string)) (map (prim string) (prim string)))
+          (let part (call get (ref parts) (ref i))
+            (let name (call before (ref part) (string ":"))
+              (let hash (call strip-prefix (ref part) (call concat (ref name) (string ":")))
+                (if (== (ref part) (string ""))
+                  (ref out)
+                  (call set (ref out) (ref name) (ref hash))))))))))
+
+  (fn serialize_package
+    (params
+      (param p Package))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat
+        (call concat (string "name=") (field (ref p) "name"))
+        (call concat (string "\n")
+          (call concat (call concat (string "source_hash=") (field (ref p) "source_hash"))
+            (call concat (string "\n")
+              (call concat (call concat (string "deps=") (call deps_to_string (field (ref p) "deps")))
+                (call concat (string "\n")
+                  (call concat (call concat (string "state=") (call state_label (field (ref p) "state")))
+                    (call concat (string "\n")
+                      (call concat (call concat (string "output_hash=") (field (ref p) "output_hash"))
+                        (call concat (string "\n")
+                          (call concat (call concat (string "prev_source_hash=") (field (ref p) "prev_source_hash"))
+                            (call concat (string "\n")
+                              (call concat (call concat (string "dep_outputs=") (call dep_outputs_to_string (field (ref p) "dep_outputs")))
+                                (string "\n"))))))))))))))))
+
+  (fn extract_field
+    (params
+      (param parts (vec (prim string)))
+      (param prefix (prim string))
+      (param default (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref parts)))
+        (acc found (prim string) (ref default))
+        (let part (call get (ref parts) (ref i))
+          (let rest (call strip-prefix (ref part) (ref prefix))
+            (if (== (ref rest) (ref part))
+              (ref found)
+              (ref rest)))))))
+
+  (fn parse_package
+    (params
+      (param text (prim string)))
+    (returns (result Package (prim string)))
+    (pure)
+    (body
+      (let parts (call split (ref text) (string "\n"))
+        (let name (call extract_field (ref parts) (string "name=") (string ""))
+          (if (== (ref name) (string ""))
+            (err (string "package file missing name"))
+            (ok
+              (record Package
+                (name (ref name))
+                (source_hash (call extract_field (ref parts) (string "source_hash=") (string "")))
+                (deps (call deps_from_string (call extract_field (ref parts) (string "deps=") (string ""))))
+                (state (call state_from_label (call extract_field (ref parts) (string "state=") (string "PENDING"))))
+                (output_hash (call extract_field (ref parts) (string "output_hash=") (string "")))
+                (prev_source_hash (call extract_field (ref parts) (string "prev_source_hash=") (string "")))
+                (dep_outputs (call dep_outputs_from_string (call extract_field (ref parts) (string "dep_outputs=") (string "")))))))))))
+
+  ;; ---- 图（M3 独立实现，不复用 workflow）----
+  (fn find_package
+    (params
+      (param pkgs (vec Package))
+      (param name (prim string)))
+    (returns (result Package (prim string)))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref pkgs)))
+        (acc found (result Package (prim string)) (err (string "not found")))
+        (let p (call get (ref pkgs) (ref i))
+          (if (== (field (ref p) "name") (ref name))
+            (ok (ref p))
+            (ref found))))))
+
+  ;; 环检测：DFS，visited 集沿路径传递（图小，无 done 剪枝）
+  (fn cycle_from
+    (params
+      (param name (prim string))
+      (param pkgs (vec Package))
+      (param visiting (map (prim string) (prim bool))))
+    (returns (prim bool))
+    (pure)
+    (body
+      (if (call contains (ref visiting) (ref name))
+        (bool true)
+        (let v2 (call set (ref visiting) (ref name) (bool true))
+          (let found (call find_package (ref pkgs) (ref name))
+            (if (call is-ok (ref found))
+              (let deps (field (call unwrap (ref found)) "deps")
+                (fold i (range (int 0) (call len (ref deps)))
+                  (acc cyc (prim bool) (bool false))
+                  (if (ref cyc)
+                    (ref cyc)
+                    (call cycle_from (call get (ref deps) (ref i)) (ref pkgs) (ref v2)))))
+              (bool false)))))))
+
+  (fn has_cycle
+    (params
+      (param pkgs (vec Package)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref pkgs)))
+        (acc cyc (prim bool) (bool false))
+        (if (ref cyc)
+          (ref cyc)
+          (let p (call get (ref pkgs) (ref i))
+            (call cycle_from (field (ref p) "name") (ref pkgs) (map (prim string) (prim bool))))))))
+
+  ;; 逆依赖：deps 里包含 target 的 package 名
+  (fn reverse_dependents
+    (params
+      (param pkgs (vec Package))
+      (param target (prim string)))
+    (returns (vec (prim string)))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref pkgs)))
+        (acc out (vec (prim string)) (vec (prim string)))
+        (let p (call get (ref pkgs) (ref i))
+          (let deps (field (ref p) "deps")
+            (let hit
+              (fold j (range (int 0) (call len (ref deps)))
+                (acc h (prim bool) (bool false))
+                (if (ref h)
+                  (ref h)
+                  (== (call get (ref deps) (ref j)) (ref target))))
+              (if (ref hit)
+                (call append (ref out) (field (ref p) "name"))
+                (ref out))))))))
+
+  ;; vec 成员检查（contains 只支持 map；vec 无内建 contains）
+  (fn vec_contains
+    (params
+      (param v (vec (prim string)))
+      (param x (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref v)))
+        (acc found (prim bool) (bool false))
+        (if (ref found)
+          (ref found)
+          (== (call get (ref v) (ref i)) (ref x))))))
+
+  ;; 确定性拓扑序（Kahn）：反复选"所有依赖都已入序"的节点；
+  ;; 同级按名字字典序（sort 内建），保证同一 graph 每次顺序一致
+  (fn all_deps_in
+    (params
+      (param p Package)
+      (param state (vec (prim string))))
+    (returns (prim bool))
+    (pure)
+    (body
+      (let deps (field (ref p) "deps")
+        (fold i (range (int 0) (call len (ref deps)))
+          (acc ok (prim bool) (bool true))
+          (if (not (ref ok))
+            (ref ok)
+            (call vec_contains (ref state) (call get (ref deps) (ref i))))))))
+
+  (fn unprocessed
+    (params
+      (param pkgs (vec Package))
+      (param state (vec (prim string))))
+    (returns (vec Package))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref pkgs)))
+        (acc out (vec Package) (vec Package))
+        (let p (call get (ref pkgs) (ref i))
+          (if (call vec_contains (ref state) (field (ref p) "name"))
+            (ref out)
+            (call append (ref out) (ref p)))))))
+
+  (fn ready_names
+    (params
+      (param pkgs (vec Package))
+      (param state (vec (prim string))))
+    (returns (vec (prim string)))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref pkgs)))
+        (acc out (vec (prim string)) (vec (prim string)))
+        (let p (call get (ref pkgs) (ref i))
+          (if (and (not (call vec_contains (ref state) (field (ref p) "name")))
+                   (call all_deps_in (ref p) (ref state)))
+            (call append (ref out) (field (ref p) "name"))
+            (ref out))))))
+
+  (fn topo_order
+    (params
+      (param pkgs (vec Package)))
+    (returns (result (vec (prim string)) (prim string)))
+    (pure)
+    (body
+      (let ordered
+        (loop (acc state (vec (prim string)) (vec (prim string)))
+          (let ready (call ready_names (ref pkgs) (ref state))
+            (> (call len (ref ready)) (int 0)))
+          (block
+            (let ready (call ready_names (ref pkgs) (ref state))
+              (let sorted (call sort (ref ready))
+                (fold i (range (int 0) (call len (ref sorted)))
+                  (acc s2 (vec (prim string)) (ref state))
+                  (call append (ref s2) (call get (ref sorted) (ref i))))))))
+        (ok (ref ordered)))))
+
+  ;; 依赖输出是否变化：任一 dep 当前 output_hash != 上次记录的 dep_outputs)
+  (fn dep_output_changed
+    (params
+      (param p Package)
+      (param pkgs (vec Package)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (let deps (field (ref p) "deps")
+        (fold i (range (int 0) (call len (ref deps)))
+          (acc changed (prim bool) (bool false))
+          (if (ref changed)
+            (ref changed)
+            (let dep_name (call get (ref deps) (ref i))
+              (let dep (call find_package (ref pkgs) (ref dep_name))
+                (let recorded (call lookup (field (ref p) "dep_outputs") (ref dep_name))
+                  (if (call is-ok (ref dep))
+                    (if (call is-ok (ref recorded))
+                      (not (== (call unwrap (ref recorded)) (field (call unwrap (ref dep)) "output_hash")))
+                      (bool true))
+                    (bool true))))))))))
+
+  ;; 是否需要 build：source 变了（engine 传入当前 hash）或依赖输出变了
+  (fn needs_build
+    (params
+      (param p Package)
+      (param current_source_hash (prim string))
+      (param pkgs (vec Package)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (or (not (== (ref current_source_hash) (field (ref p) "prev_source_hash")))
+          (call dep_output_changed (ref p) (ref pkgs)))))
+
+  ;; 报告行："name CACHED|BUILT|FAILED|PENDING"
+  (fn report_line
+    (params
+      (param p Package))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat (field (ref p) "name")
+        (call concat (string " ") (call state_label (field (ref p) "state"))))))
+
+  (test topo_single
+    (body
+      (let p (record Package
+               (name (string "p")) (source_hash (string "")) (deps (vec (prim string)))
+               (state (variant BuildState pending)) (output_hash (string ""))
+               (prev_source_hash (string "")) (dep_outputs (map (prim string) (prim string))))
+        (let order (call unwrap (call topo_order (vec Package (ref p))))
+          (== (call len (ref order)) (int 1))))))
+
+  (test topo_chain
+    (body
+      (let a (record Package
+               (name (string "a")) (source_hash (string "")) (deps (vec (prim string)))
+               (state (variant BuildState pending)) (output_hash (string ""))
+               (prev_source_hash (string "")) (dep_outputs (map (prim string) (prim string))))
+        (let b (record Package
+                 (name (string "b")) (source_hash (string "")) (deps (vec (prim string) (string "a")))
+                 (state (variant BuildState pending)) (output_hash (string ""))
+                 (prev_source_hash (string "")) (dep_outputs (map (prim string) (prim string))))
+          (let order (call unwrap (call topo_order (vec Package (ref a) (ref b))))
+            (and
+              (== (call len (ref order)) (int 2))
+              (and
+                (== (call get (ref order) (int 0)) (string "a"))
+                (== (call get (ref order) (int 1)) (string "b")))))))))
+
+)

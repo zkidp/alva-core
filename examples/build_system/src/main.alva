@@ -1,0 +1,22 @@
+(module
+  (name "build.main")
+  (version "0.8.0-dev")
+  (dep "build.fs" "0.8.0-dev")
+  (dep "build.engine" "0.8.0-dev")
+  (cap io unsafe-ffi)
+  (export main)
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let root
+        (call build.fs.env_string (string "ALVA_BUILD_ROOT") (string "./build-data"))
+        (let report
+          (try (call build.engine.run_build (ref root))
+            (catch e (raise (ref e))))
+          (block
+            (call io.print (ref report))
+            (ok (nil)))))))
+)

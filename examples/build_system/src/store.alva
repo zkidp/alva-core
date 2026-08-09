@@ -1,0 +1,114 @@
+(module
+  (name "build.store")
+  (version "0.8.0-dev")
+  (dep "build.model" "0.8.0-dev")
+  (dep "build.fs" "0.8.0-dev")
+  (cap io unsafe-ffi)
+  (export manifest_dir state_dir out_dir tmp_dir
+          ensure_dirs atomic_write save_package load_package
+          list_package_names)
+
+  (fn manifest_dir
+    (params (param root (prim string)))
+    (returns (prim string))
+    (pure)
+    (body (call concat (ref root) (string "/manifest"))))
+
+  (fn state_dir
+    (params (param root (prim string)))
+    (returns (prim string))
+    (pure)
+    (body (call concat (ref root) (string "/state"))))
+
+  (fn out_dir
+    (params (param root (prim string)))
+    (returns (prim string))
+    (pure)
+    (body (call concat (ref root) (string "/out"))))
+
+  (fn tmp_dir
+    (params (param root (prim string)))
+    (returns (prim string))
+    (pure)
+    (body (call concat (ref root) (string "/tmp"))))
+
+  (fn state_path
+    (params (param root (prim string)) (param name (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call concat (call state_dir (ref root))
+        (call concat (string "/") (ref name)))))
+
+  (fn ensure_dirs
+    (params (param root (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (block
+        (try (call build.fs.mkdir_p (call manifest_dir (ref root)))
+          (catch e (raise (ref e))))
+        (try (call build.fs.mkdir_p (call state_dir (ref root)))
+          (catch e (raise (ref e))))
+        (try (call build.fs.mkdir_p (call out_dir (ref root)))
+          (catch e (raise (ref e))))
+        (try (call build.fs.mkdir_p (call tmp_dir (ref root)))
+          (catch e (raise (ref e))))
+        (ok (nil)))))
+
+  ;; 原子写：temp + write + fsync + rename + fsync_dir
+  (fn atomic_write
+    (params (param root (prim string)) (param path (prim string)) (param text (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let tmp
+        (try (call build.fs.create_temp (call tmp_dir (ref root)) (string "w-"))
+          (catch e (raise (ref e))))
+        (block
+          (try (call build.fs.write_bytes (ref tmp) (call to-bytes (ref text)))
+            (catch e (raise (ref e))))
+          (try (call build.fs.fsync_file (ref tmp))
+            (catch e (raise (ref e))))
+          (try (call build.fs.rename (ref tmp) (ref path))
+            (catch e (raise (ref e))))
+          (ok (nil))))))
+
+  (fn save_package
+    (params (param root (prim string)) (param p build.model.Package))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call atomic_write (ref root) (call state_path (ref root) (field (ref p) "name"))
+        (call build.model.serialize_package (ref p)))))
+
+  (fn load_package
+    (params (param root (prim string)) (param name (prim string)))
+    (returns (result build.model.Package (prim string)))
+    (eff io)
+    (body
+      (let text
+        (try (call build.fs.read_string (call state_path (ref root) (ref name)))
+          (catch e (raise (ref e))))
+        (call build.model.parse_package (ref text)))))
+
+  (fn list_package_names
+    (params (param root (prim string)))
+    (returns (result (vec (prim string)) (prim string)))
+    (eff io)
+    (body
+      (let dir (call state_dir (ref root))
+        (if (not (call build.fs.exists (ref dir)))
+          (ok (vec (prim string)))
+          (let names
+            (try (call build.fs.list_dir (ref dir))
+              (catch e (raise (ref e))))
+            (let parts (call split (ref names) (string "\n"))
+              (ok
+                (fold i (range (int 0) (call len (ref parts)))
+                  (acc out (vec (prim string)) (vec (prim string)))
+                  (let name (call get (ref parts) (ref i))
+                    (if (== (ref name) (string ""))
+                      (ref out)
+                      (call append (ref out) (ref name))))))))))))
+)

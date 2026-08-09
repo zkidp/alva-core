@@ -1,0 +1,9 @@
+[project]
+name = "buildsys"
+
+[modules]
+"build.model" = "src/model.alva"
+"build.fs" = "src/fs.alva"
+"build.store" = "src/store.alva"
+"build.engine" = "src/engine.alva"
+"build.main" = "src/main.alva"

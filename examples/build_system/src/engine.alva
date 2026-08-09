@@ -1,0 +1,305 @@
+(module
+  (name "build.engine")
+  (version "0.8.0-dev")
+  (dep "build.model" "0.8.0-dev")
+  (dep "build.fs" "0.8.0-dev")
+  (dep "build.store" "0.8.0-dev")
+  (cap io unsafe-ffi)
+  (export run_build)
+
+  ;; 读 manifest/ 下所有条目（文件内容 = 逗号分隔的 deps），创建 pending Package
+  (fn list_manifest_names
+    (params
+      (param root (prim string)))
+    (returns (result (vec (prim string)) (prim string)))
+    (eff io)
+    (body
+      (let names
+        (try (call build.fs.list_dir (call build.store.manifest_dir (ref root)))
+          (catch e (raise (ref e))))
+        (let parts (call split (ref names) (string "\n"))
+          (ok
+            (fold i (range (int 0) (call len (ref parts)))
+              (acc out (vec (prim string)) (vec (prim string)))
+              (let name (call get (ref parts) (ref i))
+                (if (== (ref name) (string ""))
+                  (ref out)
+                  (call append (ref out) (ref name))))))))))
+
+  (fn load_manifests
+    (params
+      (param root (prim string)))
+    (returns (result (vec build.model.Package) (prim string)))
+    (eff io)
+    (body
+      (let names
+        (try (call list_manifest_names (ref root))
+          (catch e (raise (ref e))))
+        (ok
+          (fold i (range (int 0) (call len (ref names)))
+            (acc out (vec build.model.Package) (vec build.model.Package))
+            (let name (call get (ref names) (ref i))
+              (let text
+                (try (call build.fs.read_string
+                       (call concat (call build.store.manifest_dir (ref root))
+                         (call concat (string "/") (ref name))))
+                  (catch e (raise (ref e))))
+                (let deps (call build.model.deps_from_string (ref text))
+                  (let p
+                    (record build.model.Package
+                      (name (ref name))
+                      (source_hash (string ""))
+                      (deps (ref deps))
+                      (state (variant build.model.BuildState pending))
+                      (output_hash (string ""))
+                      (prev_source_hash (string ""))
+                      (dep_outputs (map (prim string) (prim string))))
+                    (call append (ref out) (ref p)))))))))))
+
+  ;; 用 state/ 里的记录覆盖 manifest 条目（持久化：prev/output/dep_outputs）
+  (fn merge_state
+    (params
+      (param root (prim string))
+      (param pkgs (vec build.model.Package)))
+    (returns (result (vec build.model.Package) (prim string)))
+    (eff io)
+    (body
+      (let saved
+        (try (call build.store.list_package_names (ref root))
+          (catch e (raise (ref e))))
+        (ok
+          (fold i (range (int 0) (call len (ref saved)))
+            (acc out (vec build.model.Package) (ref pkgs))
+            (let name (call get (ref saved) (ref i))
+              (let loaded
+                (try (call build.store.load_package (ref root) (ref name))
+                  (catch e (raise (ref e))))
+                (let found (call build.model.find_package (ref out) (ref name))
+                  (if (call is-ok (ref found))
+                    ;; GAP-009 修复后恢复的自然写法：内层 fold 替换列表元素，
+                    ;; body 引用外层 acc `out`（旧编译器会解析到内层 acc 而崩溃/出错）
+                    (fold j (range (int 0) (call len (ref out)))
+                      (acc rebuilt (vec build.model.Package) (vec build.model.Package))
+                      (let p (call get (ref out) (ref j))
+                        (if (== (field (ref p) "name") (ref name))
+                          (call append (ref rebuilt) (ref loaded))
+                          (call append (ref rebuilt) (ref p)))))
+                    (call append (ref out) (ref loaded)))))))))))
+
+  ;; source hash = sha256(src/<name> 内容)
+  (fn read_source_hash
+    (params
+      (param root (prim string))
+      (param name (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (let text
+        (try (call build.fs.read_string
+               (call concat (call concat (ref root) (string "/src"))
+                 (call concat (string "/") (ref name))))
+          (catch e (raise (ref e))))
+        (ok (call build.fs.sha256_hex (call to-bytes (ref text)))))))
+
+  ;; 某 dep 的当前 output_hash
+  (fn dep_output_of
+    (params
+      (param all (vec build.model.Package))
+      (param name (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let found (call build.model.find_package (ref all) (ref name))
+        (if (call is-ok (ref found))
+          (field (call unwrap (ref found)) "output_hash")
+          (string "")))))
+
+  ;; output_hash = sha256(source 内容 + "|" + 排序后的 "dep:output" 列表)
+  (fn compute_output
+    (params
+      (param root (prim string))
+      (param p build.model.Package)
+      (param all (vec build.model.Package)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (let src
+        (try (call build.fs.read_string
+               (call concat (call concat (ref root) (string "/src"))
+                 (call concat (string "/") (field (ref p) "name"))))
+          (catch e (raise (ref e))))
+        (let deps (call sort (field (ref p) "deps"))
+          (let joined
+            (fold i (range (int 0) (call len (ref deps)))
+              (acc s (prim string) (string ""))
+              (let d (call get (ref deps) (ref i))
+                (call concat (ref s)
+                  (call concat (ref d)
+                    (call concat (string ":")
+                      (call concat (call dep_output_of (ref all) (ref d))
+                        (string ";")))))))
+            (ok (call build.fs.sha256_hex
+                  (call to-bytes (call concat (ref src)
+                    (call concat (string "|") (ref joined)))))))))))
+
+  ;; staged 写 out/<name>：temp + fsync -> FAILPOINT -> rename -> fsync_dir
+  (fn stage_output
+    (params
+      (param root (prim string))
+      (param p build.model.Package)
+      (param output_hash (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let tmp
+        (try (call build.fs.create_temp (call build.store.tmp_dir (ref root)) (string "out-"))
+          (catch e (raise (ref e))))
+        (block
+          (try (call build.fs.write_bytes (ref tmp) (call to-bytes (ref output_hash)))
+            (catch e (raise (ref e))))
+          (try (call build.fs.fsync_file (ref tmp))
+            (catch e (raise (ref e))))
+          ;; FAILPOINT wf-build-before-promote：staged 已写但 out/ 未更新；
+          ;; 崩溃后不得产生假的 valid cache
+          (call build.fs.failpoint (string "wf-build-before-promote"))
+          (try (call build.fs.rename (ref tmp)
+                 (call concat (call build.store.out_dir (ref root))
+                   (call concat (string "/") (field (ref p) "name"))))
+            (catch e (raise (ref e))))
+          (try (call build.fs.fsync_dir (call build.store.out_dir (ref root)))
+            (catch e (raise (ref e))))
+          (ok (nil))))))
+
+  ;; build 一个 package：读 source -> 判定 needs -> BUILT（staged+promote）或 CACHED
+  (fn build_one
+    (params
+      (param root (prim string))
+      (param p build.model.Package)
+      (param all (vec build.model.Package)))
+    (returns (result build.model.Package (prim string)))
+    (eff io)
+    (body
+      (let source_hash
+        (try (call read_source_hash (ref root) (field (ref p) "name"))
+          (catch e (raise (ref e))))
+        (if (call build.model.needs_build (ref p) (ref source_hash) (ref all))
+          (let output
+            (try (call compute_output (ref root) (ref p) (ref all))
+              (catch e (raise (ref e))))
+            (block
+              (try (call stage_output (ref root) (ref p) (ref output))
+                (catch e (raise (ref e))))
+              (let updated
+                (record build.model.Package
+                  (name (field (ref p) "name"))
+                  (source_hash (field (ref p) "source_hash"))
+                  (deps (field (ref p) "deps"))
+                  (state (variant build.model.BuildState built))
+                  (output_hash (ref output))
+                  (prev_source_hash (ref source_hash))
+                  (dep_outputs (field (ref p) "dep_outputs")))
+                (ok (ref updated)))))
+          (let cached
+            (record build.model.Package
+              (name (field (ref p) "name"))
+              (source_hash (field (ref p) "source_hash"))
+              (deps (field (ref p) "deps"))
+              (state (variant build.model.BuildState cached))
+              (output_hash (field (ref p) "output_hash"))
+              (prev_source_hash (field (ref p) "prev_source_hash"))
+              (dep_outputs (field (ref p) "dep_outputs")))
+            (ok (ref cached)))))))
+
+  ;; 记录 dep_outputs（build/cache 后更新为当前 deps 的 output_hash）
+  (fn record_dep_outputs
+    (params
+      (param p build.model.Package)
+      (param all (vec build.model.Package)))
+    (returns build.model.Package)
+    (pure)
+    (body
+      (let deps (field (ref p) "deps")
+        (let m
+          (fold i (range (int 0) (call len (ref deps)))
+            (acc out (map (prim string) (prim string)) (map (prim string) (prim string)))
+            (let d (call get (ref deps) (ref i))
+              (call set (ref out) (ref d) (call dep_output_of (ref all) (ref d)))))
+          (record build.model.Package
+            (name (field (ref p) "name"))
+            (source_hash (field (ref p) "source_hash"))
+            (deps (field (ref p) "deps"))
+            (state (field (ref p) "state"))
+            (output_hash (field (ref p) "output_hash"))
+            (prev_source_hash (field (ref p) "prev_source_hash"))
+            (dep_outputs (ref m)))))))
+
+  ;; 完整 build：环拒绝 -> 拓扑序 -> 按序 build -> 保存 state -> 报告
+  (fn build_all
+    (params
+      (param root (prim string))
+      (param pkgs (vec build.model.Package))
+      (param order (vec (prim string))))
+    (returns (result (vec build.model.Package) (prim string)))
+    (eff io)
+    (body
+      (ok
+        (fold i (range (int 0) (call len (ref order)))
+          (acc out (vec build.model.Package) (ref pkgs))
+          (let name (call get (ref order) (ref i))
+            (let found (call build.model.find_package (ref out) (ref name))
+              (let b
+                (try (call build_one (ref root) (call unwrap (ref found)) (ref out))
+                  (catch e (raise (ref e))))
+                (let with_deps (call record_dep_outputs (ref b) (ref out))
+                  (block
+                    (try (call build.store.save_package (ref root) (ref with_deps))
+                      (catch e (raise (ref e))))
+                    ;; GAP-009 修复后恢复的自然写法：内层 fold 替换列表元素，
+                    ;; body 引用外层 acc `out`（旧编译器会解析到内层 acc）
+                    (fold j (range (int 0) (call len (ref out)))
+                      (acc rebuilt (vec build.model.Package) (vec build.model.Package))
+                      (let p (call get (ref out) (ref j))
+                        (if (== (field (ref p) "name") (ref name))
+                          (call append (ref rebuilt) (ref with_deps))
+                          (call append (ref rebuilt) (ref p))))))))))))))
+
+  (fn build_report
+    (params
+      (param order (vec (prim string)))
+      (param built (vec build.model.Package)))
+    (returns (prim string))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref order)))
+        (acc report (prim string) (string ""))
+        (let name (call get (ref order) (ref i))
+          (let f (call build.model.find_package (ref built) (ref name))
+            (call concat (ref report)
+              (call concat (call build.model.report_line (call unwrap (ref f)))
+                (string "\n"))))))))
+
+  (fn run_build
+    (params
+      (param root (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (try (call build.store.ensure_dirs (ref root))
+        (catch e (raise (ref e))))
+      (let pkgs0
+        (try (call load_manifests (ref root))
+          (catch e (raise (ref e))))
+        (let pkgs
+          (try (call merge_state (ref root) (ref pkgs0))
+            (catch e (raise (ref e))))
+          (if (call build.model.has_cycle (ref pkgs))
+            (err (string "cycle detected in build graph"))
+            (let order
+              (try (call build.model.topo_order (ref pkgs))
+                (catch e (raise (ref e))))
+              (let built
+                (try (call build_all (ref root) (ref pkgs) (ref order))
+                  (catch e (raise (ref e))))
+                (ok (call build_report (ref order) (ref built))))))))))
+
+)
