@@ -1,0 +1,18 @@
+(module
+  (name "xres.b")
+  (version "0.1.0")
+  (dep "xres.a" "0.1.0")
+  (export run)
+
+  ;; 回归：以“调用外部 result 函数”作为最后表达式的函数，
+  ;; codegen 不得再自动包一层 Ok(...)（双重 Result 包装，E0308）。
+  (fn run
+    (params)
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (call xres.a.fetch)))
+
+  (test run_ok
+    (body
+      (call is-ok (call run)))))

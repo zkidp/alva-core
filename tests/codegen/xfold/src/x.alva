@@ -1,0 +1,23 @@
+(module
+  (name "xfold.x")
+  (version "0.1.0")
+  (export find)
+
+  ;; 回归：以 result 型 fold 累加器作为最后表达式的函数，
+  ;; codegen 不得自动包 Ok(...)（双重 Result 包装）。
+  (fn find
+    (params
+      (param names (vec (prim string))))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref names)))
+        (acc out (result (prim string) (prim string)) (err (string "none")))
+        (if (== (call get (ref names) (ref i)) (string "target"))
+          (ok (string "found"))
+          (ref out)))))
+
+  (test find_works
+    (body
+      (call is-ok
+        (call find (vec (prim string) (string "a") (string "target")))))))

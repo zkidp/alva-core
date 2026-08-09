@@ -1490,8 +1490,7 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                 "{{\"revision\":{},\"eff\":{},\"view\":{},\"body\":{}}}",
                                 json_str(&rev),
                                 json_str(&eff),
-                                json_str(&view)
-                                ,
+                                json_str(&view),
                                 json_str(&body)
                             ),
                             "ok"
@@ -1802,14 +1801,21 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             if exports.contains(&old) {
                                 let updated: Vec<String> = exports
                                     .iter()
-                                    .map(|e| if e == &old { new_name.to_string() } else { e.clone() })
+                                    .map(|e| {
+                                        if e == &old {
+                                            new_name.to_string()
+                                        } else {
+                                            e.clone()
+                                        }
+                                    })
                                     .collect();
                                 s.set_field(&me, "exports", air::Value::Names(updated))?;
                             }
                             if exports.contains(&old) {
                                 s.rename_symbol(
                                     &format!("{module_name}.{old}"),
-                                    &format!("{module_name}.{new_name}"))?;
+                                    &format!("{module_name}.{new_name}"),
+                                )?;
                             }
                         }
                     }
@@ -1891,7 +1897,11 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         let tree = body_tree(&s.graph, &rev, 0, &mut budget);
                         resp!(
                             true,
-                            &format!("{{\"revision\":{},\"body\":{}}}", json_str(&rev), json_str(&tree)),
+                            &format!(
+                                "{{\"revision\":{},\"body\":{}}}",
+                                json_str(&rev),
+                                json_str(&tree)
+                            ),
                             "ok"
                         )
                     }
@@ -1918,7 +1928,9 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             s.append_child(&type_rev, "fields", &field_rev)?;
                             Ok(field_rev)
                         })() {
-                            Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                            Ok(rev) => {
+                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
+                            }
                             Err(e) => resp!(false, "null", &e),
                         }
                     }
@@ -1949,10 +1961,7 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 let s = need_session!();
                 let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
                 let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let type_name = req
-                    .get("type")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("string");
+                let type_name = req.get("type").and_then(|v| v.as_str()).unwrap_or("string");
                 match resolve_entity_in_graph(&s.graph, function) {
                     Some(fn_rev) => {
                         match (|| -> Result<String, String> {
@@ -1965,7 +1974,9 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             s.append_child(&fn_rev, "params", &param_rev)?;
                             Ok(param_rev)
                         })() {
-                            Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                            Ok(rev) => {
+                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
+                            }
                             Err(e) => resp!(false, "null", &e),
                         }
                     }
@@ -1998,33 +2009,31 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                     Ok(_) => {
                                         // 第一次 set_field 会改变函数节点 revision，
                                         // 必须重新解析实体再更新 eff 字段。
-                                        let rev2 =
-                                            resolve_entity_in_graph(&s.graph, function)
-                                                .unwrap_or_else(|| fn_rev.clone());
+                                        let rev2 = resolve_entity_in_graph(&s.graph, function)
+                                            .unwrap_or_else(|| fn_rev.clone());
                                         s.set_field(&rev2, "eff", air::Value::Names(vec![]))
                                     }
                                     Err(e) => Err(e),
                                 }
                             }
-                            "io" => {
-                                match s.set_field(&fn_rev, "pure", air::Value::Bool(false)) {
-                                    Ok(_) => {
-                                        let rev2 =
-                                            resolve_entity_in_graph(&s.graph, function)
-                                                .unwrap_or_else(|| fn_rev.clone());
-                                        s.set_field(
-                                            &rev2,
-                                            "eff",
-                                            air::Value::Names(vec!["io".to_string()]),
-                                        )
-                                    }
-                                    Err(e) => Err(e),
+                            "io" => match s.set_field(&fn_rev, "pure", air::Value::Bool(false)) {
+                                Ok(_) => {
+                                    let rev2 = resolve_entity_in_graph(&s.graph, function)
+                                        .unwrap_or_else(|| fn_rev.clone());
+                                    s.set_field(
+                                        &rev2,
+                                        "eff",
+                                        air::Value::Names(vec!["io".to_string()]),
+                                    )
                                 }
-                            }
+                                Err(e) => Err(e),
+                            },
                             other => Err(format!("unknown effect '{other}'")),
                         };
                         match r {
-                            Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                            Ok(rev) => {
+                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
+                            }
                             Err(e) => resp!(false, "null", &e),
                         }
                     }
@@ -2049,7 +2058,9 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             caps.push(cap.to_string());
                         }
                         match s.set_field(&m, "caps", air::Value::Names(caps)) {
-                            Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                            Ok(rev) => {
+                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
+                            }
                             Err(e) => resp!(false, "null", &e),
                         }
                     }
@@ -2137,7 +2148,7 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         }
                     }
                 }
-                    None => resp!(false, "null", "E_AEP_NO_TRANSACTION"),
+                None => resp!(false, "null", "E_AEP_NO_TRANSACTION"),
             },
             "abort_transaction" => {
                 session = None;
@@ -2228,7 +2239,9 @@ fn resolve_type_in_graph(g: &air::AirGraph, name: &str) -> Option<String> {
     }
     for entity in &g.module_entities {
         let module_name = entity.trim_start_matches("module:");
-        let want = name.strip_prefix(&format!("{module_name}.")).unwrap_or(name);
+        let want = name
+            .strip_prefix(&format!("{module_name}."))
+            .unwrap_or(name);
         if let Some(mn) = g.resolve(entity) {
             for id in mn.slots.get("types").cloned().unwrap_or_default() {
                 if let Some(t) = g.get(&id) {
@@ -2296,7 +2309,10 @@ fn entity_candidates(g: &air::AirGraph, name: &str) -> String {
         .filter(|c| c.contains(name) || (name.len() >= 3 && c.starts_with(name)))
         .take(6)
         .collect();
-    hits.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ")
+    hits.iter()
+        .map(|s| s.as_str())
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 fn not_found(g: &air::AirGraph, name: &str) -> String {

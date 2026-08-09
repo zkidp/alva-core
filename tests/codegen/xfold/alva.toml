@@ -1,0 +1,5 @@
+[project]
+name = "xfold"
+
+[modules]
+"xfold.x" = "src/x.alva"

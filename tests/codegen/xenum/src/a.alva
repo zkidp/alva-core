@@ -1,0 +1,9 @@
+(module
+  (name "xenum.a")
+  (version "0.1.0")
+  (export Color)
+
+  (type Color
+    (enum
+      (variant red)
+      (variant green))))

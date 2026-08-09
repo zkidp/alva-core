@@ -2340,12 +2340,10 @@ pub fn view_module(g: &AirGraph, module_id: &str, budget: Option<usize>) -> Stri
             let ret = type_air_to_sexpr(g, &f.slots["returns"][0]);
             let eff = match f.fields.get("eff") {
                 Some(Value::Names(ns)) if !ns.is_empty() => ns.join(","),
-                _ => {
-                    match f.fields.get("pure") {
-                        Some(Value::Bool(true)) => "pure".to_string(),
-                        _ => "?".to_string(),
-                    }
-                }
+                _ => match f.fields.get("pure") {
+                    Some(Value::Bool(true)) => "pure".to_string(),
+                    _ => "?".to_string(),
+                },
             };
             out.push_str(&format!(
                 "  fn {}({}) -> {} [{}] ({})\n",

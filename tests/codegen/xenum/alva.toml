@@ -1,0 +1,6 @@
+[project]
+name = "xenum"
+
+[modules]
+"xenum.a" = "src/a.alva"
+"xenum.b" = "src/b.alva"

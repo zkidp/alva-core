@@ -1,0 +1,11 @@
+(module
+  (name "xres.a")
+  (version "0.1.0")
+  (export fetch)
+
+  (fn fetch
+    (params)
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (ok (string "hello")))))

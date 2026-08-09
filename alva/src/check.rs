@@ -240,6 +240,17 @@ impl<'a> Checker<'a> {
         }
     }
 
+    /// 跨模块与 Record/Field 同款分派：qualified 名查 external_types，
+    /// 本地名查 types。供 Variant/Match 表达式解析枚举类型用。
+    /// 返回 owned 拷贝，避免借用 self 时无法写入 diags。
+    fn enum_kind(&self, name: &str) -> Option<ast::TypeKind> {
+        if name.contains('.') {
+            self.external_types.get(name).map(|e| e.kind.clone())
+        } else {
+            self.types.get(name).map(|t| t.kind.clone())
+        }
+    }
+
     fn check_module_name(&mut self) {
         for seg in self.module.name.split('.') {
             if !valid_ident(seg) {
@@ -880,26 +891,24 @@ impl<'a> Checker<'a> {
                 env.vars.pop();
                 self.unify(t, tb, span, "fold body")
             }
-            Expr::Variant(enum_name, vname, span) => match self.types.get(enum_name) {
-                Some(td) => match &td.kind {
-                    ast::TypeKind::Enum(variants) if variants.contains(vname) => {
-                        Ty::Named(enum_name.clone())
-                    }
-                    ast::TypeKind::Enum(_) => {
-                        self.diags.push(Diag::error_at(
-                            span.clone(),
-                            format!("unknown variant '{vname}' in enum '{enum_name}'"),
-                        ));
-                        Ty::Unknown
-                    }
-                    _ => {
-                        self.diags.push(Diag::error_at(
-                            span.clone(),
-                            format!("'{enum_name}' is not an enum type"),
-                        ));
-                        Ty::Unknown
-                    }
-                },
+            Expr::Variant(enum_name, vname, span) => match self.enum_kind(enum_name) {
+                Some(ast::TypeKind::Enum(variants)) if variants.contains(vname) => {
+                    Ty::Named(enum_name.clone())
+                }
+                Some(ast::TypeKind::Enum(_)) => {
+                    self.diags.push(Diag::error_at(
+                        span.clone(),
+                        format!("unknown variant '{vname}' in enum '{enum_name}'"),
+                    ));
+                    Ty::Unknown
+                }
+                Some(_) => {
+                    self.diags.push(Diag::error_at(
+                        span.clone(),
+                        format!("'{enum_name}' is not an enum type"),
+                    ));
+                    Ty::Unknown
+                }
                 None => {
                     self.diags.push(Diag::error_at(
                         span.clone(),
@@ -920,51 +929,49 @@ impl<'a> Checker<'a> {
                         ),
                     ));
                 }
-                match self.types.get(enum_name) {
-                    Some(td) => match &td.kind {
-                        ast::TypeKind::Enum(variants) => {
-                            let mut covered = HashSet::new();
-                            let mut wildcard = false;
-                            let mut result = Ty::Unknown;
-                            for (vname, body) in cases {
-                                if vname == "_" {
-                                    wildcard = true;
-                                } else if !variants.contains(vname) {
+                match self.enum_kind(enum_name) {
+                    Some(ast::TypeKind::Enum(variants)) => {
+                        let mut covered = HashSet::new();
+                        let mut wildcard = false;
+                        let mut result = Ty::Unknown;
+                        for (vname, body) in cases {
+                            if vname == "_" {
+                                wildcard = true;
+                            } else if !variants.contains(vname) {
+                                self.diags.push(Diag::error_at(
+                                    span.clone(),
+                                    format!("unknown variant '{vname}' in enum '{enum_name}'"),
+                                ));
+                            } else if !covered.insert(vname.clone()) {
+                                self.diags.push(Diag::error_at(
+                                    span.clone(),
+                                    format!("duplicate case for variant '{vname}'"),
+                                ));
+                            }
+                            let tb = self.type_of(body, env);
+                            result = self.unify(result, tb, span, "match arms");
+                        }
+                        if !wildcard {
+                            for v in variants {
+                                if !covered.contains(&v) {
                                     self.diags.push(Diag::error_at(
                                         span.clone(),
-                                        format!("unknown variant '{vname}' in enum '{enum_name}'"),
-                                    ));
-                                } else if !covered.insert(vname.clone()) {
-                                    self.diags.push(Diag::error_at(
-                                        span.clone(),
-                                        format!("duplicate case for variant '{vname}'"),
+                                        format!(
+                                            "match on '{enum_name}' is not exhaustive: missing variant '{v}'"
+                                        ),
                                     ));
                                 }
-                                let tb = self.type_of(body, env);
-                                result = self.unify(result, tb, span, "match arms");
                             }
-                            if !wildcard {
-                                for v in variants {
-                                    if !covered.contains(v) {
-                                        self.diags.push(Diag::error_at(
-                                            span.clone(),
-                                            format!(
-                                                "match on '{enum_name}' is not exhaustive: missing variant '{v}'"
-                                            ),
-                                        ));
-                                    }
-                                }
-                            }
-                            result
                         }
-                        _ => {
-                            self.diags.push(Diag::error_at(
-                                span.clone(),
-                                format!("'{enum_name}' is not an enum type"),
-                            ));
-                            Ty::Unknown
-                        }
-                    },
+                        result
+                    }
+                    Some(_) => {
+                        self.diags.push(Diag::error_at(
+                            span.clone(),
+                            format!("'{enum_name}' is not an enum type"),
+                        ));
+                        Ty::Unknown
+                    }
                     None => {
                         self.diags.push(Diag::error_at(
                             span.clone(),

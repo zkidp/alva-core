@@ -114,6 +114,14 @@ else
   FAILED=1
 fi
 
+# codegen 回归（外部 result 函数 / 跨模块枚举 / result 型 fold 累加器）
+if bash "$ROOT/tests/codegen/run_test.sh"; then
+  echo "PASS codegen regressions"
+else
+  echo "FAIL codegen regressions"
+  FAILED=1
+fi
+
 # contracts: build and run tests
 for f in "$ROOT"/tests/contracts/*.alva; do
   [ -e "$f" ] || continue

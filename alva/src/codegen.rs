@@ -1,6 +1,10 @@
 use crate::ast::{self, BinOp, Expr, FnDef, Module, Prim, TypeExpr};
 use std::collections::HashMap;
 
+/// 函数名 -> 返回类型 的统一签名表（本地 fn + extern + 直接依赖导出的外部函数）。
+/// 用于按签名判断表达式求值结果类型，替代按名字集合的启发式（produces_result）。
+pub type SigTable = HashMap<String, TypeExpr>;
+
 pub struct Generated {
     pub crate_name: String,
     pub cargo_toml: String,
@@ -9,6 +13,32 @@ pub struct Generated {
 }
 
 pub fn codegen(module: &Module) -> Generated {
+    codegen_inner(module, local_sigs(module))
+}
+
+/// 项目构建入口：在本地签名表之上合并直接依赖导出的外部函数签名
+/// （key 为 qualified 名，如 `build.engine.run_build`）。
+pub fn codegen_with_external(module: &Module, external_sigs: SigTable) -> Generated {
+    let mut sigs = local_sigs(module);
+    sigs.extend(external_sigs);
+    codegen_inner(module, sigs)
+}
+
+fn local_sigs(module: &Module) -> SigTable {
+    module
+        .fns
+        .iter()
+        .map(|f| (f.name.clone(), f.returns.clone()))
+        .chain(
+            module
+                .exts
+                .iter()
+                .map(|e| (e.name.clone(), e.returns.clone())),
+        )
+        .collect()
+}
+
+fn codegen_inner(module: &Module, sigs: SigTable) -> Generated {
     let crate_name = module.name.replace('.', "_");
     let is_binary = module.fns.iter().any(|f| f.name == "main");
 
@@ -29,23 +59,10 @@ pub fn codegen(module: &Module) -> Generated {
     }
     let exports: std::collections::HashSet<&str> =
         module.exports.iter().map(|s| s.as_str()).collect();
-    let result_fns: std::collections::HashSet<&str> = module
-        .fns
-        .iter()
-        .filter(|f| matches!(f.returns, TypeExpr::Result(..)))
-        .map(|f| f.name.as_str())
-        .chain(
-            module
-                .exts
-                .iter()
-                .filter(|e| matches!(e.returns, TypeExpr::Result(..)))
-                .map(|e| e.name.as_str()),
-        )
-        .collect();
     let deps: std::collections::HashSet<String> =
         module.deps.iter().map(|(n, _)| n.clone()).collect();
     for f in &module.fns {
-        src.push_str(&gen_fn(f, &module.name, &exports, &result_fns, &deps));
+        src.push_str(&gen_fn(f, &module.name, &exports, &sigs, &deps));
         src.push('\n');
     }
     for t in &module.tests {
@@ -113,7 +130,7 @@ fn gen_fn(
     f: &FnDef,
     module_name: &str,
     exports: &std::collections::HashSet<&str>,
-    result_fns: &std::collections::HashSet<&str>,
+    sigs: &SigTable,
     deps: &std::collections::HashSet<String>,
 ) -> String {
     let params: Vec<String> = f
@@ -160,7 +177,7 @@ fn gen_fn(
     let last_is_result = f
         .body
         .last()
-        .map(|e| produces_result(e, result_fns))
+        .map(|e| produces_result(e, sigs))
         .unwrap_or(false);
     let body = if returns_result && !last_is_result {
         format!("Ok({body})")
@@ -215,21 +232,40 @@ fn gen_extern(e: &ast::ExternDef) -> String {
     )
 }
 
-// 判断表达式是否已经产生 result 类型（避免自动 Ok 包装）
-fn produces_result(e: &Expr, result_fns: &std::collections::HashSet<&str>) -> bool {
+/// 按表达式形状 + 签名表推导求值结果类型。
+/// 返回 `Some(TypeExpr)` 当类型可静态确定；否则 `None`（视为未知，不产生 Result）。
+fn expr_returns_type(e: &Expr, sigs: &SigTable) -> Option<TypeExpr> {
     match e {
-        Expr::Ok(..) | Expr::Err(..) | Expr::Try(..) | Expr::Lookup(..) | Expr::ParseInt(..) => {
-            true
+        Expr::Call(name, _, _) => {
+            if name == "lookup" {
+                // (call lookup m k) 与裸 (lookup m k) 同义，返回 Result
+                Some(TypeExpr::Result(
+                    Box::new(TypeExpr::Prim(Prim::Nil)),
+                    Box::new(TypeExpr::Prim(Prim::String)),
+                ))
+            } else {
+                sigs.get(name).cloned()
+            }
         }
-        Expr::Call(name, _, _) => name == "lookup" || result_fns.contains(name.as_str()),
-        Expr::If(_, t, e2, _) => produces_result(t, result_fns) || produces_result(e2, result_fns),
-        Expr::Block(exprs, _) => exprs
-            .last()
-            .map(|x| produces_result(x, result_fns))
-            .unwrap_or(false),
-        Expr::Let(_, _, _, body, _) => produces_result(body, result_fns),
-        _ => false,
+        Expr::Fold(_, _, _, _, acc_ty, _, _, _) => Some(acc_ty.clone()),
+        Expr::Ok(..) | Expr::Err(..) | Expr::Lookup(..) | Expr::ParseInt(..) => {
+            Some(TypeExpr::Result(
+                Box::new(TypeExpr::Prim(Prim::Nil)),
+                Box::new(TypeExpr::Prim(Prim::String)),
+            ))
+        }
+        Expr::If(_, t, e2, _) => expr_returns_type(t, sigs).or_else(|| expr_returns_type(e2, sigs)),
+        Expr::Block(exprs, _) => exprs.last().and_then(|x| expr_returns_type(x, sigs)),
+        Expr::Let(_, _, _, body, _) => expr_returns_type(body, sigs),
+        _ => None,
     }
+}
+
+/// 判断表达式是否已经产生 result 类型（避免自动 Ok 包装）。
+/// 与旧启发式不同：Try 是“已展开”语义（值类型不是 Result），
+/// 因此不再计入；call/fold/if/block/let 均按签名与形状推导。
+fn produces_result(e: &Expr, sigs: &SigTable) -> bool {
+    matches!(expr_returns_type(e, sigs), Some(TypeExpr::Result(..)))
 }
 
 fn extern_wrapper_name(name: &str) -> String {
@@ -313,6 +349,10 @@ fn gen_stmt(e: &Expr, ctx: &Ctx) -> String {
 struct Ctx {
     vars: HashMap<String, String>,
     deps: std::collections::HashSet<String>,
+    // 代码生成引入的变量名计数器（fold 索引/acc、loop acc、try catch 变量）。
+    // 每个引入名唯一，避免嵌套结构把不同源变量映射到同一个 Rust 名
+    // （GAP-009：嵌套 fold 的 `acc` 遮蔽外层 acc）。
+    gensym: usize,
 }
 
 impl Ctx {
@@ -320,6 +360,7 @@ impl Ctx {
         Ctx {
             vars: HashMap::new(),
             deps: std::collections::HashSet::new(),
+            gensym: 0,
         }
     }
 
@@ -328,6 +369,12 @@ impl Ctx {
             .get(name)
             .cloned()
             .unwrap_or_else(|| name.to_string())
+    }
+
+    fn fresh(&mut self, base: &str) -> String {
+        let n = self.gensym;
+        self.gensym += 1;
+        format!("__{base}{n}")
     }
 }
 
@@ -517,10 +564,12 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
         Expr::As(t, x, _) => format!("({}) as {}", gen_expr(x, ctx), ty(t)),
         Expr::Fold(idx, lo, hi, acc_name, acc_ty, init, body, _) => {
             let mut c2 = ctx.clone();
-            c2.vars.insert(idx.clone(), "i".to_string());
-            c2.vars.insert(acc_name.clone(), "acc".to_string());
+            let idx_rust = c2.fresh("i");
+            let acc_rust = c2.fresh("acc");
+            c2.vars.insert(idx.clone(), idx_rust.clone());
+            c2.vars.insert(acc_name.clone(), acc_rust.clone());
             format!(
-                "{{ let mut acc: {} = {}; for i in {}..{} {{ acc = {}; }} acc }}",
+                "{{ let mut {acc_rust}: {} = {}; for {idx_rust} in {}..{} {{ {acc_rust} = {}; }} {acc_rust} }}",
                 ty(acc_ty),
                 gen_expr(init, ctx),
                 maybe_paren(&gen_expr(lo, ctx)),
@@ -528,16 +577,38 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
                 gen_expr(body, &c2)
             )
         }
-        Expr::Variant(ty_name, vname, _) => format!("{}::{}", ty_name, to_pascal(vname)),
+        Expr::Loop(acc_name, acc_ty, init, inv, cond, body, _) => {
+            let mut c2 = ctx.clone();
+            let acc_rust = c2.fresh("acc");
+            c2.vars.insert(acc_name.clone(), acc_rust.clone());
+            let inv_check = match inv {
+                Some(i) => format!(
+                    "debug_assert!({}, \"loop invariant violated\");",
+                    gen_expr(i, &c2)
+                ),
+                None => String::new(),
+            };
+            format!(
+                "{{ let mut {acc_rust}: {} = {}; {inv_check} while {} {{ {inv_check} {acc_rust} = {}; {inv_check} }} {acc_rust} }}",
+                ty(acc_ty),
+                gen_expr(init, ctx),
+                maybe_paren(&gen_expr(cond, &c2)),
+                gen_expr(body, &c2)
+            )
+        }
+        Expr::Variant(ty_name, vname, _) => {
+            format!("{}::{}", type_path(ty_name), to_pascal(vname))
+        }
         Expr::Match(ty_name, value, cases, _) => {
             let mut arms = Vec::new();
+            let ty_path = type_path(ty_name);
             for (vname, body) in cases {
                 if vname == "_" {
                     arms.push(format!("_ => {}", gen_expr(body, ctx)));
                 } else {
                     arms.push(format!(
                         "{}::{} => {}",
-                        ty_name,
+                        ty_path,
                         to_pascal(vname),
                         gen_expr(body, ctx)
                     ));
@@ -651,27 +722,6 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             gen_expr(x, ctx)
         ),
         Expr::CtEq(a, b, _) => format!("glue::ct_eq({}, {})", gen_expr(a, ctx), gen_expr(b, ctx)),
-        Expr::Loop(acc_name, acc_ty, init, inv, cond, body, _) => {
-            let mut c2 = ctx.clone();
-            c2.vars.insert(acc_name.clone(), "acc".to_string());
-            let inv_check = match inv {
-                Some(i) => format!(
-                    "debug_assert!({}, \"loop invariant violated\");",
-                    gen_expr(i, &c2)
-                ),
-                None => String::new(),
-            };
-            format!(
-                "{{ let mut acc: {} = {}; {} while {} {{ {} acc = {}; {} }} acc }}",
-                ty(acc_ty),
-                gen_expr(init, ctx),
-                inv_check,
-                maybe_paren(&gen_expr(cond, &c2)),
-                inv_check,
-                gen_expr(body, &c2),
-                inv_check
-            )
-        }
         Expr::Record(name, fields, _) => {
             let parts: Vec<String> = fields
                 .iter()
@@ -685,9 +735,10 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
         Expr::Raise(x, _) => format!("return Err({});", gen_expr(x, ctx)),
         Expr::Try(x, name, body, _) => {
             let mut c2 = ctx.clone();
-            c2.vars.insert(name.clone(), "__e".to_string());
+            let e_rust = c2.fresh("e");
+            c2.vars.insert(name.clone(), e_rust.clone());
             format!(
-                "match {} {{ Ok(__v) => __v, Err(__e) => {{ {} }} }}",
+                "match {} {{ Ok(__v) => __v, Err({e_rust}) => {{ {} }} }}",
                 maybe_paren(&gen_expr(x, ctx)),
                 gen_expr(body, &c2)
             )

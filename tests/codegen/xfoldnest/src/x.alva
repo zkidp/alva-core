@@ -1,0 +1,26 @@
+(module
+  (name "xfoldnest.x")
+  (version "0.1.0")
+  (export collect)
+
+  ;; GAP-009 回归：内层 fold 的 body 引用外层 acc（out）。
+  ;; 正确语义：外层 out 依次累积 [len(out), len(out)]，
+  ;;   输入 ["a","b"] -> [0,0,2,2]
+  ;; 修复前 codegen 把所有 fold acc 映射为同名 Rust `acc`，内层 body 的
+  ;;   `out` 引用解析到内层 acc -> [0,1,2,3]（静默错误）。
+  (fn collect
+    (params
+      (param items (vec (prim string))))
+    (returns (vec (prim i64)))
+    (pure)
+    (body
+      (fold i (range (int 0) (call len (ref items)))
+        (acc out (vec (prim i64)) (vec (prim i64)))
+        (fold j (range (int 0) (int 2))
+          (acc inner (vec (prim i64)) (ref out))
+          (call append (ref inner) (call len (ref out)))))))
+
+  (test collect_nested_fold
+    (body
+      (== (call collect (vec (prim string) (string "a") (string "b")))
+        (vec (prim i64) (int 0) (int 0) (int 2) (int 2))))))

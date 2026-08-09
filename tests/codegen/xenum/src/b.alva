@@ -1,0 +1,25 @@
+(module
+  (name "xenum.b")
+  (version "0.1.0")
+  (dep "xenum.a" "0.1.0")
+  (export classify)
+
+  ;; 回归：跨模块枚举构造/匹配必须套 type_path()
+  ;; （crate::xenum_a::Color::Red），不能直接用原始 dotted 名。
+  (fn classify
+    (params
+      (param c xenum.a.Color))
+    (returns (prim string))
+    (pure)
+    (body
+      (match xenum.a.Color (ref c)
+        (case red (string "warm"))
+        (case green (string "cool")))))
+
+  (test classify_red
+    (body
+      (== (call classify (variant xenum.a.Color red)) (string "warm"))))
+
+  (test classify_green
+    (body
+      (== (call classify (variant xenum.a.Color green)) (string "cool")))))

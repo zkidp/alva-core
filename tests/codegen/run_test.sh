@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# codegen 回归测试（cd30061 时代修复的可重建回归）：
+#   xres  — 外部 result 函数作为最后表达式，不得双重 Ok 包装
+#   xenum — 跨模块枚举构造/匹配套 type_path()
+#   xfold — result 型 fold 累加器作为最后表达式，不得双重 Ok 包装
+#   xfoldnest — 嵌套 fold 引用外层 acc（GAP-009），必须运行时正确
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ALVA="${ALVA:-$ROOT/alva/target/debug/alva}"
+DIR="$ROOT/tests/codegen"
+OUT="$(mktemp -d)"
+trap 'rm -rf "$OUT"' EXIT
+
+echo "== codegen: xres (external result fn, no double Ok wrap) =="
+"$ALVA" project check "$DIR/xres/alva.toml" | grep -q "2 modules checked"
+"$ALVA" project build "$DIR/xres/alva.toml" --test --out-dir "$OUT/xres" >/dev/null
+if grep -q "Ok(crate::xres_a::fetch" "$OUT/xres/xres/src/xres_b.rs"; then
+  echo "FAIL: xres_b.rs double-wraps external result call"
+  exit 1
+fi
+grep -q "crate::xres_a::fetch()" "$OUT/xres/xres/src/xres_b.rs"
+echo "PASS xres"
+
+echo "== codegen: xenum (cross-module enum construct/match) =="
+"$ALVA" project check "$DIR/xenum/alva.toml" | grep -q "2 modules checked"
+"$ALVA" project build "$DIR/xenum/alva.toml" --test --out-dir "$OUT/xenum" >/dev/null
+if grep -q "xenum.a.Color::" "$OUT/xenum/xenum/src/xenum_b.rs"; then
+  echo "FAIL: xenum_b.rs uses raw dotted enum path"
+  exit 1
+fi
+grep -q "crate::xenum_a::Color::Red" "$OUT/xenum/xenum/src/xenum_b.rs"
+grep -q "crate::xenum_a::Color::Green" "$OUT/xenum/xenum/src/xenum_b.rs"
+echo "PASS xenum"
+
+echo "== codegen: xfold (result-typed fold accumulator, no double Ok wrap) =="
+"$ALVA" project check "$DIR/xfold/alva.toml" | grep -q "1 modules checked"
+"$ALVA" project build "$DIR/xfold/alva.toml" --test --out-dir "$OUT/xfold" >/dev/null
+if grep -qE "Ok\(\{ let mut __acc[0-9]+" "$OUT/xfold/xfold/src/xfold_x.rs"; then
+  echo "FAIL: xfold_x.rs double-wraps result-typed fold"
+  exit 1
+fi
+grep -qE "let mut __acc[0-9]+: Result" "$OUT/xfold/xfold/src/xfold_x.rs"
+echo "PASS xfold"
+
+echo "== codegen: xfoldnest (nested fold referencing outer acc, GAP-009) =="
+"$ALVA" project check "$DIR/xfoldnest/alva.toml" | grep -q "1 modules checked"
+"$ALVA" project build "$DIR/xfoldnest/alva.toml" --test --out-dir "$OUT/xfoldnest" >/dev/null
+echo "PASS xfoldnest"
+
+echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest)"

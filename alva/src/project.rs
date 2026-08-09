@@ -279,6 +279,28 @@ fn qualify_kind(kind: &ast::TypeKind, mod_name: &str) -> ast::TypeKind {
     }
 }
 
+/// 为模块 lm 计算直接依赖导出的外部函数签名表
+/// （key 为 qualified 名，返回类型按所属模块限定）。
+/// 用于 codegen 按签名推导表达式返回类型（produces_result 修复）。
+fn external_sigs_for(lm: &LoadedModule, all: &[LoadedModule]) -> crate::codegen::SigTable {
+    let mut sigs = crate::codegen::SigTable::new();
+    let dep_names: HashSet<&str> = lm.module.deps.iter().map(|(n, _)| n.as_str()).collect();
+    for other in all {
+        if !dep_names.contains(other.name.as_str()) {
+            continue;
+        }
+        for f in &other.module.fns {
+            if other.module.exports.contains(&f.name) {
+                sigs.insert(
+                    format!("{}.{}", other.name, f.name),
+                    qualify_type(&f.returns, &other.name),
+                );
+            }
+        }
+    }
+    sigs
+}
+
 // 生成一个 Rust crate：每个模块一个文件，lib.rs/main.rs 声明 mod
 pub fn codegen_project(
     project: &Project,
@@ -312,7 +334,7 @@ pub fn codegen_project(
     let mut has_main = false;
     for lm in modules {
         let san = lm.name.replace(['.', '-'], "_");
-        let gen = codegen::codegen(&lm.module);
+        let gen = codegen::codegen_with_external(&lm.module, external_sigs_for(lm, modules));
         let file = src.join(format!("{san}.rs"));
         std::fs::write(&file, gen.source_rs).map_err(|e| e.to_string())?;
         mod_decls.push_str(&format!("mod {san};\n"));

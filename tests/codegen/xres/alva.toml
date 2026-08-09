@@ -1,0 +1,6 @@
+[project]
+name = "xres"
+
+[modules]
+"xres.a" = "src/a.alva"
+"xres.b" = "src/b.alva"
