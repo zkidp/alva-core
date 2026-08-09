@@ -164,6 +164,11 @@ def walk_files(root):
 
 def main():
     bin_path = os.environ.get("ALVA_STORE_BIN")
+    if bin_path and os.name == "nt" and not bin_path.lower().endswith(".exe"):
+        # CI passes the cargo target path without the Windows extension.
+        exe = bin_path + ".exe"
+        if os.path.exists(exe):
+            bin_path = exe
     if not bin_path or not os.path.exists(bin_path):
         fail("set ALVA_STORE_BIN to the built store server binary")
     work = tempfile.mkdtemp(prefix="alva-durable-test-")
