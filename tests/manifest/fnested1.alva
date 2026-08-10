@@ -1,0 +1,15 @@
+(module
+  (name "fnested")
+  (version "0.1.0")
+  (export nest)
+  (fn nest
+    (returns (prim i64))
+    (pure)
+    (pre
+      (== (fold i (range (int 0) (int 10))
+            (acc out (prim i64) (int 0))
+            (fold j (range (int 0) (int 10))
+              (acc out2 (prim i64) (ref out))
+              (+ (ref out2) (ref out))))
+          (int 0)))
+    (body (int 0))))

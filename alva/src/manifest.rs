@@ -204,7 +204,13 @@ fn semantic_expr(e: &Expr, ctx: &SemCtx, lc: &mut usize) -> String {
         Expr::Append(v, x, _) => format!("append({} {})", se(v, ctx, lc), se(x, ctx, lc)),
         Expr::As(t, x, _) => format!("as({} {})", semantic_type(t), se(x, ctx, lc)),
         Expr::Fold(idx, lo, hi, acc, at, init, body, _) => {
-            let c2 = ctx.bind(idx, "$i").bind(acc, "$a");
+            // capture-safe alpha 归一化：每个 binder 取唯一 id（与 let $l{cid}
+            // 同一纪律），嵌套 fold 不再共享固定 $i/$a 而互相遮蔽碰撞。
+            let cid = *lc;
+            *lc += 1;
+            let c2 = ctx
+                .bind(idx, &format!("$i{cid}"))
+                .bind(acc, &format!("$a{cid}"));
             format!(
                 "fold({} {} {} {} {})",
                 se(lo, ctx, lc),
@@ -215,7 +221,9 @@ fn semantic_expr(e: &Expr, ctx: &SemCtx, lc: &mut usize) -> String {
             )
         }
         Expr::Loop(acc, at, init, inv, cond, body, _) => {
-            let c2 = ctx.bind(acc, "$a");
+            let cid = *lc;
+            *lc += 1;
+            let c2 = ctx.bind(acc, &format!("$a{cid}"));
             format!(
                 "loop({} {} {} {} {})",
                 semantic_type(at),
@@ -259,18 +267,27 @@ fn semantic_expr(e: &Expr, ctx: &SemCtx, lc: &mut usize) -> String {
             format!("veccontains({} {})", se(v, ctx, lc), se(x, ctx, lc))
         }
         Expr::Any(ev, c, p, _) => {
-            // 与 fold 的 idx/acc（$i/$a）同一纪律：elem_var 是绑定名，
-            // 语义哈希应规范化，改名不改变语义 hash。
-            let c2 = ctx.bind(ev, "$e");
-            format!("any($e {} {})", se(c, ctx, lc), se(p, &c2, lc))
+            // capture-safe alpha 归一化：唯一 lexical binder，避免嵌套
+            // any/all/find 的内外层 elem_var 都归一成 $e 而碰撞。
+            let cid = *lc;
+            *lc += 1;
+            let canon = format!("$e{cid}");
+            let c2 = ctx.bind(ev, &canon);
+            format!("any({canon} {} {})", se(c, ctx, lc), se(p, &c2, lc))
         }
         Expr::All(ev, c, p, _) => {
-            let c2 = ctx.bind(ev, "$e");
-            format!("all($e {} {})", se(c, ctx, lc), se(p, &c2, lc))
+            let cid = *lc;
+            *lc += 1;
+            let canon = format!("$e{cid}");
+            let c2 = ctx.bind(ev, &canon);
+            format!("all({canon} {} {})", se(c, ctx, lc), se(p, &c2, lc))
         }
         Expr::Find(ev, c, p, _) => {
-            let c2 = ctx.bind(ev, "$e");
-            format!("find($e {} {})", se(c, ctx, lc), se(p, &c2, lc))
+            let cid = *lc;
+            *lc += 1;
+            let canon = format!("$e{cid}");
+            let c2 = ctx.bind(ev, &canon);
+            format!("find({canon} {} {})", se(c, ctx, lc), se(p, &c2, lc))
         }
         Expr::Remove(m, k, _) => format!("remove({} {})", se(m, ctx, lc), se(k, ctx, lc)),
         Expr::Keys(m, _) => format!("keys({})", se(m, ctx, lc)),

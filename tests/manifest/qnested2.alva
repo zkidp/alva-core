@@ -1,0 +1,11 @@
+;; 嵌套 alpha 等价：内外层 elem_var 都改名，hash 必须相同
+(module
+  (name "qnested")
+  (version "0.1.0")
+  (export pair_any)
+  (fn pair_any
+    (params (param p (vec (prim i64))) (param q (vec (prim i64))))
+    (returns (prim bool))
+    (pure)
+    (pre (any a (ref p) (any b (ref q) (== (ref a) (ref b)))))
+    (body (bool true))))

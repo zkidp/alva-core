@@ -212,7 +212,7 @@ fn gen_fn(
     let last_is_result = f
         .body
         .last()
-        .map(|e| produces_result(e, sigs))
+        .map(|e| expr_produces_result(e, sigs))
         .unwrap_or(false);
     let body = if returns_result && !last_is_result {
         format!("Ok({body})")
@@ -269,43 +269,33 @@ fn gen_extern(e: &ast::ExternDef) -> String {
 
 /// 按表达式形状 + 签名表推导求值结果类型。
 /// 返回 `Some(TypeExpr)` 当类型可静态确定；否则 `None`（视为未知，不产生 Result）。
-fn expr_returns_type(e: &Expr, sigs: &SigTable) -> Option<TypeExpr> {
+/// 判断表达式是否已经产生 result 类型（避免自动 Ok 包装）。
+/// 与旧启发式不同：Try 是“已展开”语义（值类型不是 Result），
+/// 因此不再计入；call/fold/if/block/let 均按签名与形状推导。
+fn expr_produces_result(e: &Expr, sigs: &SigTable) -> bool {
     match e {
         Expr::Call(name, _, _) => {
             if name == "lookup" {
                 // (call lookup m k) 与裸 (lookup m k) 同义，返回 Result
-                Some(TypeExpr::Result(
-                    Box::new(TypeExpr::Prim(Prim::Nil)),
-                    Box::new(TypeExpr::Prim(Prim::String)),
-                ))
+                true
             } else {
-                sigs.get(name).cloned()
+                sigs.get(name)
+                    .map(|ret| matches!(ret, TypeExpr::Result(..)))
+                    .unwrap_or(false)
             }
         }
-        Expr::Fold(_, _, _, _, acc_ty, _, _, _) => Some(acc_ty.clone()),
-        Expr::Ok(..) | Expr::Err(..) | Expr::Lookup(..) | Expr::ParseInt(..) => {
-            Some(TypeExpr::Result(
-                Box::new(TypeExpr::Prim(Prim::Nil)),
-                Box::new(TypeExpr::Prim(Prim::String)),
-            ))
+        Expr::Fold(_, _, _, _, acc_ty, _, _, _) => matches!(acc_ty, TypeExpr::Result(..)),
+        Expr::Ok(..) | Expr::Err(..) | Expr::Lookup(..) | Expr::ParseInt(..) | Expr::Find(..) => {
+            true
         }
-        // RFC-0003: find 返回 result<T, nil>
-        Expr::Find(..) => Some(TypeExpr::Result(
-            Box::new(TypeExpr::Prim(Prim::Nil)),
-            Box::new(TypeExpr::Prim(Prim::String)),
-        )),
-        Expr::If(_, t, e2, _) => expr_returns_type(t, sigs).or_else(|| expr_returns_type(e2, sigs)),
-        Expr::Block(exprs, _) => exprs.last().and_then(|x| expr_returns_type(x, sigs)),
-        Expr::Let(_, _, _, body, _) => expr_returns_type(body, sigs),
-        _ => None,
+        Expr::If(_, t, e2, _) => expr_produces_result(t, sigs) || expr_produces_result(e2, sigs),
+        Expr::Block(exprs, _) => exprs
+            .last()
+            .map(|x| expr_produces_result(x, sigs))
+            .unwrap_or(false),
+        Expr::Let(_, _, _, body, _) => expr_produces_result(body, sigs),
+        _ => false,
     }
-}
-
-/// 判断表达式是否已经产生 result 类型（避免自动 Ok 包装）。
-/// 与旧启发式不同：Try 是“已展开”语义（值类型不是 Result），
-/// 因此不再计入；call/fold/if/block/let 均按签名与形状推导。
-fn produces_result(e: &Expr, sigs: &SigTable) -> bool {
-    matches!(expr_returns_type(e, sigs), Some(TypeExpr::Result(..)))
 }
 
 fn extern_wrapper_name(name: &str) -> String {

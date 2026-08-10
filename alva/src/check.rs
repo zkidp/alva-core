@@ -99,7 +99,7 @@ fn is_hashable_key(t: &Ty) -> bool {
     }
 }
 
-fn valid_ident(s: &str) -> bool {
+pub(crate) fn valid_ident(s: &str) -> bool {
     if s.is_empty() || RUST_KEYWORDS.contains(&s) {
         return false;
     }

@@ -1,0 +1,16 @@
+;; 嵌套 fold alpha 等价：外层/内层 acc 与 index 改名，hash 必须相同
+(module
+  (name "fnested")
+  (version "0.1.0")
+  (export nest)
+  (fn nest
+    (returns (prim i64))
+    (pure)
+    (pre
+      (== (fold a (range (int 0) (int 10))
+            (acc acc_a (prim i64) (int 0))
+            (fold b (range (int 0) (int 10))
+              (acc acc_b (prim i64) (ref acc_a))
+              (+ (ref acc_b) (ref acc_a))))
+          (int 0)))
+    (body (int 0))))

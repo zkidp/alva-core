@@ -1,0 +1,10 @@
+(module
+  (name "qalpha")
+  (version "0.1.0")
+  (export any_gt)
+  (fn any_gt
+    (params (param xs (vec (prim i64))))
+    (returns (prim bool))
+    (pure)
+    (pre (any e (ref xs) (> (ref e) (int 3))))
+    (body (bool true))))

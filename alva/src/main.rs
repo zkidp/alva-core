@@ -1935,8 +1935,14 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             }
             // RFC-0002/AEP-0001: change-impact query（只读，结构化引用）
             "inspect_change_impact" => {
-                if std::env::var("ALVA_AEP_DISABLE_A1_TOOLS").is_ok() {
-                    resp!(false, "null", "E_AEP_UNKNOWN_TOOL: inspect_change_impact")
+                // RFC-0002 是 DRAFT：默认不可调用（opt-in），避免未接受的
+                // 实验工具默认暴露给 agent。
+                if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_UNKNOWN_TOOL: inspect_change_impact (experimental; set ALVA_AEP_ENABLE_EXPERIMENTAL_A1=1)"
+                    )
                 } else {
                     let s = need_session!();
                     let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
@@ -1949,8 +1955,12 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             // RFC-0002/AEP-0001: 批量 schema 缺口诊断
             // （E_RECORD_SCHEMA_INCOMPLETE：一次列出所有缺字段的构造点）
             "inspect_schema_gaps" => {
-                if std::env::var("ALVA_AEP_DISABLE_A1_TOOLS").is_ok() {
-                    resp!(false, "null", "E_AEP_UNKNOWN_TOOL: inspect_schema_gaps")
+                if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_UNKNOWN_TOOL: inspect_schema_gaps (experimental; set ALVA_AEP_ENABLE_EXPERIMENTAL_A1=1)"
+                    )
                 } else {
                     let s = need_session!();
                     let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
@@ -2187,6 +2197,11 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         if elem_var.is_empty() {
                             return Err(format!(
                                 "E_QUERY_ELEM_VAR_MISSING: {kind} requires elem_var"
+                            ));
+                        }
+                        if !check::valid_ident(elem_var) {
+                            return Err(format!(
+                                "E_QUERY_ELEM_VAR_INVALID: {kind} elem_var '{elem_var}' is not a valid identifier (no Rust keyword, no __ prefix)"
                             ));
                         }
                         if predicate.is_empty() {
@@ -2677,15 +2692,16 @@ fn change_impact(g: &air::AirGraph, entity: &str) -> Result<String, String> {
     for (rev, kind, fn_e, test_e) in air::walk_expressions(g) {
         let Some(n) = g.get(&rev) else { continue };
         let fn_name = enclosing_fn_name(g, &fn_e);
-        if !fn_name.is_empty() {
-            let mod_part = fn_name
+        // 只对"确实使用目标类型"的表达式收集跨模块引用（避免 false positive）：
+        // mod_part 先计算，插入推迟到 `used` 判定之后。
+        let mod_part = if fn_name.is_empty() {
+            String::new()
+        } else {
+            fn_name
                 .rsplit_once('.')
                 .map(|(m, _)| m.to_string())
-                .unwrap_or_default();
-            if !mod_part.is_empty() && mod_part != mod_name {
-                cross_modules.insert(mod_part);
-            }
-        }
+                .unwrap_or_default()
+        };
         let used = match kind.as_str() {
             "record" if type_matches(n) => {
                 constructors.push(Json::Obj(std::collections::BTreeMap::from([
@@ -2731,6 +2747,9 @@ fn change_impact(g: &air::AirGraph, entity: &str) -> Result<String, String> {
         if used {
             if !fn_name.is_empty() {
                 fn_uses.insert(fn_name);
+                if !mod_part.is_empty() && mod_part != mod_name {
+                    cross_modules.insert(mod_part);
+                }
             }
             if !test_e.is_empty() {
                 tests.push(Json::Obj(std::collections::BTreeMap::from([
