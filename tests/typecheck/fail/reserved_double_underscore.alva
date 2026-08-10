@@ -1,0 +1,12 @@
+(module
+  (name "reserved_double_underscore")
+  (version "0.1.0")
+  (export bad)
+  (fn bad
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      ;; `__` 前缀保留给 codegen 生成变量（__iN/__accN/__eN/__v 等），
+      ;; 源码标识符不得与之碰撞（GAP-009 同类问题）。
+      (let __acc1 (int 100) (ref __acc1)))))

@@ -171,6 +171,13 @@ pub enum Expr {
     Set(Box<Expr>, Box<Expr>, Box<Expr>, Span),
     Lookup(Box<Expr>, Box<Expr>, Span),
     Contains(Box<Expr>, Box<Expr>, Span),
+    /// RFC-0003: vec 元素 contains（裸 `(contains v x)`；map 用
+    /// `(call contains m k)`）。存在 e ∈ v 使 e == x。
+    VecContains(Box<Expr>, Box<Expr>, Span),
+    /// RFC-0003: any/all/find —— 逐元素谓词，elem_var 绑定当前元素。
+    Any(String, Box<Expr>, Box<Expr>, Span),
+    All(String, Box<Expr>, Box<Expr>, Span),
+    Find(String, Box<Expr>, Box<Expr>, Span),
     Remove(Box<Expr>, Box<Expr>, Span),
     Keys(Box<Expr>, Span),
     Unwrap(Box<Expr>, Span),
@@ -200,6 +207,9 @@ pub enum Expr {
         Span,
     ),
     Record(String, Vec<(String, Expr)>, Span),
+    /// RFC-0001: partial record update. 显式携带 record 类型名
+    /// （与 `record` 构造一致），base 表达式求值一次，未指定字段保留。
+    RecordUpdate(String, Box<Expr>, Vec<(String, Expr)>, Span),
     Field(Box<Expr>, String, Span),
     Raise(Box<Expr>, Span),
     Try(Box<Expr>, String, Box<Expr>, Span),
@@ -236,6 +246,10 @@ impl Expr {
             | Expr::Set(_, _, _, s)
             | Expr::Lookup(_, _, s)
             | Expr::Contains(_, _, s)
+            | Expr::VecContains(_, _, s)
+            | Expr::Any(_, _, _, s)
+            | Expr::All(_, _, _, s)
+            | Expr::Find(_, _, _, s)
             | Expr::Remove(_, _, s)
             | Expr::Keys(_, s)
             | Expr::Unwrap(_, s)
@@ -257,6 +271,7 @@ impl Expr {
             | Expr::CtEq(_, _, s)
             | Expr::Loop(_, _, _, _, _, _, s)
             | Expr::Record(_, _, s)
+            | Expr::RecordUpdate(_, _, _, s)
             | Expr::Field(_, _, s)
             | Expr::Raise(_, s)
             | Expr::Try(_, _, _, s)
@@ -1490,11 +1505,73 @@ fn parse_expr(n: &Node) -> Result<Expr, Vec<Diag>> {
                 }
                 "contains" => {
                     if items.len() != 3 {
-                        return Err(vec![Diag::error_at(span, "(contains map key) expected")]);
+                        return Err(vec![Diag::error_at(span, "(contains vec elem) expected")]);
                     }
-                    let m = parse_expr(&items[1])?;
-                    let k = parse_expr(&items[2])?;
-                    Ok(Expr::Contains(Box::new(m), Box::new(k), span))
+                    // RFC-0003: 裸 contains 是 vec 元素 contains；
+                    // map 的 key contains 用 `(call contains m k)`。
+                    let v = parse_expr(&items[1])?;
+                    let x = parse_expr(&items[2])?;
+                    Ok(Expr::VecContains(Box::new(v), Box::new(x), span))
+                }
+                "any" => {
+                    if items.len() != 4 {
+                        return Err(vec![Diag::error_at(
+                            span,
+                            "(any elem-var vec pred) expected",
+                        )]);
+                    }
+                    let ev = match sym_text(&items[1]) {
+                        Some(s) => s.to_string(),
+                        None => {
+                            return Err(vec![Diag::error_at(
+                                items[1].span(),
+                                "any element variable must be a symbol",
+                            )])
+                        }
+                    };
+                    let c = parse_expr(&items[2])?;
+                    let p = parse_expr(&items[3])?;
+                    Ok(Expr::Any(ev, Box::new(c), Box::new(p), span))
+                }
+                "all" => {
+                    if items.len() != 4 {
+                        return Err(vec![Diag::error_at(
+                            span,
+                            "(all elem-var vec pred) expected",
+                        )]);
+                    }
+                    let ev = match sym_text(&items[1]) {
+                        Some(s) => s.to_string(),
+                        None => {
+                            return Err(vec![Diag::error_at(
+                                items[1].span(),
+                                "all element variable must be a symbol",
+                            )])
+                        }
+                    };
+                    let c = parse_expr(&items[2])?;
+                    let p = parse_expr(&items[3])?;
+                    Ok(Expr::All(ev, Box::new(c), Box::new(p), span))
+                }
+                "find" => {
+                    if items.len() != 4 {
+                        return Err(vec![Diag::error_at(
+                            span,
+                            "(find elem-var vec pred) expected",
+                        )]);
+                    }
+                    let ev = match sym_text(&items[1]) {
+                        Some(s) => s.to_string(),
+                        None => {
+                            return Err(vec![Diag::error_at(
+                                items[1].span(),
+                                "find element variable must be a symbol",
+                            )])
+                        }
+                    };
+                    let c = parse_expr(&items[2])?;
+                    let p = parse_expr(&items[3])?;
+                    Ok(Expr::Find(ev, Box::new(c), Box::new(p), span))
                 }
                 "remove" => {
                     if items.len() != 3 {
@@ -1802,6 +1879,58 @@ fn parse_expr(n: &Node) -> Result<Expr, Vec<Diag>> {
                     }
                     if diags.is_empty() {
                         Ok(Expr::Record(name, fields, span))
+                    } else {
+                        Err(diags)
+                    }
+                }
+                "record-update" => {
+                    // (record-update <Type> <base-expr> (field value)...)
+                    let name = match items.get(1).and_then(sym_text) {
+                        Some(s) => s.to_string(),
+                        None => {
+                            return Err(vec![Diag::error_at(
+                                span,
+                                "(record-update Type base (field value)...) requires a type name",
+                            )])
+                        }
+                    };
+                    let base = match items.get(2) {
+                        Some(b) => parse_expr(b)?,
+                        None => {
+                            return Err(vec![Diag::error_at(
+                            span,
+                            "(record-update Type base (field value)...) requires a base expression",
+                        )])
+                        }
+                    };
+                    let mut fields = Vec::new();
+                    let mut diags = Vec::new();
+                    for f in &items[3..] {
+                        let fi = list_items(f);
+                        if fi.len() != 2 {
+                            diags.push(Diag::error_at(
+                                f.span(),
+                                "record-update field must be (name value)",
+                            ));
+                            continue;
+                        }
+                        let fname = match sym_text(&fi[0]) {
+                            Some(s) => s.to_string(),
+                            None => {
+                                diags.push(Diag::error_at(
+                                    fi[0].span(),
+                                    "field name must be a symbol",
+                                ));
+                                continue;
+                            }
+                        };
+                        match parse_expr(&fi[1]) {
+                            Ok(v) => fields.push((fname, v)),
+                            Err(d) => diags.extend(d),
+                        }
+                    }
+                    if diags.is_empty() {
+                        Ok(Expr::RecordUpdate(name, Box::new(base), fields, span))
                     } else {
                         Err(diags)
                     }

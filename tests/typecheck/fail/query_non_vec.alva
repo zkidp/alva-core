@@ -1,0 +1,9 @@
+(module
+  (name "query_non_vec")
+  (version "0.1.0")
+  (export bad)
+  (fn bad
+    (params (param m (map (prim string) (prim i64))))
+    (returns (prim bool))
+    (pure)
+    (body (any e (ref m) (== (ref e) (string "x"))))))

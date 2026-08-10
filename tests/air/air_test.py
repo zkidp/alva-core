@@ -109,6 +109,39 @@ def main():
             fail(f"module {name} semantic hash changed after round-trip")
     log("  ok")
 
+    # ---- 1b. contains overload round-trip (map vs vec semantic identity) ----
+    # RFC-0003: 裸 (contains v x) 是 vec element contains；(call contains m k)
+    # 是 map key contains。projection 必须让两者在 export -> import ->
+    # re-export 后保持同一语义（hash 不变，且 re-import 后 checker 通过）。
+    log("[1b] contains overload round-trip (map/vec semantic identity)")
+    qproj = os.path.join(root, "tests", "air", "contains_roundtrip", "alva.toml")
+    qbase = os.path.join(work, "qbase")
+    qout = run([alva, "air", "export", qproj, "--out-dir", qbase])
+    qoriginal = {}
+    for line in qout.splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[0].startswith("ct_rt."):
+            qoriginal[parts[0]] = parts[1]
+    if len(qoriginal) != 1:
+        fail(f"expected 1 module, got {len(qoriginal)}")
+    run([alva, "air", "verify", os.path.join(qbase, "ct_rt.air")])
+    qrt = os.path.join(work, "qrt")
+    run([alva, "air", "import", os.path.join(qbase, "ct_rt.air"), "--out-dir", qrt])
+    with open(os.path.join(qrt, "alva.toml"), "w", encoding="utf-8") as fh:
+        fh.write('[project]\nname = "ct_rt"\n\n[modules]\n"ct_rt.x" = "ct_rt.x.alva"\n')
+    run([alva, "project", "check", os.path.join(qrt, "alva.toml")])
+    qrt2 = os.path.join(work, "qrt2")
+    qout2 = run([alva, "air", "export", os.path.join(qrt, "alva.toml"), "--out-dir", qrt2])
+    qroundtrip = {}
+    for line in qout2.splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[0].startswith("ct_rt."):
+            qroundtrip[parts[0]] = parts[1]
+    for name in qoriginal:
+        if qoriginal[name] != qroundtrip.get(name):
+            fail(f"module {name} semantic hash changed after contains round-trip")
+    log("  ok (map contains stays (call contains ...), vec contains stays (contains ...))")
+
     # ---- 2+3+4. AEP edit, invariant after each op, authoritative commit ----
     log("[2] AEP structured edit + invariant after every op + authoritative commit")
     aep_proj = os.path.join(work, "aep")

@@ -1,0 +1,9 @@
+(module
+  (name "query_non_bool_pred")
+  (version "0.1.0")
+  (export bad)
+  (fn bad
+    (params (param xs (vec (prim i64))))
+    (returns (prim bool))
+    (pure)
+    (body (any e (ref xs) (ref e)))))

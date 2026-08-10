@@ -136,7 +136,7 @@ rclone --config rclone.conf ls / lsf -R / deletefile / rmdir
 - S-expression 降级为 import 格式 + 只读 canonical 投影；AEP 路径中不存在括号配对问题。
 
 验证：`tests/air/air_test.py`（回环哈希稳定、AEP 事务、语义 diff、视图、holes）。
-
+`benchmarks/abc/run_abc.py` 是 A/B/C 写入方式实验骨架（真实模型测量待隔离 Agent 基础设施）。
 
 ## AIR Integrity and Authority Hardening（v0.5.1）
 
@@ -199,6 +199,14 @@ abort_transaction。
 - 每个操作返回 entity/revision/project revision；
 - Agent 不需要知道 AIR 内部 slot 名或 Value 枚举（friendly positions 映射）；
 - 模式 C 禁止 `.alva` 文件访问（工作区只含权威 AIR store）。
+
+## A/C Formal Correctness Experiment（v0.6）
+
+`benchmarks/ac/run_ac.py`：8 个冻结任务、A（文本编辑）/ C（Agent Runtime）随机
+交错、每任务每模式 ≥5 次、独立进程/全新工作区、完整 transcript/tool calls/
+stdout/stderr/checker/verifier、hidden verifier 位于 Agent 不可见位置、完整指标
+schema。当前为脚本化演示（协议/日志/指标可执行）；真实模型测量需隔离 Agent
+基础设施，结果不得冒充。
 
 ## 设计文档
 

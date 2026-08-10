@@ -1,0 +1,73 @@
+(module
+  (name "query.x")
+  (version "0.1.0")
+  (export has any_gt all_gt find_gt)
+
+  (fn has
+    (params (param xs (vec (prim i64))) (param x (prim i64)))
+    (returns (prim bool))
+    (pure)
+    (body (contains (ref xs) (ref x))))
+
+  (fn any_gt
+    (params (param xs (vec (prim i64))) (param t (prim i64)))
+    (returns (prim bool))
+    (pure)
+    (body (any e (ref xs) (> (ref e) (ref t)))))
+
+  (fn all_gt
+    (params (param xs (vec (prim i64))) (param t (prim i64)))
+    (returns (prim bool))
+    (pure)
+    (body (all e (ref xs) (> (ref e) (ref t)))))
+
+  (fn find_gt
+    (params (param xs (vec (prim i64))) (param t (prim i64)))
+    (returns (result (prim i64) (prim nil)))
+    (pure)
+    (body (find e (ref xs) (> (ref e) (ref t)))))
+
+  (test contains_ok
+    (body
+      (and
+        (and
+          (call has (vec (prim i64) (int 1) (int 2) (int 3)) (int 2))
+          (not (call has (vec (prim i64) (int 1)) (int 9))))
+        (not (call has (vec (prim i64)) (int 1))))))
+
+  (test any_all
+    (body
+      (and
+        (and
+          (call any_gt (vec (prim i64) (int 1) (int 5)) (int 3))
+          (not (call any_gt (vec (prim i64) (int 1) (int 2)) (int 3))))
+        (and
+          (call all_gt (vec (prim i64) (int 4) (int 5)) (int 3))
+          (not (call all_gt (vec (prim i64) (int 3) (int 5)) (int 3)))))))
+
+  ;; RFC-0003 contract: any(empty)=false, all(empty)=true, find(empty)=err
+  (test empty_semantics
+    (body
+      (and
+        (not (call any_gt (vec (prim i64)) (int 3)))
+        (and
+          (call all_gt (vec (prim i64)) (int 3))
+          (not (call is-ok (call find_gt (vec (prim i64)) (int 3))))))))
+
+  ;; any ????????last-position match??? true
+  (test any_last_position_match
+    (body
+      (call any_gt (vec (prim i64) (int 1) (int 2) (int 7)) (int 3))))
+
+  ;; find ????????first-of-many????? -> err
+  (test find_ok
+    (body
+      (let r (call find_gt (vec (prim i64) (int 1) (int 7) (int 9)) (int 5))
+        (and
+          (call is-ok (ref r))
+          (== (call unwrap (ref r)) (int 7))))))
+
+  (test find_no_match
+    (body
+      (not (call is-ok (call find_gt (vec (prim i64) (int 1) (int 2)) (int 9))))))
+)

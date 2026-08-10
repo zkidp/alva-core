@@ -1,0 +1,5 @@
+[project]
+name = "query"
+
+[modules]
+"query.x" = "src/x.alva"

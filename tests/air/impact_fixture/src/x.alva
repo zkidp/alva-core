@@ -1,0 +1,39 @@
+(module
+  (name "impact.x")
+  (version "0.1.0")
+  (export Item make_a make_b make_c)
+
+  (type Item
+    (record
+      (field name (prim string))
+      (field qty (prim i64))))
+
+  (fn make_a
+    (params
+      (param name (prim string)))
+    (returns Item)
+    (pure)
+    (body
+      (record Item
+        (name (ref name))
+        (qty (int 1)))))
+
+  (fn make_b
+    (params
+      (param name (prim string)))
+    (returns Item)
+    (pure)
+    (body
+      (record Item
+        (name (ref name))
+        (qty (int 2)))))
+
+  (fn make_c
+    (params
+      (param qty (prim i64)))
+    (returns Item)
+    (pure)
+    (body
+      (record Item
+        (name (string "c"))
+        (qty (ref qty))))))

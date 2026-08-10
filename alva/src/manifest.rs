@@ -255,6 +255,23 @@ fn semantic_expr(e: &Expr, ctx: &SemCtx, lc: &mut usize) -> String {
         ),
         Expr::Lookup(m, k, _) => format!("lookup({} {})", se(m, ctx, lc), se(k, ctx, lc)),
         Expr::Contains(m, k, _) => format!("contains({} {})", se(m, ctx, lc), se(k, ctx, lc)),
+        Expr::VecContains(v, x, _) => {
+            format!("veccontains({} {})", se(v, ctx, lc), se(x, ctx, lc))
+        }
+        Expr::Any(ev, c, p, _) => {
+            // 与 fold 的 idx/acc（$i/$a）同一纪律：elem_var 是绑定名，
+            // 语义哈希应规范化，改名不改变语义 hash。
+            let c2 = ctx.bind(ev, "$e");
+            format!("any($e {} {})", se(c, ctx, lc), se(p, &c2, lc))
+        }
+        Expr::All(ev, c, p, _) => {
+            let c2 = ctx.bind(ev, "$e");
+            format!("all($e {} {})", se(c, ctx, lc), se(p, &c2, lc))
+        }
+        Expr::Find(ev, c, p, _) => {
+            let c2 = ctx.bind(ev, "$e");
+            format!("find($e {} {})", se(c, ctx, lc), se(p, &c2, lc))
+        }
         Expr::Remove(m, k, _) => format!("remove({} {})", se(m, ctx, lc), se(k, ctx, lc)),
         Expr::Keys(m, _) => format!("keys({})", se(m, ctx, lc)),
         Expr::Unwrap(x, _) => format!("unwrap({})", se(x, ctx, lc)),
@@ -281,6 +298,15 @@ fn semantic_expr(e: &Expr, ctx: &SemCtx, lc: &mut usize) -> String {
         Expr::CtEq(a, b, _) => format!("cteq({} {})", se(a, ctx, lc), se(b, ctx, lc)),
         Expr::Record(name, fields, _) => format!(
             "record({name} {})",
+            fields
+                .iter()
+                .map(|(n, v)| format!("{n}:{}", se(v, ctx, lc)))
+                .collect::<Vec<_>>()
+                .join(" ")
+        ),
+        Expr::RecordUpdate(name, base, fields, _) => format!(
+            "record_update({name} {} {})",
+            se(base, ctx, lc),
             fields
                 .iter()
                 .map(|(n, v)| format!("{n}:{}", se(v, ctx, lc)))

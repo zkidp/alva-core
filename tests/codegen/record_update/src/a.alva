@@ -1,0 +1,33 @@
+(module
+  (name "recup.a")
+  (version "0.1.0")
+  (export Item make bump)
+
+  (type Item
+    (record
+      (field name (prim string))
+      (field qty (prim i64))
+      (field tag (prim string))))
+
+  (fn make
+    (params
+      (param name (prim string))
+      (param qty (prim i64))
+      (param tag (prim string)))
+    (returns Item)
+    (pure)
+    (body
+      (record Item
+        (name (ref name))
+        (qty (ref qty))
+        (tag (ref tag)))))
+
+  ;; T1: 单字段更新
+  (fn bump
+    (params
+      (param it Item))
+    (returns Item)
+    (pure)
+    (body
+      (record-update Item (ref it)
+        (qty (+ (field (ref it) "qty") (int 1)))))))

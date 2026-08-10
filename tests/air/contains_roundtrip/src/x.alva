@@ -1,0 +1,39 @@
+(module
+  (name "ct_rt.x")
+  (version "0.1.0")
+  (export m_has v_has any_gt all_gt find_gt)
+
+  ;; RFC-0003 overload contract fixture:
+  ;;   (call contains m k)  = map key contains（legacy 语义）
+  ;;   (contains v x)       = vec element contains（新语义）
+  ;; round-trip（export -> import -> re-export）必须保持两者语义身份不变。
+
+  (fn m_has
+    (params (param m (map (prim string) (prim i64))) (param k (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body (call contains (ref m) (ref k))))
+
+  (fn v_has
+    (params (param v (vec (prim i64))) (param x (prim i64)))
+    (returns (prim bool))
+    (pure)
+    (body (contains (ref v) (ref x))))
+
+  (fn any_gt
+    (params (param v (vec (prim i64))) (param t (prim i64)))
+    (returns (prim bool))
+    (pure)
+    (body (any e (ref v) (> (ref e) (ref t)))))
+
+  (fn all_gt
+    (params (param v (vec (prim i64))) (param t (prim i64)))
+    (returns (prim bool))
+    (pure)
+    (body (all e (ref v) (> (ref e) (ref t)))))
+
+  (fn find_gt
+    (params (param v (vec (prim i64))) (param t (prim i64)))
+    (returns (result (prim i64) (prim nil)))
+    (pure)
+    (body (find e (ref v) (> (ref e) (ref t))))))

@@ -1,0 +1,90 @@
+(module
+  (name "recup.b")
+  (version "0.1.0")
+  (dep "recup.a" "0.1.0")
+  (export touch swap keep nested_eq)
+
+  ;; T11: 跨模块 record 类型 record-update
+  (fn touch
+    (params
+      (param it recup.a.Item))
+    (returns recup.a.Item)
+    (pure)
+    (body
+      (record-update recup.a.Item (ref it)
+        (qty (+ (field (ref it) "qty") (int 1))))))
+
+  ;; T2: 多字段更新（书写顺序 name, tag）
+  (fn swap
+    (params
+      (param it recup.a.Item))
+    (returns recup.a.Item)
+    (pure)
+    (body
+      (record-update recup.a.Item (ref it)
+        (name (field (ref it) "tag"))
+        (tag (field (ref it) "name")))))
+
+  ;; T9: nested update（内层 update 作为外层 value 的一部分）
+  (fn keep
+    (params
+      (param it recup.a.Item))
+    (returns recup.a.Item)
+    (pure)
+    (body
+      (record-update recup.a.Item (ref it)
+        (qty
+          (field
+            (record-update recup.a.Item (ref it)
+              (name (string "n")))
+            "qty")))))
+
+  ;; T13: record-update ≡ 全字段构造（黄金准则，行为等价）
+  (fn nested_eq
+    (params
+      (param it recup.a.Item))
+    (returns (prim bool))
+    (pure)
+    (body
+      (==
+        (record-update recup.a.Item (ref it)
+          (qty (int 5)))
+        (record recup.a.Item
+          (name (field (ref it) "name"))
+          (qty (int 5))
+          (tag (field (ref it) "tag"))))))
+
+  (test t1_bump
+    (body
+      (let it (call recup.a.make (string "a") (int 2) (string "t"))
+        (let r (call touch (ref it))
+          (and
+            (and
+              (and
+                (== (field (ref r) "name") (string "a"))
+                (== (field (ref r) "qty") (int 3)))
+              (== (field (ref r) "tag") (string "t")))
+            ;; T14: base 不被修改
+            (== (field (ref it) "qty") (int 2)))))))
+
+  (test t2_swap
+    (body
+      (let r (call swap (call recup.a.make (string "a") (int 2) (string "t")))
+        (and
+          (and
+            (== (field (ref r) "name") (string "t"))
+            (== (field (ref r) "qty") (int 2)))
+          (== (field (ref r) "tag") (string "a"))))))
+
+  (test t9_nested_keep
+    (body
+      (let r (call keep (call recup.a.make (string "a") (int 7) (string "t")))
+        (and
+          (and
+            (== (field (ref r) "name") (string "a"))
+            (== (field (ref r) "qty") (int 7)))
+          (== (field (ref r) "tag") (string "t"))))))
+
+  (test t13_equivalence
+    (body
+      (call nested_eq (call recup.a.make (string "x") (int 9) (string "y"))))))

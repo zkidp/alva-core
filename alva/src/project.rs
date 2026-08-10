@@ -301,6 +301,32 @@ fn external_sigs_for(lm: &LoadedModule, all: &[LoadedModule]) -> crate::codegen:
     sigs
 }
 
+/// 为模块 lm 计算直接依赖导出的 record 类型字段表
+/// （qualified 名 -> 字段名列表），供 codegen 展开 record_update。
+fn external_record_fields_for(
+    lm: &LoadedModule,
+    all: &[LoadedModule],
+) -> std::collections::HashMap<String, Vec<String>> {
+    let mut fields = std::collections::HashMap::new();
+    let dep_names: HashSet<&str> = lm.module.deps.iter().map(|(n, _)| n.as_str()).collect();
+    for other in all {
+        if !dep_names.contains(other.name.as_str()) {
+            continue;
+        }
+        for t in &other.module.types {
+            if other.module.exports.contains(&t.name) {
+                if let ast::TypeKind::Record(fs) = &t.kind {
+                    fields.insert(
+                        format!("{}.{}", other.name, t.name),
+                        fs.iter().map(|(n, _)| n.clone()).collect(),
+                    );
+                }
+            }
+        }
+    }
+    fields
+}
+
 // 生成一个 Rust crate：每个模块一个文件，lib.rs/main.rs 声明 mod
 pub fn codegen_project(
     project: &Project,
@@ -334,7 +360,11 @@ pub fn codegen_project(
     let mut has_main = false;
     for lm in modules {
         let san = lm.name.replace(['.', '-'], "_");
-        let gen = codegen::codegen_with_external(&lm.module, external_sigs_for(lm, modules));
+        let gen = codegen::codegen_with_external(
+            &lm.module,
+            external_sigs_for(lm, modules),
+            external_record_fields_for(lm, modules),
+        );
         let file = src.join(format!("{san}.rs"));
         std::fs::write(&file, gen.source_rs).map_err(|e| e.to_string())?;
         mod_decls.push_str(&format!("mod {san};\n"));
