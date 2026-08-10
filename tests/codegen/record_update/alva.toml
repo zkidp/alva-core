@@ -1,0 +1,6 @@
+[project]
+name = "record_update"
+
+[modules]
+"recup.a" = "src/a.alva"
+"recup.b" = "src/b.alva"

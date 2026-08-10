@@ -1,0 +1,9 @@
+{
+  "allow_extra": false,
+  "diagnostics": [
+    {
+      "code": "E_RECORD_UPDATE_TYPE_MISMATCH",
+      "function": "bad"
+    }
+  ]
+}

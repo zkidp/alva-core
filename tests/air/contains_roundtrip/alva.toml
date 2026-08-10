@@ -1,0 +1,5 @@
+[project]
+name = "ct_rt"
+
+[modules]
+"ct_rt.x" = "src/x.alva"

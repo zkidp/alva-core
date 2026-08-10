@@ -99,8 +99,14 @@ fn is_hashable_key(t: &Ty) -> bool {
     }
 }
 
-fn valid_ident(s: &str) -> bool {
+pub(crate) fn valid_ident(s: &str) -> bool {
     if s.is_empty() || RUST_KEYWORDS.contains(&s) {
+        return false;
+    }
+    // `__` 前缀保留给 codegen 生成变量（__iN / __accN / __eN / __v / __m /
+    // __result 等），防止源码标识符与生成名碰撞——GAP-009 同类问题：
+    // 若用户绑定叫 __acc1，会与 fold 的生成名冲突导致静默错误。
+    if s.starts_with("__") {
         return false;
     }
     let mut chars = s.chars();
@@ -1063,6 +1069,56 @@ impl<'a> Checker<'a> {
                     }
                 }
             }
+            // RFC-0003: vec 元素 contains —— 存在 e ∈ v 使 e == x
+            Expr::VecContains(v, x, span) => {
+                let tv = self.type_of(v, env);
+                match &tv {
+                    Ty::Vec(et) => {
+                        let tx = self.type_of(x, env);
+                        self.unify((**et).clone(), tx, span, "vec element type");
+                        Ty::Prim(Prim::Bool)
+                    }
+                    Ty::Unknown => {
+                        let _ = self.type_of(x, env);
+                        Ty::Unknown
+                    }
+                    _ => {
+                        self.diags.push(Diag::error_at(
+                            span.clone(),
+                            format!("contains requires a vec (found {})", ty_name(&tv)),
+                        ));
+                        Ty::Unknown
+                    }
+                }
+            }
+            // RFC-0003: any/all/find —— elem_var 绑定当前元素，谓词须为 bool
+            Expr::Any(ev, c, p, span) => self.query_type(ev, c, p, span, "any", env),
+            Expr::All(ev, c, p, span) => self.query_type(ev, c, p, span, "all", env),
+            Expr::Find(ev, c, p, span) => {
+                let tc = self.type_of(c, env);
+                match &tc {
+                    Ty::Vec(et) => {
+                        env.vars.push((ev.clone(), (**et).clone()));
+                        let tp = self.type_of(p, env);
+                        env.vars.pop();
+                        self.expect_ty(
+                            tp,
+                            &Ty::Prim(Prim::Bool),
+                            span,
+                            "find predicate must be bool",
+                        );
+                        Ty::Result(Box::new((**et).clone()), Box::new(Ty::Prim(Prim::Nil)))
+                    }
+                    Ty::Unknown => Ty::Unknown,
+                    _ => {
+                        self.diags.push(Diag::error_at(
+                            span.clone(),
+                            format!("find requires a vec (found {})", ty_name(&tc)),
+                        ));
+                        Ty::Unknown
+                    }
+                }
+            }
             Expr::Remove(m, k, span) => {
                 let tm = self.type_of(m, env);
                 match &tm {
@@ -1438,6 +1494,121 @@ impl<'a> Checker<'a> {
                         self.diags.push(Diag::error_at(
                             span.clone(),
                             format!("'{name}' is not a record type and cannot be constructed"),
+                        ));
+                        Ty::Unknown
+                    }
+                    None => {
+                        self.diags.push(Diag::error_at(
+                            span.clone(),
+                            format!("unknown record type '{name}'"),
+                        ));
+                        Ty::Unknown
+                    }
+                }
+            }
+            // RFC-0001: partial record update。base 必须是与命名 record
+            // 类型一致的 record；字段必须存在、不重复、非空、类型兼容。
+            Expr::RecordUpdate(name, base, updates, span) => {
+                let tb = self.type_of(base, env);
+                let expected = Ty::Named(name.clone());
+                if tb != expected && tb != Ty::Unknown {
+                    self.diags.push(
+                        Diag::error_at(
+                            span.clone(),
+                            format!(
+                                "record-update base must be of type '{name}' (found {})",
+                                ty_name(&tb)
+                            ),
+                        )
+                        .with_code("E_TYPE_001")
+                        .with_module(self.module.name.clone())
+                        .with_function(self.current_fn.clone().unwrap_or_default()),
+                    );
+                }
+                let kind: Option<ast::TypeKind> = if name.contains('.') {
+                    self.external_types.get(name).map(|e| e.kind.clone())
+                } else {
+                    self.types.get(name).map(|t| t.kind.clone())
+                };
+                match kind {
+                    Some(ast::TypeKind::Record(defs)) => {
+                        if updates.is_empty() {
+                            self.diags.push(
+                                Diag::error_at(
+                                    span.clone(),
+                                    format!(
+                                        "record-update on '{name}' must update at least one field"
+                                    ),
+                                )
+                                .with_code("E_RECORD_UPDATE_EMPTY")
+                                .with_module(self.module.name.clone())
+                                .with_function(self.current_fn.clone().unwrap_or_default()),
+                            );
+                        }
+                        let def_map: HashMap<&str, &TypeExpr> =
+                            defs.iter().map(|(n, t)| (n.as_str(), t)).collect();
+                        let mut seen = HashSet::new();
+                        for (fname, fval) in updates {
+                            if !seen.insert(fname.clone()) {
+                                self.diags.push(
+                                    Diag::error_at(
+                                        span.clone(),
+                                        format!(
+                                            "duplicate update field '{fname}' in record-update '{name}'"
+                                        ),
+                                    )
+                                    .with_code("E_RECORD_UPDATE_DUPLICATE_FIELD")
+                                    .with_module(self.module.name.clone())
+                                    .with_function(self.current_fn.clone().unwrap_or_default()),
+                                );
+                            }
+                            match def_map.get(fname.as_str()) {
+                                Some(fte) => {
+                                    let tf = ty_of(fte);
+                                    let tv = self.type_of(fval, env);
+                                    if tv != Ty::Unknown && tf != tv {
+                                        let mut d = Diag::error_at(
+                                            span.clone(),
+                                            format!(
+                                                "field '{fname}' type mismatch in record-update '{name}' ({} vs {})",
+                                                ty_name(&tf),
+                                                ty_name(&tv)
+                                            ),
+                                        )
+                                        .with_code("E_RECORD_UPDATE_TYPE_MISMATCH")
+                                        .with_module(self.module.name.clone())
+                                        .with_function(self.current_fn.clone().unwrap_or_default());
+                                        d.expected.push(ty_name(&tf));
+                                        d.actual.push(ty_name(&tv));
+                                        self.diags.push(d);
+                                    } else {
+                                        self.unify(tf, tv, span, format!("field '{fname}' type"));
+                                    }
+                                }
+                                None => {
+                                    let candidates: Vec<String> =
+                                        defs.iter().map(|(n, _)| n.clone()).collect();
+                                    self.diags.push(
+                                        Diag::error_at(
+                                            span.clone(),
+                                            format!(
+                                                "unknown field '{fname}' in record-update '{name}' (record fields: {})",
+                                                candidates.join(", ")
+                                            ),
+                                        )
+                                        .with_code("E_RECORD_UPDATE_UNKNOWN_FIELD")
+                                        .with_module(self.module.name.clone())
+                                        .with_function(self.current_fn.clone().unwrap_or_default()),
+                                    );
+                                }
+                            }
+                        }
+                        Ty::Named(name.clone())
+                    }
+                    Some(_) => {
+                        self.diags.push(Diag::error_at(
+                            span.clone(),
+                            format!("'{name}' is not a record type and cannot be updated"),
                         ));
                         Ty::Unknown
                     }
@@ -2274,6 +2445,46 @@ impl<'a> Checker<'a> {
             }
         }
         self.diags
+    }
+
+    /// RFC-0003: any/all 共用检查 —— collection 须为 vec，elem_var 绑定
+    /// 为元素类型，谓词须为 bool；返回 bool。
+    fn query_type(
+        &mut self,
+        ev: &str,
+        c: &Expr,
+        p: &Expr,
+        span: &Span,
+        name: &str,
+        env: &mut Env,
+    ) -> Ty {
+        let tc = self.type_of(c, env);
+        match &tc {
+            Ty::Vec(et) => {
+                env.vars.push((ev.to_string(), (**et).clone()));
+                let tp = self.type_of(p, env);
+                env.vars.pop();
+                self.expect_ty(
+                    tp,
+                    &Ty::Prim(Prim::Bool),
+                    span,
+                    &format!("{name} predicate must be bool"),
+                );
+                Ty::Prim(Prim::Bool)
+            }
+            Ty::Unknown => Ty::Unknown,
+            _ => {
+                self.diags.push(
+                    Diag::error_at(
+                        span.clone(),
+                        format!("{name} requires a vec (found {})", ty_name(&tc)),
+                    )
+                    .with_module(self.module.name.clone())
+                    .with_function(self.current_fn.clone().unwrap_or_default()),
+                );
+                Ty::Unknown
+            }
+        }
     }
 
     fn expect_ty(&mut self, got: Ty, want: &Ty, span: &Span, msg: &str) {

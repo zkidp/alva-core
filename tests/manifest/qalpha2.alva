@@ -1,0 +1,11 @@
+;; alpha 等价：elem_var / 参数改名，interface hash 必须相同
+(module
+  (name "qalpha")
+  (version "0.1.0")
+  (export any_gt)
+  (fn any_gt
+    (params (param ys (vec (prim i64))))
+    (returns (prim bool))
+    (pure)
+    (pre (any v (ref ys) (> (ref v) (int 3))))
+    (body (bool true))))

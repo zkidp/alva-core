@@ -1148,6 +1148,31 @@ fn expr_to_air(g: &mut AirGraph, e: &ast::Expr) -> String {
         ast::Expr::Set(m, k, v, _) => ternary(g, "set", m, k, v),
         ast::Expr::Lookup(m, k, _) => binary(g, "lookup", m, k),
         ast::Expr::Contains(m, k, _) => binary(g, "contains", m, k),
+        ast::Expr::VecContains(v, x, _) => binary(g, "veccontains", v, x),
+        ast::Expr::Any(ev, c, p, _) => {
+            let mut f = BTreeMap::new();
+            f.insert("elem_var".to_string(), Value::Str(ev.clone()));
+            let mut s = BTreeMap::new();
+            s.insert("collection".to_string(), vec![expr_to_air(g, c)]);
+            s.insert("predicate".to_string(), vec![expr_to_air(g, p)]);
+            g.add("any", "", f, s)
+        }
+        ast::Expr::All(ev, c, p, _) => {
+            let mut f = BTreeMap::new();
+            f.insert("elem_var".to_string(), Value::Str(ev.clone()));
+            let mut s = BTreeMap::new();
+            s.insert("collection".to_string(), vec![expr_to_air(g, c)]);
+            s.insert("predicate".to_string(), vec![expr_to_air(g, p)]);
+            g.add("all", "", f, s)
+        }
+        ast::Expr::Find(ev, c, p, _) => {
+            let mut f = BTreeMap::new();
+            f.insert("elem_var".to_string(), Value::Str(ev.clone()));
+            let mut s = BTreeMap::new();
+            s.insert("collection".to_string(), vec![expr_to_air(g, c)]);
+            s.insert("predicate".to_string(), vec![expr_to_air(g, p)]);
+            g.add("find", "", f, s)
+        }
         ast::Expr::Remove(m, k, _) => binary(g, "remove", m, k),
         ast::Expr::Keys(m, _) => unary(g, "keys", m),
         ast::Expr::Unwrap(x, _) => unary(g, "unwrap", x),
@@ -1204,6 +1229,26 @@ fn expr_to_air(g: &mut AirGraph, e: &ast::Expr) -> String {
                     .collect(),
             );
             g.add("record", "", f, s)
+        }
+        ast::Expr::RecordUpdate(ty, base, updates, _) => {
+            let mut f = BTreeMap::new();
+            f.insert("type".to_string(), Value::Str(ty.clone()));
+            let mut s = BTreeMap::new();
+            s.insert("base".to_string(), vec![expr_to_air(g, base)]);
+            s.insert(
+                "updates".to_string(),
+                updates
+                    .iter()
+                    .map(|(n, v)| {
+                        let mut ff = BTreeMap::new();
+                        ff.insert("name".to_string(), Value::Str(n.clone()));
+                        let mut fs = BTreeMap::new();
+                        fs.insert("value".to_string(), vec![expr_to_air(g, v)]);
+                        g.add("update_field", "", ff, fs)
+                    })
+                    .collect(),
+            );
+            g.add("record_update", "", f, s)
         }
         ast::Expr::Field(x, name, _) => {
             let mut f = BTreeMap::new();
@@ -1625,11 +1670,22 @@ fn expr_air_to_sexpr(g: &AirGraph, id: &str) -> String {
             unary_child(g, n)
         ),
         "get" | "append" | "lookup" | "contains" | "remove" | "split" | "concat" | "join"
-        | "stripprefix" | "before" | "endswith" | "cteq" => {
+        | "stripprefix" | "before" | "endswith" | "cteq" | "veccontains" => {
+            // RFC-0003: 裸 (contains ...) 是 vec 元素 contains；AIR tag "contains"
+            // 是 map key contains（旧语义），投影必须写成 (call contains m k)
+            // 才能被新 parser 读回 map contains，避免 round-trip 语义漂移。
+            if tag == "contains" {
+                return format!(
+                    "(call contains {} {})",
+                    child_str(g, n, "left"),
+                    child_str(g, n, "right")
+                );
+            }
             let name = match tag {
                 "stripprefix" => "strip-prefix",
                 "endswith" => "ends-with",
                 "cteq" => "ct-eq",
+                "veccontains" => "contains",
                 other => other,
             };
             format!(
@@ -1639,6 +1695,13 @@ fn expr_air_to_sexpr(g: &AirGraph, id: &str) -> String {
                 child_str(g, n, "right")
             )
         }
+        "any" | "all" | "find" => format!(
+            "({} {} {} {})",
+            tag,
+            field_str(n, "elem_var"),
+            child_str(g, n, "collection"),
+            child_str(g, n, "predicate")
+        ),
         "slice" => format!(
             "(slice {} {} {})",
             child_str(g, n, "value"),
@@ -1717,6 +1780,27 @@ fn expr_air_to_sexpr(g: &AirGraph, id: &str) -> String {
                 "(record {} {})",
                 field_str(n, "type"),
                 fields
+                    .iter()
+                    .map(|f| {
+                        let fn_ = g.get(f).unwrap();
+                        format!(
+                            "({} {})",
+                            field_str(fn_, "name"),
+                            expr_air_to_sexpr(g, &fn_.slots["value"][0])
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            )
+        }
+        "record_update" => {
+            let base = &n.slots["base"][0];
+            let updates = slot_children(g, n, "updates");
+            format!(
+                "(record-update {} {} {})",
+                field_str(n, "type"),
+                expr_air_to_sexpr(g, base),
+                updates
                     .iter()
                     .map(|f| {
                         let fn_ = g.get(f).unwrap();
@@ -2481,6 +2565,10 @@ fn is_expr_kind(k: &str) -> bool {
             | "set"
             | "lookup"
             | "contains"
+            | "veccontains"
+            | "any"
+            | "all"
+            | "find"
             | "remove"
             | "keys"
             | "unwrap"
@@ -2502,6 +2590,7 @@ fn is_expr_kind(k: &str) -> bool {
             | "cteq"
             | "loop"
             | "record"
+            | "record_update"
             | "field"
             | "raise"
             | "try"
@@ -2967,7 +3056,7 @@ fn schema(
             }],
         ),
         "get" | "append" | "lookup" | "contains" | "remove" | "split" | "concat" | "join"
-        | "stripprefix" | "before" | "endswith" | "cteq" => (
+        | "stripprefix" | "before" | "endswith" | "cteq" | "veccontains" => (
             &[],
             &[],
             &[
@@ -2979,6 +3068,28 @@ fn schema(
                 },
                 SlotSpec {
                     name: "right",
+                    allowed: &["expr"],
+                    min: 1,
+                    max: 1,
+                },
+            ],
+        ),
+        "any" | "all" | "find" => (
+            &[FieldSpec {
+                name: "elem_var",
+                vkind: Str,
+                required: true,
+            }],
+            &[],
+            &[
+                SlotSpec {
+                    name: "collection",
+                    allowed: &["expr"],
+                    min: 1,
+                    max: 1,
+                },
+                SlotSpec {
+                    name: "predicate",
                     allowed: &["expr"],
                     min: 1,
                     max: 1,
@@ -3204,6 +3315,42 @@ fn schema(
                 allowed: &["record_field"],
                 min: 0,
                 max: usize::MAX,
+            }],
+        ),
+        "record_update" => (
+            &[FieldSpec {
+                name: "type",
+                vkind: Str,
+                required: true,
+            }],
+            &[],
+            &[
+                SlotSpec {
+                    name: "base",
+                    allowed: &["expr"],
+                    min: 1,
+                    max: 1,
+                },
+                SlotSpec {
+                    name: "updates",
+                    allowed: &["update_field"],
+                    min: 0,
+                    max: usize::MAX,
+                },
+            ],
+        ),
+        "update_field" => (
+            &[FieldSpec {
+                name: "name",
+                vkind: Str,
+                required: true,
+            }],
+            &[],
+            &[SlotSpec {
+                name: "value",
+                allowed: &["expr"],
+                min: 1,
+                max: 1,
             }],
         ),
         "record_field" => (
@@ -3663,6 +3810,33 @@ impl EditSession {
         Ok(self.graph.resolve_rev(&parent_rev).unwrap_or_default())
     }
 
+    /// 在 slot 的指定位置插入子节点（供工具做临时挂载校验等）。
+    pub fn insert_child(
+        &mut self,
+        parent: &str,
+        slot: &str,
+        child: &str,
+        index: usize,
+    ) -> Result<(), String> {
+        let parent_rev = self
+            .resolve_current(parent)
+            .map_err(|e| format!("insert_child: {e}"))?;
+        let child_rev = self
+            .resolve_current(child)
+            .map_err(|e| format!("insert_child: {e}"))?;
+        let pr = parent_rev.clone();
+        let cr = child_rev.clone();
+        self.stage(|g| {
+            if let Some(n) = g.nodes.get_mut(&pr) {
+                let v = n.slots.entry(slot.to_string()).or_default();
+                let idx = index.min(v.len());
+                v.insert(idx, cr.clone());
+            }
+            Ok(())
+        })?;
+        Ok(())
+    }
+
     pub fn bind_symbol(
         &mut self,
         scope: &str,
@@ -3838,6 +4012,51 @@ pub fn parent_index(g: &AirGraph) -> BTreeMap<String, Vec<(String, String)>> {
         }
     }
     index
+}
+
+/// RFC-0002/AEP-0001: 从模块根出发遍历所有可达表达式节点。
+/// 返回 (node_revision, kind, enclosing_function_entity, enclosing_test_entity)
+/// 的列表，供 change-impact 查询使用。
+pub fn walk_expressions(g: &AirGraph) -> Vec<(String, String, String, String)> {
+    let mut out = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+    let mut stack: Vec<(String, String, String)> = Vec::new(); // (rev, fn_entity, test_entity)
+    for me in &g.module_entities {
+        let Some(mn) = g.resolve(me) else { continue };
+        for fn_id in mn.slots.get("functions").cloned().unwrap_or_default() {
+            if let Some(fn_) = g.get(&fn_id) {
+                if let Some(b) = fn_.slots.get("body").and_then(|b| b.first()) {
+                    stack.push((b.clone(), fn_id.clone(), String::new()));
+                }
+                for t in fn_.slots.get("returns").cloned().unwrap_or_default() {
+                    stack.push((t, fn_id.clone(), String::new()));
+                }
+                for p in fn_.slots.get("params").cloned().unwrap_or_default() {
+                    stack.push((p, fn_id.clone(), String::new()));
+                }
+            }
+        }
+        for t_id in mn.slots.get("tests").cloned().unwrap_or_default() {
+            if let Some(t_) = g.get(&t_id) {
+                if let Some(b) = t_.slots.get("body").and_then(|b| b.first()) {
+                    stack.push((b.clone(), String::new(), t_id.clone()));
+                }
+            }
+        }
+    }
+    while let Some((rev, fn_e, test_e)) = stack.pop() {
+        if !seen.insert(rev.clone()) {
+            continue;
+        }
+        let Some(n) = g.get(&rev) else { continue };
+        out.push((rev.clone(), n.kind.clone(), fn_e.clone(), test_e.clone()));
+        for children in n.slots.values() {
+            for c in children {
+                stack.push((c.clone(), fn_e.clone(), test_e.clone()));
+            }
+        }
+    }
+    out
 }
 
 /// Accurate lexical scope for a hole: walk the parent chain from the hole up to
@@ -4201,6 +4420,25 @@ pub fn expr_air_to_ast(g: &AirGraph, id: &str) -> Result<ast::Expr, String> {
         ),
         "lookup" => bin(g, n, ast::Expr::Lookup)?,
         "contains" => bin(g, n, ast::Expr::Contains)?,
+        "veccontains" => bin(g, n, ast::Expr::VecContains)?,
+        "any" => ast::Expr::Any(
+            field_str(n, "elem_var"),
+            Box::new(expr_air_to_ast(g, &slot_first(g, n, "collection")?)?),
+            Box::new(expr_air_to_ast(g, &slot_first(g, n, "predicate")?)?),
+            sp(),
+        ),
+        "all" => ast::Expr::All(
+            field_str(n, "elem_var"),
+            Box::new(expr_air_to_ast(g, &slot_first(g, n, "collection")?)?),
+            Box::new(expr_air_to_ast(g, &slot_first(g, n, "predicate")?)?),
+            sp(),
+        ),
+        "find" => ast::Expr::Find(
+            field_str(n, "elem_var"),
+            Box::new(expr_air_to_ast(g, &slot_first(g, n, "collection")?)?),
+            Box::new(expr_air_to_ast(g, &slot_first(g, n, "predicate")?)?),
+            sp(),
+        ),
         "remove" => bin(g, n, ast::Expr::Remove)?,
         "keys" => ast::Expr::Keys(Box::new(unary(g, n)?), sp()),
         "unwrap" => ast::Expr::Unwrap(Box::new(unary(g, n)?), sp()),
@@ -4248,6 +4486,21 @@ pub fn expr_air_to_ast(g: &AirGraph, id: &str) -> Result<ast::Expr, String> {
                 .iter()
                 .map(|f| {
                     let fn_ = g.get(f).ok_or("missing record field")?;
+                    Ok((
+                        field_str(fn_, "name"),
+                        expr_air_to_ast(g, &slot_first(g, fn_, "value")?)?,
+                    ))
+                })
+                .collect::<Result<Vec<_>, String>>()?,
+            sp(),
+        ),
+        "record_update" => ast::Expr::RecordUpdate(
+            field_str(n, "type"),
+            Box::new(expr_air_to_ast(g, &slot_first(g, n, "base")?)?),
+            slot_all(g, n, "updates")
+                .iter()
+                .map(|f| {
+                    let fn_ = g.get(f).ok_or("missing update field")?;
                     Ok((
                         field_str(fn_, "name"),
                         expr_air_to_ast(g, &slot_first(g, fn_, "value")?)?,

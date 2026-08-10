@@ -1,0 +1,5 @@
+[project]
+name = "impact"
+
+[modules]
+"impact.x" = "src/x.alva"

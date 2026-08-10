@@ -1,0 +1,11 @@
+;; capture-distinct A: 外层 e == 内层 f
+(module
+  (name "qcapture")
+  (version "0.1.0")
+  (export pair_any)
+  (fn pair_any
+    (params (param xs (vec (prim i64))) (param ys (vec (prim i64))))
+    (returns (prim bool))
+    (pure)
+    (pre (any e (ref xs) (any f (ref ys) (== (ref e) (ref f)))))
+    (body (bool true))))

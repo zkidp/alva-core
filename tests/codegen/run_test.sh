@@ -4,6 +4,7 @@
 #   xenum — 跨模块枚举构造/匹配套 type_path()
 #   xfold — result 型 fold 累加器作为最后表达式，不得双重 Ok 包装
 #   xfoldnest — 嵌套 fold 引用外层 acc（GAP-009），必须运行时正确
+#   record_update — RFC-0001 partial record update（T1/T2/T3/T4/T9/T11/T13/T14）
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -48,4 +49,30 @@ echo "== codegen: xfoldnest (nested fold referencing outer acc, GAP-009) =="
 "$ALVA" project build "$DIR/xfoldnest/alva.toml" --test --out-dir "$OUT/xfoldnest" >/dev/null
 echo "PASS xfoldnest"
 
-echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest)"
+echo "== codegen: record_update (RFC-0001 partial record update) =="
+"$ALVA" project check "$DIR/record_update/alva.toml" | grep -q "2 modules checked"
+"$ALVA" project build "$DIR/record_update/alva.toml" --test --out-dir "$OUT/record_update" >/dev/null
+# T3: base 只求值一次（绑定到唯一临时变量）
+if ! grep -q "let __base0 = it.clone()" "$OUT/record_update/record_update/src/recup_b.rs"; then
+  echo "FAIL: record_update base not bound to a single temp"
+  exit 1
+fi
+# T4: update value 按书写顺序求值（name/tag 在未指定字段读取之前）
+if ! grep -qE "Item \{ name: .*tag: .*qty: __base0\.qty" "$OUT/record_update/record_update/src/recup_b.rs"; then
+  echo "FAIL: record_update written-order evaluation not preserved"
+  exit 1
+fi
+echo "PASS record_update"
+
+echo "== codegen: query (RFC-0003 vec contains / any / all / find) =="
+"$ALVA" project check "$DIR/query/alva.toml" | grep -q "1 modules checked"
+"$ALVA" project build "$DIR/query/alva.toml" --test --out-dir "$OUT/query" >/dev/null
+for t in contains_ok any_all find_ok; do
+  if ! grep -q "fn test_$t" "$OUT/query/query/src/query_x.rs"; then
+    echo "FAIL: query test $t missing from generated Rust"
+    exit 1
+  fi
+done
+echo "PASS query"
+
+echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest/record_update/query)"

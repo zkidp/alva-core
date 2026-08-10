@@ -1,0 +1,16 @@
+(module
+  (name "record_update_type_mismatch")
+  (version "0.1.0")
+  (export bad)
+  (type Item
+    (record
+      (field name (prim string))
+      (field qty (prim i64))))
+  (fn bad
+    (params
+      (param it Item))
+    (returns Item)
+    (pure)
+    (body
+      (record-update Item (ref it)
+        (qty (string "x"))))))

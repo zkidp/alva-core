@@ -13,15 +13,21 @@ pub struct Generated {
 }
 
 pub fn codegen(module: &Module) -> Generated {
-    codegen_inner(module, local_sigs(module))
+    codegen_inner(module, local_sigs(module), HashMap::new())
 }
 
 /// 项目构建入口：在本地签名表之上合并直接依赖导出的外部函数签名
 /// （key 为 qualified 名，如 `build.engine.run_build`）。
-pub fn codegen_with_external(module: &Module, external_sigs: SigTable) -> Generated {
+/// external_fields：直接依赖导出的 record 类型字段表（RFC-0001 codegen
+/// 展开 record_update 需要完整字段列表）。
+pub fn codegen_with_external(
+    module: &Module,
+    external_sigs: SigTable,
+    external_fields: HashMap<String, Vec<String>>,
+) -> Generated {
     let mut sigs = local_sigs(module);
     sigs.extend(external_sigs);
-    codegen_inner(module, sigs)
+    codegen_inner(module, sigs, external_fields)
 }
 
 fn local_sigs(module: &Module) -> SigTable {
@@ -38,7 +44,25 @@ fn local_sigs(module: &Module) -> SigTable {
         .collect()
 }
 
-fn codegen_inner(module: &Module, sigs: SigTable) -> Generated {
+fn local_record_fields(module: &Module) -> HashMap<String, Vec<String>> {
+    module
+        .types
+        .iter()
+        .filter_map(|t| match &t.kind {
+            ast::TypeKind::Record(fields) => Some((
+                t.name.clone(),
+                fields.iter().map(|(n, _)| n.clone()).collect(),
+            )),
+            _ => None,
+        })
+        .collect()
+}
+
+fn codegen_inner(
+    module: &Module,
+    sigs: SigTable,
+    external_fields: HashMap<String, Vec<String>>,
+) -> Generated {
     let crate_name = module.name.replace('.', "_");
     let is_binary = module.fns.iter().any(|f| f.name == "main");
 
@@ -61,16 +85,25 @@ fn codegen_inner(module: &Module, sigs: SigTable) -> Generated {
         module.exports.iter().map(|s| s.as_str()).collect();
     let deps: std::collections::HashSet<String> =
         module.deps.iter().map(|(n, _)| n.clone()).collect();
+    let mut record_fields = local_record_fields(module);
+    record_fields.extend(external_fields);
     for f in &module.fns {
-        src.push_str(&gen_fn(f, &module.name, &exports, &sigs, &deps));
+        src.push_str(&gen_fn(
+            f,
+            &module.name,
+            &exports,
+            &sigs,
+            &deps,
+            &record_fields,
+        ));
         src.push('\n');
     }
     for t in &module.tests {
-        src.push_str(&gen_test(t, &deps));
+        src.push_str(&gen_test(t, &deps, &record_fields));
         src.push('\n');
     }
     for b in &module.benches {
-        src.push_str(&gen_bench(b, &deps));
+        src.push_str(&gen_bench(b, &deps, &record_fields));
         src.push('\n');
     }
     src.push_str(GLUE_SOURCE);
@@ -132,6 +165,7 @@ fn gen_fn(
     exports: &std::collections::HashSet<&str>,
     sigs: &SigTable,
     deps: &std::collections::HashSet<String>,
+    record_fields: &HashMap<String, Vec<String>>,
 ) -> String {
     let params: Vec<String> = f
         .params
@@ -153,6 +187,7 @@ fn gen_fn(
 
     let mut ctx = Ctx::new();
     ctx.deps = deps.clone();
+    ctx.record_fields = record_fields.clone();
     for (n, _) in &f.params {
         ctx.vars.insert(n.clone(), n.clone());
     }
@@ -177,7 +212,7 @@ fn gen_fn(
     let last_is_result = f
         .body
         .last()
-        .map(|e| produces_result(e, sigs))
+        .map(|e| expr_produces_result(e, sigs))
         .unwrap_or(false);
     let body = if returns_result && !last_is_result {
         format!("Ok({body})")
@@ -234,47 +269,47 @@ fn gen_extern(e: &ast::ExternDef) -> String {
 
 /// 按表达式形状 + 签名表推导求值结果类型。
 /// 返回 `Some(TypeExpr)` 当类型可静态确定；否则 `None`（视为未知，不产生 Result）。
-fn expr_returns_type(e: &Expr, sigs: &SigTable) -> Option<TypeExpr> {
+/// 判断表达式是否已经产生 result 类型（避免自动 Ok 包装）。
+/// 与旧启发式不同：Try 是“已展开”语义（值类型不是 Result），
+/// 因此不再计入；call/fold/if/block/let 均按签名与形状推导。
+fn expr_produces_result(e: &Expr, sigs: &SigTable) -> bool {
     match e {
         Expr::Call(name, _, _) => {
             if name == "lookup" {
                 // (call lookup m k) 与裸 (lookup m k) 同义，返回 Result
-                Some(TypeExpr::Result(
-                    Box::new(TypeExpr::Prim(Prim::Nil)),
-                    Box::new(TypeExpr::Prim(Prim::String)),
-                ))
+                true
             } else {
-                sigs.get(name).cloned()
+                sigs.get(name)
+                    .map(|ret| matches!(ret, TypeExpr::Result(..)))
+                    .unwrap_or(false)
             }
         }
-        Expr::Fold(_, _, _, _, acc_ty, _, _, _) => Some(acc_ty.clone()),
-        Expr::Ok(..) | Expr::Err(..) | Expr::Lookup(..) | Expr::ParseInt(..) => {
-            Some(TypeExpr::Result(
-                Box::new(TypeExpr::Prim(Prim::Nil)),
-                Box::new(TypeExpr::Prim(Prim::String)),
-            ))
+        Expr::Fold(_, _, _, _, acc_ty, _, _, _) => matches!(acc_ty, TypeExpr::Result(..)),
+        Expr::Ok(..) | Expr::Err(..) | Expr::Lookup(..) | Expr::ParseInt(..) | Expr::Find(..) => {
+            true
         }
-        Expr::If(_, t, e2, _) => expr_returns_type(t, sigs).or_else(|| expr_returns_type(e2, sigs)),
-        Expr::Block(exprs, _) => exprs.last().and_then(|x| expr_returns_type(x, sigs)),
-        Expr::Let(_, _, _, body, _) => expr_returns_type(body, sigs),
-        _ => None,
+        Expr::If(_, t, e2, _) => expr_produces_result(t, sigs) || expr_produces_result(e2, sigs),
+        Expr::Block(exprs, _) => exprs
+            .last()
+            .map(|x| expr_produces_result(x, sigs))
+            .unwrap_or(false),
+        Expr::Let(_, _, _, body, _) => expr_produces_result(body, sigs),
+        _ => false,
     }
-}
-
-/// 判断表达式是否已经产生 result 类型（避免自动 Ok 包装）。
-/// 与旧启发式不同：Try 是“已展开”语义（值类型不是 Result），
-/// 因此不再计入；call/fold/if/block/let 均按签名与形状推导。
-fn produces_result(e: &Expr, sigs: &SigTable) -> bool {
-    matches!(expr_returns_type(e, sigs), Some(TypeExpr::Result(..)))
 }
 
 fn extern_wrapper_name(name: &str) -> String {
     format!("__ext_{}", name.replace('.', "_"))
 }
 
-fn gen_test(t: &ast::TestDef, deps: &std::collections::HashSet<String>) -> String {
+fn gen_test(
+    t: &ast::TestDef,
+    deps: &std::collections::HashSet<String>,
+    record_fields: &HashMap<String, Vec<String>>,
+) -> String {
     let mut ctx = Ctx::new();
     ctx.deps = deps.clone();
+    ctx.record_fields = record_fields.clone();
     format!(
         "#[test]\nfn test_{}() {{\n    assert!({});\n}}\n",
         t.name,
@@ -282,9 +317,14 @@ fn gen_test(t: &ast::TestDef, deps: &std::collections::HashSet<String>) -> Strin
     )
 }
 
-fn gen_bench(b: &ast::BenchDef, deps: &std::collections::HashSet<String>) -> String {
+fn gen_bench(
+    b: &ast::BenchDef,
+    deps: &std::collections::HashSet<String>,
+    record_fields: &HashMap<String, Vec<String>>,
+) -> String {
     let mut ctx = Ctx::new();
     ctx.deps = deps.clone();
+    ctx.record_fields = record_fields.clone();
     let mut s = String::new();
     s.push_str(&format!("#[test]\nfn bench_{}() {{\n", b.name));
     for e in &b.setup {
@@ -349,6 +389,9 @@ fn gen_stmt(e: &Expr, ctx: &Ctx) -> String {
 struct Ctx {
     vars: HashMap<String, String>,
     deps: std::collections::HashSet<String>,
+    // record 类型名 -> 字段名列表（本地 + 直接依赖导出），
+    // RFC-0001 record_update 展开为全字段构造时使用。
+    record_fields: HashMap<String, Vec<String>>,
     // 代码生成引入的变量名计数器（fold 索引/acc、loop acc、try catch 变量）。
     // 每个引入名唯一，避免嵌套结构把不同源变量映射到同一个 Rust 名
     // （GAP-009：嵌套 fold 的 `acc` 遮蔽外层 acc）。
@@ -360,6 +403,7 @@ impl Ctx {
         Ctx {
             vars: HashMap::new(),
             deps: std::collections::HashSet::new(),
+            record_fields: HashMap::new(),
             gensym: 0,
         }
     }
@@ -652,6 +696,53 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             maybe_paren(&gen_expr(m, ctx)),
             maybe_paren(&gen_expr(k, ctx))
         ),
+        // RFC-0003: vec 元素 contains（存在 e ∈ v 使 e == x）
+        Expr::VecContains(v, x, _) => {
+            let mut c2 = ctx.clone();
+            let v_rust = c2.fresh("v");
+            let x_rust = c2.fresh("x");
+            format!(
+                "{{ let {v_rust} = {}; let {x_rust} = {}; let mut __found = false; for __it in &{v_rust} {{ if (*__it == {x_rust}) {{ __found = true; break; }} }} __found }}",
+                gen_expr(v, ctx),
+                gen_expr(x, ctx)
+            )
+        }
+        // RFC-0003: any —— 存在 e ∈ c 使 pred(e)
+        Expr::Any(ev, c, p, _) => {
+            let mut c2 = ctx.clone();
+            let c_rust = c2.fresh("c");
+            let e_rust = c2.fresh("e");
+            c2.vars.insert(ev.clone(), e_rust.clone());
+            format!(
+                "{{ let {c_rust} = {}; let mut __found = false; for {e_rust} in {c_rust} {{ if ({}) {{ __found = true; break; }} }} __found }}",
+                gen_expr(c, ctx),
+                gen_expr(p, &c2)
+            )
+        }
+        // RFC-0003: all —— 所有 e ∈ c 使 pred(e)（空集 → true）
+        Expr::All(ev, c, p, _) => {
+            let mut c2 = ctx.clone();
+            let c_rust = c2.fresh("c");
+            let e_rust = c2.fresh("e");
+            c2.vars.insert(ev.clone(), e_rust.clone());
+            format!(
+                "{{ let {c_rust} = {}; let mut __ok = true; for {e_rust} in {c_rust} {{ if (!({})) {{ __ok = false; break; }} }} __ok }}",
+                gen_expr(c, ctx),
+                gen_expr(p, &c2)
+            )
+        }
+        // RFC-0003: find —— 第一个满足 pred(e) 的元素（无匹配 → Err(())）
+        Expr::Find(ev, c, p, _) => {
+            let mut c2 = ctx.clone();
+            let c_rust = c2.fresh("c");
+            let e_rust = c2.fresh("e");
+            c2.vars.insert(ev.clone(), e_rust.clone());
+            format!(
+                "{{ let {c_rust} = {}; let mut __found: Option<_> = None; for {e_rust} in {c_rust} {{ if ({}) {{ __found = Some({e_rust}.clone()); break; }} }} match __found {{ Some(__v) => Ok(__v), None => Err(()) }} }}",
+                gen_expr(c, ctx),
+                gen_expr(p, &c2)
+            )
+        }
         Expr::Remove(m, k, _) => format!(
             "{{ let mut __m = {}; __m.remove(&{}); __m }}",
             gen_expr(m, ctx),
@@ -728,6 +819,44 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
                 .map(|(n, v)| format!("{n}: {}", gen_expr(v, ctx)))
                 .collect();
             format!("{} {{ {} }}", type_path(name), parts.join(", "))
+        }
+        // RFC-0001：partial record update 展开为全字段构造。
+        // base 绑定到唯一临时变量（只求值一次），update value 按书写顺序
+        // 求值，未指定字段从 base 读取。字段表缺失时兜底用 Rust functional
+        // update（正常不会发生——checker 已保证类型存在）。
+        Expr::RecordUpdate(ty, base, updates, _) => {
+            let mut c2 = ctx.clone();
+            let base_rust = c2.fresh("base");
+            let fields = ctx.record_fields.get(ty).cloned().unwrap_or_default();
+            if fields.is_empty() {
+                let parts: Vec<String> = updates
+                    .iter()
+                    .map(|(n, v)| format!("{n}: {}", gen_expr(v, ctx)))
+                    .collect();
+                return format!(
+                    "{{ let {base_rust} = {}; {} {{ {}, ..{base_rust} }} }}",
+                    gen_expr(base, ctx),
+                    type_path(ty),
+                    parts.join(", ")
+                );
+            }
+            let updated: std::collections::HashSet<&str> =
+                updates.iter().map(|(n, _)| n.as_str()).collect();
+            let mut parts: Vec<String> = Vec::new();
+            for (n, v) in updates {
+                parts.push(format!("{n}: {}", gen_expr(v, ctx)));
+            }
+            for f in &fields {
+                if !updated.contains(f.as_str()) {
+                    parts.push(format!("{f}: {base_rust}.{f}.clone()"));
+                }
+            }
+            format!(
+                "{{ let {base_rust} = {}; {} {{ {} }} }}",
+                gen_expr(base, ctx),
+                type_path(ty),
+                parts.join(", ")
+            )
         }
         Expr::Field(x, name, _) => {
             format!("{}.{name}.clone()", maybe_paren(&gen_expr(x, ctx)))

@@ -1,0 +1,16 @@
+;; capture-distinct B: 内层 body 只用内层 acc（语义不同，hash 必须不同）
+(module
+  (name "fcapture")
+  (version "0.1.0")
+  (export nest)
+  (fn nest
+    (returns (prim i64))
+    (pure)
+    (pre
+      (== (fold i (range (int 0) (int 10))
+            (acc out (prim i64) (int 0))
+            (fold j (range (int 0) (int 10))
+              (acc out2 (prim i64) (ref out))
+              (+ (ref out2) (ref out2))))
+          (int 0)))
+    (body (int 0))))

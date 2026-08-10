@@ -355,6 +355,27 @@ fn json_str(s: &str) -> String {
     format!("\"{}\"", diag::json_escape(s))
 }
 
+/// 把内部 Json 树序列化为 JSON 字符串（响应体用）。
+fn render_json(v: &Json) -> String {
+    match v {
+        Json::Null => "null".to_string(),
+        Json::Bool(b) => b.to_string(),
+        Json::Num(n) => format!("{n}"),
+        Json::Str(s) => json_str(s),
+        Json::Arr(items) => {
+            let parts: Vec<String> = items.iter().map(render_json).collect();
+            format!("[{}]", parts.join(","))
+        }
+        Json::Obj(m) => {
+            let parts: Vec<String> = m
+                .iter()
+                .map(|(k, v)| format!("{}:{}", json_str(k), render_json(v)))
+                .collect();
+            format!("{{{}}}", parts.join(","))
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // AIR commands
 // ---------------------------------------------------------------------------
@@ -1255,6 +1276,7 @@ fn friendly_slot(kind: &str, position: &str) -> Option<&'static str> {
                     | "append"
                     | "lookup"
                     | "contains"
+                    | "veccontains"
                     | "remove"
                     | "split"
                     | "concat"
@@ -1275,6 +1297,7 @@ fn friendly_slot(kind: &str, position: &str) -> Option<&'static str> {
                     | "append"
                     | "lookup"
                     | "contains"
+                    | "veccontains"
                     | "remove"
                     | "split"
                     | "concat"
@@ -1289,6 +1312,8 @@ fn friendly_slot(kind: &str, position: &str) -> Option<&'static str> {
         }
         "step" if kind == "block" => "steps",
         "arg" if kind == "call" => "args",
+        "collection" if matches!(kind, "any" | "all" | "find") => "collection",
+        "predicate" if matches!(kind, "any" | "all" | "find") => "predicate",
         "start" if kind == "slice" => "start",
         "end" if kind == "slice" => "end",
         "init" if kind == "loop" => "init",
@@ -1908,6 +1933,43 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     None => resp!(false, "null", &not_found(&s.graph, name)),
                 }
             }
+            // RFC-0002/AEP-0001: change-impact query（只读，结构化引用）
+            "inspect_change_impact" => {
+                // RFC-0002 是 DRAFT：默认不可调用（opt-in），避免未接受的
+                // 实验工具默认暴露给 agent。
+                if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_UNKNOWN_TOOL: inspect_change_impact (experimental; set ALVA_AEP_ENABLE_EXPERIMENTAL_A1=1)"
+                    )
+                } else {
+                    let s = need_session!();
+                    let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
+                    match change_impact(&s.graph, entity) {
+                        Ok(json) => resp!(true, &json, "ok"),
+                        Err(e) => resp!(false, "null", &e),
+                    }
+                }
+            }
+            // RFC-0002/AEP-0001: 批量 schema 缺口诊断
+            // （E_RECORD_SCHEMA_INCOMPLETE：一次列出所有缺字段的构造点）
+            "inspect_schema_gaps" => {
+                if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_UNKNOWN_TOOL: inspect_schema_gaps (experimental; set ALVA_AEP_ENABLE_EXPERIMENTAL_A1=1)"
+                    )
+                } else {
+                    let s = need_session!();
+                    let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
+                    match schema_gaps(&s.graph, entity) {
+                        Ok(json) => resp!(true, &json, "ok"),
+                        Err(e) => resp!(false, "null", &e),
+                    }
+                }
+            }
             "add_field" => {
                 let s = need_session!();
                 let type_name = req.get("type").and_then(|v| v.as_str()).unwrap_or("");
@@ -2102,6 +2164,184 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     s.create_node("binary", f, slots)
                 })() {
                     Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                    Err(e) => resp!(false, "null", &e),
+                }
+            }
+            "create_query" => {
+                // RFC-0003: 创建查询表达式节点。
+                //   contains: kind=contains collection=<rev> target=<rev>
+                //   any/all/find: kind=<any|all|find> collection=<rev>
+                //                 elem_var=<name> predicate=<rev>
+                // 用 resolve_current（AEP 0.7）解析句柄，避免 stale revision
+                // grounding 失败；结构错误即时拒绝。
+                let s = need_session!();
+                let kind = req.get("kind").and_then(|v| v.as_str()).unwrap_or("");
+                let collection = req.get("collection").and_then(|v| v.as_str()).unwrap_or("");
+                let target = req.get("target").and_then(|v| v.as_str()).unwrap_or("");
+                let elem_var = req.get("elem_var").and_then(|v| v.as_str()).unwrap_or("");
+                let predicate = req.get("predicate").and_then(|v| v.as_str()).unwrap_or("");
+                match (|| -> Result<String, String> {
+                    let coll_rev = s.resolve_current(collection)?;
+                    if kind == "contains" {
+                        if target.is_empty() {
+                            return Err(
+                                "E_QUERY_TARGET_MISSING: contains requires target".to_string()
+                            );
+                        }
+                        let tgt_rev = s.resolve_current(target)?;
+                        let mut slots = BTreeMap::new();
+                        slots.insert("left".to_string(), vec![coll_rev]);
+                        slots.insert("right".to_string(), vec![tgt_rev]);
+                        s.create_node("veccontains", BTreeMap::new(), slots)
+                    } else if kind == "any" || kind == "all" || kind == "find" {
+                        if elem_var.is_empty() {
+                            return Err(format!(
+                                "E_QUERY_ELEM_VAR_MISSING: {kind} requires elem_var"
+                            ));
+                        }
+                        if !check::valid_ident(elem_var) {
+                            return Err(format!(
+                                "E_QUERY_ELEM_VAR_INVALID: {kind} elem_var '{elem_var}' is not a valid identifier (no Rust keyword, no __ prefix)"
+                            ));
+                        }
+                        if predicate.is_empty() {
+                            return Err(format!(
+                                "E_QUERY_PREDICATE_MISSING: {kind} requires predicate"
+                            ));
+                        }
+                        let pred_rev = s.resolve_current(predicate)?;
+                        let mut f = BTreeMap::new();
+                        f.insert(
+                            "elem_var".to_string(),
+                            air::Value::Str(elem_var.to_string()),
+                        );
+                        let mut slots = BTreeMap::new();
+                        slots.insert("collection".to_string(), vec![coll_rev]);
+                        slots.insert("predicate".to_string(), vec![pred_rev]);
+                        s.create_node(kind, f, slots)
+                    } else {
+                        Err(format!("E_QUERY_UNKNOWN_KIND: unknown query kind '{kind}'"))
+                    }
+                })() {
+                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                    Err(e) => resp!(false, "null", &e),
+                }
+            }
+            "update_record_fields" => {
+                // RFC-0001: 创建 record_update 表达式节点。
+                // 入参：type（record 类型名）、base（表达式 entity）、
+                // updates（{field: value_entity}）。未指定字段语义上保留。
+                // 结构性错误（空/重复）即时拒绝；字段存在性/类型兼容通过把
+                // 节点临时挂载到 base 所在函数体做完整语义校验，失败回滚。
+                let s = need_session!();
+                let ty = req.get("type").and_then(|v| v.as_str()).unwrap_or("");
+                let base = req.get("base").and_then(|v| v.as_str()).unwrap_or("");
+                let mut updates: Vec<(String, String)> = Vec::new();
+                if let Some(Json::Obj(map)) = req.get("updates") {
+                    for (k, v) in map {
+                        if let Some(id) = v.as_str() {
+                            updates.push((k.clone(), id.to_string()));
+                        }
+                    }
+                }
+                match (|| -> Result<(String, Vec<String>), String> {
+                    if ty.is_empty() {
+                        return Err(
+                            "E_RECORD_UPDATE_TYPE_MISSING: record-update requires a record type"
+                                .to_string(),
+                        );
+                    }
+                    if base.is_empty() {
+                        return Err(
+                            "E_AEP_BAD_REQUEST: update_record_fields requires base".to_string()
+                        );
+                    }
+                    if updates.is_empty() {
+                        return Err(
+                            "E_RECORD_UPDATE_EMPTY: record-update must update at least one field"
+                                .to_string(),
+                        );
+                    }
+                    let mut seen = std::collections::HashSet::new();
+                    for (f, _) in &updates {
+                        if !seen.insert(f.clone()) {
+                            return Err(format!(
+                                "E_RECORD_UPDATE_DUPLICATE_FIELD: duplicate update field '{f}'"
+                            ));
+                        }
+                    }
+                    let base_rev = s.resolve_current(base)?;
+                    let mut value_revs = Vec::new();
+                    for (_, vid) in &updates {
+                        value_revs.push(s.resolve_current(vid)?);
+                    }
+                    let saved = s.graph.clone();
+                    let make_nodes =
+                        |s: &mut air::EditSession| -> Result<(String, Vec<String>), String> {
+                            let mut update_ids = Vec::new();
+                            for ((f, _), vrev) in updates.iter().zip(value_revs.iter()) {
+                                let mut ff = BTreeMap::new();
+                                ff.insert("name".to_string(), air::Value::Str(f.clone()));
+                                let mut fs = BTreeMap::new();
+                                fs.insert("value".to_string(), vec![vrev.clone()]);
+                                let id = s.create_node("update_field", ff, fs)?;
+                                update_ids.push(id);
+                            }
+                            let mut f = BTreeMap::new();
+                            f.insert("type".to_string(), air::Value::Str(ty.to_string()));
+                            let mut slots = BTreeMap::new();
+                            slots.insert("base".to_string(), vec![base_rev.clone()]);
+                            slots.insert("updates".to_string(), update_ids.clone());
+                            let rev = s.create_node("record_update", f, slots)?;
+                            Ok((rev, update_ids))
+                        };
+                    let (rev, _) = make_nodes(s)?;
+                    // 找 base 所属函数的 body block（向上走 parent 链）
+                    let parents = air::parent_index(&s.graph);
+                    let mut cur = base_rev.clone();
+                    let mut block_rev: Option<String> = None;
+                    let mut guard = 0;
+                    while guard < 100_000 {
+                        guard += 1;
+                        match parents.get(&cur).and_then(|p| p.first()) {
+                            Some((pref, _)) => {
+                                if let Some(pn) = s.graph.get(pref) {
+                                    if pn.kind == "function" {
+                                        block_rev =
+                                            pn.slots.get("body").and_then(|b| b.first()).cloned();
+                                        break;
+                                    }
+                                }
+                                cur = pref.clone();
+                            }
+                            None => break,
+                        }
+                    }
+                    let temp_checked = if let Some(block) = block_rev {
+                        // 插到 steps 开头，避免改变函数返回类型判定
+                        s.insert_child(&block, "steps", &rev, 0).is_ok()
+                    } else {
+                        false
+                    };
+                    let errs = if temp_checked { s.check() } else { Vec::new() };
+                    s.graph = saved;
+                    s.errors = Vec::new();
+                    if !errs.is_empty() {
+                        return Err(errs.join("; "));
+                    }
+                    // 校验通过：重建节点（未挂载），交 agent 挂载
+                    let (rev, update_ids) = make_nodes(s)?;
+                    Ok((rev, update_ids))
+                })() {
+                    Ok((rev, update_ids)) => resp!(
+                        true,
+                        &format!(
+                            "{{\"revision\":{},\"updates\":{}}}",
+                            json_str(&rev),
+                            json_str(&update_ids.join(","))
+                        ),
+                        "ok"
+                    ),
                     Err(e) => resp!(false, "null", &e),
                 }
             }
@@ -2347,6 +2587,261 @@ fn body_tree(g: &air::AirGraph, rev: &str, depth: usize, budget: &mut usize) -> 
         parts.push(kids.join(" "));
     }
     format!("({})", parts.join(" "))
+}
+
+// ---------------------------------------------------------------------------
+// RFC-0002/AEP-0001: schema change impact（只读查询 + 批量诊断）
+// ---------------------------------------------------------------------------
+
+fn node_str_field(n: &air::AirNode, key: &str) -> Option<String> {
+    match n.fields.get(key) {
+        Some(air::Value::Str(s)) => Some(s.clone()),
+        _ => None,
+    }
+}
+
+fn type_field_names(g: &air::AirGraph, type_rev: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    if let Some(tn) = g.get(type_rev) {
+        for f in tn.slots.get("fields").cloned().unwrap_or_default() {
+            if let Some(fn_) = g.get(&f) {
+                if let Some(n) = node_str_field(fn_, "name") {
+                    out.push(n);
+                }
+            }
+        }
+    }
+    out
+}
+
+fn find_type_entity(
+    g: &air::AirGraph,
+    entity: &str,
+) -> Result<(String, String, String, String), String> {
+    let target = entity.strip_prefix("type:").unwrap_or(entity);
+    let (mod_name, type_name) = match target.rfind('.') {
+        Some(i) => (Some(target[..i].to_string()), target[i + 1..].to_string()),
+        None => (None, target.to_string()),
+    };
+    for me in &g.module_entities {
+        let mname = me.trim_start_matches("module:").to_string();
+        if let Some(m) = &mod_name {
+            if m != &mname {
+                continue;
+            }
+        }
+        if let Some(mn) = g.resolve(me) {
+            for t in mn.slots.get("types").cloned().unwrap_or_default() {
+                if let Some(tn) = g.get(&t) {
+                    if node_str_field(tn, "name").as_deref() == Some(&type_name) {
+                        return Ok((me.clone(), t, mname, type_name));
+                    }
+                }
+            }
+        }
+    }
+    Err(format!("E_AEP_ENTITY_NOT_FOUND: type {target}"))
+}
+
+fn enclosing_fn_name(g: &air::AirGraph, fn_e: &str) -> String {
+    if fn_e.is_empty() {
+        return String::new();
+    }
+    let Some(fn_) = g.resolve(fn_e) else {
+        return fn_e.to_string();
+    };
+    let n = node_str_field(fn_, "name").unwrap_or_default();
+    // fn_entity 形如 "entity:build.engine.load_manifests"; 取其模块前缀
+    let e = fn_e.trim_start_matches("entity:");
+    let mod_part = e
+        .rsplit_once('.')
+        .map(|(m, _)| m.to_string())
+        .unwrap_or_default();
+    if mod_part.is_empty() {
+        n
+    } else {
+        format!("{mod_part}.{n}")
+    }
+}
+
+/// change-impact 查询：返回依赖该 type 的 constructors / record_updates /
+/// field_accesses / functions / tests / 跨模块引用（结构化 revision）。
+fn change_impact(g: &air::AirGraph, entity: &str) -> Result<String, String> {
+    let (_, type_rev, mod_name, type_name) = find_type_entity(g, entity)?;
+    let fields = type_field_names(g, &type_rev);
+    let qualified = if mod_name.is_empty() {
+        type_name.clone()
+    } else {
+        format!("{mod_name}.{type_name}")
+    };
+    let q_clone = qualified.clone();
+    let tn_clone = type_name.clone();
+    let type_matches = move |n: &air::AirNode| -> bool {
+        match node_str_field(n, "type") {
+            Some(t) => t == q_clone || t == tn_clone,
+            None => false,
+        }
+    };
+    let mut constructors: Vec<Json> = Vec::new();
+    let mut record_updates: Vec<Json> = Vec::new();
+    let mut field_accesses: Vec<Json> = Vec::new();
+    let mut type_refs: Vec<Json> = Vec::new();
+    let mut fn_uses: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    let mut tests: Vec<Json> = Vec::new();
+    let mut cross_modules: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    for (rev, kind, fn_e, test_e) in air::walk_expressions(g) {
+        let Some(n) = g.get(&rev) else { continue };
+        let fn_name = enclosing_fn_name(g, &fn_e);
+        // 只对"确实使用目标类型"的表达式收集跨模块引用（避免 false positive）：
+        // mod_part 先计算，插入推迟到 `used` 判定之后。
+        let mod_part = if fn_name.is_empty() {
+            String::new()
+        } else {
+            fn_name
+                .rsplit_once('.')
+                .map(|(m, _)| m.to_string())
+                .unwrap_or_default()
+        };
+        let used = match kind.as_str() {
+            "record" if type_matches(n) => {
+                constructors.push(Json::Obj(std::collections::BTreeMap::from([
+                    ("revision".to_string(), Json::Str(rev.clone())),
+                    ("function".to_string(), Json::Str(fn_name.clone())),
+                ])));
+                true
+            }
+            "record_update" if type_matches(n) => {
+                record_updates.push(Json::Obj(std::collections::BTreeMap::from([
+                    ("revision".to_string(), Json::Str(rev.clone())),
+                    ("function".to_string(), Json::Str(fn_name.clone())),
+                ])));
+                true
+            }
+            "field" => {
+                let fname = node_str_field(n, "name").unwrap_or_default();
+                if fields.contains(&fname) {
+                    field_accesses.push(Json::Obj(std::collections::BTreeMap::from([
+                        ("revision".to_string(), Json::Str(rev.clone())),
+                        ("field".to_string(), Json::Str(fname)),
+                        ("function".to_string(), Json::Str(fn_name.clone())),
+                    ])));
+                    true
+                } else {
+                    false
+                }
+            }
+            "type_expr" => {
+                let tn = node_str_field(n, "name").unwrap_or_default();
+                if tn == qualified || tn == type_name {
+                    type_refs.push(Json::Obj(std::collections::BTreeMap::from([
+                        ("revision".to_string(), Json::Str(rev.clone())),
+                        ("function".to_string(), Json::Str(fn_name.clone())),
+                    ])));
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        };
+        if used {
+            if !fn_name.is_empty() {
+                fn_uses.insert(fn_name);
+                if !mod_part.is_empty() && mod_part != mod_name {
+                    cross_modules.insert(mod_part);
+                }
+            }
+            if !test_e.is_empty() {
+                tests.push(Json::Obj(std::collections::BTreeMap::from([
+                    ("revision".to_string(), Json::Str(rev.clone())),
+                    ("test".to_string(), Json::Str(test_e)),
+                ])));
+            }
+        }
+    }
+    let out = Json::Obj(std::collections::BTreeMap::from([
+        ("entity".to_string(), Json::Str(format!("type:{qualified}"))),
+        (
+            "record_fields".to_string(),
+            Json::Arr(fields.into_iter().map(Json::Str).collect()),
+        ),
+        ("constructors".to_string(), Json::Arr(constructors)),
+        ("record_updates".to_string(), Json::Arr(record_updates)),
+        ("field_accesses".to_string(), Json::Arr(field_accesses)),
+        ("type_references".to_string(), Json::Arr(type_refs)),
+        (
+            "functions_using_type".to_string(),
+            Json::Arr(fn_uses.into_iter().map(Json::Str).collect()),
+        ),
+        ("tests".to_string(), Json::Arr(tests)),
+        (
+            "cross_module_references".to_string(),
+            Json::Arr(cross_modules.into_iter().map(Json::Str).collect()),
+        ),
+    ]));
+    Ok(render_json(&out))
+}
+
+/// 批量 schema 缺口诊断：一次列出该 record 类型所有缺 required field 的
+/// constructor（E_RECORD_SCHEMA_INCOMPLETE 结构化摘要）。
+fn schema_gaps(g: &air::AirGraph, entity: &str) -> Result<String, String> {
+    let (_, type_rev, mod_name, type_name) = find_type_entity(g, entity)?;
+    let fields = type_field_names(g, &type_rev);
+    let qualified = if mod_name.is_empty() {
+        type_name.clone()
+    } else {
+        format!("{mod_name}.{type_name}")
+    };
+    let mut affected: Vec<Json> = Vec::new();
+    for (rev, kind, fn_e, _) in air::walk_expressions(g) {
+        if kind != "record" {
+            continue;
+        }
+        let Some(n) = g.get(&rev) else { continue };
+        let t = node_str_field(n, "type").unwrap_or_default();
+        if t != qualified && t != type_name {
+            continue;
+        }
+        let present: std::collections::HashSet<String> = n
+            .slots
+            .get("fields")
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(|f| g.get(f).and_then(|fn_| node_str_field(fn_, "name")))
+            .collect();
+        let missing: Vec<String> = fields
+            .iter()
+            .filter(|f| !present.contains(*f))
+            .cloned()
+            .collect();
+        if !missing.is_empty() {
+            affected.push(Json::Obj(std::collections::BTreeMap::from([
+                ("revision".to_string(), Json::Str(rev.clone())),
+                (
+                    "function".to_string(),
+                    Json::Str(enclosing_fn_name(g, &fn_e)),
+                ),
+                (
+                    "missing_fields".to_string(),
+                    Json::Arr(missing.into_iter().map(Json::Str).collect()),
+                ),
+            ])));
+        }
+    }
+    let out = Json::Obj(std::collections::BTreeMap::from([
+        (
+            "diagnostic".to_string(),
+            Json::Str("E_RECORD_SCHEMA_INCOMPLETE".to_string()),
+        ),
+        ("record_type".to_string(), Json::Str(qualified.clone())),
+        ("affected_constructors".to_string(), Json::Arr(affected)),
+        (
+            "suggested_action".to_string(),
+            Json::Str(format!("inspect_change_impact(entity=type:{qualified})")),
+        ),
+    ]));
+    Ok(render_json(&out))
 }
 
 fn begin_agent_session(
