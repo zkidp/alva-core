@@ -1,0 +1,33 @@
+(module
+  (name "discarded_ok.x")
+  (version "0.1.0")
+  (export run)
+
+  ;; CS-002 regression (Log scenario_report shape): `(ok (nil))` written in a
+  ;; discarded if-statement position previously generated bare `Ok(())`, which
+  ;; rustc rejected with E0282 (cannot infer the Result error type). The
+  ;; generated Rust must carry an explicit `Ok::<_, String>(())` annotation.
+  (fn helper
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body (ok (nil))))
+
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body
+      (let r (call helper)
+        (block
+          (if (call is-ok (ref r))
+            (block
+              (nil)
+              (ok (nil)))
+            (ok (nil)))
+          (ok (nil))))))
+
+  (test run_ok
+    (body
+      (call is-ok (call run))))
+)

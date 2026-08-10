@@ -1,0 +1,5 @@
+[project]
+name = "discarded_ok"
+
+[modules]
+"discarded_ok.x" = "src/x.alva"

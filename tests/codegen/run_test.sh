@@ -75,4 +75,11 @@ for t in contains_ok any_all find_ok; do
 done
 echo "PASS query"
 
-echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest/record_update/query)"
+echo "== codegen: discarded_ok (CS-002: discarded Ok/Err must typecheck) =="
+"$ALVA" project check "$DIR/discarded_ok/alva.toml" | grep -q "1 modules checked"
+"$ALVA" project build "$DIR/discarded_ok/alva.toml" --test --out-dir "$OUT/discarded_ok" >/dev/null
+# generated Rust must annotate the discarded Ok with the fn error type
+grep -qE "Ok::<_, String>\(\(\)\)" "$OUT/discarded_ok/discarded_ok/src/discarded_ok_x.rs"
+echo "PASS discarded_ok"
+
+echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest/record_update/query/discarded_ok)"
