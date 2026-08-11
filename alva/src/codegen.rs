@@ -381,7 +381,7 @@ fn gen_stmt(e: &Expr, ctx: &Ctx) -> String {
             c2.vars.insert(name.clone(), name.clone());
             format!(
                 "let {name}{ann} = {}; {}",
-                gen_expr(value, ctx),
+                gen_used(value, ctx),
                 gen_stmt(body, &c2)
             )
         }
@@ -443,6 +443,13 @@ impl Ctx {
     }
 }
 
+/// CS-002: 生成"被父表达式使用"的子表达式——它不继承父级的 discarded 状态。
+/// 只有 value-forwarding 位置（If.then/else、Block 末尾、Let.body、Match
+/// arms、Try.catch body）才继承 discarded；所有 operand/value child 必须走这里。
+fn gen_used(e: &Expr, ctx: &Ctx) -> String {
+    gen_expr(e, &ctx.used())
+}
+
 fn gen_block(exprs: &[Expr], ctx: &Ctx) -> String {
     if exprs.len() == 1 {
         return gen_expr(&exprs[0], ctx);
@@ -476,7 +483,7 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
         Expr::Nil(_) => "()".to_string(),
         Expr::Ref(name, _) => format!("{}.clone()", ctx.get(name)),
         Expr::Call(name, args, _) => {
-            let a: Vec<String> = args.iter().map(|x| gen_expr(x, ctx)).collect();
+            let a: Vec<String> = args.iter().map(|x| gen_used(x, ctx)).collect();
             if name == "io.print" {
                 format!("println!(\"{{}}\", {})", a.join(", "))
             } else if name == "io.print_debug" {
@@ -585,14 +592,14 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             };
             format!(
                 "{} {op_s} {}",
-                maybe_paren(&gen_expr(a, ctx)),
-                maybe_paren(&gen_expr(b, ctx))
+                maybe_paren(&gen_used(a, ctx)),
+                maybe_paren(&gen_used(b, ctx))
             )
         }
-        Expr::Not(x, _) => format!("!{}", maybe_paren(&gen_expr(x, ctx))),
+        Expr::Not(x, _) => format!("!{}", maybe_paren(&gen_used(x, ctx))),
         Expr::If(c, t, e2, _) => format!(
             "if {} {{ {} }} else {{ {} }}",
-            maybe_paren(&gen_expr(c, ctx)),
+            maybe_paren(&gen_used(c, ctx)),
             gen_expr(t, ctx),
             gen_expr(e2, ctx)
         ),
@@ -605,7 +612,7 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             c2.vars.insert(name.clone(), name.clone());
             format!(
                 "{{ let {name}{ann} = {}; {} }}",
-                gen_expr(value, &ctx.used()),
+                gen_used(value, ctx),
                 gen_expr(body, &c2)
             )
         }
@@ -614,22 +621,22 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             if elems.is_empty() {
                 "Vec::new()".to_string()
             } else {
-                let parts: Vec<String> = elems.iter().map(|e| gen_expr(e, ctx)).collect();
+                let parts: Vec<String> = elems.iter().map(|e| gen_used(e, ctx)).collect();
                 format!("vec![{}]", parts.join(", "))
             }
         }
-        Expr::Len(v, _) => format!("{}.len() as i64", maybe_paren(&gen_expr(v, ctx))),
+        Expr::Len(v, _) => format!("{}.len() as i64", maybe_paren(&gen_used(v, ctx))),
         Expr::Get(v, i, _) => format!(
             "{}[({}) as usize].clone()",
-            maybe_paren(&gen_expr(v, ctx)),
-            gen_expr(i, ctx)
+            maybe_paren(&gen_used(v, ctx)),
+            gen_used(i, ctx)
         ),
         Expr::Append(v, x, _) => format!(
             "{{ let mut __v = {}; __v.push({}); __v }}",
-            gen_expr(v, ctx),
-            gen_expr(x, ctx)
+            gen_used(v, ctx),
+            gen_used(x, ctx)
         ),
-        Expr::As(t, x, _) => format!("({}) as {}", gen_expr(x, ctx), ty(t)),
+        Expr::As(t, x, _) => format!("({}) as {}", gen_used(x, ctx), ty(t)),
         Expr::Fold(idx, lo, hi, acc_name, acc_ty, init, body, _) => {
             let mut c2 = ctx.clone();
             let idx_rust = c2.fresh("i");
@@ -639,10 +646,10 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             format!(
                 "{{ let mut {acc_rust}: {} = {}; for {idx_rust} in {}..{} {{ {acc_rust} = {}; }} {acc_rust} }}",
                 ty(acc_ty),
-                gen_expr(init, ctx),
-                maybe_paren(&gen_expr(lo, ctx)),
-                maybe_paren(&gen_expr(hi, ctx)),
-                gen_expr(body, &c2)
+                gen_used(init, ctx),
+                maybe_paren(&gen_used(lo, ctx)),
+                maybe_paren(&gen_used(hi, ctx)),
+                gen_used(body, &c2)
             )
         }
         Expr::Loop(acc_name, acc_ty, init, inv, cond, body, _) => {
@@ -652,16 +659,16 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             let inv_check = match inv {
                 Some(i) => format!(
                     "debug_assert!({}, \"loop invariant violated\");",
-                    gen_expr(i, &c2)
+                    gen_used(i, &c2)
                 ),
                 None => String::new(),
             };
             format!(
                 "{{ let mut {acc_rust}: {} = {}; {inv_check} while {} {{ {inv_check} {acc_rust} = {}; {inv_check} }} {acc_rust} }}",
                 ty(acc_ty),
-                gen_expr(init, ctx),
-                maybe_paren(&gen_expr(cond, &c2)),
-                gen_expr(body, &c2)
+                gen_used(init, ctx),
+                maybe_paren(&gen_used(cond, &c2)),
+                gen_used(body, &c2)
             )
         }
         Expr::Variant(ty_name, vname, _) => {
@@ -684,7 +691,7 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             }
             format!(
                 "match {} {{ {} }}",
-                maybe_paren(&gen_expr(value, ctx)),
+                maybe_paren(&gen_used(value, ctx)),
                 arms.join(", ")
             )
         }
@@ -696,8 +703,8 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
                 for (k, v) in entries {
                     s.push_str(&format!(
                         " __m.insert({}, {});",
-                        gen_expr(k, ctx),
-                        gen_expr(v, ctx)
+                        gen_used(k, ctx),
+                        gen_used(v, ctx)
                     ));
                 }
                 s.push_str(" __m }");
@@ -706,19 +713,19 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
         }
         Expr::Set(m, k, v, _) => format!(
             "{{ let mut __m = {}; __m.insert({}, {}); __m }}",
-            gen_expr(m, ctx),
-            gen_expr(k, ctx),
-            gen_expr(v, ctx)
+            gen_used(m, ctx),
+            gen_used(k, ctx),
+            gen_used(v, ctx)
         ),
         Expr::Lookup(m, k, _) => format!(
             "{}.get(&{}).cloned().ok_or(())",
-            maybe_paren(&gen_expr(m, ctx)),
-            maybe_paren(&gen_expr(k, ctx))
+            maybe_paren(&gen_used(m, ctx)),
+            maybe_paren(&gen_used(k, ctx))
         ),
         Expr::Contains(m, k, _) => format!(
             "{}.contains_key(&{})",
-            maybe_paren(&gen_expr(m, ctx)),
-            maybe_paren(&gen_expr(k, ctx))
+            maybe_paren(&gen_used(m, ctx)),
+            maybe_paren(&gen_used(k, ctx))
         ),
         // RFC-0003: vec 元素 contains（存在 e ∈ v 使 e == x）
         Expr::VecContains(v, x, _) => {
@@ -727,8 +734,8 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             let x_rust = c2.fresh("x");
             format!(
                 "{{ let {v_rust} = {}; let {x_rust} = {}; let mut __found = false; for __it in &{v_rust} {{ if (*__it == {x_rust}) {{ __found = true; break; }} }} __found }}",
-                gen_expr(v, ctx),
-                gen_expr(x, ctx)
+                gen_used(v, ctx),
+                gen_used(x, ctx)
             )
         }
         // RFC-0003: any —— 存在 e ∈ c 使 pred(e)
@@ -739,8 +746,8 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             c2.vars.insert(ev.clone(), e_rust.clone());
             format!(
                 "{{ let {c_rust} = {}; let mut __found = false; for {e_rust} in {c_rust} {{ if ({}) {{ __found = true; break; }} }} __found }}",
-                gen_expr(c, ctx),
-                gen_expr(p, &c2)
+                gen_used(c, ctx),
+                gen_used(p, &c2)
             )
         }
         // RFC-0003: all —— 所有 e ∈ c 使 pred(e)（空集 → true）
@@ -751,8 +758,8 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             c2.vars.insert(ev.clone(), e_rust.clone());
             format!(
                 "{{ let {c_rust} = {}; let mut __ok = true; for {e_rust} in {c_rust} {{ if (!({})) {{ __ok = false; break; }} }} __ok }}",
-                gen_expr(c, ctx),
-                gen_expr(p, &c2)
+                gen_used(c, ctx),
+                gen_used(p, &c2)
             )
         }
         // RFC-0003: find —— 第一个满足 pred(e) 的元素（无匹配 → Err(())）
@@ -763,84 +770,84 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             c2.vars.insert(ev.clone(), e_rust.clone());
             format!(
                 "{{ let {c_rust} = {}; let mut __found: Option<_> = None; for {e_rust} in {c_rust} {{ if ({}) {{ __found = Some({e_rust}.clone()); break; }} }} match __found {{ Some(__v) => Ok(__v), None => Err(()) }} }}",
-                gen_expr(c, ctx),
-                gen_expr(p, &c2)
+                gen_used(c, ctx),
+                gen_used(p, &c2)
             )
         }
         Expr::Remove(m, k, _) => format!(
             "{{ let mut __m = {}; __m.remove(&{}); __m }}",
-            gen_expr(m, ctx),
-            maybe_paren(&gen_expr(k, ctx))
+            gen_used(m, ctx),
+            maybe_paren(&gen_used(k, ctx))
         ),
         Expr::Keys(m, _) => format!(
             "{}.keys().cloned().collect::<Vec<_>>()",
-            maybe_paren(&gen_expr(m, ctx))
+            maybe_paren(&gen_used(m, ctx))
         ),
         Expr::Unwrap(x, _) => format!(
             "{}.expect(\"[alva] unwrap on Err\")",
-            maybe_paren(&gen_expr(x, ctx))
+            maybe_paren(&gen_used(x, ctx))
         ),
         Expr::ErrValue(x, _) => format!(
             "{{ match {} {{ Ok(__v) => panic!(\"[alva] err-value on Ok\"), Err(__e) => __e }} }}",
-            gen_expr(x, ctx)
+            gen_used(x, ctx)
         ),
         Expr::Slice(v, s, e, _) => format!(
             "{}[{} as usize..{} as usize].to_vec()",
-            maybe_paren(&gen_expr(v, ctx)),
-            maybe_paren(&gen_expr(s, ctx)),
-            maybe_paren(&gen_expr(e, ctx))
+            maybe_paren(&gen_used(v, ctx)),
+            maybe_paren(&gen_used(s, ctx)),
+            maybe_paren(&gen_used(e, ctx))
         ),
         Expr::Split(s, sep, _) => format!(
             "{}.split(&{}).map(|x| x.to_string()).collect::<Vec<String>>()",
-            maybe_paren(&gen_expr(s, ctx)),
-            maybe_paren(&gen_expr(sep, ctx))
+            maybe_paren(&gen_used(s, ctx)),
+            maybe_paren(&gen_used(sep, ctx))
         ),
         Expr::Concat(a, b, _) => format!(
             "format!(\"{{}}{{}}\", {}, {})",
-            gen_expr(a, ctx),
-            gen_expr(b, ctx)
+            gen_used(a, ctx),
+            gen_used(b, ctx)
         ),
-        Expr::ToString(x, _) => format!("format!(\"{{}}\", {})", gen_expr(x, ctx)),
+        Expr::ToString(x, _) => format!("format!(\"{{}}\", {})", gen_used(x, ctx)),
         Expr::ParseInt(x, _) => format!(
             "{{ let __s = {}; __s.trim().parse::<i64>().map_err(|e| format!(\"cannot parse int: {{e}}\")) }}",
-            gen_expr(x, ctx)
+            gen_used(x, ctx)
         ),
-        Expr::ToBytes(x, _) => format!("{}.into_bytes()", maybe_paren(&gen_expr(x, ctx))),
-        Expr::IsOk(x, _) => format!("{}.is_ok()", maybe_paren(&gen_expr(x, ctx))),
+        Expr::ToBytes(x, _) => format!("{}.into_bytes()", maybe_paren(&gen_used(x, ctx))),
+        Expr::IsOk(x, _) => format!("{}.is_ok()", maybe_paren(&gen_used(x, ctx))),
         Expr::Join(v, sep, _) => format!(
             "{}.join(&{})",
-            maybe_paren(&gen_expr(v, ctx)),
-            maybe_paren(&gen_expr(sep, ctx))
+            maybe_paren(&gen_used(v, ctx)),
+            maybe_paren(&gen_used(sep, ctx))
         ),
         Expr::StripPrefix(s, p, _) => format!(
             "{}.strip_prefix(&{}).map(|x| x.to_string()).unwrap_or_else(|| {}.clone())",
-            maybe_paren(&gen_expr(s, ctx)),
-            maybe_paren(&gen_expr(p, ctx)),
-            gen_expr(s, ctx)
+            maybe_paren(&gen_used(s, ctx)),
+            maybe_paren(&gen_used(p, ctx)),
+            gen_used(s, ctx)
         ),
         Expr::Before(s, sep, _) => format!(
             "{}.split(&{}).next().unwrap_or(\"\").to_string()",
-            maybe_paren(&gen_expr(s, ctx)),
-            maybe_paren(&gen_expr(sep, ctx))
+            maybe_paren(&gen_used(s, ctx)),
+            maybe_paren(&gen_used(sep, ctx))
         ),
         Expr::EndsWith(s, suf, _) => format!(
             "{}.ends_with(&{})",
-            maybe_paren(&gen_expr(s, ctx)),
-            maybe_paren(&gen_expr(suf, ctx))
+            maybe_paren(&gen_used(s, ctx)),
+            maybe_paren(&gen_used(suf, ctx))
         ),
         Expr::Sort(v, _) => {
-            format!("{{ let mut __v = {}; __v.sort(); __v }}", gen_expr(v, ctx))
+            format!("{{ let mut __v = {}; __v.sort(); __v }}", gen_used(v, ctx))
         }
-        Expr::UrlDecode(x, _) => format!("glue::url_decode({})", gen_expr(x, ctx)),
+        Expr::UrlDecode(x, _) => format!("glue::url_decode({})", gen_used(x, ctx)),
         Expr::ToHex(x, _) => format!(
             "{{ let __b = {}; let mut __s = String::new(); for __x in &__b {{ __s.push_str(&format!(\"{{:02x}}\", __x)); }} __s }}",
-            gen_expr(x, ctx)
+            gen_used(x, ctx)
         ),
-        Expr::CtEq(a, b, _) => format!("glue::ct_eq({}, {})", gen_expr(a, ctx), gen_expr(b, ctx)),
+        Expr::CtEq(a, b, _) => format!("glue::ct_eq({}, {})", gen_used(a, ctx), gen_used(b, ctx)),
         Expr::Record(name, fields, _) => {
             let parts: Vec<String> = fields
                 .iter()
-                .map(|(n, v)| format!("{n}: {}", gen_expr(v, ctx)))
+                .map(|(n, v)| format!("{n}: {}", gen_used(v, ctx)))
                 .collect();
             format!("{} {{ {} }}", type_path(name), parts.join(", "))
         }
@@ -855,11 +862,11 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             if fields.is_empty() {
                 let parts: Vec<String> = updates
                     .iter()
-                    .map(|(n, v)| format!("{n}: {}", gen_expr(v, ctx)))
+                    .map(|(n, v)| format!("{n}: {}", gen_used(v, ctx)))
                     .collect();
                 return format!(
                     "{{ let {base_rust} = {}; {} {{ {}, ..{base_rust} }} }}",
-                    gen_expr(base, ctx),
+                    gen_used(base, ctx),
                     type_path(ty),
                     parts.join(", ")
                 );
@@ -868,7 +875,7 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
                 updates.iter().map(|(n, _)| n.as_str()).collect();
             let mut parts: Vec<String> = Vec::new();
             for (n, v) in updates {
-                parts.push(format!("{n}: {}", gen_expr(v, ctx)));
+                parts.push(format!("{n}: {}", gen_used(v, ctx)));
             }
             for f in &fields {
                 if !updated.contains(f.as_str()) {
@@ -877,27 +884,27 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             }
             format!(
                 "{{ let {base_rust} = {}; {} {{ {} }} }}",
-                gen_expr(base, ctx),
+                gen_used(base, ctx),
                 type_path(ty),
                 parts.join(", ")
             )
         }
         Expr::Field(x, name, _) => {
-            format!("{}.{name}.clone()", maybe_paren(&gen_expr(x, ctx)))
+            format!("{}.{name}.clone()", maybe_paren(&gen_used(x, ctx)))
         }
-        Expr::Raise(x, _) => format!("return Err({});", gen_expr(x, ctx)),
+        Expr::Raise(x, _) => format!("return Err({});", gen_used(x, ctx)),
         Expr::Try(x, name, body, _) => {
             let mut c2 = ctx.clone();
             let e_rust = c2.fresh("e");
             c2.vars.insert(name.clone(), e_rust.clone());
             format!(
                 "match {} {{ Ok(__v) => __v, Err({e_rust}) => {{ {} }} }}",
-                maybe_paren(&gen_expr(x, ctx)),
+                maybe_paren(&gen_used(x, ctx)),
                 gen_expr(body, &c2)
             )
         }
         Expr::Ok(x, _) => {
-            let inner = gen_expr(x, ctx);
+            let inner = gen_used(x, ctx);
             // CS-002: 丢弃位置裸露 `Ok(v)` 时 Rust 无法推断错误类型参数（E0282），
             // 用当前函数返回的 Result 错误类型显式标注（payload 类型由参数推断）。
             if ctx.discarded {
@@ -911,7 +918,7 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             }
         }
         Expr::Err(x, _) => {
-            let inner = gen_expr(x, ctx);
+            let inner = gen_used(x, ctx);
             if ctx.discarded {
                 if let Some(t) = &ctx.result_ok {
                     format!("Err::<{}, _>({inner})", ty(t))

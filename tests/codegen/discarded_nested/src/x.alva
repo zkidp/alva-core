@@ -1,0 +1,22 @@
+(module
+  (name "discarded_nested.x")
+  (version "0.1.0")
+  (export run)
+
+  ;; CS-002 R2: a locally-used Result inside a discarded call must NOT inherit
+  ;; the enclosing fn's Result type. `(ok 1)` here must stay Result<i64, i64>
+  ;; (consume's parameter), not Result<i64, String> (run's error type).
+  (fn consume
+    (params (param r (result (prim i64) (prim i64))))
+    (returns (prim nil))
+    (pure)
+    (body (nil)))
+
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body
+      (block
+        (call consume (ok (int 1)))
+        (ok (nil))))))

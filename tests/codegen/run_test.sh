@@ -82,4 +82,21 @@ echo "== codegen: discarded_ok (CS-002: discarded Ok/Err must typecheck) =="
 grep -qE "Ok::<_, String>\(\(\)\)" "$OUT/discarded_ok/discarded_ok/src/discarded_ok_x.rs"
 echo "PASS discarded_ok"
 
-echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest/record_update/query/discarded_ok)"
+echo "== codegen: discarded_nested (CS-002 R2: used Result keeps local type) =="
+"$ALVA" project check "$DIR/discarded_nested/alva.toml" | grep -q "1 modules checked"
+"$ALVA" project build "$DIR/discarded_nested/alva.toml" --test --out-dir "$OUT/discarded_nested" >/dev/null
+# the used (ok 1) inside the discarded call must NOT be turbofished with String
+if grep -qE "Ok::<_, String>\(1" "$OUT/discarded_nested/discarded_nested/src/discarded_nested_x.rs"; then
+  echo "FAIL: discarded_nested over-annotated a used Ok with fn error type"
+  exit 1
+fi
+grep -q "consume(Ok(1i64))" "$OUT/discarded_nested/discarded_nested/src/discarded_nested_x.rs"
+echo "PASS discarded_nested"
+
+echo "== codegen: discarded_err (CS-002 R3: discarded Err typechecks) =="
+"$ALVA" project check "$DIR/discarded_err/alva.toml" | grep -q "1 modules checked"
+"$ALVA" project build "$DIR/discarded_err/alva.toml" --test --out-dir "$OUT/discarded_err" >/dev/null
+grep -qE "Err::<\(\), _>" "$OUT/discarded_err/discarded_err/src/discarded_err_x.rs"
+echo "PASS discarded_err"
+
+echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest/record_update/query/discarded_ok/discarded_nested/discarded_err)"

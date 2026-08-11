@@ -1,0 +1,5 @@
+[project]
+name = "discarded_err"
+
+[modules]
+"discarded_err.x" = "src/x.alva"

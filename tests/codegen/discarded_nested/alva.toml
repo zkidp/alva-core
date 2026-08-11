@@ -1,0 +1,5 @@
+[project]
+name = "discarded_nested"
+
+[modules]
+"discarded_nested.x" = "src/x.alva"
