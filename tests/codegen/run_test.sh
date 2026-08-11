@@ -78,8 +78,6 @@ echo "PASS query"
 echo "== codegen: discarded_ok (CS-002: discarded Ok/Err must typecheck) =="
 "$ALVA" project check "$DIR/discarded_ok/alva.toml" | grep -q "1 modules checked"
 "$ALVA" project build "$DIR/discarded_ok/alva.toml" --test --out-dir "$OUT/discarded_ok" >/dev/null
-# generated Rust must annotate the discarded Ok with the fn error type
-grep -qE "Ok::<_, String>\(\(\)\)" "$OUT/discarded_ok/discarded_ok/src/discarded_ok_x.rs"
 echo "PASS discarded_ok"
 
 echo "== codegen: discarded_nested (CS-002 R2: used Result keeps local type) =="
@@ -96,7 +94,11 @@ echo "PASS discarded_nested"
 echo "== codegen: discarded_err (CS-002 R3: discarded Err typechecks) =="
 "$ALVA" project check "$DIR/discarded_err/alva.toml" | grep -q "1 modules checked"
 "$ALVA" project build "$DIR/discarded_err/alva.toml" --test --out-dir "$OUT/discarded_err" >/dev/null
-grep -qE "Err::<\(\), _>" "$OUT/discarded_err/discarded_err/src/discarded_err_x.rs"
 echo "PASS discarded_err"
 
-echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest/record_update/query/discarded_ok/discarded_nested/discarded_err)"
+echo "== codegen: discarded_local_result (CS-002 R4: discarded local Result differs from fn Result) =="
+"$ALVA" project check "$DIR/discarded_local_result/alva.toml" | grep -q "1 modules checked"
+"$ALVA" project build "$DIR/discarded_local_result/alva.toml" --test --out-dir "$OUT/discarded_local_result" >/dev/null
+echo "PASS discarded_local_result"
+
+echo "CODEGEN REGRESSIONS PASSED (xres/xenum/xfold/xfoldnest/record_update/query/discarded_ok/discarded_nested/discarded_err/discarded_local_result)"

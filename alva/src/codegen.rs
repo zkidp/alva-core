@@ -188,10 +188,6 @@ fn gen_fn(
     let mut ctx = Ctx::new();
     ctx.deps = deps.clone();
     ctx.record_fields = record_fields.clone();
-    if let TypeExpr::Result(a, b) = &f.returns {
-        ctx.result_ok = Some((**a).clone());
-        ctx.result_err = Some((**b).clone());
-    }
     for (n, _) in &f.params {
         ctx.vars.insert(n.clone(), n.clone());
     }
@@ -400,13 +396,6 @@ struct Ctx {
     // 每个引入名唯一，避免嵌套结构把不同源变量映射到同一个 Rust 名
     // （GAP-009：嵌套 fold 的 `acc` 遮蔽外层 acc）。
     gensym: usize,
-    // CS-002: 当前表达式是否处于"丢弃位置"（block 非末尾元素）。
-    // 那里裸露 Ok/Err 的 Rust 类型参数无法自行推断（rustc E0282），
-    // 需要用函数返回类型显式标注。
-    discarded: bool,
-    // 当前函数返回 `Result<A, B>` 时的 A/B 类型（用于丢弃位置 Ok/Err 标注）。
-    result_ok: Option<TypeExpr>,
-    result_err: Option<TypeExpr>,
 }
 
 impl Ctx {
@@ -416,9 +405,6 @@ impl Ctx {
             deps: std::collections::HashSet::new(),
             record_fields: HashMap::new(),
             gensym: 0,
-            discarded: false,
-            result_ok: None,
-            result_err: None,
         }
     }
 
@@ -435,19 +421,90 @@ impl Ctx {
         format!("__{base}{n}")
     }
 
-    /// CS-002: 返回 discarded=false 的 ctx 给子表达式（子表达式值被内部使用，非丢弃）。
-    fn used(&self) -> Ctx {
-        let mut c = self.clone();
-        c.discarded = false;
-        c
-    }
 }
 
-/// CS-002: 生成"被父表达式使用"的子表达式——它不继承父级的 discarded 状态。
-/// 只有 value-forwarding 位置（If.then/else、Block 末尾、Let.body、Match
-/// arms、Try.catch body）才继承 discarded；所有 operand/value child 必须走这里。
+/// 生成"被父表达式使用"的子表达式（operand/value child）。统一走这个入口，
+/// 便于将来接入 checker-resolved types 时一次性替换，而不是逐点遗漏。
 fn gen_used(e: &Expr, ctx: &Ctx) -> String {
-    gen_expr(e, &ctx.used())
+    gen_expr(e, ctx)
+}
+
+/// CS-002 (v3): 丢弃位置（statement-position）lowering —— value erasure。
+///
+/// 一个被丢弃的表达式仍要求值（副作用、raise、控制流必须保留），但最终值不
+/// 需要存活。因此这里不再构造 `Ok`/`Err` 的 Result 值（那会迫使 codegen 猜测
+/// 局部 Result 的类型参数），而是把结构形式递归按"丢弃语义"降低：
+///
+/// - If：条件 used，两个分支都按丢弃语义求值（两者都收敛到 `()`，天然统一）；
+/// - Let：value 绑定（used），body 按丢弃语义；
+/// - Block：每个元素都按丢弃语义；
+/// - Try：subject used；catch body 按丢弃语义；Ok 分支直接 `()`；
+/// - Match：subject used；每个 arm body 按丢弃语义；
+/// - Ok/Err：擦除 Result 构造，仅对 payload 求值（按丢弃语义）；
+/// - 其余：求值后丢弃值，收敛到 `()`。
+///
+/// 该函数只产生"表达式值类型为 `()`"的 Rust（或发散），由调用方按语句使用。
+fn gen_discarded(e: &Expr, ctx: &Ctx) -> String {
+    match e {
+        Expr::If(c, t, e2, _) => format!(
+            "if {} {{ {} }} else {{ {} }}",
+            maybe_paren(&gen_used(c, ctx)),
+            gen_discarded(t, ctx),
+            gen_discarded(e2, ctx)
+        ),
+        Expr::Let(name, declared, value, body, _) => {
+            let ann = declared
+                .as_ref()
+                .map(|t| format!(": {}", ty(t)))
+                .unwrap_or_default();
+            let mut c2 = ctx.clone();
+            c2.vars.insert(name.clone(), name.clone());
+            format!(
+                "{{ let {name}{ann} = {}; {} }}",
+                gen_used(value, ctx),
+                gen_discarded(body, &c2)
+            )
+        }
+        Expr::Block(exprs, _) => {
+            let parts: Vec<String> = exprs.iter().map(|x| gen_discarded(x, ctx)).collect();
+            format!("{{ {} }}", parts.join("; "))
+        }
+        Expr::Try(x, name, body, _) => {
+            let mut c2 = ctx.clone();
+            let e_rust = c2.fresh("e");
+            c2.vars.insert(name.clone(), e_rust.clone());
+            format!(
+                "match {} {{ Ok(__v) => (), Err({e_rust}) => {{ {} }} }}",
+                maybe_paren(&gen_used(x, ctx)),
+                gen_discarded(body, &c2)
+            )
+        }
+        Expr::Match(ty_name, value, cases, _) => {
+            let mut arms = Vec::new();
+            let ty_path = type_path(ty_name);
+            for (vname, body) in cases {
+                if vname == "_" {
+                    arms.push(format!("_ => {}", gen_discarded(body, ctx)));
+                } else {
+                    arms.push(format!(
+                        "{}::{} => {}",
+                        ty_path,
+                        to_pascal(vname),
+                        gen_discarded(body, ctx)
+                    ));
+                }
+            }
+            format!(
+                "match {} {{ {} }}",
+                maybe_paren(&gen_used(value, ctx)),
+                arms.join(", ")
+            )
+        }
+        // 擦除 Result 构造：仅对 payload 求值（副作用/raise 保留），收敛到 `()`。
+        Expr::Ok(x, _) | Expr::Err(x, _) => format!("{{ {} }}", gen_discarded(x, ctx)),
+        // 其余：求值（副作用保留），丢弃值。
+        _ => format!("{{ {}; }}", gen_used(e, ctx)),
+    }
 }
 
 fn gen_block(exprs: &[Expr], ctx: &Ctx) -> String {
@@ -460,9 +517,7 @@ fn gen_block(exprs: &[Expr], ctx: &Ctx) -> String {
             let g = gen_expr(x, ctx);
             parts.push(g);
         } else {
-            let mut c = ctx.clone();
-            c.discarded = true;
-            let g = gen_expr(x, &c);
+            let g = gen_discarded(x, ctx);
             parts.push(format!("{g};"));
         }
     }
@@ -903,32 +958,8 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
                 gen_expr(body, &c2)
             )
         }
-        Expr::Ok(x, _) => {
-            let inner = gen_used(x, ctx);
-            // CS-002: 丢弃位置裸露 `Ok(v)` 时 Rust 无法推断错误类型参数（E0282），
-            // 用当前函数返回的 Result 错误类型显式标注（payload 类型由参数推断）。
-            if ctx.discarded {
-                if let Some(e) = &ctx.result_err {
-                    format!("Ok::<_, {}>({inner})", ty(e))
-                } else {
-                    format!("Ok({inner})")
-                }
-            } else {
-                format!("Ok({inner})")
-            }
-        }
-        Expr::Err(x, _) => {
-            let inner = gen_used(x, ctx);
-            if ctx.discarded {
-                if let Some(t) = &ctx.result_ok {
-                    format!("Err::<{}, _>({inner})", ty(t))
-                } else {
-                    format!("Err({inner})")
-                }
-            } else {
-                format!("Err({inner})")
-            }
-        }
+        Expr::Ok(x, _) => format!("Ok({})", gen_used(x, ctx)),
+        Expr::Err(x, _) => format!("Err({})", gen_used(x, ctx)),
     }
 }
 
