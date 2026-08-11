@@ -1,5 +1,5 @@
-mod air;
 mod aep;
+mod air;
 mod ast;
 mod check;
 mod codegen;
@@ -1448,7 +1448,10 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 }
             };
         }
-        let out = match tool.as_str() {
+        // RFC-0005: registry is the single source of truth — canonicalize
+        // aliases before dispatch so introspection and execution agree.
+        let canonical_tool: &str = aep::lookup(&tool).map(|s| s.name).unwrap_or(tool.as_str());
+        let out = match canonical_tool {
             "inspect_project" => {
                 let s = need_session!();
                 let mods: Vec<String> = s
@@ -1720,24 +1723,39 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     .get("position")
                     .and_then(|v| v.as_str())
                     .unwrap_or("value");
-                match (|| -> Result<String, String> {
-                    let pr = s.graph.resolve_rev(parent).ok_or("parent not found")?;
-                    let kind = s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
-                    let slot = friendly_slot(&kind, position)
-                        .ok_or_else(|| {
-                            format!(
-                                "unsupported position '{position}' for {kind}; \
-                                 use describe_operation name=replace_expression for valid positions"
-                            )
-                        })?;
-                    s.replace_slot(&pr, slot, child)
-                })() {
-                    Ok(rev) => resp!(
-                        true,
-                        &format!("{{\"new_revision\":{}}}", json_str(&rev)),
-                        "ok"
+                // RFC-0005: structured invalid-position hint instead of
+                // free-form text.
+                match s.graph.resolve_rev(parent) {
+                    None => resp!(
+                        false,
+                        &format!(
+                            "{{\"operation\":\"replace_expression\",\"argument\":\"parent\",\"requested\":{},\"recovery\":{{\"tool\":\"describe_operation\",\"name\":\"replace_expression\"}}}}",
+                            json_str(parent)
+                        ),
+                        "E_AEP_OP: parent not found"
                     ),
-                    Err(e) => resp!(false, "null", &e),
+                    Some(pr) => {
+                        let kind =
+                            s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
+                        match friendly_slot(&kind, position) {
+                            None => resp!(
+                                false,
+                                &format!(
+                                    "{{\"operation\":\"replace_expression\",\"argument\":\"position\",\"requested\":{},\"expected_shape\":\"value|body|cond|then|else|left|right|collection|target|predicate|steps/N|args/N\",\"recovery\":{{\"tool\":\"describe_operation\",\"name\":\"replace_expression\"}}}}",
+                                    json_str(position)
+                                ),
+                                "E_AEP_OP: invalid position"
+                            ),
+                            Some(slot) => match s.replace_slot(&pr, slot, child) {
+                                Ok(rev) => resp!(
+                                    true,
+                                    &format!("{{\"new_revision\":{}}}", json_str(&rev)),
+                                    "ok"
+                                ),
+                                Err(e) => resp!(false, "null", &e),
+                            },
+                        }
+                    }
                 }
             }
             "add_function" => {
@@ -2403,14 +2421,38 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             // RFC-0005 / AEP-0002: Intent -> Applicable Semantic Operations.
             "resolve_entity" => {
                 let s = need_session!();
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                let kind_f = req.get("kind").and_then(|v| v.as_str()).map(|s| s.to_string());
-                let module_f = req.get("module").and_then(|v| v.as_str()).map(|s| s.to_string());
+                let name = req
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let kind_f = req
+                    .get("kind")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string());
+                let module_f = req
+                    .get("module")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string());
                 if name.is_empty() {
-                    resp!(false, "null", "E_AEP_BAD_REQUEST: resolve_entity requires 'name'")
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_BAD_REQUEST: resolve_entity requires 'name'"
+                    )
                 } else {
-                    match resolve_entity_full(&s.graph, &name, kind_f.as_deref(), module_f.as_deref()) {
-                        ResolveOutcome::Exact { id, kind, module, display } => resp!(
+                    match resolve_entity_full(
+                        &s.graph,
+                        &name,
+                        kind_f.as_deref(),
+                        module_f.as_deref(),
+                    ) {
+                        ResolveOutcome::Exact {
+                            id,
+                            kind,
+                            module,
+                            display,
+                        } => resp!(
                             true,
                             &format!(
                                 "{{\"entity\":{},\"kind\":{},\"module\":{},\"display\":{}}}",
@@ -2421,19 +2463,39 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             ),
                             "ok"
                         ),
-                        out => resp!(false, "null", &resolve_msg(&out, &name)),
+                        out => {
+                            let (code, msg) = match &out {
+                                ResolveOutcome::Ambiguous { .. } => {
+                                    ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                                }
+                                _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                            };
+                            resp!(
+                                false,
+                                &resolve_result_json(&out, &name),
+                                &format!("{code}: {msg}")
+                            )
+                        }
                     }
                 }
             }
             "applicable_operations" => {
                 let s = need_session!();
-                let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                let entity = req
+                    .get("entity")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
                 if entity.is_empty() {
-                    resp!(false, "null", "E_AEP_BAD_REQUEST: applicable_operations requires 'entity'")
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_BAD_REQUEST: applicable_operations requires 'entity'"
+                    )
                 } else {
                     match resolve_entity_full(&s.graph, &entity, None, None) {
                         ResolveOutcome::Exact { id, kind, .. } => {
-                            let ops = aep::for_kind(&kind);
+                            let ops = aep::for_entity(&kind);
                             let inspection: Vec<String> = ops
                                 .iter()
                                 .filter(|o| o.effects == "inspection")
@@ -2444,30 +2506,45 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                 .filter(|o| o.effects == "mutation")
                                 .map(|o| json_str(o.name))
                                 .collect();
-                            let transaction: Vec<String> = ops
+                            let context: Vec<String> = aep::context_ops()
                                 .iter()
-                                .filter(|o| o.effects == "transaction")
                                 .map(|o| json_str(o.name))
                                 .collect();
                             resp!(
                                 true,
                                 &format!(
-                                    "{{\"entity\":{},\"kind\":{},\"inspection\":[{}],\"mutation\":[{}],\"transaction\":[{}]}}",
+                                    "{{\"entity\":{},\"kind\":{},\"inspection\":[{}],\"mutation\":[{}],\"context_operations\":[{}]}}",
                                     json_str(&id),
                                     json_str(&kind),
                                     inspection.join(","),
                                     mutation.join(","),
-                                    transaction.join(",")
+                                    context.join(",")
                                 ),
                                 "ok"
                             )
                         }
-                        out => resp!(false, "null", &resolve_msg(&out, &entity)),
+                        out => {
+                            let (code, msg) = match &out {
+                                ResolveOutcome::Ambiguous { .. } => {
+                                    ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                                }
+                                _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                            };
+                            resp!(
+                                false,
+                                &resolve_result_json(&out, &entity),
+                                &format!("{code}: {msg}")
+                            )
+                        }
                     }
                 }
             }
             "describe_operation" => {
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                let name = req
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
                 match aep::lookup(&name) {
                     Some(op) => {
                         if let Some(gate) = op.gate {
@@ -2475,11 +2552,8 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                 let cands = aep::closest(&name, 6);
                                 resp!(
                                     false,
-                                    "null",
-                                    &format!(
-                                        "E_AEP_UNKNOWN_TOOL: {name}; candidates={}",
-                                        cands.iter().map(|c| c.name).collect::<Vec<_>>().join(", ")
-                                    )
+                                    &unknown_tool_json(&name, &cands),
+                                    "E_AEP_UNKNOWN_TOOL: unknown operation"
                                 )
                             } else {
                                 resp!(true, &describe_json(op), "ok")
@@ -2492,29 +2566,19 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         let cands = aep::closest(&name, 6);
                         resp!(
                             false,
-                            "null",
-                            &format!(
-                                "E_AEP_UNKNOWN_TOOL: {name}; candidates={}",
-                                cands.iter().map(|c| c.name).collect::<Vec<_>>().join(", ")
-                            )
+                            &unknown_tool_json(&name, &cands),
+                            "E_AEP_UNKNOWN_TOOL: unknown operation"
                         )
                     }
                 }
             }
             other => {
                 let cands = aep::closest(other, 6);
-                if cands.is_empty() {
-                    resp!(false, "null", &format!("E_AEP_UNKNOWN_TOOL: {other}"))
-                } else {
-                    resp!(
-                        false,
-                        "null",
-                        &format!(
-                            "E_AEP_UNKNOWN_TOOL: {other}; candidates={}",
-                            cands.iter().map(|c| c.name).collect::<Vec<_>>().join(", ")
-                        )
-                    )
-                }
+                resp!(
+                    false,
+                    &unknown_tool_json(other, &cands),
+                    "E_AEP_UNKNOWN_TOOL: unknown operation"
+                )
             }
         };
         println!("{out}");
@@ -2642,7 +2706,12 @@ fn all_entities(g: &air::AirGraph) -> Vec<(String, String, String, String)> {
     let mut out: Vec<(String, String, String, String)> = Vec::new();
     for m in &g.module_entities {
         let module_name = m.trim_start_matches("module:").to_string();
-        out.push((m.clone(), module_name.clone(), module_name.clone(), "module".to_string()));
+        out.push((
+            m.clone(),
+            module_name.clone(),
+            module_name.clone(),
+            "module".to_string(),
+        ));
         if let Some(mn) = g.resolve(m) {
             for id in mn.slots.get("functions").cloned().unwrap_or_default() {
                 if let Some(f) = g.get(&id) {
@@ -2666,9 +2735,18 @@ fn all_entities(g: &air::AirGraph) -> Vec<(String, String, String, String)> {
 }
 
 enum ResolveOutcome {
-    Exact { id: String, kind: String, module: String, display: String },
-    Ambiguous { candidates: Vec<String> },
-    NotFound { candidates: Vec<String> },
+    Exact {
+        id: String,
+        kind: String,
+        module: String,
+        display: String,
+    },
+    Ambiguous {
+        candidates: Vec<String>,
+    },
+    NotFound {
+        candidates: Vec<String>,
+    },
 }
 
 /// RFC-0005 resolve_entity: exact-first, kind/module filters, ambiguity
@@ -2698,15 +2776,18 @@ fn resolve_entity_full(
                 })
                 .map(|m| m.trim_start_matches("module:").to_string())
                 .unwrap_or_default();
-            let display = match module.as_str() {
-                "" => name.to_string(),
-                _ => {
-                    if name.starts_with(&module) {
-                        name.to_string()
+            // Rebuild semantic display from the resolved node's name field,
+            // not the input string (opaque entity ids must not leak into
+            // display names).
+            let display = match g.get(&rev).and_then(|n| n.fields.get("name")) {
+                Some(air::Value::Str(s)) => {
+                    if module.is_empty() {
+                        s.clone()
                     } else {
-                        format!("{module}.{name}")
+                        format!("{module}.{s}")
                     }
                 }
+                _ => name.to_string(),
             };
             matches.push((rev, display, module, kind));
         }
@@ -2727,18 +2808,28 @@ fn resolve_entity_full(
     }
     // kind / module filters
     if let Some(kf) = kind_filter {
-        matches.retain(|(_, _, _, k)| k == kf || (kf == "type" && k == "record") || (kf == "type" && k == "enum"));
+        matches.retain(|(_, _, _, k)| {
+            k == kf || (kf == "type" && k == "record") || (kf == "type" && k == "enum")
+        });
     }
     if let Some(mf) = module_filter {
-        matches.retain(|(_, _, m, _)| m == mf || m.starts_with(mf));
+        matches.retain(|(_, _, m, _)| m == mf);
     }
     match matches.len() {
         1 => {
             let (id, display, module, kind) = matches.pop().unwrap();
-            ResolveOutcome::Exact { id, kind, module, display }
+            ResolveOutcome::Exact {
+                id,
+                kind,
+                module,
+                display,
+            }
         }
         n if n > 1 => {
-            let mut cands: Vec<String> = matches.iter().map(|(_, d, _, k)| format!("{d} ({k})")).collect();
+            let mut cands: Vec<String> = matches
+                .iter()
+                .map(|(_, d, _, k)| format!("{d} ({k})"))
+                .collect();
             cands.sort();
             cands.truncate(8);
             ResolveOutcome::Ambiguous { candidates: cands }
@@ -2752,20 +2843,6 @@ fn resolve_entity_full(
                 .collect();
             ResolveOutcome::NotFound { candidates: cands }
         }
-    }
-}
-
-fn resolve_msg(outcome: &ResolveOutcome, name: &str) -> String {
-    match outcome {
-        ResolveOutcome::Exact { .. } => "ok".to_string(),
-        ResolveOutcome::Ambiguous { candidates } => format!(
-            "E_AEP_AMBIGUOUS_ENTITY: {name}; candidates={}",
-            candidates.join(", ")
-        ),
-        ResolveOutcome::NotFound { candidates } => format!(
-            "E_AEP_ENTITY_NOT_FOUND: {name}; candidates={}",
-            candidates.join(", ")
-        ),
     }
 }
 
@@ -2796,6 +2873,37 @@ fn describe_json(op: &aep::OperationSpec) -> String {
         json_str(op.effects),
         json_str(op.example),
         if op.gate.is_some() { "true" } else { "false" }
+    )
+}
+
+/// Structured recovery payload for unknown operations / typos.
+fn unknown_tool_json(requested: &str, cands: &[&'static aep::OperationSpec]) -> String {
+    format!(
+        "{{\"requested\":{},\"candidates\":[{}]}}",
+        json_str(requested),
+        cands
+            .iter()
+            .map(|c| json_str(c.name))
+            .collect::<Vec<_>>()
+            .join(",")
+    )
+}
+
+/// Structured recovery payload for entity resolution failures.
+fn resolve_result_json(outcome: &ResolveOutcome, requested: &str) -> String {
+    let cands: Vec<String> = match outcome {
+        ResolveOutcome::Ambiguous { candidates } => candidates.clone(),
+        ResolveOutcome::NotFound { candidates } => candidates.clone(),
+        ResolveOutcome::Exact { .. } => Vec::new(),
+    };
+    format!(
+        "{{\"requested\":{},\"candidates\":[{}]}}",
+        json_str(requested),
+        cands
+            .iter()
+            .map(|c| json_str(c))
+            .collect::<Vec<_>>()
+            .join(",")
     )
 }
 
