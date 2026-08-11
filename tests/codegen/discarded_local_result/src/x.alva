@@ -1,0 +1,31 @@
+(module
+  (name "discarded_local_result.x")
+  (version "0.1.0")
+  (export run)
+
+  ;; CS-002 R4: a discarded expression's LOCAL Result type may differ from the
+  ;; enclosing fn's Result<(), String>. Value-erasure lowering must not borrow
+  ;; the enclosing fn's Result type to annotate internal Ok/Err.
+  (fn helper
+    (params)
+    (returns (result (prim i64) (prim i64)))
+    (pure)
+    (body (ok (int 7))))
+
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body
+      (block
+        ;; discarded if whose local type is Result<i64, i64>
+        (if (bool true)
+          (ok (int 1))
+          (err (int 2)))
+        ;; variation: one branch is a helper() -> Result<i64, i64> call,
+        ;; the other is a literal (ok 3); guards against syntax heuristics
+        ;; that only count Ok/Err constructors.
+        (if (bool false)
+          (call helper)
+          (ok (int 3)))
+        (ok (nil))))))

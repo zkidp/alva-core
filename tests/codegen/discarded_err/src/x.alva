@@ -1,0 +1,25 @@
+(module
+  (name "discarded_err.x")
+  (version "0.1.0")
+  (export run)
+
+  ;; CS-002 R3: discarded `(err ...)` must be emitted with an explicit ok-type
+  ;; annotation (`Err::<(), _>(...)`) so rustc can typecheck the discarded
+  ;; statement (E0282 guard for the Err side).
+  (fn check
+    (params (param r (result (prim nil) (prim string))))
+    (returns (prim bool))
+    (pure)
+    (body (call is-ok (ref r))))
+
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body
+      (block
+        (if (call check (ok (nil)))
+          (err (string "boom"))
+          (err (string "no")))
+        (err (string "direct"))
+        (ok (nil))))))

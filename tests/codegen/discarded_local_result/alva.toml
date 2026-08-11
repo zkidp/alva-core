@@ -1,0 +1,5 @@
+[project]
+name = "discarded_local_result"
+
+[modules]
+"discarded_local_result.x" = "src/x.alva"
