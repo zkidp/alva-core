@@ -1,0 +1,16 @@
+(module
+  (name "rfc0005.b")
+  (version "0.1.0")
+  (export run)
+  (type Shared
+    (record (field y (prim string))))
+  (fn b_fn
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body (int 2)))
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body (ok (nil)))))

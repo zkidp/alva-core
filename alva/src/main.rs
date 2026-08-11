@@ -1,4 +1,5 @@
 mod air;
+mod aep;
 mod ast;
 mod check;
 mod codegen;
@@ -1723,7 +1724,12 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     let pr = s.graph.resolve_rev(parent).ok_or("parent not found")?;
                     let kind = s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
                     let slot = friendly_slot(&kind, position)
-                        .ok_or_else(|| format!("unsupported position '{position}' for {kind}"))?;
+                        .ok_or_else(|| {
+                            format!(
+                                "unsupported position '{position}' for {kind}; \
+                                 use describe_operation name=replace_expression for valid positions"
+                            )
+                        })?;
                     s.replace_slot(&pr, slot, child)
                 })() {
                     Ok(rev) => resp!(
@@ -2394,7 +2400,122 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 session = None;
                 resp!(true, "{\"aborted\":true}", "aborted")
             }
-            other => resp!(false, "null", &format!("E_AEP_UNKNOWN_TOOL: {other}")),
+            // RFC-0005 / AEP-0002: Intent -> Applicable Semantic Operations.
+            "resolve_entity" => {
+                let s = need_session!();
+                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                let kind_f = req.get("kind").and_then(|v| v.as_str()).map(|s| s.to_string());
+                let module_f = req.get("module").and_then(|v| v.as_str()).map(|s| s.to_string());
+                if name.is_empty() {
+                    resp!(false, "null", "E_AEP_BAD_REQUEST: resolve_entity requires 'name'")
+                } else {
+                    match resolve_entity_full(&s.graph, &name, kind_f.as_deref(), module_f.as_deref()) {
+                        ResolveOutcome::Exact { id, kind, module, display } => resp!(
+                            true,
+                            &format!(
+                                "{{\"entity\":{},\"kind\":{},\"module\":{},\"display\":{}}}",
+                                json_str(&id),
+                                json_str(&kind),
+                                json_str(&module),
+                                json_str(&display)
+                            ),
+                            "ok"
+                        ),
+                        out => resp!(false, "null", &resolve_msg(&out, &name)),
+                    }
+                }
+            }
+            "applicable_operations" => {
+                let s = need_session!();
+                let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                if entity.is_empty() {
+                    resp!(false, "null", "E_AEP_BAD_REQUEST: applicable_operations requires 'entity'")
+                } else {
+                    match resolve_entity_full(&s.graph, &entity, None, None) {
+                        ResolveOutcome::Exact { id, kind, .. } => {
+                            let ops = aep::for_kind(&kind);
+                            let inspection: Vec<String> = ops
+                                .iter()
+                                .filter(|o| o.effects == "inspection")
+                                .map(|o| json_str(o.name))
+                                .collect();
+                            let mutation: Vec<String> = ops
+                                .iter()
+                                .filter(|o| o.effects == "mutation")
+                                .map(|o| json_str(o.name))
+                                .collect();
+                            let transaction: Vec<String> = ops
+                                .iter()
+                                .filter(|o| o.effects == "transaction")
+                                .map(|o| json_str(o.name))
+                                .collect();
+                            resp!(
+                                true,
+                                &format!(
+                                    "{{\"entity\":{},\"kind\":{},\"inspection\":[{}],\"mutation\":[{}],\"transaction\":[{}]}}",
+                                    json_str(&id),
+                                    json_str(&kind),
+                                    inspection.join(","),
+                                    mutation.join(","),
+                                    transaction.join(",")
+                                ),
+                                "ok"
+                            )
+                        }
+                        out => resp!(false, "null", &resolve_msg(&out, &entity)),
+                    }
+                }
+            }
+            "describe_operation" => {
+                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                match aep::lookup(&name) {
+                    Some(op) => {
+                        if let Some(gate) = op.gate {
+                            if !aep::gate_enabled(gate) {
+                                let cands = aep::closest(&name, 6);
+                                resp!(
+                                    false,
+                                    "null",
+                                    &format!(
+                                        "E_AEP_UNKNOWN_TOOL: {name}; candidates={}",
+                                        cands.iter().map(|c| c.name).collect::<Vec<_>>().join(", ")
+                                    )
+                                )
+                            } else {
+                                resp!(true, &describe_json(op), "ok")
+                            }
+                        } else {
+                            resp!(true, &describe_json(op), "ok")
+                        }
+                    }
+                    None => {
+                        let cands = aep::closest(&name, 6);
+                        resp!(
+                            false,
+                            "null",
+                            &format!(
+                                "E_AEP_UNKNOWN_TOOL: {name}; candidates={}",
+                                cands.iter().map(|c| c.name).collect::<Vec<_>>().join(", ")
+                            )
+                        )
+                    }
+                }
+            }
+            other => {
+                let cands = aep::closest(other, 6);
+                if cands.is_empty() {
+                    resp!(false, "null", &format!("E_AEP_UNKNOWN_TOOL: {other}"))
+                } else {
+                    resp!(
+                        false,
+                        "null",
+                        &format!(
+                            "E_AEP_UNKNOWN_TOOL: {other}; candidates={}",
+                            cands.iter().map(|c| c.name).collect::<Vec<_>>().join(", ")
+                        )
+                    )
+                }
+            }
         };
         println!("{out}");
     }
@@ -2497,6 +2618,185 @@ fn resolve_type_in_graph(g: &air::AirGraph, name: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// RFC-0005: semantic entity kinds we expose for resolution / applicability.
+fn entity_kind(g: &air::AirGraph, rev: &str) -> String {
+    match g.get(rev) {
+        Some(n) => match n.kind.as_str() {
+            "function" => "function".to_string(),
+            "type" => match n.fields.get("kind") {
+                Some(air::Value::Str(s)) => s.clone(), // record | enum
+                _ => "type".to_string(),
+            },
+            other => other.to_string(),
+        },
+        None => "unknown".to_string(),
+    }
+}
+
+/// Collect every resolvable semantic entity (module / function / type) with
+/// display name, module, kind. Used by resolve_entity and recovery hints.
+fn all_entities(g: &air::AirGraph) -> Vec<(String, String, String, String)> {
+    // (id, display, module, kind)
+    let mut out: Vec<(String, String, String, String)> = Vec::new();
+    for m in &g.module_entities {
+        let module_name = m.trim_start_matches("module:").to_string();
+        out.push((m.clone(), module_name.clone(), module_name.clone(), "module".to_string()));
+        if let Some(mn) = g.resolve(m) {
+            for id in mn.slots.get("functions").cloned().unwrap_or_default() {
+                if let Some(f) = g.get(&id) {
+                    if let Some(air::Value::Str(s)) = f.fields.get("name") {
+                        let kind = entity_kind(g, &id);
+                        out.push((id, format!("{module_name}.{s}"), module_name.clone(), kind));
+                    }
+                }
+            }
+            for id in mn.slots.get("types").cloned().unwrap_or_default() {
+                if let Some(t) = g.get(&id) {
+                    if let Some(air::Value::Str(s)) = t.fields.get("name") {
+                        let kind = entity_kind(g, &id);
+                        out.push((id, format!("{module_name}.{s}"), module_name.clone(), kind));
+                    }
+                }
+            }
+        }
+    }
+    out
+}
+
+enum ResolveOutcome {
+    Exact { id: String, kind: String, module: String, display: String },
+    Ambiguous { candidates: Vec<String> },
+    NotFound { candidates: Vec<String> },
+}
+
+/// RFC-0005 resolve_entity: exact-first, kind/module filters, ambiguity
+/// reported as candidates (no silent guessing).
+fn resolve_entity_full(
+    g: &air::AirGraph,
+    name: &str,
+    kind_filter: Option<&str>,
+    module_filter: Option<&str>,
+) -> ResolveOutcome {
+    let mut matches: Vec<(String, String, String, String)> = Vec::new();
+    // direct revision / entity id first
+    if let Some(rev) = g.resolve_rev(name) {
+        if g.get(&rev).is_some() {
+            let kind = entity_kind(g, &rev);
+            let module = g
+                .module_entities
+                .iter()
+                .find(|m| {
+                    g.resolve(m)
+                        .map(|mn| {
+                            let mut all = mn.slots.get("functions").cloned().unwrap_or_default();
+                            all.extend(mn.slots.get("types").cloned().unwrap_or_default());
+                            all.contains(&rev)
+                        })
+                        .unwrap_or(false)
+                })
+                .map(|m| m.trim_start_matches("module:").to_string())
+                .unwrap_or_default();
+            let display = match module.as_str() {
+                "" => name.to_string(),
+                _ => {
+                    if name.starts_with(&module) {
+                        name.to_string()
+                    } else {
+                        format!("{module}.{name}")
+                    }
+                }
+            };
+            matches.push((rev, display, module, kind));
+        }
+    }
+    if matches.is_empty() {
+        for (id, display, module, kind) in all_entities(g) {
+            let last = display.rsplit('.').next().unwrap_or("");
+            let mut ok = display == name || id == name || (name == last);
+            if !ok {
+                if let Some(rest) = name.strip_prefix(&format!("{module}.")) {
+                    ok = rest == last;
+                }
+            }
+            if ok {
+                matches.push((id, display, module, kind));
+            }
+        }
+    }
+    // kind / module filters
+    if let Some(kf) = kind_filter {
+        matches.retain(|(_, _, _, k)| k == kf || (kf == "type" && k == "record") || (kf == "type" && k == "enum"));
+    }
+    if let Some(mf) = module_filter {
+        matches.retain(|(_, _, m, _)| m == mf || m.starts_with(mf));
+    }
+    match matches.len() {
+        1 => {
+            let (id, display, module, kind) = matches.pop().unwrap();
+            ResolveOutcome::Exact { id, kind, module, display }
+        }
+        n if n > 1 => {
+            let mut cands: Vec<String> = matches.iter().map(|(_, d, _, k)| format!("{d} ({k})")).collect();
+            cands.sort();
+            cands.truncate(8);
+            ResolveOutcome::Ambiguous { candidates: cands }
+        }
+        _ => {
+            let cands: Vec<String> = all_entities(g)
+                .iter()
+                .filter(|(_, d, _, _)| d.contains(name) || (name.len() >= 3 && d.starts_with(name)))
+                .map(|(_, d, _, _)| d.clone())
+                .take(8)
+                .collect();
+            ResolveOutcome::NotFound { candidates: cands }
+        }
+    }
+}
+
+fn resolve_msg(outcome: &ResolveOutcome, name: &str) -> String {
+    match outcome {
+        ResolveOutcome::Exact { .. } => "ok".to_string(),
+        ResolveOutcome::Ambiguous { candidates } => format!(
+            "E_AEP_AMBIGUOUS_ENTITY: {name}; candidates={}",
+            candidates.join(", ")
+        ),
+        ResolveOutcome::NotFound { candidates } => format!(
+            "E_AEP_ENTITY_NOT_FOUND: {name}; candidates={}",
+            candidates.join(", ")
+        ),
+    }
+}
+
+/// RFC-0005 describe_operation: machine-readable schema from the registry.
+fn describe_json(op: &aep::OperationSpec) -> String {
+    let args: Vec<String> = op
+        .arguments
+        .iter()
+        .map(|a| {
+            format!(
+                "{{\"name\":{},\"shape\":{},\"required\":{}}}",
+                json_str(a.name),
+                json_str(a.shape),
+                if a.required { "true" } else { "false" }
+            )
+        })
+        .collect();
+    let kinds: Vec<String> = op.target_kinds.iter().map(|k| json_str(k)).collect();
+    let pres: Vec<String> = op.preconditions.iter().map(|p| json_str(p)).collect();
+    let aliases: Vec<String> = op.aliases.iter().map(|a| json_str(a)).collect();
+    format!(
+        "{{\"name\":{},\"aliases\":[{}],\"target_kinds\":[{}],\"arguments\":[{}],\"preconditions\":[{}],\"effects\":{},\"example\":{},\"gated\":{}}}",
+        json_str(op.name),
+        aliases.join(","),
+        kinds.join(","),
+        args.join(","),
+        pres.join(","),
+        json_str(op.effects),
+        json_str(op.example),
+        if op.gate.is_some() { "true" } else { "false" }
+    )
 }
 
 fn value_short(v: &air::Value) -> String {

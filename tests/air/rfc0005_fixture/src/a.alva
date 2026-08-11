@@ -1,0 +1,20 @@
+(module
+  (name "rfc0005.a")
+  (version "0.1.0")
+  (export run)
+  (type Shared
+    (record (field x (prim i64))))
+  (type Job
+    (record
+      (field id (prim string))
+      (field worker (prim string))))
+  (fn a_fn
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body (int 1)))
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body (ok (nil)))))
