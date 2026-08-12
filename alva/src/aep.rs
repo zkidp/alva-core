@@ -30,6 +30,37 @@ pub struct OperationSpec {
 
 pub const GATE_A1: &str = "ALVA_AEP_ENABLE_EXPERIMENTAL_A1";
 
+/// Canonical friendly position vocabulary for `replace_expression`.
+///
+/// Single source of truth: the executor (`friendly_slot` / `valid_positions`
+/// in main.rs) accepts a position only if it is in this table for the node's
+/// kind, and every discovery surface (`describe_operation`,
+/// invalid-position recovery) advertises positions derived from this table.
+/// A position name may map to a different AIR slot name (e.g. `step` ->
+/// `steps`, `arg` -> `args`).
+pub const POSITION_NAMES: &[&str] = &[
+    "value",
+    "body",
+    "cond",
+    "then",
+    "else",
+    "left",
+    "right",
+    "step",
+    "arg",
+    "collection",
+    "predicate",
+    "start",
+    "end",
+    "init",
+    "cond2",
+    "catch",
+    "scrutinee",
+    "range_start",
+    "range_end",
+    "acc_init",
+];
+
 const fn arg(name: &'static str, shape: &'static str, required: bool) -> ArgSpec {
     ArgSpec {
         name,
@@ -370,12 +401,16 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             vec![
                 arg("parent", "revision", true),
                 arg("child", "revision", true),
-                arg("position", "steps/0|args/0|...", true),
+                arg(
+                    "position",
+                    "kind-dependent slot position (see describe_operation expected_positions)",
+                    true,
+                ),
             ],
             vec!["transaction"],
             "mutation",
             "expression",
-            "replace_expression parent=<rev> child=<rev> position=steps/0",
+            "replace_expression parent=<rev> child=<rev> position=step",
             None,
         ),
         spec(

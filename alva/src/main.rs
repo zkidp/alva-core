@@ -1254,77 +1254,106 @@ fn cmd_view(rest: &[String]) -> i32 {
 // The agent never constructs raw AIR nodes or touches .alva text.
 // ---------------------------------------------------------------------------
 
+/// Whether a friendly position name is accepted for a node kind. This is the
+/// single source of truth shared by the executor (`friendly_slot`) and every
+/// discovery surface; advertised positions are always executable.
+fn position_valid_for(kind: &str, position: &str) -> bool {
+    match position {
+        "value" => matches!(
+            kind,
+            "binding"
+                | "as"
+                | "field"
+                | "record_field"
+                | "ok"
+                | "err"
+                | "raise"
+                | "try"
+                | "not"
+                | "len"
+                | "keys"
+                | "unwrap"
+                | "errvalue"
+                | "tostring"
+                | "parseint"
+                | "tobytes"
+                | "isok"
+                | "sort"
+                | "urldecode"
+                | "tohex"
+                | "slice"
+        ),
+        "body" => matches!(
+            kind,
+            "binding" | "fold" | "loop" | "case" | "test" | "bench" | "contract"
+        ),
+        "cond" | "then" | "else" => kind == "if",
+        "left" | "right" => matches!(
+            kind,
+            "binary"
+                | "get"
+                | "append"
+                | "lookup"
+                | "contains"
+                | "veccontains"
+                | "remove"
+                | "split"
+                | "concat"
+                | "join"
+                | "stripprefix"
+                | "before"
+                | "endswith"
+                | "cteq"
+        ),
+        "step" => kind == "block",
+        "arg" => kind == "call",
+        "collection" | "predicate" => matches!(kind, "any" | "all" | "find"),
+        "start" | "end" => kind == "slice",
+        "init" | "cond2" => kind == "loop",
+        "catch" => kind == "try",
+        "scrutinee" => kind == "match",
+        "range_start" | "range_end" | "acc_init" => kind == "fold",
+        _ => false,
+    }
+}
+
+/// Valid friendly positions for a node kind, derived from `aep::POSITION_NAMES`
+/// and `position_valid_for`.
+fn valid_positions(kind: &str) -> Vec<&'static str> {
+    let mut out: Vec<&'static str> = aep::POSITION_NAMES
+        .iter()
+        .copied()
+        .filter(|p| position_valid_for(kind, p))
+        .collect();
+    out.sort_unstable();
+    out
+}
+
 fn friendly_slot(kind: &str, position: &str) -> Option<&'static str> {
+    if !position_valid_for(kind, position) {
+        return None;
+    }
     Some(match position {
-        "value" => match kind {
-            "binding" | "as" | "field" | "record_field" | "ok" | "err" | "raise" | "try"
-            | "not" | "len" | "keys" | "unwrap" | "errvalue" | "tostring" | "parseint"
-            | "tobytes" | "isok" | "sort" | "urldecode" | "tohex" | "slice" => "value",
-            _ => return None,
-        },
-        "body" => match kind {
-            "binding" | "fold" | "loop" | "case" | "test" | "bench" | "contract" => "body",
-            _ => return None,
-        },
-        "cond" if kind == "if" => "cond",
-        "then" if kind == "if" => "then",
-        "else" if kind == "if" => "else",
-        "left"
-            if matches!(
-                kind,
-                "binary"
-                    | "get"
-                    | "append"
-                    | "lookup"
-                    | "contains"
-                    | "veccontains"
-                    | "remove"
-                    | "split"
-                    | "concat"
-                    | "join"
-                    | "stripprefix"
-                    | "before"
-                    | "endswith"
-                    | "cteq"
-            ) =>
-        {
-            "left"
-        }
-        "right"
-            if matches!(
-                kind,
-                "binary"
-                    | "get"
-                    | "append"
-                    | "lookup"
-                    | "contains"
-                    | "veccontains"
-                    | "remove"
-                    | "split"
-                    | "concat"
-                    | "join"
-                    | "stripprefix"
-                    | "before"
-                    | "endswith"
-                    | "cteq"
-            ) =>
-        {
-            "right"
-        }
-        "step" if kind == "block" => "steps",
-        "arg" if kind == "call" => "args",
-        "collection" if matches!(kind, "any" | "all" | "find") => "collection",
-        "predicate" if matches!(kind, "any" | "all" | "find") => "predicate",
-        "start" if kind == "slice" => "start",
-        "end" if kind == "slice" => "end",
-        "init" if kind == "loop" => "init",
-        "cond2" if kind == "loop" => "cond",
-        "catch" if kind == "try" => "catch",
-        "scrutinee" if kind == "match" => "scrutinee",
-        "range_start" if kind == "fold" => "range_start",
-        "range_end" if kind == "fold" => "range_end",
-        "acc_init" if kind == "fold" => "acc_init",
-        _ => return None,
+        "value" => "value",
+        "body" => "body",
+        "cond" | "cond2" => "cond",
+        "then" => "then",
+        "else" => "else",
+        "left" => "left",
+        "right" => "right",
+        "step" => "steps",
+        "arg" => "args",
+        "collection" => "collection",
+        "predicate" => "predicate",
+        "start" => "start",
+        "end" => "end",
+        "init" => "init",
+        "catch" => "catch",
+        "scrutinee" => "scrutinee",
+        "range_start" => "range_start",
+        "range_end" => "range_end",
+        "acc_init" => "acc_init",
+        _ => unreachable!("position_valid_for guaranteed the position"),
     })
 }
 
@@ -1741,8 +1770,13 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             None => resp!(
                                 false,
                                 &format!(
-                                    "{{\"operation\":\"replace_expression\",\"argument\":\"position\",\"requested\":{},\"expected_shape\":\"value|body|cond|then|else|left|right|collection|target|predicate|steps/N|args/N\",\"recovery\":{{\"tool\":\"describe_operation\",\"name\":\"replace_expression\"}}}}",
-                                    json_str(position)
+                                    "{{\"operation\":\"replace_expression\",\"argument\":\"position\",\"requested\":{},\"expected_positions\":[{}],\"recovery\":{{\"tool\":\"describe_operation\",\"name\":\"replace_expression\"}}}}",
+                                    json_str(position),
+                                    valid_positions(&kind)
+                                        .iter()
+                                        .map(|p| json_str(p))
+                                        .collect::<Vec<_>>()
+                                        .join(",")
                                 ),
                                 "E_AEP_OP: invalid position"
                             ),
@@ -2863,8 +2897,23 @@ fn describe_json(op: &aep::OperationSpec) -> String {
     let kinds: Vec<String> = op.target_kinds.iter().map(|k| json_str(k)).collect();
     let pres: Vec<String> = op.preconditions.iter().map(|p| json_str(p)).collect();
     let aliases: Vec<String> = op.aliases.iter().map(|a| json_str(a)).collect();
+    // replace_expression positions are kind-dependent; advertise the complete
+    // vocabulary from the shared table (aep::POSITION_NAMES) so discovery
+    // and execution cannot drift.
+    let positions_extra = if op.name == "replace_expression" {
+        format!(
+            ",\"expected_positions\":[{}]",
+            aep::POSITION_NAMES
+                .iter()
+                .map(|p| json_str(p))
+                .collect::<Vec<_>>()
+                .join(",")
+        )
+    } else {
+        String::new()
+    };
     format!(
-        "{{\"name\":{},\"aliases\":[{}],\"target_kinds\":[{}],\"arguments\":[{}],\"preconditions\":[{}],\"effects\":{},\"example\":{},\"gated\":{}}}",
+        "{{\"name\":{},\"aliases\":[{}],\"target_kinds\":[{}],\"arguments\":[{}],\"preconditions\":[{}],\"effects\":{},\"example\":{},\"gated\":{}{}}}",
         json_str(op.name),
         aliases.join(","),
         kinds.join(","),
@@ -2872,7 +2921,8 @@ fn describe_json(op: &aep::OperationSpec) -> String {
         pres.join(","),
         json_str(op.effects),
         json_str(op.example),
-        if op.gate.is_some() { "true" } else { "false" }
+        if op.gate.is_some() { "true" } else { "false" },
+        positions_extra
     )
 }
 

@@ -219,13 +219,34 @@ def main():
     r = a.tool("replace_expression", parent=bnd,
                child=lit2, position="bogus")
     rec = r["result"].get("recovery", {})
+    positions = r["result"].get("expected_positions", [])
     check("R13 invalid position -> structured recovery",
           not r["ok"] and r["error_code"] == "E_AEP_OP"
           and r["result"].get("operation") == "replace_expression"
           and r["result"].get("argument") == "position"
-          and "expected_shape" in r["result"]
+          and positions == ["body", "value"]  # binding parent: body + value
+          and "step" not in positions
+          and "target" not in positions
+          and all("steps/" not in p and "args/" not in p for p in positions)
           and rec.get("tool") == "describe_operation"
           and rec.get("name") == "replace_expression", r)
+
+    # R18 describe advertises exactly the executable position vocabulary
+    r = a.tool("describe_operation", name="replace_expression")
+    positions = r["result"].get("expected_positions", [])
+    check("R18 describe position vocabulary == executor contract",
+          r["ok"]
+          and "step" in positions and "arg" in positions and "value" in positions
+          and "target" not in positions
+          and all("steps/" not in p and "args/" not in p for p in positions)
+          and "steps/0" not in r["result"]["arguments"][2]["shape"], r)
+
+    # R19 advertised position truly executes (block + step)
+    blk = a.tool("create_block")["result"]["revision"]
+    r = a.tool("replace_expression", parent=blk,
+               child=lit2, position="step")
+    check("R19 advertised position=step executes on block",
+          r["ok"] and "new_revision" in r["result"], r)
 
     # --- A1 feature gate: never leaked through discovery ------------------
 
