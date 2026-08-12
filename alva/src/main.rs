@@ -1,3 +1,4 @@
+mod aep;
 mod air;
 mod ast;
 mod check;
@@ -1253,77 +1254,106 @@ fn cmd_view(rest: &[String]) -> i32 {
 // The agent never constructs raw AIR nodes or touches .alva text.
 // ---------------------------------------------------------------------------
 
+/// Whether a friendly position name is accepted for a node kind. This is the
+/// single source of truth shared by the executor (`friendly_slot`) and every
+/// discovery surface; advertised positions are always executable.
+fn position_valid_for(kind: &str, position: &str) -> bool {
+    match position {
+        "value" => matches!(
+            kind,
+            "binding"
+                | "as"
+                | "field"
+                | "record_field"
+                | "ok"
+                | "err"
+                | "raise"
+                | "try"
+                | "not"
+                | "len"
+                | "keys"
+                | "unwrap"
+                | "errvalue"
+                | "tostring"
+                | "parseint"
+                | "tobytes"
+                | "isok"
+                | "sort"
+                | "urldecode"
+                | "tohex"
+                | "slice"
+        ),
+        "body" => matches!(
+            kind,
+            "binding" | "fold" | "loop" | "case" | "test" | "bench" | "contract"
+        ),
+        "cond" | "then" | "else" => kind == "if",
+        "left" | "right" => matches!(
+            kind,
+            "binary"
+                | "get"
+                | "append"
+                | "lookup"
+                | "contains"
+                | "veccontains"
+                | "remove"
+                | "split"
+                | "concat"
+                | "join"
+                | "stripprefix"
+                | "before"
+                | "endswith"
+                | "cteq"
+        ),
+        "step" => kind == "block",
+        "arg" => kind == "call",
+        "collection" | "predicate" => matches!(kind, "any" | "all" | "find"),
+        "start" | "end" => kind == "slice",
+        "init" | "cond2" => kind == "loop",
+        "catch" => kind == "try",
+        "scrutinee" => kind == "match",
+        "range_start" | "range_end" | "acc_init" => kind == "fold",
+        _ => false,
+    }
+}
+
+/// Valid friendly positions for a node kind, derived from `aep::POSITION_NAMES`
+/// and `position_valid_for`.
+fn valid_positions(kind: &str) -> Vec<&'static str> {
+    let mut out: Vec<&'static str> = aep::POSITION_NAMES
+        .iter()
+        .copied()
+        .filter(|p| position_valid_for(kind, p))
+        .collect();
+    out.sort_unstable();
+    out
+}
+
 fn friendly_slot(kind: &str, position: &str) -> Option<&'static str> {
+    if !position_valid_for(kind, position) {
+        return None;
+    }
     Some(match position {
-        "value" => match kind {
-            "binding" | "as" | "field" | "record_field" | "ok" | "err" | "raise" | "try"
-            | "not" | "len" | "keys" | "unwrap" | "errvalue" | "tostring" | "parseint"
-            | "tobytes" | "isok" | "sort" | "urldecode" | "tohex" | "slice" => "value",
-            _ => return None,
-        },
-        "body" => match kind {
-            "binding" | "fold" | "loop" | "case" | "test" | "bench" | "contract" => "body",
-            _ => return None,
-        },
-        "cond" if kind == "if" => "cond",
-        "then" if kind == "if" => "then",
-        "else" if kind == "if" => "else",
-        "left"
-            if matches!(
-                kind,
-                "binary"
-                    | "get"
-                    | "append"
-                    | "lookup"
-                    | "contains"
-                    | "veccontains"
-                    | "remove"
-                    | "split"
-                    | "concat"
-                    | "join"
-                    | "stripprefix"
-                    | "before"
-                    | "endswith"
-                    | "cteq"
-            ) =>
-        {
-            "left"
-        }
-        "right"
-            if matches!(
-                kind,
-                "binary"
-                    | "get"
-                    | "append"
-                    | "lookup"
-                    | "contains"
-                    | "veccontains"
-                    | "remove"
-                    | "split"
-                    | "concat"
-                    | "join"
-                    | "stripprefix"
-                    | "before"
-                    | "endswith"
-                    | "cteq"
-            ) =>
-        {
-            "right"
-        }
-        "step" if kind == "block" => "steps",
-        "arg" if kind == "call" => "args",
-        "collection" if matches!(kind, "any" | "all" | "find") => "collection",
-        "predicate" if matches!(kind, "any" | "all" | "find") => "predicate",
-        "start" if kind == "slice" => "start",
-        "end" if kind == "slice" => "end",
-        "init" if kind == "loop" => "init",
-        "cond2" if kind == "loop" => "cond",
-        "catch" if kind == "try" => "catch",
-        "scrutinee" if kind == "match" => "scrutinee",
-        "range_start" if kind == "fold" => "range_start",
-        "range_end" if kind == "fold" => "range_end",
-        "acc_init" if kind == "fold" => "acc_init",
-        _ => return None,
+        "value" => "value",
+        "body" => "body",
+        "cond" | "cond2" => "cond",
+        "then" => "then",
+        "else" => "else",
+        "left" => "left",
+        "right" => "right",
+        "step" => "steps",
+        "arg" => "args",
+        "collection" => "collection",
+        "predicate" => "predicate",
+        "start" => "start",
+        "end" => "end",
+        "init" => "init",
+        "catch" => "catch",
+        "scrutinee" => "scrutinee",
+        "range_start" => "range_start",
+        "range_end" => "range_end",
+        "acc_init" => "acc_init",
+        _ => unreachable!("position_valid_for guaranteed the position"),
     })
 }
 
@@ -1447,7 +1477,10 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 }
             };
         }
-        let out = match tool.as_str() {
+        // RFC-0005: registry is the single source of truth — canonicalize
+        // aliases before dispatch so introspection and execution agree.
+        let canonical_tool: &str = aep::lookup(&tool).map(|s| s.name).unwrap_or(tool.as_str());
+        let out = match canonical_tool {
             "inspect_project" => {
                 let s = need_session!();
                 let mods: Vec<String> = s
@@ -1719,19 +1752,44 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     .get("position")
                     .and_then(|v| v.as_str())
                     .unwrap_or("value");
-                match (|| -> Result<String, String> {
-                    let pr = s.graph.resolve_rev(parent).ok_or("parent not found")?;
-                    let kind = s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
-                    let slot = friendly_slot(&kind, position)
-                        .ok_or_else(|| format!("unsupported position '{position}' for {kind}"))?;
-                    s.replace_slot(&pr, slot, child)
-                })() {
-                    Ok(rev) => resp!(
-                        true,
-                        &format!("{{\"new_revision\":{}}}", json_str(&rev)),
-                        "ok"
+                // RFC-0005: structured invalid-position hint instead of
+                // free-form text.
+                match s.graph.resolve_rev(parent) {
+                    None => resp!(
+                        false,
+                        &format!(
+                            "{{\"operation\":\"replace_expression\",\"argument\":\"parent\",\"requested\":{},\"recovery\":{{\"tool\":\"describe_operation\",\"name\":\"replace_expression\"}}}}",
+                            json_str(parent)
+                        ),
+                        "E_AEP_OP: parent not found"
                     ),
-                    Err(e) => resp!(false, "null", &e),
+                    Some(pr) => {
+                        let kind =
+                            s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
+                        match friendly_slot(&kind, position) {
+                            None => resp!(
+                                false,
+                                &format!(
+                                    "{{\"operation\":\"replace_expression\",\"argument\":\"position\",\"requested\":{},\"expected_positions\":[{}],\"recovery\":{{\"tool\":\"describe_operation\",\"name\":\"replace_expression\"}}}}",
+                                    json_str(position),
+                                    valid_positions(&kind)
+                                        .iter()
+                                        .map(|p| json_str(p))
+                                        .collect::<Vec<_>>()
+                                        .join(",")
+                                ),
+                                "E_AEP_OP: invalid position"
+                            ),
+                            Some(slot) => match s.replace_slot(&pr, slot, child) {
+                                Ok(rev) => resp!(
+                                    true,
+                                    &format!("{{\"new_revision\":{}}}", json_str(&rev)),
+                                    "ok"
+                                ),
+                                Err(e) => resp!(false, "null", &e),
+                            },
+                        }
+                    }
                 }
             }
             "add_function" => {
@@ -2394,7 +2452,168 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 session = None;
                 resp!(true, "{\"aborted\":true}", "aborted")
             }
-            other => resp!(false, "null", &format!("E_AEP_UNKNOWN_TOOL: {other}")),
+            // RFC-0005 / AEP-0002: Intent -> Applicable Semantic Operations.
+            "resolve_entity" => {
+                let s = need_session!();
+                let name = req
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let kind_f = req
+                    .get("kind")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string());
+                let module_f = req
+                    .get("module")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string());
+                if name.is_empty() {
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_BAD_REQUEST: resolve_entity requires 'name'"
+                    )
+                } else {
+                    match resolve_entity_full(
+                        &s.graph,
+                        &name,
+                        kind_f.as_deref(),
+                        module_f.as_deref(),
+                    ) {
+                        ResolveOutcome::Exact {
+                            id,
+                            kind,
+                            module,
+                            display,
+                        } => resp!(
+                            true,
+                            &format!(
+                                "{{\"entity\":{},\"kind\":{},\"module\":{},\"display\":{}}}",
+                                json_str(&id),
+                                json_str(&kind),
+                                json_str(&module),
+                                json_str(&display)
+                            ),
+                            "ok"
+                        ),
+                        out => {
+                            let (code, msg) = match &out {
+                                ResolveOutcome::Ambiguous { .. } => {
+                                    ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                                }
+                                _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                            };
+                            resp!(
+                                false,
+                                &resolve_result_json(&out, &name),
+                                &format!("{code}: {msg}")
+                            )
+                        }
+                    }
+                }
+            }
+            "applicable_operations" => {
+                let s = need_session!();
+                let entity = req
+                    .get("entity")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                if entity.is_empty() {
+                    resp!(
+                        false,
+                        "null",
+                        "E_AEP_BAD_REQUEST: applicable_operations requires 'entity'"
+                    )
+                } else {
+                    match resolve_entity_full(&s.graph, &entity, None, None) {
+                        ResolveOutcome::Exact { id, kind, .. } => {
+                            let ops = aep::for_entity(&kind);
+                            let inspection: Vec<String> = ops
+                                .iter()
+                                .filter(|o| o.effects == "inspection")
+                                .map(|o| json_str(o.name))
+                                .collect();
+                            let mutation: Vec<String> = ops
+                                .iter()
+                                .filter(|o| o.effects == "mutation")
+                                .map(|o| json_str(o.name))
+                                .collect();
+                            let context: Vec<String> = aep::context_ops()
+                                .iter()
+                                .map(|o| json_str(o.name))
+                                .collect();
+                            resp!(
+                                true,
+                                &format!(
+                                    "{{\"entity\":{},\"kind\":{},\"inspection\":[{}],\"mutation\":[{}],\"context_operations\":[{}]}}",
+                                    json_str(&id),
+                                    json_str(&kind),
+                                    inspection.join(","),
+                                    mutation.join(","),
+                                    context.join(",")
+                                ),
+                                "ok"
+                            )
+                        }
+                        out => {
+                            let (code, msg) = match &out {
+                                ResolveOutcome::Ambiguous { .. } => {
+                                    ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                                }
+                                _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                            };
+                            resp!(
+                                false,
+                                &resolve_result_json(&out, &entity),
+                                &format!("{code}: {msg}")
+                            )
+                        }
+                    }
+                }
+            }
+            "describe_operation" => {
+                let name = req
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                match aep::lookup(&name) {
+                    Some(op) => {
+                        if let Some(gate) = op.gate {
+                            if !aep::gate_enabled(gate) {
+                                let cands = aep::closest(&name, 6);
+                                resp!(
+                                    false,
+                                    &unknown_tool_json(&name, &cands),
+                                    "E_AEP_UNKNOWN_TOOL: unknown operation"
+                                )
+                            } else {
+                                resp!(true, &describe_json(op), "ok")
+                            }
+                        } else {
+                            resp!(true, &describe_json(op), "ok")
+                        }
+                    }
+                    None => {
+                        let cands = aep::closest(&name, 6);
+                        resp!(
+                            false,
+                            &unknown_tool_json(&name, &cands),
+                            "E_AEP_UNKNOWN_TOOL: unknown operation"
+                        )
+                    }
+                }
+            }
+            other => {
+                let cands = aep::closest(other, 6);
+                resp!(
+                    false,
+                    &unknown_tool_json(other, &cands),
+                    "E_AEP_UNKNOWN_TOOL: unknown operation"
+                )
+            }
         };
         println!("{out}");
     }
@@ -2497,6 +2716,245 @@ fn resolve_type_in_graph(g: &air::AirGraph, name: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// RFC-0005: semantic entity kinds we expose for resolution / applicability.
+fn entity_kind(g: &air::AirGraph, rev: &str) -> String {
+    match g.get(rev) {
+        Some(n) => match n.kind.as_str() {
+            "function" => "function".to_string(),
+            "type" => match n.fields.get("kind") {
+                Some(air::Value::Str(s)) => s.clone(), // record | enum
+                _ => "type".to_string(),
+            },
+            other => other.to_string(),
+        },
+        None => "unknown".to_string(),
+    }
+}
+
+/// Collect every resolvable semantic entity (module / function / type) with
+/// display name, module, kind. Used by resolve_entity and recovery hints.
+fn all_entities(g: &air::AirGraph) -> Vec<(String, String, String, String)> {
+    // (id, display, module, kind)
+    let mut out: Vec<(String, String, String, String)> = Vec::new();
+    for m in &g.module_entities {
+        let module_name = m.trim_start_matches("module:").to_string();
+        out.push((
+            m.clone(),
+            module_name.clone(),
+            module_name.clone(),
+            "module".to_string(),
+        ));
+        if let Some(mn) = g.resolve(m) {
+            for id in mn.slots.get("functions").cloned().unwrap_or_default() {
+                if let Some(f) = g.get(&id) {
+                    if let Some(air::Value::Str(s)) = f.fields.get("name") {
+                        let kind = entity_kind(g, &id);
+                        out.push((id, format!("{module_name}.{s}"), module_name.clone(), kind));
+                    }
+                }
+            }
+            for id in mn.slots.get("types").cloned().unwrap_or_default() {
+                if let Some(t) = g.get(&id) {
+                    if let Some(air::Value::Str(s)) = t.fields.get("name") {
+                        let kind = entity_kind(g, &id);
+                        out.push((id, format!("{module_name}.{s}"), module_name.clone(), kind));
+                    }
+                }
+            }
+        }
+    }
+    out
+}
+
+enum ResolveOutcome {
+    Exact {
+        id: String,
+        kind: String,
+        module: String,
+        display: String,
+    },
+    Ambiguous {
+        candidates: Vec<String>,
+    },
+    NotFound {
+        candidates: Vec<String>,
+    },
+}
+
+/// RFC-0005 resolve_entity: exact-first, kind/module filters, ambiguity
+/// reported as candidates (no silent guessing).
+fn resolve_entity_full(
+    g: &air::AirGraph,
+    name: &str,
+    kind_filter: Option<&str>,
+    module_filter: Option<&str>,
+) -> ResolveOutcome {
+    let mut matches: Vec<(String, String, String, String)> = Vec::new();
+    // direct revision / entity id first
+    if let Some(rev) = g.resolve_rev(name) {
+        if g.get(&rev).is_some() {
+            let kind = entity_kind(g, &rev);
+            let module = g
+                .module_entities
+                .iter()
+                .find(|m| {
+                    g.resolve(m)
+                        .map(|mn| {
+                            let mut all = mn.slots.get("functions").cloned().unwrap_or_default();
+                            all.extend(mn.slots.get("types").cloned().unwrap_or_default());
+                            all.contains(&rev)
+                        })
+                        .unwrap_or(false)
+                })
+                .map(|m| m.trim_start_matches("module:").to_string())
+                .unwrap_or_default();
+            // Rebuild semantic display from the resolved node's name field,
+            // not the input string (opaque entity ids must not leak into
+            // display names).
+            let display = match g.get(&rev).and_then(|n| n.fields.get("name")) {
+                Some(air::Value::Str(s)) => {
+                    if module.is_empty() {
+                        s.clone()
+                    } else {
+                        format!("{module}.{s}")
+                    }
+                }
+                _ => name.to_string(),
+            };
+            matches.push((rev, display, module, kind));
+        }
+    }
+    if matches.is_empty() {
+        for (id, display, module, kind) in all_entities(g) {
+            let last = display.rsplit('.').next().unwrap_or("");
+            let mut ok = display == name || id == name || (name == last);
+            if !ok {
+                if let Some(rest) = name.strip_prefix(&format!("{module}.")) {
+                    ok = rest == last;
+                }
+            }
+            if ok {
+                matches.push((id, display, module, kind));
+            }
+        }
+    }
+    // kind / module filters
+    if let Some(kf) = kind_filter {
+        matches.retain(|(_, _, _, k)| {
+            k == kf || (kf == "type" && k == "record") || (kf == "type" && k == "enum")
+        });
+    }
+    if let Some(mf) = module_filter {
+        matches.retain(|(_, _, m, _)| m == mf);
+    }
+    match matches.len() {
+        1 => {
+            let (id, display, module, kind) = matches.pop().unwrap();
+            ResolveOutcome::Exact {
+                id,
+                kind,
+                module,
+                display,
+            }
+        }
+        n if n > 1 => {
+            let mut cands: Vec<String> = matches
+                .iter()
+                .map(|(_, d, _, k)| format!("{d} ({k})"))
+                .collect();
+            cands.sort();
+            cands.truncate(8);
+            ResolveOutcome::Ambiguous { candidates: cands }
+        }
+        _ => {
+            let cands: Vec<String> = all_entities(g)
+                .iter()
+                .filter(|(_, d, _, _)| d.contains(name) || (name.len() >= 3 && d.starts_with(name)))
+                .map(|(_, d, _, _)| d.clone())
+                .take(8)
+                .collect();
+            ResolveOutcome::NotFound { candidates: cands }
+        }
+    }
+}
+
+/// RFC-0005 describe_operation: machine-readable schema from the registry.
+fn describe_json(op: &aep::OperationSpec) -> String {
+    let args: Vec<String> = op
+        .arguments
+        .iter()
+        .map(|a| {
+            format!(
+                "{{\"name\":{},\"shape\":{},\"required\":{}}}",
+                json_str(a.name),
+                json_str(a.shape),
+                if a.required { "true" } else { "false" }
+            )
+        })
+        .collect();
+    let kinds: Vec<String> = op.target_kinds.iter().map(|k| json_str(k)).collect();
+    let pres: Vec<String> = op.preconditions.iter().map(|p| json_str(p)).collect();
+    let aliases: Vec<String> = op.aliases.iter().map(|a| json_str(a)).collect();
+    // replace_expression positions are kind-dependent; advertise the complete
+    // vocabulary from the shared table (aep::POSITION_NAMES) so discovery
+    // and execution cannot drift.
+    let positions_extra = if op.name == "replace_expression" {
+        format!(
+            ",\"expected_positions\":[{}]",
+            aep::POSITION_NAMES
+                .iter()
+                .map(|p| json_str(p))
+                .collect::<Vec<_>>()
+                .join(",")
+        )
+    } else {
+        String::new()
+    };
+    format!(
+        "{{\"name\":{},\"aliases\":[{}],\"target_kinds\":[{}],\"arguments\":[{}],\"preconditions\":[{}],\"effects\":{},\"example\":{},\"gated\":{}{}}}",
+        json_str(op.name),
+        aliases.join(","),
+        kinds.join(","),
+        args.join(","),
+        pres.join(","),
+        json_str(op.effects),
+        json_str(op.example),
+        if op.gate.is_some() { "true" } else { "false" },
+        positions_extra
+    )
+}
+
+/// Structured recovery payload for unknown operations / typos.
+fn unknown_tool_json(requested: &str, cands: &[&'static aep::OperationSpec]) -> String {
+    format!(
+        "{{\"requested\":{},\"candidates\":[{}]}}",
+        json_str(requested),
+        cands
+            .iter()
+            .map(|c| json_str(c.name))
+            .collect::<Vec<_>>()
+            .join(",")
+    )
+}
+
+/// Structured recovery payload for entity resolution failures.
+fn resolve_result_json(outcome: &ResolveOutcome, requested: &str) -> String {
+    let cands: Vec<String> = match outcome {
+        ResolveOutcome::Ambiguous { candidates } => candidates.clone(),
+        ResolveOutcome::NotFound { candidates } => candidates.clone(),
+        ResolveOutcome::Exact { .. } => Vec::new(),
+    };
+    format!(
+        "{{\"requested\":{},\"candidates\":[{}]}}",
+        json_str(requested),
+        cands
+            .iter()
+            .map(|c| json_str(c))
+            .collect::<Vec<_>>()
+            .join(",")
+    )
 }
 
 fn value_short(v: &air::Value) -> String {
