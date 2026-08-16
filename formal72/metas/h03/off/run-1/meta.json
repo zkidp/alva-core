@@ -1,0 +1,39 @@
+{
+  "task": "h03",
+  "arm": "OFF",
+  "run": "1",
+  "harness_version": "v0.3",
+  "started_at": "2026-08-14T01:23:56+00:00",
+  "gates": {
+    "failures": []
+  },
+  "workspace_prep": {
+    "air_exported": true,
+    "source_absent": true,
+    "verifier_absent": true
+  },
+  "agent_exit": 0,
+  "wall_clock_s": 125.157,
+  "timeout": false,
+  "binary_sha256": "A4A8098D731DDA05CC8314439E7F2FA98E0D1BA29FF86B3016D3DE9C7F8BA05A",
+  "image_digest": "sha256:0d391ed545285ea8ad7237483186f6af1fa2b0ab24cad624abc0fa0941b9a0d5",
+  "prompt_sha256": "F8BF0C9EE6416403D80117E1F1FEDAF320F3E8A65CCC1102C5E3F924A343AE9E",
+  "docs": {
+    "arm": "OFF",
+    "sha256": "A848C2444654FD80F26F381BF6A0F396B587152D014A176135335C3FEE651D95"
+  },
+  "task_hashes": {
+    "task": "14B9C88DE8C35E15997EA2514A2830DEB08B7C1D831C2257B58574F712DBD45D",
+    "base_src": "E1EEF785E96E63AECAC341299EF959B6857A77FF73024B866345803357C55834",
+    "base_air": "6F5932AD2F6522C4B918BBA5899CAD77703C3DAF6CC178EFD4279ACD20B58A99",
+    "solution": "C7E29D06D8390DE33DBD012CEB3761B0DEE45F0B32DAF8EB19AAA441ADED811F",
+    "visible": "860F0668734E1C6CB15973E109ABB17FDD527FB8C84097601A781D7876B2186D",
+    "hidden": "9EE1B00A4638C02F1A00904D6464D5B826CBC974C7872DA449CEB3131082F403"
+  },
+  "hidden_verifier": false,
+  "build_ok": true,
+  "final_air_hash": "35270EEE2CD192A6A50E3F0CFD335471AA28CE1CC42FBF376EA31E29BE561EF5",
+  "session": "/home/ubuntu/replay/heldout-formal3/formal/h03/off/run-1/session.jsonl",
+  "qualification_status": "VALID",
+  "completed_at": "2026-08-14T01:26:10+00:00"
+}

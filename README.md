@@ -215,6 +215,12 @@ Useful starting points:
 - [设计方案.md](设计方案.md) — architecture / roadmap
 - [语法草案.md](语法草案.md) — grammar notes
 
+## Experimental data
+
+- [formal72/](formal72/) — FORMAL-72 held-out confirmatory dataset:
+  12 tasks × 2 arms (OFF / ON) × 3 replicates = 72 agent runs, with `meta.json`
+  summaries, full `session.jsonl` transcripts, runner logs, and checksums.
+
 ## Roadmap
 
 - **Agent operations**: reduce expensive expression restructuring, improve operation granularity, reduce protocol/tool-call overhead

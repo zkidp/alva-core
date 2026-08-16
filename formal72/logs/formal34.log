@@ -1,0 +1,61 @@
+2026-08-14T01:23:55Z START 13 h03-r1-OFF
+[h03/OFF] gates PASS
+[h03/OFF] docker run
+[h03/OFF] done status=VALID exit=0 wall=125.157s verifier=False
+2026-08-14T01:26:11Z DONE 13 h03-r1-OFF exit=0
+2026-08-14T01:26:11Z START 14 h03-r1-ON
+[h03/ON] gates PASS
+[h03/ON] docker run
+[h03/ON] done status=VALID exit=0 wall=109.364s verifier=False
+2026-08-14T01:28:09Z DONE 14 h03-r1-ON exit=0
+2026-08-14T01:28:09Z START 15 h03-r2-ON
+[h03/ON] gates PASS
+[h03/ON] docker run
+[h03/ON] done status=VALID exit=0 wall=126.795s verifier=False
+2026-08-14T01:30:25Z DONE 15 h03-r2-ON exit=0
+2026-08-14T01:30:25Z START 16 h03-r2-OFF
+[h03/OFF] gates PASS
+[h03/OFF] docker run
+[h03/OFF] done status=VALID exit=0 wall=182.458s verifier=False
+2026-08-14T01:33:38Z DONE 16 h03-r2-OFF exit=0
+2026-08-14T01:33:38Z START 17 h03-r3-OFF
+[h03/OFF] gates PASS
+[h03/OFF] docker run
+[h03/OFF] done status=VALID exit=0 wall=74.247s verifier=False
+2026-08-14T01:35:01Z DONE 17 h03-r3-OFF exit=0
+2026-08-14T01:35:01Z START 18 h03-r3-ON
+[h03/ON] gates PASS
+[h03/ON] docker run
+[h03/ON] done status=VALID exit=0 wall=129.33s verifier=False
+2026-08-14T01:37:20Z DONE 18 h03-r3-ON exit=0
+2026-08-14T01:37:20Z START 19 h04-r1-ON
+[h04/ON] gates PASS
+[h04/ON] docker run
+[h04/ON] done status=VALID exit=0 wall=3220.227s verifier=False
+2026-08-14T02:31:09Z DONE 19 h04-r1-ON exit=0
+2026-08-14T02:31:09Z START 20 h04-r1-OFF
+[h04/OFF] gates PASS
+[h04/OFF] docker run
+[h04/OFF] done status=VALID exit=timeout wall=3602.312s verifier=False
+2026-08-14T03:31:20Z DONE 20 h04-r1-OFF exit=0
+2026-08-14T03:31:20Z START 21 h04-r2-OFF
+[h04/OFF] gates PASS
+[h04/OFF] docker run
+[h04/OFF] done status=VALID exit=timeout wall=3602.449s verifier=False
+2026-08-14T04:31:31Z DONE 21 h04-r2-OFF exit=0
+2026-08-14T04:31:31Z START 22 h04-r2-ON
+[h04/ON] gates PASS
+[h04/ON] docker run
+[h04/ON] done status=VALID exit=timeout wall=3602.623s verifier=False
+2026-08-14T05:31:43Z DONE 22 h04-r2-ON exit=0
+2026-08-14T05:31:43Z START 23 h04-r3-ON
+[h04/ON] gates PASS
+[h04/ON] docker run
+[h04/ON] done status=VALID exit=timeout wall=3602.372s verifier=False
+2026-08-14T06:31:54Z DONE 23 h04-r3-ON exit=0
+2026-08-14T06:31:54Z START 24 h04-r3-OFF
+[h04/OFF] gates PASS
+[h04/OFF] docker run
+[h04/OFF] done status=VALID exit=0 wall=2655.107s verifier=False
+2026-08-14T07:16:18Z DONE 24 h04-r3-OFF exit=0
+2026-08-14T07:16:18Z FORMAL34 COMPLETE

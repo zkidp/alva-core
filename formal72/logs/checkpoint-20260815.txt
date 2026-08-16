@@ -1,0 +1,4 @@
+FORMAL-72 Model A checkpoint
+Completed: h01-h04 = 24/24 scheduled runs
+Remaining:  h05-h12 = 48 runs
+No protocol/intervention changes. Continuation is schedule-preserving.

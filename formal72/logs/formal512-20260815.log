@@ -1,0 +1,241 @@
+2026-08-14T20:47:37Z START 25 h05-r1-ON
+[h05/ON] gates PASS
+[h05/ON] docker run
+[h05/ON] done status=VALID exit=timeout wall=3602.291s verifier=False
+2026-08-14T21:47:48Z DONE 25 h05-r1-ON exit=0
+2026-08-14T21:47:48Z START 26 h05-r1-OFF
+[h05/OFF] gates PASS
+[h05/OFF] docker run
+[h05/OFF] done status=VALID exit=0 wall=1632.435s verifier=True
+2026-08-14T22:15:10Z DONE 26 h05-r1-OFF exit=0
+2026-08-14T22:15:10Z START 27 h05-r2-OFF
+[h05/OFF] gates PASS
+[h05/OFF] docker run
+[h05/OFF] done status=VALID exit=0 wall=589.013s verifier=True
+2026-08-14T22:25:08Z DONE 27 h05-r2-OFF exit=0
+2026-08-14T22:25:08Z START 28 h05-r2-ON
+[h05/ON] gates PASS
+[h05/ON] docker run
+[h05/ON] done status=VALID exit=timeout wall=3602.247s verifier=False
+2026-08-14T23:25:19Z DONE 28 h05-r2-ON exit=0
+2026-08-14T23:25:19Z START 29 h05-r3-OFF
+[h05/OFF] gates PASS
+[h05/OFF] docker run
+[h05/OFF] done status=VALID exit=0 wall=1081.099s verifier=True
+2026-08-14T23:43:29Z DONE 29 h05-r3-OFF exit=0
+2026-08-14T23:43:29Z START 30 h05-r3-ON
+[h05/ON] gates PASS
+[h05/ON] docker run
+[h05/ON] done status=VALID exit=0 wall=715.231s verifier=True
+2026-08-14T23:55:34Z DONE 30 h05-r3-ON exit=0
+2026-08-14T23:55:34Z START 31 h06-r1-ON
+[h06/ON] gates PASS
+[h06/ON] docker run
+[h06/ON] done status=VALID exit=0 wall=1172.995s verifier=False
+2026-08-15T00:15:16Z DONE 31 h06-r1-ON exit=0
+2026-08-15T00:15:16Z START 32 h06-r1-OFF
+[h06/OFF] gates PASS
+[h06/OFF] docker run
+[h06/OFF] done status=VALID exit=0 wall=578.362s verifier=False
+2026-08-15T00:25:04Z DONE 32 h06-r1-OFF exit=0
+2026-08-15T00:25:04Z START 33 h06-r2-OFF
+[h06/OFF] gates PASS
+[h06/OFF] docker run
+[h06/OFF] done status=VALID exit=0 wall=992.814s verifier=False
+2026-08-15T00:41:48Z DONE 33 h06-r2-OFF exit=0
+2026-08-15T00:41:48Z START 34 h06-r2-ON
+[h06/ON] gates PASS
+[h06/ON] docker run
+[h06/ON] done status=VALID exit=0 wall=613.358s verifier=False
+2026-08-15T00:52:10Z DONE 34 h06-r2-ON exit=0
+2026-08-15T00:52:10Z START 35 h06-r3-ON
+[h06/ON] gates PASS
+[h06/ON] docker run
+[h06/ON] done status=VALID exit=0 wall=2146.912s verifier=False
+2026-08-15T01:28:07Z DONE 35 h06-r3-ON exit=0
+2026-08-15T01:28:07Z START 36 h06-r3-OFF
+[h06/OFF] gates PASS
+[h06/OFF] docker run
+[h06/OFF] done status=VALID exit=0 wall=876.036s verifier=False
+2026-08-15T01:42:52Z DONE 36 h06-r3-OFF exit=0
+2026-08-15T01:42:52Z START 37 h07-r1-ON
+[h07/ON] gates PASS
+[h07/ON] docker run
+[h07/ON] done status=VALID exit=timeout wall=3602.509s verifier=False
+2026-08-15T02:43:04Z DONE 37 h07-r1-ON exit=0
+2026-08-15T02:43:04Z START 38 h07-r1-OFF
+[h07/OFF] gates PASS
+[h07/OFF] docker run
+[h07/OFF] done status=VALID exit=0 wall=2282.273s verifier=False
+2026-08-15T03:21:15Z DONE 38 h07-r1-OFF exit=0
+2026-08-15T03:21:15Z START 39 h07-r2-OFF
+[h07/OFF] gates PASS
+[h07/OFF] docker run
+[h07/OFF] done status=VALID exit=timeout wall=3602.096s verifier=False
+2026-08-15T04:21:26Z DONE 39 h07-r2-OFF exit=0
+2026-08-15T04:21:26Z START 40 h07-r2-ON
+[h07/ON] gates PASS
+[h07/ON] docker run
+[h07/ON] done status=VALID exit=0 wall=1732.689s verifier=False
+2026-08-15T04:50:28Z DONE 40 h07-r2-ON exit=0
+2026-08-15T04:50:28Z START 41 h07-r3-ON
+[h07/ON] gates PASS
+[h07/ON] docker run
+[h07/ON] done status=VALID exit=0 wall=2312.854s verifier=False
+2026-08-15T05:29:10Z DONE 41 h07-r3-ON exit=0
+2026-08-15T05:29:10Z START 42 h07-r3-OFF
+[h07/OFF] gates PASS
+[h07/OFF] docker run
+[h07/OFF] done status=VALID exit=timeout wall=3602.339s verifier=False
+2026-08-15T06:29:22Z DONE 42 h07-r3-OFF exit=0
+2026-08-15T06:29:22Z START 43 h08-r1-OFF
+[h08/OFF] gates PASS
+[h08/OFF] docker run
+[h08/OFF] done status=VALID exit=timeout wall=3602.378s verifier=False
+2026-08-15T07:29:32Z DONE 43 h08-r1-OFF exit=0
+2026-08-15T07:29:32Z START 44 h08-r1-ON
+[h08/ON] gates PASS
+[h08/ON] docker run
+[h08/ON] done status=VALID exit=0 wall=3393.412s verifier=True
+2026-08-15T08:26:14Z DONE 44 h08-r1-ON exit=0
+2026-08-15T08:26:14Z START 45 h08-r2-ON
+[h08/ON] gates PASS
+[h08/ON] docker run
+[h08/ON] done status=VALID exit=timeout wall=3602.385s verifier=False
+2026-08-15T09:26:26Z DONE 45 h08-r2-ON exit=0
+2026-08-15T09:26:26Z START 46 h08-r2-OFF
+[h08/OFF] gates PASS
+[h08/OFF] docker run
+[h08/OFF] done status=VALID exit=timeout wall=3602.42s verifier=False
+2026-08-15T10:26:37Z DONE 46 h08-r2-OFF exit=0
+2026-08-15T10:26:37Z START 47 h08-r3-OFF
+[h08/OFF] gates PASS
+[h08/OFF] docker run
+[h08/OFF] done status=VALID exit=0 wall=2719.62s verifier=True
+2026-08-15T11:12:07Z DONE 47 h08-r3-OFF exit=0
+2026-08-15T11:12:07Z START 48 h08-r3-ON
+[h08/ON] gates PASS
+[h08/ON] docker run
+[h08/ON] done status=VALID exit=0 wall=2193.025s verifier=False
+2026-08-15T11:48:50Z DONE 48 h08-r3-ON exit=0
+2026-08-15T11:48:50Z START 49 h09-r1-OFF
+[h09/OFF] gates PASS
+[h09/OFF] docker run
+[h09/OFF] done status=VALID exit=0 wall=2001.827s verifier=False
+2026-08-15T12:22:22Z DONE 49 h09-r1-OFF exit=0
+2026-08-15T12:22:22Z START 50 h09-r1-ON
+[h09/ON] gates PASS
+[h09/ON] docker run
+[h09/ON] done status=VALID exit=timeout wall=3602.352s verifier=False
+2026-08-15T13:22:33Z DONE 50 h09-r1-ON exit=0
+2026-08-15T13:22:33Z START 51 h09-r2-OFF
+[h09/OFF] gates PASS
+[h09/OFF] docker run
+[h09/OFF] done status=VALID exit=timeout wall=3602.446s verifier=False
+2026-08-15T14:22:44Z DONE 51 h09-r2-OFF exit=0
+2026-08-15T14:22:44Z START 52 h09-r2-ON
+[h09/ON] gates PASS
+[h09/ON] docker run
+[h09/ON] done status=VALID exit=timeout wall=3602.478s verifier=False
+2026-08-15T15:22:57Z DONE 52 h09-r2-ON exit=0
+2026-08-15T15:22:57Z START 53 h09-r3-ON
+[h09/ON] gates PASS
+[h09/ON] docker run
+[h09/ON] done status=VALID exit=0 wall=994.335s verifier=False
+2026-08-15T15:39:40Z DONE 53 h09-r3-ON exit=0
+2026-08-15T15:39:40Z START 54 h09-r3-OFF
+[h09/OFF] gates PASS
+[h09/OFF] docker run
+[h09/OFF] done status=VALID exit=0 wall=1116.464s verifier=False
+2026-08-15T15:58:26Z DONE 54 h09-r3-OFF exit=0
+2026-08-15T15:58:26Z START 55 h10-r1-ON
+[h10/ON] gates PASS
+[h10/ON] docker run
+[h10/ON] done status=VALID exit=timeout wall=3602.254s verifier=False
+2026-08-15T16:58:38Z DONE 55 h10-r1-ON exit=0
+2026-08-15T16:58:38Z START 56 h10-r1-OFF
+[h10/OFF] gates PASS
+[h10/OFF] docker run
+[h10/OFF] done status=VALID exit=0 wall=2502.465s verifier=True
+2026-08-15T17:40:30Z DONE 56 h10-r1-OFF exit=0
+2026-08-15T17:40:30Z START 57 h10-r2-ON
+[h10/ON] gates PASS
+[h10/ON] docker run
+[h10/ON] done status=VALID exit=0 wall=1488.428s verifier=False
+2026-08-15T18:05:28Z DONE 57 h10-r2-ON exit=0
+2026-08-15T18:05:28Z START 58 h10-r2-OFF
+[h10/OFF] gates PASS
+[h10/OFF] docker run
+[h10/OFF] done status=VALID exit=0 wall=993.606s verifier=True
+2026-08-15T18:22:11Z DONE 58 h10-r2-OFF exit=0
+2026-08-15T18:22:11Z START 59 h10-r3-OFF
+[h10/OFF] gates PASS
+[h10/OFF] docker run
+[h10/OFF] done status=VALID exit=0 wall=693.533s verifier=True
+2026-08-15T18:33:56Z DONE 59 h10-r3-OFF exit=0
+2026-08-15T18:33:56Z START 60 h10-r3-ON
+[h10/ON] gates PASS
+[h10/ON] docker run
+[h10/ON] done status=VALID exit=0 wall=376.0s verifier=True
+2026-08-15T18:40:21Z DONE 60 h10-r3-ON exit=0
+2026-08-15T18:40:21Z START 61 h11-r1-ON
+[h11/ON] gates PASS
+[h11/ON] docker run
+[h11/ON] done status=VALID exit=timeout wall=3602.243s verifier=False
+2026-08-15T19:40:34Z DONE 61 h11-r1-ON exit=0
+2026-08-15T19:40:34Z START 62 h11-r1-OFF
+[h11/OFF] gates PASS
+[h11/OFF] docker run
+[h11/OFF] done status=VALID exit=0 wall=2898.583s verifier=True
+2026-08-15T20:29:04Z DONE 62 h11-r1-OFF exit=0
+2026-08-15T20:29:04Z START 63 h11-r2-OFF
+[h11/OFF] gates PASS
+[h11/OFF] docker run
+[h11/OFF] done status=VALID exit=0 wall=2076.887s verifier=True
+2026-08-15T21:03:49Z DONE 63 h11-r2-OFF exit=0
+2026-08-15T21:03:49Z START 64 h11-r2-ON
+[h11/ON] gates PASS
+[h11/ON] docker run
+[h11/ON] done status=VALID exit=timeout wall=3602.4s verifier=False
+2026-08-15T22:04:00Z DONE 64 h11-r2-ON exit=0
+2026-08-15T22:04:00Z START 65 h11-r3-ON
+[h11/ON] gates PASS
+[h11/ON] docker run
+[h11/ON] done status=VALID exit=0 wall=1391.079s verifier=True
+2026-08-15T22:27:19Z DONE 65 h11-r3-ON exit=0
+2026-08-15T22:27:19Z START 66 h11-r3-OFF
+[h11/OFF] gates PASS
+[h11/OFF] docker run
+[h11/OFF] done status=VALID exit=timeout wall=3602.264s verifier=False
+2026-08-15T23:27:30Z DONE 66 h11-r3-OFF exit=0
+2026-08-15T23:27:30Z START 67 h12-r1-ON
+[h12/ON] gates PASS
+[h12/ON] docker run
+[h12/ON] done status=VALID exit=0 wall=1632.899s verifier=True
+2026-08-15T23:54:52Z DONE 67 h12-r1-ON exit=0
+2026-08-15T23:54:52Z START 68 h12-r1-OFF
+[h12/OFF] gates PASS
+[h12/OFF] docker run
+[h12/OFF] done status=VALID exit=0 wall=536.084s verifier=True
+2026-08-16T00:03:58Z DONE 68 h12-r1-OFF exit=0
+2026-08-16T00:03:58Z START 69 h12-r2-ON
+[h12/ON] gates PASS
+[h12/ON] docker run
+[h12/ON] done status=VALID exit=0 wall=1604.826s verifier=False
+2026-08-16T00:30:52Z DONE 69 h12-r2-ON exit=0
+2026-08-16T00:30:52Z START 70 h12-r2-OFF
+[h12/OFF] gates PASS
+[h12/OFF] docker run
+[h12/OFF] done status=VALID exit=0 wall=734.315s verifier=False
+2026-08-16T00:43:14Z DONE 70 h12-r2-OFF exit=0
+2026-08-16T00:43:14Z START 71 h12-r3-OFF
+[h12/OFF] gates PASS
+[h12/OFF] docker run
+[h12/OFF] done status=VALID exit=0 wall=1472.966s verifier=True
+2026-08-16T01:07:56Z DONE 71 h12-r3-OFF exit=0
+2026-08-16T01:07:56Z START 72 h12-r3-ON
+[h12/ON] gates PASS
+[h12/ON] docker run
+[h12/ON] done status=VALID exit=0 wall=1669.479s verifier=False
+2026-08-16T01:35:55Z DONE 72 h12-r3-ON exit=0
+2026-08-16T01:35:55Z FORMAL512 COMPLETE
