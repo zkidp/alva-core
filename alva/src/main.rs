@@ -2642,6 +2642,15 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     .get("include_candidates")
                     .and_then(|v| match v {
                         Json::Bool(b) => Some(*b),
+                        // the aep.py CLI forwards key=value as strings, so the
+                        // agent's `include_candidates=true` arrives as
+                        // Json::Str("true"); parse it or the semantic-handle
+                        // affordance is unreachable in the real environment.
+                        Json::Str(s) => match s.as_str() {
+                            "true" | "1" => Some(true),
+                            "false" | "0" => Some(false),
+                            _ => None,
+                        },
                         _ => None,
                     })
                     .unwrap_or(false);

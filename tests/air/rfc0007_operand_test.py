@@ -101,6 +101,13 @@ def main():
           tmp_handles and all(
               h["scope"] in ("rfc0007.a.normalize", "rfc0007.a.other")
               for h in tmp_handles), items)
+    # O12: the aep.py CLI forwards key=value as strings, so a string
+    # include_candidates="true" must ALSO return candidate items (otherwise the
+    # semantic-handle affordance is unreachable in the real agent environment).
+    r = a.tool("describe_construction", kind="fold", include_candidates="true")
+    cb = r["result"]["candidate_bindings"]
+    check("O12 string include_candidates=true returns items",
+          "items" in cb and cb["items"], cb)
     handle_tmp = {"symbol": "tmp", "scope": "rfc0007.a.normalize",
                   "expected_type": "i64"}
 
