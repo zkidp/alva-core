@@ -3061,13 +3061,32 @@ fn type_sexpr_short(g: &air::AirGraph, rev: &str) -> String {
 /// (1) -> fold/loop accumulators (2), then stable name tie-break. This keeps
 /// the top candidates semantically reasonable (params are the most stable,
 /// module-visible symbols) and fully deterministic.
-fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String, u8)> {
-    let mut out: Vec<(String, String, u8)> = Vec::new();
+/// RFC-0007: one resolvable operand (function param / body binding /
+/// fold/loop accumulator). `revision` is the CURRENT head at collection time;
+/// `scope` is the enclosing function's qualified name.
+#[derive(Clone, Debug)]
+struct OperandCandidate {
+    symbol: String,
+    type_name: String,
+    revision: String,
+    kind: String,
+    scope: String,
+    priority: u8,
+}
+
+fn collect_operands(g: &air::AirGraph) -> Vec<OperandCandidate> {
+    let mut out: Vec<OperandCandidate> = Vec::new();
     for me in &g.module_entities {
         let Some(mn) = g.resolve(me) else {
             continue;
         };
-        let mut stack: Vec<String> = Vec::new();
+        let module_name = mn
+            .fields
+            .get("name")
+            .and_then(value_str)
+            .unwrap_or("")
+            .to_string();
+        let mut stack: Vec<(String, String)> = Vec::new();
         for id in mn
             .slots
             .get("functions")
@@ -3076,87 +3095,397 @@ fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String, u8)> {
             .into_iter()
             .chain(mn.slots.get("tests").cloned().unwrap_or_default())
         {
-            stack.push(id);
+            stack.push((id, String::new()));
         }
-        while let Some(id) = stack.pop() {
+        while let Some((id, carried_scope)) = stack.pop() {
             let Some(n) = g.get(&id) else {
                 continue;
+            };
+            let fn_name = n
+                .fields
+                .get("name")
+                .and_then(value_str)
+                .unwrap_or("")
+                .to_string();
+            // enclosing scope: functions/tests define their own scope; all
+            // other nodes (blocks, bindings, ...) inherit the carried scope.
+            let scope = if matches!(n.kind.as_str(), "function" | "test") {
+                if fn_name.is_empty() {
+                    n.entity.clone()
+                } else if module_name.is_empty() {
+                    fn_name.clone()
+                } else {
+                    format!("{module_name}.{fn_name}")
+                }
+            } else if !carried_scope.is_empty() {
+                carried_scope.clone()
+            } else {
+                String::new()
             };
             if matches!(n.kind.as_str(), "function" | "test") {
                 for p in n.slots.get("params").cloned().unwrap_or_default() {
                     if let Some(pn) = g.get(&p) {
-                        let name = pn
-                            .fields
-                            .get("name")
-                            .and_then(value_str)
-                            .unwrap_or("")
-                            .to_string();
-                        let ty = pn
-                            .slots
-                            .get("type")
-                            .and_then(|t| t.first())
-                            .map(|r| type_sexpr_short(g, r))
-                            .unwrap_or_else(|| "?".to_string());
-                        out.push((name, ty, 0));
+                        out.push(OperandCandidate {
+                            symbol: pn
+                                .fields
+                                .get("name")
+                                .and_then(value_str)
+                                .unwrap_or("")
+                                .to_string(),
+                            type_name: pn
+                                .slots
+                                .get("type")
+                                .and_then(|t| t.first())
+                                .map(|r| type_sexpr_short(g, r))
+                                .unwrap_or_else(|| "?".to_string()),
+                            revision: p.clone(),
+                            kind: pn.kind.clone(),
+                            scope: scope.clone(),
+                            priority: 0,
+                        });
                     }
                 }
             }
             for children in n.slots.values() {
                 for c in children {
                     if let Some(cn) = g.get(c) {
-                        match cn.kind.as_str() {
-                            "binding" => {
-                                let name = cn
-                                    .fields
-                                    .get("name")
-                                    .and_then(value_str)
-                                    .unwrap_or("")
-                                    .to_string();
-                                let ty = cn
-                                    .slots
-                                    .get("type")
-                                    .and_then(|t| t.first())
-                                    .map(|r| type_sexpr_short(g, r))
-                                    .unwrap_or_else(|| "?".to_string());
-                                out.push((name, ty, 1));
-                            }
-                            "fold" | "loop" => {
-                                let name = cn
-                                    .fields
-                                    .get("acc_name")
-                                    .and_then(value_str)
-                                    .unwrap_or("")
-                                    .to_string();
-                                let ty = cn
-                                    .slots
-                                    .get("acc_type")
-                                    .and_then(|t| t.first())
-                                    .map(|r| type_sexpr_short(g, r))
-                                    .unwrap_or_else(|| "?".to_string());
-                                out.push((name, ty, 2));
-                            }
-                            _ => {}
+                        let prio = match cn.kind.as_str() {
+                            "binding" => 1,
+                            "fold" | "loop" => 2,
+                            _ => u8::MAX,
+                        };
+                        if prio != u8::MAX {
+                            let (sym, ty) = if cn.kind == "binding" {
+                                (
+                                    cn.fields
+                                        .get("name")
+                                        .and_then(value_str)
+                                        .unwrap_or("")
+                                        .to_string(),
+                                    cn.slots
+                                        .get("type")
+                                        .and_then(|t| t.first())
+                                        .map(|r| type_sexpr_short(g, r))
+                                        .unwrap_or_else(|| "?".to_string()),
+                                )
+                            } else {
+                                (
+                                    cn.fields
+                                        .get("acc_name")
+                                        .and_then(value_str)
+                                        .unwrap_or("")
+                                        .to_string(),
+                                    cn.slots
+                                        .get("acc_type")
+                                        .and_then(|t| t.first())
+                                        .map(|r| type_sexpr_short(g, r))
+                                        .unwrap_or_else(|| "?".to_string()),
+                                )
+                            };
+                            out.push(OperandCandidate {
+                                symbol: sym,
+                                type_name: ty,
+                                revision: c.clone(),
+                                kind: cn.kind.clone(),
+                                scope: scope.clone(),
+                                priority: prio,
+                            });
                         }
-                        stack.push(c.clone());
+                        stack.push((c.clone(), scope.clone()));
                     }
                 }
             }
         }
     }
-    out.sort_by(|a, b| a.2.cmp(&b.2).then(a.0.cmp(&b.0)));
-    let mut seen = std::collections::BTreeSet::new();
-    out.retain(|(name, _, _)| seen.insert(name.clone()));
+    out.sort_by(|a, b| {
+        a.priority
+            .cmp(&b.priority)
+            .then(a.symbol.cmp(&b.symbol))
+            .then(a.revision.cmp(&b.revision))
+    });
     out
 }
 
-/// RFC-0006 §5.2: bounded candidate_bindings (`total/returned/truncated`).
+/// RFC-0007: semantic operand resolution outcome.
+enum OperandResolve {
+    Resolved(OperandCandidate),
+    NotFound,
+    Ambiguous(Vec<OperandCandidate>),
+}
+
+/// Resolve `symbol` (optionally scoped) against the CURRENT staged graph.
+/// 0 matches -> NotFound; 1 -> Resolved; >1 -> Ambiguous (deterministic order
+/// only for display; NEVER a silent pick).
+fn resolve_semantic_operand(
+    g: &air::AirGraph,
+    symbol: &str,
+    scope: Option<&str>,
+) -> OperandResolve {
+    let matches: Vec<OperandCandidate> = collect_operands(g)
+        .into_iter()
+        .filter(|c| c.symbol == symbol)
+        .filter(|c| match scope {
+            None => true,
+            Some(s) => c.scope == s || c.scope.ends_with(&format!(".{s}")),
+        })
+        .collect();
+    match matches.len() {
+        0 => OperandResolve::NotFound,
+        1 => OperandResolve::Resolved(matches.into_iter().next().unwrap()),
+        _ => OperandResolve::Ambiguous(matches),
+    }
+}
+
+fn operand_candidate_json(c: &OperandCandidate) -> String {
+    format!(
+        "{{\"symbol\":{},\"type\":{},\"kind\":{},\"scope\":{},\"current_revision\":{},\"semantic_handle\":{{\"symbol\":{},\"scope\":{},\"expected_type\":{}}}}}",
+        json_str(&c.symbol),
+        json_str(&c.type_name),
+        json_str(&c.kind),
+        json_str(&c.scope),
+        json_str(&c.revision),
+        json_str(&c.symbol),
+        json_str(&c.scope),
+        json_str(&c.type_name)
+    )
+}
+
+fn operand_candidates_json(cands: &[OperandCandidate], limit: usize) -> String {
+    cands
+        .iter()
+        .take(limit)
+        .map(operand_candidate_json)
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+/// RFC-0007 §3.3 / review contract 6: `expected_type` is a CONSTRAINT on an
+/// already-uniquely-resolved operand, never a search hint or cast.
+fn operand_expected_type_check(
+    c: &OperandCandidate,
+    expected: Option<&str>,
+) -> Result<(), (String, String)> {
+    if let Some(exp) = expected {
+        if !type_matches(exp, &c.type_name) {
+            let r = format!(
+                "{{\"symbol\":{},\"scope\":{},\"expected\":{},\"actual\":{}}}",
+                json_str(&c.symbol),
+                json_str(&c.scope),
+                json_str(exp),
+                json_str(&c.type_name)
+            );
+            return Err((
+                r,
+                "E_AEP_OPERAND_TYPE_MISMATCH: expected_type is a constraint".to_string(),
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn operand_not_found_json(
+    parent_kind: &str,
+    slot: &str,
+    requested: &str,
+    cands: &[OperandCandidate],
+) -> String {
+    format!(
+        "{{\"operation\":{},\"argument\":{},\"requested\":{},\"candidates\":[{}]}}",
+        json_str(parent_kind),
+        json_str(slot),
+        json_str(requested),
+        operand_candidates_json(cands, 6)
+    )
+}
+
+fn operand_ambiguous_json(
+    parent_kind: &str,
+    slot: &str,
+    requested: &str,
+    cands: &[OperandCandidate],
+) -> String {
+    format!(
+        "{{\"operation\":{},\"argument\":{},\"requested\":{},\"candidates\":[{}]}}",
+        json_str(parent_kind),
+        json_str(slot),
+        json_str(requested),
+        operand_candidates_json(cands, 8)
+    )
+}
+
+fn operand_stale_json(
+    parent_kind: &str,
+    slot: &str,
+    requested: &str,
+    entity: &str,
+    current: &str,
+    cands: &[OperandCandidate],
+) -> String {
+    format!(
+        "{{\"operation\":{},\"argument\":{},\"requested\":{},\"entity\":{},\"current_revision\":{},\"replacement_candidates\":[{}]}}",
+        json_str(parent_kind),
+        json_str(slot),
+        json_str(requested),
+        json_str(entity),
+        json_str(current),
+        operand_candidates_json(cands, 6)
+    )
+}
+
+/// RFC-0007: a bare revision is STALE iff it resolves to a node that carries
+/// an entity whose current head is a different revision. Returns the current
+/// head when stale, None otherwise. No silent refresh at the caller.
+fn stale_revision(g: &air::AirGraph, rev: &str) -> Option<String> {
+    let n = g.get(rev)?;
+    if n.entity.is_empty() {
+        return None;
+    }
+    let head = g.heads.get(&n.entity)?;
+    if *head != rev {
+        Some(head.clone())
+    } else {
+        None
+    }
+}
+
+/// RFC-0007: resolve ONE construct child operand (bare revision OR semantic
+/// handle) against the CURRENT staged transaction. Strict: stale bare
+/// revisions are NOT silently refreshed; ambiguity is never auto-resolved.
+fn resolve_operand_child(
+    s: &air::EditSession,
+    parent_kind: &str,
+    slot: &str,
+    arg: &Json,
+) -> Result<String, (String, String)> {
+    let rev = match arg {
+        Json::Str(handle) => {
+            match s.graph.resolve_rev(handle) {
+                None => {
+                    let cands = collect_operands(&s.graph);
+                    let r = operand_not_found_json(parent_kind, slot, handle, &cands);
+                    // keep the existing E_AEP_ENTITY_NOT_FOUND contract for
+                    // bare revisions; OPERAND_NOT_FOUND is for semantic handles.
+                    return Err((r, "E_AEP_ENTITY_NOT_FOUND: revision not found".to_string()));
+                }
+                Some(rev) => {
+                    if let Some(current) = stale_revision(&s.graph, &rev) {
+                        if let Some(n) = s.graph.get(&rev) {
+                            let cands = collect_operands(&s.graph);
+                            let r = operand_stale_json(
+                                parent_kind,
+                                slot,
+                                handle,
+                                &n.entity,
+                                &current,
+                                &cands,
+                            );
+                            return Err((
+                                r,
+                                "E_AEP_OPERAND_STALE: revision is stale; no silent refresh"
+                                    .to_string(),
+                            ));
+                        }
+                    }
+                    rev
+                }
+            }
+        }
+        Json::Obj(_) => {
+            let symbol = arg.get("symbol").and_then(|v| v.as_str()).ok_or_else(|| {
+                let r = construction_type_mismatch_json(
+                    parent_kind,
+                    slot,
+                    "semantic handle",
+                    "missing symbol",
+                );
+                (
+                    r,
+                    "E_AEP_OPERAND_NOT_FOUND: semantic handle needs symbol".to_string(),
+                )
+            })?;
+            let scope = arg.get("scope").and_then(|v| v.as_str());
+            let expected = arg.get("expected_type").and_then(|v| v.as_str());
+            match resolve_semantic_operand(&s.graph, symbol, scope) {
+                OperandResolve::NotFound => {
+                    let cands = collect_operands(&s.graph);
+                    let r = operand_not_found_json(parent_kind, slot, symbol, &cands);
+                    return Err((
+                        r,
+                        "E_AEP_OPERAND_NOT_FOUND: no matching operand".to_string(),
+                    ));
+                }
+                OperandResolve::Ambiguous(cands) => {
+                    let r = operand_ambiguous_json(parent_kind, slot, symbol, &cands);
+                    return Err((
+                        r,
+                        "E_AEP_OPERAND_AMBIGUOUS: multiple operands match".to_string(),
+                    ));
+                }
+                OperandResolve::Resolved(c) => {
+                    operand_expected_type_check(&c, expected)?;
+                    c.revision
+                }
+            }
+        }
+        _ => {
+            let r = construction_type_mismatch_json(
+                parent_kind,
+                slot,
+                "revision | semantic handle",
+                "other",
+            );
+            return Err((
+                r,
+                "E_AEP_OPERAND_NOT_FOUND: expected revision or semantic handle".to_string(),
+            ));
+        }
+    };
+    // slot kind check (shared with RFC-0006)
+    let child_kind = s
+        .graph
+        .get(&rev)
+        .map(|n| n.kind.clone())
+        .unwrap_or_default();
+    let allowed = if parent_kind == "range" {
+        air::is_expr_kind(&child_kind)
+    } else {
+        air::slot_allows_kind(parent_kind, slot, &child_kind)
+    };
+    if !allowed {
+        let r = construction_type_mismatch_json(parent_kind, slot, "expr", &child_kind);
+        return Err((
+            r,
+            "E_AEP_CONSTRUCTION_TYPE_MISMATCH: child kind not allowed in slot".to_string(),
+        ));
+    }
+    Ok(rev)
+}
+
+/// RFC-0006 §5.2: bounded candidate_bindings (`total/returned/truncated`),
+/// RFC-0007: each item carries `current_revision` + `semantic_handle`.
 fn candidate_bindings_json(g: &air::AirGraph, include_items: bool) -> String {
-    let all = visible_bindings(g);
+    let all = collect_operands(g);
+    let mut seen = std::collections::BTreeSet::new();
+    let all: Vec<OperandCandidate> = all
+        .into_iter()
+        .filter(|c| seen.insert(c.symbol.clone()))
+        .collect();
     let total = all.len();
     let items: Vec<String> = all
         .iter()
         .take(CANDIDATE_BINDING_LIMIT)
-        .map(|(n, t, _)| format!("{{\"name\":{},\"type\":{}}}", json_str(n), json_str(t)))
+        .map(|c| {
+            format!(
+                "{{\"name\":{},\"type\":{},\"kind\":{},\"current_revision\":{},\"semantic_handle\":{{\"symbol\":{},\"scope\":{},\"expected_type\":{}}}}}",
+                json_str(&c.symbol),
+                json_str(&c.type_name),
+                json_str(&c.kind),
+                json_str(&c.revision),
+                json_str(&c.symbol),
+                json_str(&c.scope),
+                json_str(&c.type_name)
+            )
+        })
         .collect();
     let returned = items.len();
     let truncated = total > returned;
@@ -3531,44 +3860,10 @@ fn handle_construct_expression(
         };
         match c.role {
             "expr" => {
-                // resolve one revision handle and type-check it against the
-                // slot (range validates as a plain expression).
-                fn resolve_expr_child(
-                    s: &air::EditSession,
-                    parent_kind: &str,
-                    slot: &str,
-                    handle: &str,
-                ) -> Result<String, (String, String)> {
-                    let rev = s.resolve_current(handle).map_err(|e| {
-                        let r = format!(
-                            "{{\"kind\":{},\"argument\":{},\"requested\":{}}}",
-                            json_str(parent_kind),
-                            json_str(slot),
-                            json_str(handle)
-                        );
-                        (r, e)
-                    })?;
-                    let child_kind = s
-                        .graph
-                        .get(&rev)
-                        .map(|n| n.kind.clone())
-                        .unwrap_or_default();
-                    let allowed = if parent_kind == "range" {
-                        air::is_expr_kind(&child_kind)
-                    } else {
-                        air::slot_allows_kind(parent_kind, slot, &child_kind)
-                    };
-                    if !allowed {
-                        let r =
-                            construction_type_mismatch_json(parent_kind, slot, "expr", &child_kind);
-                        return Err((
-                            r,
-                            "E_AEP_CONSTRUCTION_TYPE_MISMATCH: child kind not allowed in slot"
-                                .to_string(),
-                        ));
-                    }
-                    Ok(rev)
-                }
+                // RFC-0007: children accept a bare revision OR a semantic
+                // handle; resolution is strict (no silent stale refresh, no
+                // silent ambiguity pick) and happens against the CURRENT
+                // staged transaction graph.
                 if c.multiple {
                     let arr = match arg {
                         Json::Arr(a) => a,
@@ -3588,35 +3883,11 @@ fn handle_construct_expression(
                     };
                     let mut revs = Vec::new();
                     for item in arr {
-                        let handle = item.as_str().ok_or_else(|| {
-                            let r = construction_type_mismatch_json(
-                                spec.kind,
-                                c.name,
-                                "revision",
-                                "non-string",
-                            );
-                            (
-                                r,
-                                "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected a revision".to_string(),
-                            )
-                        })?;
-                        revs.push(resolve_expr_child(s, spec.kind, c.name, handle)?);
+                        revs.push(resolve_operand_child(s, spec.kind, c.name, item)?);
                     }
                     slot_revs.insert(c.name.to_string(), revs);
                 } else {
-                    let handle = arg.as_str().ok_or_else(|| {
-                        let r = construction_type_mismatch_json(
-                            spec.kind,
-                            c.name,
-                            "revision",
-                            "non-string",
-                        );
-                        (
-                            r,
-                            "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected a revision".to_string(),
-                        )
-                    })?;
-                    let rev = resolve_expr_child(s, spec.kind, c.name, handle)?;
+                    let rev = resolve_operand_child(s, spec.kind, c.name, arg)?;
                     slot_revs.insert(c.name.to_string(), vec![rev]);
                 }
             }
@@ -4586,5 +4857,42 @@ mod construction_type_tests {
         assert!(type_matches("vec string", "(vec string)"));
         assert!(type_matches("bool", "bool"));
         assert!(!type_matches("vec string", "vec i64"));
+    }
+}
+
+#[cfg(test)]
+mod operand_tests {
+    use super::stale_revision;
+    use crate::air::{AirGraph, Value};
+    use std::collections::BTreeMap;
+
+    fn node(g: &mut AirGraph, entity: &str, payload: &str) -> String {
+        let mut f = BTreeMap::new();
+        f.insert("value".to_string(), Value::Str(payload.to_string()));
+        g.add("literal", entity, f, BTreeMap::new())
+    }
+
+    #[test]
+    fn stale_detects_entity_head_move() {
+        let mut g = AirGraph::new();
+        let h1 = node(&mut g, "e:thing", "a");
+        let h2 = node(&mut g, "e:thing", "b");
+        assert_ne!(h1, h2);
+        assert_eq!(g.heads.get("e:thing"), Some(&h2));
+        assert_eq!(stale_revision(&g, &h1), Some(h2.clone()));
+        assert_eq!(stale_revision(&g, &h2), None);
+    }
+
+    #[test]
+    fn anonymous_revision_never_stale() {
+        let mut g = AirGraph::new();
+        let r = node(&mut g, "", "x");
+        assert_eq!(stale_revision(&g, &r), None);
+    }
+
+    #[test]
+    fn unknown_revision_not_stale() {
+        let g = AirGraph::new();
+        assert_eq!(stale_revision(&g, "deadbeef"), None);
     }
 }

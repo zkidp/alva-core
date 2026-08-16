@@ -1,0 +1,5 @@
+[project]
+name = "rfc0007"
+
+[modules]
+"rfc0007.a" = "src/x.alva"
