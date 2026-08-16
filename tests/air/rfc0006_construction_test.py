@@ -258,6 +258,47 @@ def main():
     check("C11c veclit construction succeeds",
           r.get("ok") and r["result"]["result_type"] == "vec string", r)
 
+    # record construction (with typed record_field children).
+    lit_id = lit("string", "j1")
+    lit_worker = lit("string", "alice")
+    r = a.tool("construct_expression", kind="record", type="Job",
+               fields=[
+                   {"name": "id", "value": lit_id},
+                   {"name": "worker", "value": lit_worker},
+               ], expected_type="Job")
+    check("C11d record construction succeeds",
+          r.get("ok")
+          and r["result"]["kind"] == "record"
+          and r["result"]["result_type"] == "Job", r)
+    record_rev = r["result"]["revision"]
+    r = a.tool("inspect_entity", entity=record_rev)
+    check("C10b record node exposes field children",
+          r.get("ok")
+          and r["result"]["kind"] == "record"
+          and len(r["result"]["slots"].get("fields", [])) == 2, r)
+
+    # record_update construction.
+    lit_worker2 = lit("string", "bob")
+    r = a.tool("construct_expression", kind="record_update", type="Job",
+               base=record_rev,
+               updates=[{"name": "worker", "value": lit_worker2}],
+               expected_type="Job")
+    check("C11e record_update construction succeeds",
+          r.get("ok")
+          and r["result"]["kind"] == "record_update"
+          and r["result"]["result_type"] == "Job", r)
+
+    # match construction (zero cases is legal at node level).
+    r = a.tool("construct_expression", kind="match", type="Shared",
+               scrutinee=lit("i64", "1"), cases=[])
+    check("C11f match construction succeeds",
+          r.get("ok") and r["result"]["kind"] == "match", r)
+
+    # final transaction check still green.
+    r = a.tool("check_transaction")
+    check("C11g check_transaction green after all constructions",
+          r.get("ok"), r)
+
     a.close()
     print(f"RFC-0006 construction regressions PASSED ({checks} checks)")
 
