@@ -1,0 +1,22 @@
+(module
+  (name "rfc0006.a")
+  (version "0.1.0")
+  (export run)
+  (type Entry
+    (record
+      (field id (prim string))
+      (field score (prim i64))))
+  (fn normalize
+    (params
+      (param alpha (prim i64))
+      (param beta (prim string)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (let tmp (prim i64) (ref alpha)
+        (ref tmp))))
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body (ok (nil)))))

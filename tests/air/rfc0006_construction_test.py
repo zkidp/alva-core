@@ -151,6 +151,7 @@ def main():
     check("C3 missing operand -> E_AEP_CONSTRUCTION_INCOMPLETE", incomplete_ok, r)
     check("C8 failed construction leaves hash unchanged",
           project_rev() == rev_before, project_rev())
+    diff0 = a.tool("preview_semantic_diff")["result"]["diff"]
 
     # C2: alias canonicalization (result_err -> err).
     r = a.tool("describe_construction", kind="result_err")
@@ -206,6 +207,9 @@ def main():
           and r["result"]["actual"] == "bool", r)
     check("C8 failed construct (expected_type) leaves hash unchanged",
           project_rev() == rev_before, project_rev())
+    r = a.tool("preview_semantic_diff")
+    check("C8b all failed constructions leave semantic diff unchanged",
+          r["result"]["diff"] == diff0, r)
 
     # C5b: correct expected_type succeeds.
     r = a.tool("construct_expression", kind="not", value=lit_true,
@@ -298,6 +302,106 @@ def main():
     r = a.tool("check_transaction")
     check("C11g check_transaction green after all constructions",
           r.get("ok"), r)
+
+    # --- expected_type adversarial regressions (review blocker 1) ----------
+    r = a.tool("construct_expression", kind="err", value=lit_str,
+               expected_type="(vec string)")
+    check("A1B cross-constructor expected_type rejected",
+          not r.get("ok") and r["error_code"] == "E_AEP_CONSTRUCTION_TYPE_MISMATCH", r)
+    r = a.tool("construct_expression", kind="err", value=lit_str,
+               expected_type="(result string string string)")
+    check("A1B too-many-components expected_type rejected",
+          not r.get("ok") and r["error_code"] == "E_AEP_CONSTRUCTION_TYPE_MISMATCH", r)
+    r = a.tool("construct_expression", kind="err", value=lit_str,
+               expected_type="(result ? string)")
+    check("A1B single-component wildcard accepted",
+          r.get("ok") and r["result"]["kind"] == "err", r)
+    r = a.tool("construct_expression", kind="veclit", elem_type="string",
+               items=[], expected_type="result string string")
+    check("A1B vec vs result no false match",
+          not r.get("ok") and r["error_code"] == "E_AEP_CONSTRUCTION_TYPE_MISMATCH", r)
+
+    # --- registry/executor equality meta-test (review blocker 3) -----------
+    l0 = lit("i64", "0")
+    l1 = lit("i64", "1")
+    ls2 = lit("string", "s")
+    lb2 = lit("bool", "true")
+    full = {
+        "field": {"name": "id", "value": ls2},
+        "ok": {"value": ls2},
+        "err": {"value": ls2},
+        "not": {"value": lb2},
+        "veclit": {"elem_type": "string", "items": []},
+        "record": {"type": "Job", "fields": []},
+        "record_update": {"type": "Job", "base": l0, "updates": []},
+        "fold": {"index": "i", "acc_name": "acc", "range_start": l0,
+                 "range_end": l1, "acc_type": "i64", "acc_init": l0,
+                 "body": l1},
+        "match": {"type": "Shared", "scrutinee": l0, "cases": []},
+        "range": {"range_start": l0, "range_end": l1},
+    }
+    for k in V0_1_KINDS:
+        d = a.tool("describe_construction", kind=k)["result"]
+        for child in d["required_children"]:
+            req = dict(full[k])
+            req.pop(child["name"])
+            r = a.tool("construct_expression", kind=k, **req)
+            ok = (
+                not r.get("ok")
+                and r["error_code"] == "E_AEP_CONSTRUCTION_INCOMPLETE"
+                and child["name"] in r["result"]["missing"]
+            )
+            check(f"META {k}: executor requires child {child['name']}", ok, r)
+        for f in d["fields"]:
+            if not f["required"]:
+                continue
+            req = dict(full[k])
+            req.pop(f["name"])
+            r = a.tool("construct_expression", kind=k, **req)
+            ok = (
+                not r.get("ok")
+                and r["error_code"] == "E_AEP_CONSTRUCTION_INCOMPLETE"
+            )
+            check(f"META {k}: executor requires field {f['name']}", ok, r)
+        r = a.tool("construct_expression", kind=k, source="(x)")
+        check(f"META {k}: source forbidden",
+              not r.get("ok") and r["error_code"] == "E_AEP_CONSTRUCTION_NO_SOURCE", r)
+    for alias, canon in [
+        ("result_ok", "ok"), ("result_err", "err"),
+        ("vec_lit", "veclit"), ("veclist", "veclit"),
+        ("record_lit", "record"), ("record_upd", "record_update"),
+        ("result_fold", "fold"),
+    ]:
+        r = a.tool("describe_construction", kind=alias)
+        check(f"META alias {alias} -> {canon}",
+              r.get("ok") and r["result"]["canonical_kind"] == canon, r)
+
+    # --- candidate_bindings ranking (review blocker 4) ----------------------
+    a2 = Agent(alva, os.path.join(HERE, "rfc0006_fixture", "alva.toml"))
+    r = a2.tool("describe_construction", kind="fold", include_candidates=True)
+    items = r["result"]["candidate_bindings"]["items"]
+    names = [x["name"] for x in items]
+    check("CAND params ranked before body bindings",
+          "alpha" in names and "beta" in names and "tmp" in names
+          and names.index("alpha") < names.index("tmp")
+          and names.index("beta") < names.index("tmp"), items)
+    r2 = a2.tool("describe_construction", kind="fold", include_candidates=True)
+    check("CAND deterministic across calls",
+          r2["result"]["candidate_bindings"]["items"] == items, r2)
+    a2.close()
+
+    # --- A1 / change-impact non-leak (review blocker 5) ---------------------
+    for k in V0_1_KINDS:
+        r = a.tool("describe_construction", kind=k)
+        s = json.dumps(r)
+        check(f"A1NL describe {k}: no change-impact leak",
+              "inspect_change_impact" not in s
+              and "inspect_schema_gaps" not in s
+              and "change_impact" not in s, s[:200])
+    r = a.tool("construct_expression", kind="err", value=lit_str)
+    s = json.dumps(r)
+    check("A1NL construct success: no change-impact leak",
+          "inspect_change_impact" not in s and "change_impact" not in s, s[:200])
 
     a.close()
     print(f"RFC-0006 construction regressions PASSED ({checks} checks)")

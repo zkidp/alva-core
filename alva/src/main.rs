@@ -3056,8 +3056,13 @@ fn type_sexpr_short(g: &air::AirGraph, rev: &str) -> String {
 /// Collect visible symbols (name, type) across the transaction: function
 /// params, body bindings and fold/loop accumulators. Deterministic (sorted by
 /// name, deduped). Bounded by CANDIDATE_BINDING_LIMIT at the caller.
-fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String)> {
-    let mut out: Vec<(String, String)> = Vec::new();
+/// Collect visible symbols (name, type, priority) across the transaction.
+/// Ranking (RFC-0006 review blocker 4): function params (0) -> body bindings
+/// (1) -> fold/loop accumulators (2), then stable name tie-break. This keeps
+/// the top candidates semantically reasonable (params are the most stable,
+/// module-visible symbols) and fully deterministic.
+fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String, u8)> {
+    let mut out: Vec<(String, String, u8)> = Vec::new();
     for me in &g.module_entities {
         let Some(mn) = g.resolve(me) else {
             continue;
@@ -3092,7 +3097,7 @@ fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String)> {
                             .and_then(|t| t.first())
                             .map(|r| type_sexpr_short(g, r))
                             .unwrap_or_else(|| "?".to_string());
-                        out.push((name, ty));
+                        out.push((name, ty, 0));
                     }
                 }
             }
@@ -3113,7 +3118,7 @@ fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String)> {
                                     .and_then(|t| t.first())
                                     .map(|r| type_sexpr_short(g, r))
                                     .unwrap_or_else(|| "?".to_string());
-                                out.push((name, ty));
+                                out.push((name, ty, 1));
                             }
                             "fold" | "loop" => {
                                 let name = cn
@@ -3128,7 +3133,7 @@ fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String)> {
                                     .and_then(|t| t.first())
                                     .map(|r| type_sexpr_short(g, r))
                                     .unwrap_or_else(|| "?".to_string());
-                                out.push((name, ty));
+                                out.push((name, ty, 2));
                             }
                             _ => {}
                         }
@@ -3138,8 +3143,9 @@ fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String)> {
             }
         }
     }
-    out.sort_by(|a, b| a.0.cmp(&b.0));
-    out.dedup();
+    out.sort_by(|a, b| a.2.cmp(&b.2).then(a.0.cmp(&b.0)));
+    let mut seen = std::collections::BTreeSet::new();
+    out.retain(|(name, _, _)| seen.insert(name.clone()));
     out
 }
 
@@ -3150,7 +3156,7 @@ fn candidate_bindings_json(g: &air::AirGraph, include_items: bool) -> String {
     let items: Vec<String> = all
         .iter()
         .take(CANDIDATE_BINDING_LIMIT)
-        .map(|(n, t)| format!("{{\"name\":{},\"type\":{}}}", json_str(n), json_str(t)))
+        .map(|(n, t, _)| format!("{{\"name\":{},\"type\":{}}}", json_str(n), json_str(t)))
         .collect();
     let returned = items.len();
     let truncated = total > returned;
@@ -3297,25 +3303,89 @@ fn literal_prim_type(g: &air::AirGraph, rev: &str) -> Option<String> {
     }
 }
 
-/// Token-wise type comparison; "?" acts as a wildcard for unknown components
-/// (e.g. expected `(result string string)` matches actual `result ? string`).
+/// Structural type comparison for `expected_type` (RFC-0006 review blocker 1).
+///
+/// `?` is a wildcard that matches EXACTLY ONE semantic type subtree (a single
+/// atom OR a balanced `(...)`/`<...>` group). It cannot swallow tokens across
+/// bracket structures: `(result ? string)` matches `result (vec string)
+/// string` but never `(vec string)` or `(result string string string)`.
+/// Parentheses/angle brackets are grouping syntax, not content.
+enum TypeWord {
+    Atom(String),
+    Group(Vec<TypeWord>),
+}
+
+fn type_words(s: &str) -> Vec<TypeWord> {
+    let chars: Vec<char> = s.chars().collect();
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < chars.len() {
+        let c = chars[i];
+        if c == '(' || c == '<' || c == '[' {
+            let close = match c {
+                '(' => ')',
+                '<' => '>',
+                _ => ']',
+            };
+            let mut depth = 1usize;
+            let mut j = i + 1;
+            while j < chars.len() && depth > 0 {
+                if chars[j] == c {
+                    depth += 1;
+                } else if chars[j] == close {
+                    depth -= 1;
+                }
+                j += 1;
+            }
+            let inner: String = chars[i + 1..j.saturating_sub(1)].iter().collect();
+            out.push(TypeWord::Group(type_words(&inner)));
+            i = j;
+        } else if c.is_alphanumeric() || c == '_' || c == '.' || c == '?' {
+            let mut j = i;
+            while j < chars.len()
+                && (chars[j].is_alphanumeric()
+                    || chars[j] == '_'
+                    || chars[j] == '.'
+                    || chars[j] == '?')
+            {
+                j += 1;
+            }
+            out.push(TypeWord::Atom(chars[i..j].iter().collect()));
+            i = j;
+        } else {
+            i += 1;
+        }
+    }
+    out
+}
+
+fn words_compatible(e: &TypeWord, a: &TypeWord) -> bool {
+    match (e, a) {
+        (TypeWord::Atom(x), TypeWord::Atom(y)) => x == y || x == "?" || y == "?",
+        (TypeWord::Atom(x), _) => x == "?",
+        (_, TypeWord::Atom(y)) => y == "?",
+        (TypeWord::Group(eg), TypeWord::Group(ag)) => {
+            eg.len() == ag.len()
+                && eg
+                    .iter()
+                    .zip(ag.iter())
+                    .all(|(x, y)| words_compatible(x, y))
+        }
+    }
+}
+
 fn type_matches(expected: &str, actual: &str) -> bool {
-    fn tokens(s: &str) -> Vec<String> {
-        s.split(|c: char| {
-            !(c.is_alphanumeric() || c == '_' || c == '.' || c == '<' || c == '>' || c == '?')
-        })
-        .filter(|t| !t.is_empty())
-        .map(|t| t.to_string())
-        .collect()
+    // Normalize so `result ? string` and `(result string string)` share one
+    // structure: a fully parenthesized input collapses to its inner group.
+    fn as_word(s: &str) -> TypeWord {
+        let mut w = type_words(s);
+        if w.len() == 1 {
+            w.pop().unwrap()
+        } else {
+            TypeWord::Group(w)
+        }
     }
-    let e = tokens(expected);
-    let a = tokens(actual);
-    if e.len() != a.len() {
-        return false;
-    }
-    e.iter()
-        .zip(a.iter())
-        .all(|(x, y)| x == y || x == "?" || y == "?")
+    words_compatible(&as_word(expected), &as_word(actual))
 }
 
 /// RFC-0006 v0.1 minimal result-type derivation for constructed kinds.
@@ -4471,5 +4541,50 @@ fn cmd_run(rest: &[String]) -> i32 {
             eprintln!("error: cannot run {}: {e}", exe.display());
             1
         }
+    }
+}
+
+#[cfg(test)]
+mod construction_type_tests {
+    use super::type_matches;
+
+    #[test]
+    fn wildcard_matches_one_subtree() {
+        // `?` matches a parenthesized subtree, not just one atom.
+        assert!(type_matches(
+            "(result ? string)",
+            "result (vec string) string"
+        ));
+        assert!(type_matches(
+            "(result ? string)",
+            "result (vec Candidate) string"
+        ));
+        assert!(type_matches("(result ? string)", "(result string string)"));
+        assert!(type_matches("(result string string)", "result ? string"));
+    }
+
+    #[test]
+    fn wildcard_does_not_swallow_across_structures() {
+        assert!(!type_matches("(result ? string)", "(vec (prim string))"));
+        assert!(!type_matches(
+            "(result ? string)",
+            "(result string string string)"
+        ));
+        assert!(!type_matches("(result ? string)", "(result string)"));
+    }
+
+    #[test]
+    fn cross_constructor_no_false_match() {
+        assert!(!type_matches("result<A,B>", "(vec A)"));
+        assert!(!type_matches("vec string", "result string string"));
+        assert!(!type_matches("bool", "string"));
+        assert!(!type_matches("Job", "rfc0005.a.Job"));
+    }
+
+    #[test]
+    fn paren_normalization() {
+        assert!(type_matches("vec string", "(vec string)"));
+        assert!(type_matches("bool", "bool"));
+        assert!(!type_matches("vec string", "vec i64"));
     }
 }
