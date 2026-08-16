@@ -176,6 +176,16 @@ def main():
     check("O7 failed not-found (bare) leaves hash unchanged",
           project_rev() == rev0, project_rev())
 
+    # R11 (D02 signature): replace_expression with a missing/stale parent now
+    # returns structured candidates (one-shot correction) instead of a bare
+    # error that invites repeated retries.
+    l3 = lit("i64", "1")
+    r = a.tool("replace_expression", parent="deadbeef", child=l3, position="value")
+    check("R11 replace_expression missing parent -> structured recovery",
+          not r.get("ok") and r["error_code"] == "E_AEP_ENTITY_NOT_FOUND"
+          and "candidates" in r["result"], r)
+    check("R11 failed replace leaves hash unchanged", project_rev() == rev0, project_rev())
+
     a.close()
     print(f"RFC-0007 operand grounding regressions PASSED ({checks} checks)")
 

@@ -1747,26 +1747,30 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             }
             "replace_expression" => {
                 let s = need_session!();
-                let parent = req.get("parent").and_then(|v| v.as_str()).unwrap_or("");
-                let child = req.get("child").and_then(|v| v.as_str()).unwrap_or("");
                 let position = req
                     .get("position")
                     .and_then(|v| v.as_str())
                     .unwrap_or("value");
-                // RFC-0005: structured invalid-position hint instead of
-                // free-form text.
-                match s.graph.resolve_rev(parent) {
-                    None => resp!(
-                        false,
-                        &format!(
-                            "{{\"operation\":\"replace_expression\",\"argument\":\"parent\",\"requested\":{},\"recovery\":{{\"tool\":\"describe_operation\",\"name\":\"replace_expression\"}}}}",
-                            json_str(parent)
-                        ),
-                        "E_AEP_OP: parent not found"
-                    ),
-                    Some(pr) => {
-                        let kind =
-                            s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
+                // RFC-0007: parent/child operands resolve through the strict
+                // operand resolver (bare revision OR semantic handle); a stale
+                // or missing operand returns structured recovery instead of a
+                // bare error, breaking the D02-style repeated-retry loop.
+                let parent_res = req
+                    .get("parent")
+                    .map(|v| resolve_operand_strict(s, "replace_expression", "parent", v))
+                    .unwrap_or_else(|| {
+                        let r = construction_type_mismatch_json(
+                            "replace_expression",
+                            "parent",
+                            "revision | semantic handle",
+                            "missing",
+                        );
+                        Err((r, "E_AEP_OPERAND_NOT_FOUND: parent missing".to_string()))
+                    });
+                match parent_res {
+                    Err((r, msg)) => resp!(false, &r, &msg),
+                    Ok(pr) => {
+                        let kind = s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
                         match friendly_slot(&kind, position) {
                             None => resp!(
                                 false,
@@ -1781,14 +1785,34 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                 ),
                                 "E_AEP_OP: invalid position"
                             ),
-                            Some(slot) => match s.replace_slot(&pr, slot, child) {
-                                Ok(rev) => resp!(
-                                    true,
-                                    &format!("{{\"new_revision\":{}}}", json_str(&rev)),
-                                    "ok"
-                                ),
-                                Err(e) => resp!(false, "null", &e),
-                            },
+                            Some(slot) => {
+                                let child_res = req
+                                    .get("child")
+                                    .map(|v| resolve_operand_strict(s, "replace_expression", "child", v))
+                                    .unwrap_or_else(|| {
+                                        let r = construction_type_mismatch_json(
+                                            "replace_expression",
+                                            "child",
+                                            "revision | semantic handle",
+                                            "missing",
+                                        );
+                                        Err((
+                                            r,
+                                            "E_AEP_OPERAND_NOT_FOUND: child missing".to_string(),
+                                        ))
+                                    });
+                                match child_res {
+                                    Err((r, msg)) => resp!(false, &r, &msg),
+                                    Ok(cr) => match s.replace_slot(&pr, slot, &cr) {
+                                        Ok(rev) => resp!(
+                                            true,
+                                            &format!("{{\"new_revision\":{}}}", json_str(&rev)),
+                                            "ok"
+                                        ),
+                                        Err(e) => resp!(false, "null", &e),
+                                    },
+                                }
+                            }
                         }
                     }
                 }
@@ -3348,13 +3372,14 @@ fn stale_revision(g: &air::AirGraph, rev: &str) -> Option<String> {
     }
 }
 
-/// RFC-0007: resolve ONE construct child operand (bare revision OR semantic
-/// handle) against the CURRENT staged transaction. Strict: stale bare
+/// RFC-0007: resolve ONE operand reference (bare revision OR semantic handle)
+/// against the CURRENT staged transaction, with strict resolution: stale bare
 /// revisions are NOT silently refreshed; ambiguity is never auto-resolved.
-fn resolve_operand_child(
+/// `operation`/`argument` are only used for structured error payloads.
+fn resolve_operand_strict(
     s: &air::EditSession,
-    parent_kind: &str,
-    slot: &str,
+    operation: &str,
+    argument: &str,
     arg: &Json,
 ) -> Result<String, (String, String)> {
     let rev = match arg {
@@ -3362,7 +3387,7 @@ fn resolve_operand_child(
             match s.graph.resolve_rev(handle) {
                 None => {
                     let cands = collect_operands(&s.graph);
-                    let r = operand_not_found_json(parent_kind, slot, handle, &cands);
+                    let r = operand_not_found_json(operation, argument, handle, &cands);
                     // keep the existing E_AEP_ENTITY_NOT_FOUND contract for
                     // bare revisions; OPERAND_NOT_FOUND is for semantic handles.
                     return Err((r, "E_AEP_ENTITY_NOT_FOUND: revision not found".to_string()));
@@ -3372,12 +3397,7 @@ fn resolve_operand_child(
                         if let Some(n) = s.graph.get(&rev) {
                             let cands = collect_operands(&s.graph);
                             let r = operand_stale_json(
-                                parent_kind,
-                                slot,
-                                handle,
-                                &n.entity,
-                                &current,
-                                &cands,
+                                operation, argument, handle, &n.entity, &current, &cands,
                             );
                             return Err((
                                 r,
@@ -3393,8 +3413,8 @@ fn resolve_operand_child(
         Json::Obj(_) => {
             let symbol = arg.get("symbol").and_then(|v| v.as_str()).ok_or_else(|| {
                 let r = construction_type_mismatch_json(
-                    parent_kind,
-                    slot,
+                    operation,
+                    argument,
                     "semantic handle",
                     "missing symbol",
                 );
@@ -3408,14 +3428,14 @@ fn resolve_operand_child(
             match resolve_semantic_operand(&s.graph, symbol, scope) {
                 OperandResolve::NotFound => {
                     let cands = collect_operands(&s.graph);
-                    let r = operand_not_found_json(parent_kind, slot, symbol, &cands);
+                    let r = operand_not_found_json(operation, argument, symbol, &cands);
                     return Err((
                         r,
                         "E_AEP_OPERAND_NOT_FOUND: no matching operand".to_string(),
                     ));
                 }
                 OperandResolve::Ambiguous(cands) => {
-                    let r = operand_ambiguous_json(parent_kind, slot, symbol, &cands);
+                    let r = operand_ambiguous_json(operation, argument, symbol, &cands);
                     return Err((
                         r,
                         "E_AEP_OPERAND_AMBIGUOUS: multiple operands match".to_string(),
@@ -3429,8 +3449,8 @@ fn resolve_operand_child(
         }
         _ => {
             let r = construction_type_mismatch_json(
-                parent_kind,
-                slot,
+                operation,
+                argument,
                 "revision | semantic handle",
                 "other",
             );
@@ -3440,6 +3460,18 @@ fn resolve_operand_child(
             ));
         }
     };
+    Ok(rev)
+}
+
+/// RFC-0007: resolve a construct child operand, then apply the slot kind
+/// check shared with RFC-0006.
+fn resolve_operand_child(
+    s: &air::EditSession,
+    parent_kind: &str,
+    slot: &str,
+    arg: &Json,
+) -> Result<String, (String, String)> {
+    let rev = resolve_operand_strict(s, parent_kind, slot, arg)?;
     // slot kind check (shared with RFC-0006)
     let child_kind = s
         .graph
