@@ -2238,6 +2238,13 @@ pub struct DiffReport {
     pub summary: String,
 }
 
+/// RFC-0006: one pending construction node (kind, fields, slots).
+pub type NodeSpec = (
+    String,
+    BTreeMap<String, Value>,
+    BTreeMap<String, Vec<String>>,
+);
+
 fn module_name(g: &AirGraph, module_id: &str) -> String {
     g.get(module_id)
         .map(|n| field_str(n, "name"))
@@ -2542,7 +2549,7 @@ struct SlotSpec {
     max: usize,
 }
 
-fn is_expr_kind(k: &str) -> bool {
+pub fn is_expr_kind(k: &str) -> bool {
     matches!(
         k,
         "literal"
@@ -2604,6 +2611,19 @@ fn child_allowed(allowed: &[&str], kind: &str) -> bool {
     allowed
         .iter()
         .any(|a| *a == kind || (*a == "expr" && is_expr_kind(kind)))
+}
+
+/// RFC-0006: does the schema for `parent_kind` allow `child_kind` in `slot`?
+/// Single source of truth shared by construction validation and recovery.
+pub fn slot_allows_kind(parent_kind: &str, slot: &str, child_kind: &str) -> bool {
+    let Some((_, _, allowed_slots)) = schema(parent_kind) else {
+        return false;
+    };
+    allowed_slots
+        .iter()
+        .find(|s| s.name == slot)
+        .map(|s| child_allowed(s.allowed, child_kind))
+        .unwrap_or(false)
 }
 
 /// Per-node-kind schema: (required fields, allowed fields, allowed slots).
@@ -3685,6 +3705,50 @@ impl EditSession {
         let rev = self.graph.add(kind, "", fields, slots);
         self.stage(|_| Ok(()))?;
         Ok(rev)
+    }
+
+    /// RFC-0006: atomic batch construction.
+    ///
+    /// `construct_expression` validates the ENTIRE request first, then
+    /// materializes all nodes in ONE staged commit. A failed construction
+    /// MUST NOT create partial AIR nodes or alter the transaction semantic
+    /// state (RFC-0006 §6 invariant 7): validation errors return before any
+    /// node is inserted, and the single `stage` call swaps the session graph
+    /// only on full success.
+    ///
+    /// `nodes` are (kind, fields, slots) in dependency order (children before
+    /// parents); slots may reference revisions of earlier entries in the same
+    /// batch (content-addressed, pre-computed). Returns the LAST entry's
+    /// revision, which is the constructed expression's main node.
+    pub fn create_nodes_atomic(&mut self, nodes: Vec<NodeSpec>) -> Result<String, String> {
+        if nodes.is_empty() {
+            return Err("E_AEP_CONSTRUCTION_EMPTY_BATCH".to_string());
+        }
+        // 1) validate every node spec (fields + slot count ranges) BEFORE any
+        //    insertion.
+        for (kind, fields, slots) in &nodes {
+            validate_node(kind, fields, slots)?;
+        }
+        // 2) pre-compute revisions so batch-internal slot references resolve
+        //    deterministically, and so external child references are checked
+        //    against the existing graph.
+        let mut revs: Vec<String> = Vec::with_capacity(nodes.len());
+        for (kind, fields, slots) in &nodes {
+            let rev = self.graph.compute_revision(kind, fields, slots);
+            revs.push(rev);
+        }
+        // 3) one staged commit.
+        let main_rev = revs
+            .last()
+            .cloned()
+            .ok_or_else(|| "E_AEP_CONSTRUCTION_EMPTY_BATCH".to_string())?;
+        self.stage(|g| {
+            for (kind, fields, slots) in &nodes {
+                g.add(kind, "", fields.clone(), slots.clone());
+            }
+            Ok(())
+        })?;
+        Ok(main_rev)
     }
 
     pub fn create_hole(

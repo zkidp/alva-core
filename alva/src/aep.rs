@@ -133,6 +133,44 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             "describe_operation name=update_record_fields",
             None,
         ),
+        // RFC-0006 / AEP-0003: Typed Semantic Construction (v0.1).
+        spec(
+            "describe_construction",
+            vec!["describe_kind", "construction_schema"],
+            vec!["any"],
+            vec![
+                arg(
+                    "kind",
+                    "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+                    true,
+                ),
+                arg("include_candidates", "bool", false),
+            ],
+            vec!["transaction"],
+            "inspection",
+            "construction",
+            "describe_construction kind=fold",
+            None,
+        ),
+        spec(
+            "construct_expression",
+            vec!["construct_kind", "make_expression"],
+            vec!["any"],
+            vec![
+                arg(
+                    "kind",
+                    "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+                    true,
+                ),
+                arg("expected_type", "type string", false),
+                arg("...children", "revision | type string | json array", false),
+            ],
+            vec!["transaction"],
+            "mutation",
+            "construction",
+            "construct_expression kind=err value=<rev> expected_type=(result string string)",
+            None,
+        ),
         spec(
             "inspect_project",
             vec![],

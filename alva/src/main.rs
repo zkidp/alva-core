@@ -3,6 +3,7 @@ mod air;
 mod ast;
 mod check;
 mod codegen;
+mod construction;
 mod diag;
 mod manifest;
 mod project;
@@ -2606,6 +2607,43 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     }
                 }
             }
+            "describe_construction" => {
+                let s = need_session!();
+                let kind = req
+                    .get("kind")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let include_candidates = req
+                    .get("include_candidates")
+                    .and_then(|v| match v {
+                        Json::Bool(b) => Some(*b),
+                        _ => None,
+                    })
+                    .unwrap_or(false);
+                match construction::construction_spec(&kind) {
+                    Some(spec) => resp!(
+                        true,
+                        &construction_describe_json(spec, &s.graph, include_candidates),
+                        "ok"
+                    ),
+                    None => {
+                        let cands = construction::closest_kind(&kind, 6);
+                        resp!(
+                            false,
+                            &construction_unknown_kind_json(&kind, &cands),
+                            "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+                        )
+                    }
+                }
+            }
+            "construct_expression" => {
+                let s = need_session!();
+                match handle_construct_expression(s, &req) {
+                    Ok((result, msg)) => resp!(true, &result, &msg),
+                    Err((result, msg)) => resp!(false, &result, &msg),
+                }
+            }
             other => {
                 let cands = aep::closest(other, 6);
                 resp!(
@@ -2955,6 +2993,757 @@ fn resolve_result_json(outcome: &ResolveOutcome, requested: &str) -> String {
             .collect::<Vec<_>>()
             .join(",")
     )
+}
+
+// ---------------------------------------------------------------------------
+// RFC-0006 / AEP-0003: Typed Semantic Construction (v0.1)
+// ---------------------------------------------------------------------------
+
+/// candidate_bindings 上限（RFC-0006 §5.2 评审第 3 项）。
+const CANDIDATE_BINDING_LIMIT: usize = 8;
+
+/// Minimal type_expr node spec (mirrors `type_expr_for` without graph
+/// mutation, so construct_expression can validate-then-materialize).
+fn type_expr_spec(
+    name: &str,
+) -> (
+    String,
+    BTreeMap<String, air::Value>,
+    BTreeMap<String, Vec<String>>,
+) {
+    let mut f = BTreeMap::new();
+    let shape = if matches!(
+        name,
+        "string"
+            | "bool"
+            | "bytes"
+            | "nil"
+            | "i64"
+            | "i32"
+            | "i16"
+            | "i8"
+            | "u64"
+            | "u32"
+            | "u16"
+            | "u8"
+            | "f64"
+            | "f32"
+    ) {
+        "prim"
+    } else {
+        "named"
+    };
+    f.insert("shape".to_string(), air::Value::Str(shape.to_string()));
+    f.insert("name".to_string(), air::Value::Str(name.to_string()));
+    ("type_expr".to_string(), f, BTreeMap::new())
+}
+
+fn value_str(v: &air::Value) -> Option<&str> {
+    match v {
+        air::Value::Str(s) => Some(s),
+        _ => None,
+    }
+}
+
+/// Short type sexpr from a type_expr node (prim -> name, else named name).
+fn type_sexpr_short(g: &air::AirGraph, rev: &str) -> String {
+    g.get(rev)
+        .and_then(|n| n.fields.get("name").and_then(value_str))
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| "?".to_string())
+}
+
+/// Collect visible symbols (name, type) across the transaction: function
+/// params, body bindings and fold/loop accumulators. Deterministic (sorted by
+/// name, deduped). Bounded by CANDIDATE_BINDING_LIMIT at the caller.
+fn visible_bindings(g: &air::AirGraph) -> Vec<(String, String)> {
+    let mut out: Vec<(String, String)> = Vec::new();
+    for me in &g.module_entities {
+        let Some(mn) = g.resolve(me) else {
+            continue;
+        };
+        let mut stack: Vec<String> = Vec::new();
+        for id in mn
+            .slots
+            .get("functions")
+            .cloned()
+            .unwrap_or_default()
+            .into_iter()
+            .chain(mn.slots.get("tests").cloned().unwrap_or_default())
+        {
+            stack.push(id);
+        }
+        while let Some(id) = stack.pop() {
+            let Some(n) = g.get(&id) else {
+                continue;
+            };
+            if matches!(n.kind.as_str(), "function" | "test") {
+                for p in n.slots.get("params").cloned().unwrap_or_default() {
+                    if let Some(pn) = g.get(&p) {
+                        let name = pn
+                            .fields
+                            .get("name")
+                            .and_then(value_str)
+                            .unwrap_or("")
+                            .to_string();
+                        let ty = pn
+                            .slots
+                            .get("type")
+                            .and_then(|t| t.first())
+                            .map(|r| type_sexpr_short(g, r))
+                            .unwrap_or_else(|| "?".to_string());
+                        out.push((name, ty));
+                    }
+                }
+            }
+            for children in n.slots.values() {
+                for c in children {
+                    if let Some(cn) = g.get(c) {
+                        match cn.kind.as_str() {
+                            "binding" => {
+                                let name = cn
+                                    .fields
+                                    .get("name")
+                                    .and_then(value_str)
+                                    .unwrap_or("")
+                                    .to_string();
+                                let ty = cn
+                                    .slots
+                                    .get("type")
+                                    .and_then(|t| t.first())
+                                    .map(|r| type_sexpr_short(g, r))
+                                    .unwrap_or_else(|| "?".to_string());
+                                out.push((name, ty));
+                            }
+                            "fold" | "loop" => {
+                                let name = cn
+                                    .fields
+                                    .get("acc_name")
+                                    .and_then(value_str)
+                                    .unwrap_or("")
+                                    .to_string();
+                                let ty = cn
+                                    .slots
+                                    .get("acc_type")
+                                    .and_then(|t| t.first())
+                                    .map(|r| type_sexpr_short(g, r))
+                                    .unwrap_or_else(|| "?".to_string());
+                                out.push((name, ty));
+                            }
+                            _ => {}
+                        }
+                        stack.push(c.clone());
+                    }
+                }
+            }
+        }
+    }
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    out.dedup();
+    out
+}
+
+/// RFC-0006 §5.2: bounded candidate_bindings (`total/returned/truncated`).
+fn candidate_bindings_json(g: &air::AirGraph, include_items: bool) -> String {
+    let all = visible_bindings(g);
+    let total = all.len();
+    let items: Vec<String> = all
+        .iter()
+        .take(CANDIDATE_BINDING_LIMIT)
+        .map(|(n, t)| format!("{{\"name\":{},\"type\":{}}}", json_str(n), json_str(t)))
+        .collect();
+    let returned = items.len();
+    let truncated = total > returned;
+    if include_items {
+        format!(
+            "{{\"items\":[{}],\"total\":{},\"returned\":{},\"truncated\":{}}}",
+            items.join(","),
+            total,
+            returned,
+            truncated
+        )
+    } else {
+        format!(
+            "{{\"total\":{},\"returned\":{},\"truncated\":{}}}",
+            total, returned, truncated
+        )
+    }
+}
+
+fn construction_unknown_kind_json(kind: &str, cands: &[&'static str]) -> String {
+    format!(
+        "{{\"requested\":{},\"candidates\":[{}]}}",
+        json_str(kind),
+        cands
+            .iter()
+            .map(|c| json_str(c))
+            .collect::<Vec<_>>()
+            .join(",")
+    )
+}
+
+fn construction_children_json(
+    spec: &construction::ConstructionSpec,
+    required_only: bool,
+) -> String {
+    spec.children
+        .iter()
+        .filter(|c| !required_only || c.required)
+        .map(|c| {
+            format!(
+                "{{\"name\":{},\"role\":{},\"required\":{},\"multiple\":{}}}",
+                json_str(c.name),
+                json_str(c.role),
+                if c.required { "true" } else { "false" },
+                if c.multiple { "true" } else { "false" }
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+/// Structured E_AEP_CONSTRUCTION_INCOMPLETE payload (not free-form text).
+fn construction_requirements_json(
+    spec: &construction::ConstructionSpec,
+    provided: &[String],
+    missing: &[&str],
+    g: &air::AirGraph,
+    result_type: &str,
+) -> String {
+    let provided_json: Vec<String> = provided.iter().map(|p| json_str(p)).collect();
+    let missing_json: Vec<String> = missing.iter().map(|m| json_str(m)).collect();
+    format!(
+        "{{\"kind\":{},\"required\":[{}],\"provided\":[{}],\"missing\":[{}],\"candidate_bindings\":{},\"result_type\":{}}}",
+        json_str(spec.kind),
+        construction_children_json(spec, true),
+        provided_json.join(","),
+        missing_json.join(","),
+        candidate_bindings_json(g, true),
+        json_str(result_type)
+    )
+}
+
+/// RFC-0006 §5.2: describe_construction (read-only, concise by default).
+fn construction_describe_json(
+    spec: &construction::ConstructionSpec,
+    g: &air::AirGraph,
+    include_candidates: bool,
+) -> String {
+    let aliases: Vec<String> = spec.aliases.iter().map(|a| json_str(a)).collect();
+    let fields: Vec<String> = spec
+        .fields
+        .iter()
+        .map(|f| {
+            format!(
+                "{{\"name\":{},\"required\":{}}}",
+                json_str(f.name),
+                if f.required { "true" } else { "false" }
+            )
+        })
+        .collect();
+    let required: Vec<String> = spec
+        .children
+        .iter()
+        .filter(|c| c.required)
+        .map(|c| {
+            format!(
+                "{{\"name\":{},\"role\":{},\"multiple\":{}}}",
+                json_str(c.name),
+                json_str(c.role),
+                if c.multiple { "true" } else { "false" }
+            )
+        })
+        .collect();
+    let optional: Vec<String> = spec
+        .children
+        .iter()
+        .filter(|c| !c.required)
+        .map(|c| {
+            format!(
+                "{{\"name\":{},\"role\":{},\"multiple\":{}}}",
+                json_str(c.name),
+                json_str(c.role),
+                if c.multiple { "true" } else { "false" }
+            )
+        })
+        .collect();
+    format!(
+        "{{\"canonical_kind\":{},\"aliases\":[{}],\"fields\":[{}],\"required_children\":[{}],\"optional_children\":[{}],\"result_type_rule\":{},\"candidate_bindings\":{},\"example\":{},\"note\":{}}}",
+        json_str(spec.kind),
+        aliases.join(","),
+        fields.join(","),
+        required.join(","),
+        optional.join(","),
+        json_str(spec.result_type_rule),
+        candidate_bindings_json(g, include_candidates),
+        json_str(spec.example),
+        json_str(spec.note)
+    )
+}
+
+fn literal_prim_type(g: &air::AirGraph, rev: &str) -> Option<String> {
+    let n = g.get(rev)?;
+    if n.kind != "literal" {
+        return None;
+    }
+    match n.fields.get("value")? {
+        air::Value::Int(_) => Some("i64".to_string()),
+        air::Value::Str(s) if s == "nil" => Some("nil".to_string()),
+        air::Value::Str(_) => Some("string".to_string()),
+        air::Value::Bool(_) => Some("bool".to_string()),
+        air::Value::Float(_) => Some("f64".to_string()),
+        air::Value::Bytes(_) => Some("bytes".to_string()),
+        _ => None,
+    }
+}
+
+/// Token-wise type comparison; "?" acts as a wildcard for unknown components
+/// (e.g. expected `(result string string)` matches actual `result ? string`).
+fn type_matches(expected: &str, actual: &str) -> bool {
+    fn tokens(s: &str) -> Vec<String> {
+        s.split(|c: char| {
+            !(c.is_alphanumeric() || c == '_' || c == '.' || c == '<' || c == '>' || c == '?')
+        })
+        .filter(|t| !t.is_empty())
+        .map(|t| t.to_string())
+        .collect()
+    }
+    let e = tokens(expected);
+    let a = tokens(actual);
+    if e.len() != a.len() {
+        return false;
+    }
+    e.iter()
+        .zip(a.iter())
+        .all(|(x, y)| x == y || x == "?" || y == "?")
+}
+
+/// RFC-0006 v0.1 minimal result-type derivation for constructed kinds.
+/// Kinds whose result type is not statically derivable return None (the
+/// expected_type check is skipped for them; the rule is advertised in
+/// describe_construction).
+fn construction_result_type(
+    spec: &construction::ConstructionSpec,
+    g: &air::AirGraph,
+    child_revs: &BTreeMap<String, Vec<String>>,
+    fields: &BTreeMap<String, air::Value>,
+) -> Option<String> {
+    match spec.kind {
+        "not" => Some("bool".to_string()),
+        "veclit" => child_revs
+            .get("elem_type")
+            .and_then(|v| v.first())
+            .map(|r| type_sexpr_short(g, r))
+            .map(|t| format!("vec {t}")),
+        "fold" => child_revs
+            .get("acc_type")
+            .and_then(|v| v.first())
+            .map(|r| type_sexpr_short(g, r)),
+        "record" | "record_update" => fields
+            .get("type")
+            .and_then(value_str)
+            .map(|t| t.to_string()),
+        "ok" => {
+            let v = child_revs
+                .get("value")
+                .and_then(|v| v.first())
+                .and_then(|r| literal_prim_type(g, r))?;
+            Some(format!("result {v} ?"))
+        }
+        "err" => {
+            let v = child_revs
+                .get("value")
+                .and_then(|v| v.first())
+                .and_then(|r| literal_prim_type(g, r))?;
+            Some(format!("result ? {v}"))
+        }
+        "range" => Some("range (fold sub-form)".to_string()),
+        _ => None,
+    }
+}
+
+fn construction_type_mismatch_json(kind: &str, slot: &str, expected: &str, actual: &str) -> String {
+    format!(
+        "{{\"kind\":{},\"argument\":{},\"expected\":{},\"actual\":{}}}",
+        json_str(kind),
+        json_str(slot),
+        json_str(expected),
+        json_str(actual)
+    )
+}
+
+/// RFC-0006 §5.3: `construct_expression` (mutation).
+///
+/// Contract: canonicalize kind -> resolve spec -> validate required fields ->
+/// resolve child revisions -> type-check children -> check expected_type ->
+/// validate invariants -> materialize ALL nodes in ONE atomic staged commit.
+/// Any failure returns before materialization (zero transactional side
+/// effects, RFC-0006 §6 invariant 7).
+fn handle_construct_expression(
+    s: &mut air::EditSession,
+    req: &Json,
+) -> Result<(String, String), (String, String)> {
+    let kind = req.get("kind").and_then(|v| v.as_str()).unwrap_or("");
+
+    // no-source-string guard (RFC-0006 §6.5).
+    if req.get("source").is_some() {
+        let r = format!(
+            "{{\"requested_kind\":{},\"error\":\"source-string construction is forbidden; use typed children\"}}",
+            json_str(kind)
+        );
+        return Err((
+            r,
+            "E_AEP_CONSTRUCTION_NO_SOURCE: source-string construction forbidden".to_string(),
+        ));
+    }
+
+    let Some(spec) = construction::construction_spec(kind) else {
+        let cands = construction::closest_kind(kind, 6);
+        let r = construction_unknown_kind_json(kind, &cands);
+        return Err((
+            r,
+            "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind".to_string(),
+        ));
+    };
+
+    let expected = req
+        .get("expected_type")
+        .and_then(|v| v.as_str())
+        .map(|x| x.to_string());
+
+    // required children presence check (structured incomplete recovery).
+    let provided: Vec<String> = spec
+        .children
+        .iter()
+        .filter(|c| req.get(c.name).is_some())
+        .map(|c| c.name.to_string())
+        .collect();
+    let missing: Vec<&str> = spec
+        .children
+        .iter()
+        .filter(|c| c.required && req.get(c.name).is_none())
+        .map(|c| c.name)
+        .collect();
+    if !missing.is_empty() {
+        let r = construction_requirements_json(spec, &provided, &missing, &s.graph, "unknown");
+        return Err((
+            r,
+            "E_AEP_CONSTRUCTION_INCOMPLETE: missing required children".to_string(),
+        ));
+    }
+
+    // string fields.
+    let mut fields = BTreeMap::new();
+    for f in &spec.fields {
+        match req.get(f.name).and_then(|v| v.as_str()) {
+            Some(v) => {
+                fields.insert(f.name.to_string(), air::Value::Str(v.to_string()));
+            }
+            None if f.required => {
+                let r =
+                    construction_requirements_json(spec, &provided, &[f.name], &s.graph, "unknown");
+                return Err((
+                    r,
+                    "E_AEP_CONSTRUCTION_INCOMPLETE: missing field".to_string(),
+                ));
+            }
+            None => {}
+        }
+    }
+
+    // Resolve child revisions / build child node specs. All validation
+    // happens here, BEFORE any node is materialized.
+    let mut pending: Vec<air::NodeSpec> = Vec::new();
+    let mut slot_revs: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for c in &spec.children {
+        let Some(arg) = req.get(c.name) else {
+            continue;
+        };
+        match c.role {
+            "expr" => {
+                // resolve one revision handle and type-check it against the
+                // slot (range validates as a plain expression).
+                fn resolve_expr_child(
+                    s: &air::EditSession,
+                    parent_kind: &str,
+                    slot: &str,
+                    handle: &str,
+                ) -> Result<String, (String, String)> {
+                    let rev = s.resolve_current(handle).map_err(|e| {
+                        let r = format!(
+                            "{{\"kind\":{},\"argument\":{},\"requested\":{}}}",
+                            json_str(parent_kind),
+                            json_str(slot),
+                            json_str(handle)
+                        );
+                        (r, e)
+                    })?;
+                    let child_kind = s
+                        .graph
+                        .get(&rev)
+                        .map(|n| n.kind.clone())
+                        .unwrap_or_default();
+                    let allowed = if parent_kind == "range" {
+                        air::is_expr_kind(&child_kind)
+                    } else {
+                        air::slot_allows_kind(parent_kind, slot, &child_kind)
+                    };
+                    if !allowed {
+                        let r =
+                            construction_type_mismatch_json(parent_kind, slot, "expr", &child_kind);
+                        return Err((
+                            r,
+                            "E_AEP_CONSTRUCTION_TYPE_MISMATCH: child kind not allowed in slot"
+                                .to_string(),
+                        ));
+                    }
+                    Ok(rev)
+                }
+                if c.multiple {
+                    let arr = match arg {
+                        Json::Arr(a) => a,
+                        _ => {
+                            let r = construction_type_mismatch_json(
+                                spec.kind,
+                                c.name,
+                                "json array of revisions",
+                                "non-array",
+                            );
+                            return Err((
+                                r,
+                                "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected a json array"
+                                    .to_string(),
+                            ));
+                        }
+                    };
+                    let mut revs = Vec::new();
+                    for item in arr {
+                        let handle = item.as_str().ok_or_else(|| {
+                            let r = construction_type_mismatch_json(
+                                spec.kind,
+                                c.name,
+                                "revision",
+                                "non-string",
+                            );
+                            (
+                                r,
+                                "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected a revision".to_string(),
+                            )
+                        })?;
+                        revs.push(resolve_expr_child(s, spec.kind, c.name, handle)?);
+                    }
+                    slot_revs.insert(c.name.to_string(), revs);
+                } else {
+                    let handle = arg.as_str().ok_or_else(|| {
+                        let r = construction_type_mismatch_json(
+                            spec.kind,
+                            c.name,
+                            "revision",
+                            "non-string",
+                        );
+                        (
+                            r,
+                            "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected a revision".to_string(),
+                        )
+                    })?;
+                    let rev = resolve_expr_child(s, spec.kind, c.name, handle)?;
+                    slot_revs.insert(c.name.to_string(), vec![rev]);
+                }
+            }
+            "type_expr" => {
+                let tname = arg.as_str().ok_or_else(|| {
+                    let r = construction_type_mismatch_json(
+                        spec.kind,
+                        c.name,
+                        "type string",
+                        "non-string",
+                    );
+                    (
+                        r,
+                        "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected a type string".to_string(),
+                    )
+                })?;
+                let (k, f, sl) = type_expr_spec(tname);
+                let r = s.graph.compute_revision(&k, &f, &sl);
+                pending.push((k, f, sl));
+                slot_revs.insert(c.name.to_string(), vec![r]);
+            }
+            "record_field" | "update_field" | "case" => {
+                let arr = match arg {
+                    Json::Arr(a) => a,
+                    _ => {
+                        let r = construction_type_mismatch_json(
+                            spec.kind,
+                            c.name,
+                            "json array of child objects",
+                            "non-array",
+                        );
+                        return Err((
+                            r,
+                            "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected a json array".to_string(),
+                        ));
+                    }
+                };
+                let mut revs = Vec::new();
+                for obj in arr {
+                    let (k, f, sl) = if c.role == "case" {
+                        let variant =
+                            obj.get("variant").and_then(|v| v.as_str()).ok_or_else(|| {
+                                let r = construction_type_mismatch_json(
+                                    c.role, "variant", "string", "missing",
+                                );
+                                (r, "E_AEP_CONSTRUCTION_INCOMPLETE: case.variant".to_string())
+                            })?;
+                        let body = obj.get("body").and_then(|v| v.as_str()).ok_or_else(|| {
+                            let r = construction_type_mismatch_json(
+                                c.role, "body", "revision", "missing",
+                            );
+                            (r, "E_AEP_CONSTRUCTION_INCOMPLETE: case.body".to_string())
+                        })?;
+                        let brev = s.resolve_current(body).map_err(|e| {
+                            let r = format!(
+                                "{{\"kind\":\"case\",\"argument\":\"body\",\"requested\":{}}}",
+                                json_str(body)
+                            );
+                            (r, e)
+                        })?;
+                        let bkind = s
+                            .graph
+                            .get(&brev)
+                            .map(|n| n.kind.clone())
+                            .unwrap_or_default();
+                        if !air::slot_allows_kind("case", "body", &bkind) {
+                            let r = construction_type_mismatch_json("case", "body", "expr", &bkind);
+                            return Err((
+                                r,
+                                "E_AEP_CONSTRUCTION_TYPE_MISMATCH: case body not an expression"
+                                    .to_string(),
+                            ));
+                        }
+                        let mut f = BTreeMap::new();
+                        f.insert("variant".to_string(), air::Value::Str(variant.to_string()));
+                        let mut sl = BTreeMap::new();
+                        sl.insert("body".to_string(), vec![brev]);
+                        ("case".to_string(), f, sl)
+                    } else {
+                        let name = obj.get("name").and_then(|v| v.as_str()).ok_or_else(|| {
+                            let r = construction_type_mismatch_json(
+                                c.role, "name", "string", "missing",
+                            );
+                            (r, "E_AEP_CONSTRUCTION_INCOMPLETE: child.name".to_string())
+                        })?;
+                        let value = obj.get("value").and_then(|v| v.as_str()).ok_or_else(|| {
+                            let r = construction_type_mismatch_json(
+                                c.role, "value", "revision", "missing",
+                            );
+                            (r, "E_AEP_CONSTRUCTION_INCOMPLETE: child.value".to_string())
+                        })?;
+                        let vrev = s.resolve_current(value).map_err(|e| {
+                            let r = format!(
+                                "{{\"kind\":{},\"argument\":{},\"requested\":{}}}",
+                                json_str(c.role),
+                                "value",
+                                json_str(value)
+                            );
+                            (r, e)
+                        })?;
+                        let vkind = s
+                            .graph
+                            .get(&vrev)
+                            .map(|n| n.kind.clone())
+                            .unwrap_or_default();
+                        if !air::slot_allows_kind(c.role, "value", &vkind) {
+                            let r =
+                                construction_type_mismatch_json(c.role, "value", "expr", &vkind);
+                            return Err((
+                                r,
+                                "E_AEP_CONSTRUCTION_TYPE_MISMATCH: child value not an expression"
+                                    .to_string(),
+                            ));
+                        }
+                        let mut f = BTreeMap::new();
+                        f.insert("name".to_string(), air::Value::Str(name.to_string()));
+                        let mut sl = BTreeMap::new();
+                        sl.insert("value".to_string(), vec![vrev]);
+                        (c.role.to_string(), f, sl)
+                    };
+                    let r = s.graph.compute_revision(&k, &f, &sl);
+                    pending.push((k, f, sl));
+                    revs.push(r);
+                }
+                slot_revs.insert(c.name.to_string(), revs);
+            }
+            _ => {}
+        }
+    }
+
+    // range is a fold sub-form, not a standalone AIR node: validate and
+    // return the sub-form (zero side effects by construction).
+    if spec.kind == "range" {
+        let start = slot_revs
+            .get("range_start")
+            .and_then(|v| v.first())
+            .cloned()
+            .unwrap_or_default();
+        let end = slot_revs
+            .get("range_end")
+            .and_then(|v| v.first())
+            .cloned()
+            .unwrap_or_default();
+        let r = format!(
+            "{{\"kind\":\"range\",\"range_start\":{},\"range_end\":{},\"result_type\":{},\"note\":{}}}",
+            json_str(&start),
+            json_str(&end),
+            json_str("range (fold sub-form)"),
+            json_str("pass range_start/range_end to construct_expression kind=fold")
+        );
+        return Ok((r, "ok".to_string()));
+    }
+
+    // main node (last in the batch; dependency order children -> parent).
+    let mut slots = BTreeMap::new();
+    for c in &spec.children {
+        if let Some(revs) = slot_revs.get(c.name) {
+            slots.insert(c.name.to_string(), revs.clone());
+        }
+    }
+    let main_kind = spec.kind.to_string();
+    // expected_type check (only for statically derivable result types).
+    let result_type = construction_result_type(spec, &s.graph, &slot_revs, &fields);
+    pending.push((main_kind.clone(), fields, slots));
+    if let (Some(exp), Some(actual)) = (expected, result_type.clone()) {
+        if !type_matches(&exp, &actual) {
+            let r = format!(
+                "{{\"kind\":{},\"argument\":\"expected_type\",\"expected\":{},\"actual\":{}}}",
+                json_str(&main_kind),
+                json_str(&exp),
+                json_str(&actual)
+            );
+            return Err((
+                r,
+                "E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected_type does not match constructed result type".to_string(),
+            ));
+        }
+    }
+
+    let rev = s.create_nodes_atomic(pending).map_err(|e| {
+        let r = format!("{{\"kind\":{}}}", json_str(&main_kind));
+        (r, e)
+    })?;
+    let result = match result_type {
+        Some(t) => format!(
+            "{{\"revision\":{},\"kind\":{},\"result_type\":{}}}",
+            json_str(&rev),
+            json_str(&main_kind),
+            json_str(&t)
+        ),
+        None => format!(
+            "{{\"revision\":{},\"kind\":{},\"result_type\":null}}",
+            json_str(&rev),
+            json_str(&main_kind)
+        ),
+    };
+    Ok((result, "ok".to_string()))
 }
 
 fn value_short(v: &air::Value) -> String {
