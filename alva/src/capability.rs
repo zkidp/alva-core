@@ -210,6 +210,12 @@ pub static BUILTINS: &[Capability] = &[
         arity: "ternary",
     },
     Capability {
+        canonical: "set",
+        category: CapCategory::Builtin,
+        aliases: &[],
+        arity: "ternary",
+    },
+    Capability {
         canonical: "not",
         category: CapCategory::Builtin,
         aliases: &[],
@@ -375,6 +381,7 @@ mod tests {
         "unwrap",
         "err-value",
         "slice",
+        "set",
         "not",
     ];
     const IMPLEMENTED_OPERATORS: &[&str] = &[
