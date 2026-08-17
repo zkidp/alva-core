@@ -1,6 +1,7 @@
 mod aep;
 mod air;
 mod ast;
+mod capability;
 mod check;
 mod codegen;
 mod construction;
@@ -48,6 +49,7 @@ fn run() -> i32 {
         "agent" => cmd_agent(rest),
         "hole" => cmd_hole(rest),
         "view" => cmd_view(rest),
+        "capabilities" => cmd_capabilities(rest),
         other => {
             eprintln!("unknown command: {other}");
             usage();
@@ -55,6 +57,84 @@ fn run() -> i32 {
         }
     };
     code
+}
+
+/// Offline capability catalog probe interface (compiler-owned; not an AEP
+/// surface). `alva capabilities describe <name>` and
+/// `alva capabilities list [--category builtin|operator]`.
+fn cmd_capabilities(rest: &[String]) -> i32 {
+    match rest.first().map(|s| s.as_str()) {
+        Some("describe") => {
+            let name = rest.get(1).map(|s| s.as_str()).unwrap_or("");
+            if name.is_empty() {
+                eprintln!("usage: alva capabilities describe <name>");
+                return 2;
+            }
+            match capability::resolve_capability(name) {
+                capability::CapabilityOutcome::Canonical(c) => {
+                    let aliases = c
+                        .aliases
+                        .iter()
+                        .map(|a| format!("\"{a}\""))
+                        .collect::<Vec<_>>()
+                        .join(",");
+                    println!(
+                        "{{\"name\":{},\"supported\":true,\"canonical\":{},\"category\":{},\"aliases\":[{}],\"arity\":{}}}",
+                        json_str(name),
+                        json_str(c.canonical),
+                        json_str(c.category.as_str()),
+                        aliases,
+                        json_str(c.arity)
+                    );
+                }
+                capability::CapabilityOutcome::Unsupported {
+                    supported_alternatives,
+                } => {
+                    let alts = supported_alternatives
+                        .iter()
+                        .map(|a| format!("\"{a}\""))
+                        .collect::<Vec<_>>()
+                        .join(",");
+                    println!(
+                        "{{\"name\":{},\"supported\":false,\"supported_alternatives\":[{}]}}",
+                        json_str(name),
+                        alts
+                    );
+                }
+            }
+            0
+        }
+        Some("list") => {
+            let cat = rest
+                .iter()
+                .position(|a| a == "--category")
+                .and_then(|i| rest.get(i + 1))
+                .map(|s| s.as_str());
+            let cat = match cat {
+                Some("builtin") => Some(capability::CapCategory::Builtin),
+                Some("operator") => Some(capability::CapCategory::Operator),
+                Some("all") | None => None,
+                _ => {
+                    eprintln!("unknown category (builtin|operator|all)");
+                    return 2;
+                }
+            };
+            let caps = capability::list_capabilities(cat);
+            let items = caps
+                .iter()
+                .map(|c| format!("\"{}\"", c.canonical))
+                .collect::<Vec<_>>()
+                .join(",");
+            println!("{{\"capabilities\":[{}]}}", items);
+            0
+        }
+        _ => {
+            eprintln!(
+                "usage: alva capabilities describe <name> | list [--category builtin|operator]"
+            );
+            2
+        }
+    }
 }
 
 fn cmd_project(rest: &[String]) -> i32 {
