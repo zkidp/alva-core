@@ -1506,56 +1506,71 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             "inspect_module" => {
                 let s = need_session!();
                 let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                match s.graph.resolve(&format!("module:{name}")) {
-                    Some(n) => {
-                        let view = air::view_module(&s.graph, &n.revision, None);
-                        resp!(
-                            true,
-                            &format!(
-                                "{{\"module\":{},\"view\":{}}}",
-                                json_str(&n.revision),
-                                json_str(&view)
-                            ),
-                            "ok"
-                        )
-                    }
-                    None => resp!(false, "null", &not_found(&s.graph, name)),
+                match canonical_entity_rev(&s.graph, "inspect_module", "name", name, &["module"]) {
+                    Err(Some((r, msg))) => resp!(false, &r, &msg),
+                    Err(None) => resp!(false, "null", &not_found(&s.graph, name)),
+                    Ok(entity) => match s.graph.resolve(&entity) {
+                        Some(n) => {
+                            let view = air::view_module(&s.graph, &n.revision, None);
+                            resp!(
+                                true,
+                                &format!(
+                                    "{{\"module\":{},\"view\":{}}}",
+                                    json_str(&n.revision),
+                                    json_str(&view)
+                                ),
+                                "ok"
+                            )
+                        }
+                        None => resp!(false, "null", &not_found(&s.graph, name)),
+                    },
                 }
             }
             "inspect_function" => {
                 let s = need_session!();
                 let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                match resolve_entity_in_graph(&s.graph, name) {
-                    Some(rev) => {
-                        let view = air::view_function(&s.graph, &rev);
-                        let mut budget = 0usize;
-                        let body = s
-                            .graph
-                            .get(&rev)
-                            .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned())
-                            .map(|b| body_tree(&s.graph, &b, 0, &mut budget))
-                            .unwrap_or_default();
-                        let eff = s
-                            .graph
-                            .get(&rev)
-                            .and_then(|n| match n.fields.get("eff") {
-                                Some(air::Value::Names(ns)) => Some(ns.join(",")),
-                                _ => None,
-                            })
-                            .unwrap_or_default();
-                        resp!(
-                            true,
-                            &format!(
-                                "{{\"revision\":{},\"eff\":{},\"view\":{},\"body\":{}}}",
-                                json_str(&rev),
-                                json_str(&eff),
-                                json_str(&view),
-                                json_str(&body)
-                            ),
-                            "ok"
-                        )
-                    }
-                    None => resp!(false, "null", &not_found(&s.graph, name)),
+                match canonical_entity_rev(
+                    &s.graph,
+                    "inspect_function",
+                    "name",
+                    name,
+                    &["function"],
+                ) {
+                    Err(Some((r, msg))) => resp!(false, &r, &msg),
+                    Err(None) => resp!(false, "null", &not_found(&s.graph, name)),
+                    Ok(entity) => match s.graph.resolve(&entity) {
+                        Some(n) => {
+                            let rev = n.revision.clone();
+                            let view = air::view_function(&s.graph, &rev);
+                            let mut budget = 0usize;
+                            let body = s
+                                .graph
+                                .get(&rev)
+                                .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned())
+                                .map(|b| body_tree(&s.graph, &b, 0, &mut budget))
+                                .unwrap_or_default();
+                            let eff = s
+                                .graph
+                                .get(&rev)
+                                .and_then(|n| match n.fields.get("eff") {
+                                    Some(air::Value::Names(ns)) => Some(ns.join(",")),
+                                    _ => None,
+                                })
+                                .unwrap_or_default();
+                            resp!(
+                                true,
+                                &format!(
+                                    "{{\"revision\":{},\"eff\":{},\"view\":{},\"body\":{}}}",
+                                    json_str(&rev),
+                                    json_str(&eff),
+                                    json_str(&view),
+                                    json_str(&body)
+                                ),
+                                "ok"
+                            )
+                        }
+                        None => resp!(false, "null", &not_found(&s.graph, name)),
+                    },
                 }
             }
             "inspect_entity" => {
@@ -1565,24 +1580,27 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     .or_else(|| req.get("name"))
                     .and_then(|v| v.as_str())
                     .unwrap_or("");
-                match s.graph.resolve(id).cloned() {
-                    Some(n) => {
-                        let mut fields = Vec::new();
-                        for (k, v) in &n.fields {
-                            fields.push(format!("{}:{}", json_str(k), value_json(v)));
-                        }
-                        let mut slots = Vec::new();
-                        for (k, kids) in &n.slots {
-                            slots.push(format!(
-                                "{}:[{}]",
-                                json_str(k),
-                                kids.iter()
-                                    .map(|c| json_str(c))
-                                    .collect::<Vec<_>>()
-                                    .join(",")
-                            ));
-                        }
-                        resp!(
+                match canonical_entity_rev(&s.graph, "inspect_entity", "entity", id, &["any"]) {
+                    Err(Some((r, msg))) => resp!(false, &r, &msg),
+                    Err(None) => resp!(false, "null", &not_found(&s.graph, id)),
+                    Ok(entity) => match s.graph.resolve(&entity).cloned() {
+                        Some(n) => {
+                            let mut fields = Vec::new();
+                            for (k, v) in &n.fields {
+                                fields.push(format!("{}:{}", json_str(k), value_json(v)));
+                            }
+                            let mut slots = Vec::new();
+                            for (k, kids) in &n.slots {
+                                slots.push(format!(
+                                    "{}:[{}]",
+                                    json_str(k),
+                                    kids.iter()
+                                        .map(|c| json_str(c))
+                                        .collect::<Vec<_>>()
+                                        .join(",")
+                                ));
+                            }
+                            resp!(
                             true,
                             &format!(
                                 "{{\"entity\":{},\"revision\":{},\"kind\":{},\"fields\":{{{}}},\"slots\":{{{}}}}}",
@@ -1594,8 +1612,9 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             ),
                             "ok"
                         )
-                    }
-                    None => resp!(false, "null", &not_found(&s.graph, id)),
+                        }
+                        None => resp!(false, "null", &not_found(&s.graph, id)),
+                    },
                 }
             }
             "list_candidates" => {
@@ -1726,8 +1745,20 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
                 let step = req.get("step").and_then(|v| v.as_str()).unwrap_or("");
                 match (|| -> Result<String, String> {
-                    let fn_rev =
-                        resolve_entity_in_graph(&s.graph, function).ok_or("function not found")?;
+                    let fn_rev = match canonical_entity_rev(
+                        &s.graph,
+                        "append_step",
+                        "function",
+                        function,
+                        &["function"],
+                    ) {
+                        Ok(e) => s
+                            .graph
+                            .resolve(&e)
+                            .map(|n| n.revision.clone())
+                            .ok_or_else(|| "function not found".to_string())?,
+                        Err(_) => return Err("function not found".to_string()),
+                    };
                     let n = s.graph.get(&fn_rev).ok_or("function not found")?;
                     let body = n
                         .slots
@@ -1936,46 +1967,59 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             "inspect_body" => {
                 let s = need_session!();
                 let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
-                match resolve_entity_in_graph(&s.graph, function) {
-                    Some(fn_rev) => {
-                        let eff = s
-                            .graph
-                            .get(&fn_rev)
-                            .and_then(|n| match n.fields.get("eff") {
-                                Some(air::Value::Names(ns)) => Some(ns.join(",")),
-                                _ => None,
-                            })
-                            .unwrap_or_default();
-                        let pure = s
-                            .graph
-                            .get(&fn_rev)
-                            .and_then(|n| match n.fields.get("pure") {
-                                Some(air::Value::Bool(b)) => Some(*b),
-                                _ => None,
-                            });
-                        let body = s
-                            .graph
-                            .get(&fn_rev)
-                            .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned());
-                        match body {
-                            Some(body_rev) => {
-                                let mut budget = 0usize;
-                                let tree = body_tree(&s.graph, &body_rev, 0, &mut budget);
-                                resp!(
-                                    true,
-                                    &format!(
-                                        "{{\"eff\":{},\"pure\":{},\"body\":{}}}",
-                                        json_str(&eff),
-                                        json_str(&pure.map(|b| b.to_string()).unwrap_or_default()),
-                                        json_str(&tree)
-                                    ),
-                                    "ok"
-                                )
+                match canonical_entity_rev(
+                    &s.graph,
+                    "inspect_body",
+                    "function",
+                    function,
+                    &["function"],
+                ) {
+                    Err(Some((r, msg))) => resp!(false, &r, &msg),
+                    Err(None) => resp!(false, "null", &not_found(&s.graph, function)),
+                    Ok(entity) => match s.graph.resolve(&entity) {
+                        Some(n) => {
+                            let fn_rev = n.revision.clone();
+                            let eff = s
+                                .graph
+                                .get(&fn_rev)
+                                .and_then(|n| match n.fields.get("eff") {
+                                    Some(air::Value::Names(ns)) => Some(ns.join(",")),
+                                    _ => None,
+                                })
+                                .unwrap_or_default();
+                            let pure =
+                                s.graph
+                                    .get(&fn_rev)
+                                    .and_then(|n| match n.fields.get("pure") {
+                                        Some(air::Value::Bool(b)) => Some(*b),
+                                        _ => None,
+                                    });
+                            let body = s
+                                .graph
+                                .get(&fn_rev)
+                                .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned());
+                            match body {
+                                Some(body_rev) => {
+                                    let mut budget = 0usize;
+                                    let tree = body_tree(&s.graph, &body_rev, 0, &mut budget);
+                                    resp!(
+                                        true,
+                                        &format!(
+                                            "{{\"eff\":{},\"pure\":{},\"body\":{}}}",
+                                            json_str(&eff),
+                                            json_str(
+                                                &pure.map(|b| b.to_string()).unwrap_or_default()
+                                            ),
+                                            json_str(&tree)
+                                        ),
+                                        "ok"
+                                    )
+                                }
+                                None => resp!(false, "null", "function has no body block"),
                             }
-                            None => resp!(false, "null", "function has no body block"),
                         }
-                    }
-                    None => resp!(false, "null", &not_found(&s.graph, function)),
+                        None => resp!(false, "null", &not_found(&s.graph, function)),
+                    },
                 }
             }
             "inspect_test" => {
@@ -1983,37 +2027,43 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 let module = req.get("module").and_then(|v| v.as_str()).unwrap_or("");
                 let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
                 let mut found = None;
-                if let Some(m) = resolve_entity_in_graph(&s.graph, module) {
-                    if let Some(mn) = s.graph.resolve(&m) {
-                        for id in mn.slots.get("tests").cloned().unwrap_or_default() {
-                            if let Some(t) = s.graph.get(&id) {
-                                if t.fields
-                                    .get("name")
-                                    .map(|v| v == &air::Value::Str(name.to_string()))
-                                    .unwrap_or(false)
-                                {
-                                    found = Some(id);
-                                    break;
+                let mod_res =
+                    canonical_entity_rev(&s.graph, "inspect_test", "module", module, &["module"]);
+                match mod_res {
+                    Err(Some((r, msg))) => resp!(false, &r, &msg),
+                    Err(None) => resp!(false, "null", &not_found(&s.graph, module)),
+                    Ok(m) => {
+                        if let Some(mn) = s.graph.resolve(&m) {
+                            for id in mn.slots.get("tests").cloned().unwrap_or_default() {
+                                if let Some(t) = s.graph.get(&id) {
+                                    if t.fields
+                                        .get("name")
+                                        .map(|v| v == &air::Value::Str(name.to_string()))
+                                        .unwrap_or(false)
+                                    {
+                                        found = Some(id);
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        match found {
+                            Some(rev) => {
+                                let mut budget = 0usize;
+                                let tree = body_tree(&s.graph, &rev, 0, &mut budget);
+                                resp!(
+                                    true,
+                                    &format!(
+                                        "{{\"revision\":{},\"body\":{}}}",
+                                        json_str(&rev),
+                                        json_str(&tree)
+                                    ),
+                                    "ok"
+                                )
+                            }
+                            None => resp!(false, "null", &not_found(&s.graph, name)),
+                        }
                     }
-                }
-                match found {
-                    Some(rev) => {
-                        let mut budget = 0usize;
-                        let tree = body_tree(&s.graph, &rev, 0, &mut budget);
-                        resp!(
-                            true,
-                            &format!(
-                                "{{\"revision\":{},\"body\":{}}}",
-                                json_str(&rev),
-                                json_str(&tree)
-                            ),
-                            "ok"
-                        )
-                    }
-                    None => resp!(false, "null", &not_found(&s.graph, name)),
                 }
             }
             // RFC-0002/AEP-0001: change-impact query（只读，结构化引用）
@@ -2485,6 +2535,9 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     .and_then(|v| v.as_str())
                     .unwrap_or("")
                     .to_string();
+                // Layer A: normalize quotes / prefixes / path suffixes before
+                // the existing exact resolution (representation hygiene only).
+                let name = air::normalize_handle(&name);
                 let kind_f = req
                     .get("kind")
                     .and_then(|v| v.as_str())
@@ -3393,10 +3446,13 @@ fn resolve_operand_strict(
 ) -> Result<String, (String, String)> {
     let rev = match arg {
         Json::Str(handle) => {
-            match s.graph.resolve_rev(handle) {
+            // Layer A: normalization first (quotes / prefixes / entity-path);
+            // the strict 0/1/>1 and stale semantics below are unchanged.
+            let handle = air::normalize_handle(handle);
+            match s.graph.resolve_rev(&handle) {
                 None => {
                     let cands = collect_operands(&s.graph);
-                    let r = operand_not_found_json(operation, argument, handle, &cands);
+                    let r = operand_not_found_json(operation, argument, &handle, &cands);
                     // keep the existing E_AEP_ENTITY_NOT_FOUND contract for
                     // bare revisions; OPERAND_NOT_FOUND is for semantic handles.
                     return Err((r, "E_AEP_ENTITY_NOT_FOUND: revision not found".to_string()));
@@ -3406,7 +3462,7 @@ fn resolve_operand_strict(
                         if let Some(n) = s.graph.get(&rev) {
                             let cands = collect_operands(&s.graph);
                             let r = operand_stale_json(
-                                operation, argument, handle, &n.entity, &current, &cands,
+                                operation, argument, &handle, &n.entity, &current, &cands,
                             );
                             return Err((
                                 r,
@@ -4189,6 +4245,68 @@ fn not_found(g: &air::AirGraph, name: &str) -> String {
         "E_AEP_ENTITY_NOT_FOUND: {name}; candidates={}",
         entity_candidates(g, name)
     )
+}
+
+/// Layer A: canonical handle resolution for AEP ops. Returns the canonical
+/// entity id on exactly one match of an expected kind; otherwise returns the
+/// structured (payload, message) to respond with (AMBIGUOUS / KIND_MISMATCH).
+/// NotFound -> Err(None) so the caller falls through to its existing
+/// not-found path with candidates.
+fn canonical_entity_rev(
+    g: &air::AirGraph,
+    op: &str,
+    arg: &str,
+    requested: &str,
+    expected: &[&str],
+) -> Result<String, Option<(String, String)>> {
+    match air::resolve_canonical(g, requested, expected) {
+        air::CanonicalOutcome::Resolved(entity) => Ok(entity),
+        air::CanonicalOutcome::Ambiguous(cands) => {
+            let r = format!(
+                "{{\"operation\":{},\"argument\":{},\"requested\":{},\"candidates\":[{}]}}",
+                json_str(op),
+                json_str(arg),
+                json_str(requested),
+                cands
+                    .iter()
+                    .map(|c| json_str(c))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+            Err(Some((
+                r,
+                "E_AEP_ENTITY_AMBIGUOUS: multiple entities match".to_string(),
+            )))
+        }
+        air::CanonicalOutcome::WrongKind {
+            entity,
+            kind,
+            expected: exp,
+        } => {
+            let r = format!(
+                "{{\"operation\":{},\"argument\":{},\"requested\":{},\"entity\":{},\"kind\":{},\"expected\":{}}}",
+                json_str(op),
+                json_str(arg),
+                json_str(requested),
+                json_str(&entity),
+                json_str(&kind),
+                json_str(&exp)
+            );
+            Err(Some((
+                r,
+                "E_AEP_ENTITY_KIND_MISMATCH: entity exists with a different kind".to_string(),
+            )))
+        }
+        air::CanonicalOutcome::NotFound => {
+            // Generic "any" inspection (e.g. inspect_entity) must still accept
+            // anonymous node revisions directly.
+            if expected.contains(&"any") && g.resolve_rev(requested).is_some() {
+                Ok(requested.to_string())
+            } else {
+                Err(None)
+            }
+        }
+    }
 }
 
 fn body_tree(g: &air::AirGraph, rev: &str, depth: usize, budget: &mut usize) -> String {

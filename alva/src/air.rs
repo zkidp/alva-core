@@ -2245,6 +2245,186 @@ pub type NodeSpec = (
     BTreeMap<String, Vec<String>>,
 );
 
+// ---------------------------------------------------------------------------
+// Layer A: semantic handle canonicalization (AEP identity resolution hardening)
+// ---------------------------------------------------------------------------
+
+/// One canonical named entity from the staged graph (modules, types,
+/// functions, externs, tests).
+#[derive(Clone, Debug)]
+pub struct CanonicalEntity {
+    pub entity: String,    // entity id, e.g. "module:m/fn:f"
+    pub kind: String,      // module | type | function | extern | test
+    pub name: String,      // unqualified
+    pub qualified: String, // module.name (module -> module name)
+    pub handle: String,    // canonical handle graph.resolve() accepts: entity
+                           // id when named, else node revision (anonymous
+                           // nodes created mid-transaction, e.g. add_function)
+}
+
+/// Strip shell/JSON quoting, `function:`/`module:`/`type:` prefixes and
+/// entity-path suffixes (`/body`, `/body:0`, `/body:0/st:0`) so the same
+/// semantic entity can be addressed through any deterministic representation.
+/// Representation normalization ONLY; never semantic guessing.
+pub fn normalize_handle(s: &str) -> String {
+    let mut h = s.trim().trim_matches(['\'', '"']).to_string();
+    let mut is_entity_path = false;
+    if h.starts_with("module:") {
+        // keep the entity-path prefix module:X/fn:Y (or /type:Y), dropping any
+        // trailing slot path like /body, /body:0, /body:0/st:0.
+        for marker in ["/fn:", "/type:"] {
+            if let Some(pos) = h.find(marker) {
+                let rest = &h[pos + marker.len()..];
+                let end = rest.find('/').unwrap_or(rest.len());
+                h = format!("{}{}", &h[..pos + marker.len()], &rest[..end]);
+                is_entity_path = true;
+                break;
+            }
+        }
+    }
+    if !is_entity_path {
+        for p in ["function:", "module:", "type:"] {
+            if let Some(rest) = h.strip_prefix(p) {
+                h = rest.to_string();
+                break;
+            }
+        }
+    }
+    h
+}
+
+/// Build the canonical entity index from the CURRENT staged graph. No caches,
+/// no external vocabularies: everything derives from the graph itself.
+pub fn canonical_entities(g: &AirGraph) -> Vec<CanonicalEntity> {
+    let mut out = Vec::new();
+    for me in &g.module_entities {
+        let Some(mn) = g.resolve(me) else {
+            continue;
+        };
+        let module_name = me.trim_start_matches("module:").to_string();
+        out.push(CanonicalEntity {
+            entity: me.clone(),
+            kind: "module".to_string(),
+            name: module_name.clone(),
+            qualified: module_name.clone(),
+            handle: me.clone(),
+        });
+        for (slot, kind) in [
+            ("types", "type"),
+            ("functions", "function"),
+            ("externs", "extern"),
+            ("tests", "test"),
+        ] {
+            for id in mn.slots.get(slot).cloned().unwrap_or_default() {
+                if let Some(n) = g.get(&id) {
+                    let name = n
+                        .fields
+                        .get("name")
+                        .and_then(|v| match v {
+                            Value::Str(s) => Some(s.as_str()),
+                            _ => None,
+                        })
+                        .unwrap_or("");
+                    if name.is_empty() {
+                        continue;
+                    }
+                    out.push(CanonicalEntity {
+                        entity: n.entity.clone(),
+                        kind: kind.to_string(),
+                        name: name.to_string(),
+                        qualified: format!("{module_name}.{name}"),
+                        handle: if n.entity.is_empty() {
+                            n.revision.clone()
+                        } else {
+                            n.entity.clone()
+                        },
+                    });
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Strict canonical resolution outcome.
+#[derive(Debug)]
+pub enum CanonicalOutcome {
+    /// exactly one match of an expected kind -> canonical entity id.
+    Resolved(String),
+    /// >1 exact match -> candidates (qualified names), never a silent pick.
+    Ambiguous(Vec<String>),
+    /// entity exists but is NOT of an expected kind (e.g. a module name passed
+    /// to inspect_function) -> preserved as a typed mismatch (NAVIGATION).
+    WrongKind {
+        entity: String,
+        kind: String,
+        expected: String,
+    },
+    /// no exact match.
+    NotFound,
+}
+
+fn classify_canonical(v: Vec<CanonicalEntity>, expected: &[&str]) -> CanonicalOutcome {
+    if v.len() > 1 {
+        return CanonicalOutcome::Ambiguous(v.iter().map(|e| e.qualified.clone()).collect());
+    }
+    let e = &v[0];
+    if expected.iter().any(|k| *k == "any" || *k == e.kind) {
+        CanonicalOutcome::Resolved(e.handle.clone())
+    } else {
+        CanonicalOutcome::WrongKind {
+            entity: e.entity.clone(),
+            kind: e.kind.clone(),
+            expected: expected.join("|"),
+        }
+    }
+}
+
+/// Resolve `handle` against the CURRENT staged graph with strict 0/1/>1
+/// matching. `expected` restricts the target kinds; "any" accepts anything.
+pub fn resolve_canonical(g: &AirGraph, handle: &str, expected: &[&str]) -> CanonicalOutcome {
+    let h = normalize_handle(handle);
+    if h.is_empty() {
+        return CanonicalOutcome::NotFound;
+    }
+    let ents = canonical_entities(g);
+    // 1) exact entity id / entity-path
+    let id_matches: Vec<CanonicalEntity> = ents.iter().filter(|e| e.entity == h).cloned().collect();
+    if !id_matches.is_empty() {
+        return classify_canonical(id_matches, expected);
+    }
+    // 2) revision hash -> owning entity (run-graph identity, cut 2: read the
+    // authoritative staged graph, never a maintained cache).
+    if let Some(n) = g.nodes.get(&h) {
+        if !n.entity.is_empty() {
+            let owners: Vec<CanonicalEntity> = ents
+                .iter()
+                .filter(|e| e.entity == n.entity)
+                .cloned()
+                .collect();
+            if !owners.is_empty() {
+                // prefer the owner's canonical handle (entity id when named).
+                let mut o = owners;
+                if o.len() == 1 && !o[0].entity.is_empty() {
+                    o[0].handle = o[0].entity.clone();
+                }
+                return classify_canonical(o, expected);
+            }
+        }
+    }
+    // 3) qualified display name
+    let q: Vec<CanonicalEntity> = ents.iter().filter(|e| e.qualified == h).cloned().collect();
+    if !q.is_empty() {
+        return classify_canonical(q, expected);
+    }
+    // 4) unqualified name (strict: >1 -> ambiguous)
+    let n: Vec<CanonicalEntity> = ents.iter().filter(|e| e.name == h).cloned().collect();
+    match n.len() {
+        0 => CanonicalOutcome::NotFound,
+        _ => classify_canonical(n, expected),
+    }
+}
+
 fn module_name(g: &AirGraph, module_id: &str) -> String {
     g.get(module_id)
         .map(|n| field_str(n, "name"))
@@ -4974,5 +5154,68 @@ mod tests {
         assert!(!names.contains(&"inner".to_string()));
         assert!(names.contains(&"outer".to_string()));
         assert!(names.contains(&"p".to_string()));
+    }
+
+    #[test]
+    fn normalize_handle_representation_only() {
+        assert_eq!(normalize_handle("  'rfc0005.a.a_fn'  "), "rfc0005.a.a_fn");
+        assert_eq!(
+            normalize_handle("function:rfc0005.a.a_fn"),
+            "rfc0005.a.a_fn"
+        );
+        assert_eq!(normalize_handle("module:rfc0005.a"), "rfc0005.a");
+        assert_eq!(
+            normalize_handle("module:rfc0005.a/fn:a_fn/body:0/st:0"),
+            "module:rfc0005.a/fn:a_fn"
+        );
+        assert_eq!(
+            normalize_handle("module:rfc0005.a/fn:a_fn"),
+            "module:rfc0005.a/fn:a_fn"
+        );
+        assert_eq!(normalize_handle("no_such_fn"), "no_such_fn");
+    }
+
+    #[test]
+    fn canonical_resolution_is_strict() {
+        let mut g = AirGraph::new();
+        // module m with two functions ("a", "b")
+        let mut fs = BTreeMap::new();
+        for (name, entity) in [("a", "module:m/fn:a"), ("b", "module:m/fn:b")] {
+            let f = g.add(
+                "function",
+                entity,
+                BTreeMap::from([("name".to_string(), Value::Str(name.to_string()))]),
+                BTreeMap::new(),
+            );
+            fs.insert(entity.to_string(), f);
+        }
+        let m = g.add(
+            "module",
+            "module:m",
+            BTreeMap::from([("name".to_string(), Value::Str("m".to_string()))]),
+            BTreeMap::from([("functions".to_string(), fs.values().cloned().collect())]),
+        );
+        g.module_entities.push("module:m".to_string());
+        g.heads.insert("module:m".to_string(), m.clone());
+        // unqualified "a" resolves uniquely
+        match resolve_canonical(&g, "a", &["function"]) {
+            CanonicalOutcome::Resolved(e) => assert_eq!(e, "module:m/fn:a"),
+            other => panic!("expected Resolved, got {other:?}"),
+        }
+        // entity-path resolves
+        match resolve_canonical(&g, "module:m/fn:b", &["function"]) {
+            CanonicalOutcome::Resolved(e) => assert_eq!(e, "module:m/fn:b"),
+            other => panic!("expected Resolved, got {other:?}"),
+        }
+        // module name with function expectation -> WrongKind (NAVIGATION kept)
+        match resolve_canonical(&g, "m", &["function"]) {
+            CanonicalOutcome::WrongKind { kind, .. } => assert_eq!(kind, "module"),
+            other => panic!("expected WrongKind, got {other:?}"),
+        }
+        // unknown -> NotFound
+        assert!(matches!(
+            resolve_canonical(&g, "no_such", &["function"]),
+            CanonicalOutcome::NotFound
+        ));
     }
 }
