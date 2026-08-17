@@ -9,6 +9,7 @@ ALVA="$ALVA" "$PY" "$ROOT/tests/air/query_aep_test.py"
 ALVA="$ALVA" "$PY" "$ROOT/tests/air/rfc0006_construction_test.py"
 ALVA="$ALVA" "$PY" "$ROOT/tests/air/rfc0007_operand_test.py"
 ALVA="$ALVA" "$PY" "$ROOT/tests/air/handle_canonical_test.py"
+ALVA="$ALVA" "$PY" "$ROOT/tests/air/capability_catalog_test.py"
 # agent_tools_test.py drives the high-level AEP tools against the frozen
 # A/C task fixtures under benchmarks/ac (research artifacts). Run it when
 # the harness is present; SKIP with a visible message otherwise (the public

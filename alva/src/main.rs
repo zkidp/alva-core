@@ -2810,6 +2810,100 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err((result, msg)) => resp!(false, &result, &msg),
                 }
             }
+            "describe_capability" => {
+                let _s = need_session!();
+                let name = req
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                match capability::resolve_capability(&name) {
+                    capability::CapabilityOutcome::Canonical(c) => {
+                        let aliases: Vec<String> =
+                            c.aliases.iter().map(|a| format!("\"{a}\"")).collect();
+                        let synonyms: Vec<String> = capability::SYNONYMS
+                            .iter()
+                            .filter(|(_, canon)| *canon == c.canonical)
+                            .map(|(s, _)| format!("\"{s}\""))
+                            .collect();
+                        resp!(
+                            true,
+                            &format!(
+                                "{{\"supported\":true,\"canonical_name\":{},\"category\":{},\"aliases\":[{}],\"declared_synonyms\":[{}],\"arity\":{}}}",
+                                json_str(c.canonical),
+                                json_str(c.category.as_str()),
+                                aliases.join(","),
+                                synonyms.join(","),
+                                json_str(c.arity)
+                            ),
+                            "ok"
+                        )
+                    }
+                    capability::CapabilityOutcome::Unsupported {
+                        supported_alternatives,
+                    } => {
+                        let alts: Vec<String> = supported_alternatives
+                            .iter()
+                            .map(|a| format!("\"{a}\""))
+                            .collect();
+                        resp!(
+                            true,
+                            &format!(
+                                "{{\"supported\":false,\"canonical_name\":null,\"declared_alternatives\":[{}]}}",
+                                alts.join(",")
+                            ),
+                            "ok"
+                        )
+                    }
+                }
+            }
+            "list_capabilities" => {
+                let _s = need_session!();
+                let category = req
+                    .get("category")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("all")
+                    .to_string();
+                let cat_res: Result<Option<capability::CapCategory>, String> =
+                    match category.as_str() {
+                        "builtin" => Ok(Some(capability::CapCategory::Builtin)),
+                        "operator" => Ok(Some(capability::CapCategory::Operator)),
+                        "all" | "" => Ok(None),
+                        other => Err(other.to_string()),
+                    };
+                match cat_res {
+                    Err(other) => {
+                        let r = format!(
+                            "{{\"requested_category\":{},\"allowed\":[\"builtin\",\"operator\",\"all\"]}}",
+                            json_str(&other)
+                        );
+                        resp!(false, &r, "E_AEP_BAD_REQUEST: unknown capability category")
+                    }
+                    Ok(cat) => {
+                        let caps = capability::list_capabilities(cat);
+                        let total = caps.len();
+                        const MAX_LIST: usize = 40;
+                        let truncated = total > MAX_LIST;
+                        let shown = caps
+                            .iter()
+                            .take(MAX_LIST)
+                            .map(|c| format!("\"{}\"", c.canonical))
+                            .collect::<Vec<_>>()
+                            .join(",");
+                        resp!(
+                            true,
+                            &format!(
+                                "{{\"category\":{},\"capabilities\":[{}],\"count\":{},\"truncated\":{}}}",
+                                json_str(&category),
+                                shown,
+                                total,
+                                truncated
+                            ),
+                            "ok"
+                        )
+                    }
+                }
+            }
             other => {
                 let cands = aep::closest(other, 6);
                 resp!(
