@@ -71,7 +71,11 @@ fn cmd_capabilities(rest: &[String]) -> i32 {
                 return 2;
             }
             match capability::resolve_capability(name) {
-                capability::CapabilityOutcome::Canonical(c) => {
+                capability::CapabilityOutcome::Supported { cap: c, mapping } => {
+                    let mapping_kind = match mapping {
+                        capability::MappingKind::Canonical => "canonical",
+                        capability::MappingKind::Alias => "alias",
+                    };
                     let aliases = c
                         .aliases
                         .iter()
@@ -79,15 +83,17 @@ fn cmd_capabilities(rest: &[String]) -> i32 {
                         .collect::<Vec<_>>()
                         .join(",");
                     println!(
-                        "{{\"name\":{},\"supported\":true,\"canonical\":{},\"category\":{},\"aliases\":[{}],\"arity\":{}}}",
+                        "{{\"name\":{},\"supported\":true,\"canonical\":{},\"category\":{},\"aliases\":[{}],\"arity\":{},\"mapping_kind\":{}}}",
                         json_str(name),
                         json_str(c.canonical),
                         json_str(c.category.as_str()),
                         aliases,
-                        json_str(c.arity)
+                        json_str(c.arity),
+                        json_str(mapping_kind)
                     );
                 }
                 capability::CapabilityOutcome::Unsupported {
+                    canonical_alternative,
                     supported_alternatives,
                 } => {
                     let alts = supported_alternatives
@@ -95,11 +101,19 @@ fn cmd_capabilities(rest: &[String]) -> i32 {
                         .map(|a| format!("\"{a}\""))
                         .collect::<Vec<_>>()
                         .join(",");
-                    println!(
-                        "{{\"name\":{},\"supported\":false,\"supported_alternatives\":[{}]}}",
-                        json_str(name),
-                        alts
-                    );
+                    match canonical_alternative {
+                        Some(canonical) => println!(
+                            "{{\"name\":{},\"supported\":false,\"canonical_alternative\":{},\"mapping_kind\":\"declared_synonym\",\"declared_alternatives\":[{}]}}",
+                            json_str(name),
+                            json_str(canonical),
+                            alts
+                        ),
+                        None => println!(
+                            "{{\"name\":{},\"supported\":false,\"canonical_alternative\":null,\"mapping_kind\":null,\"declared_alternatives\":[{}]}}",
+                            json_str(name),
+                            alts
+                        ),
+                    }
                 }
             }
             0
@@ -2818,7 +2832,11 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     .unwrap_or("")
                     .to_string();
                 match capability::resolve_capability(&name) {
-                    capability::CapabilityOutcome::Canonical(c) => {
+                    capability::CapabilityOutcome::Supported { cap: c, mapping } => {
+                        let mapping_kind = match mapping {
+                            capability::MappingKind::Canonical => "canonical",
+                            capability::MappingKind::Alias => "alias",
+                        };
                         let aliases: Vec<String> =
                             c.aliases.iter().map(|a| format!("\"{a}\"")).collect();
                         let synonyms: Vec<String> = capability::SYNONYMS
@@ -2829,31 +2847,46 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         resp!(
                             true,
                             &format!(
-                                "{{\"supported\":true,\"canonical_name\":{},\"category\":{},\"aliases\":[{}],\"declared_synonyms\":[{}],\"arity\":{}}}",
+                                "{{\"supported\":true,\"canonical_name\":{},\"category\":{},\"aliases\":[{}],\"declared_synonyms\":[{}],\"arity\":{},\"mapping_kind\":{}}}",
                                 json_str(c.canonical),
                                 json_str(c.category.as_str()),
                                 aliases.join(","),
                                 synonyms.join(","),
-                                json_str(c.arity)
+                                json_str(c.arity),
+                                json_str(mapping_kind)
                             ),
                             "ok"
                         )
                     }
                     capability::CapabilityOutcome::Unsupported {
+                        canonical_alternative,
                         supported_alternatives,
                     } => {
                         let alts: Vec<String> = supported_alternatives
                             .iter()
                             .map(|a| format!("\"{a}\""))
                             .collect();
-                        resp!(
-                            true,
-                            &format!(
-                                "{{\"supported\":false,\"canonical_name\":null,\"declared_alternatives\":[{}]}}",
-                                alts.join(",")
+                        match canonical_alternative {
+                            Some(canonical) => resp!(
+                                true,
+                                &format!(
+                                    "{{\"supported\":false,\"requested\":{},\"canonical_alternative\":{},\"mapping_kind\":\"declared_synonym\",\"declared_alternatives\":[{}]}}",
+                                    json_str(&name),
+                                    json_str(canonical),
+                                    alts.join(",")
+                                ),
+                                "ok"
                             ),
-                            "ok"
-                        )
+                            None => resp!(
+                                true,
+                                &format!(
+                                    "{{\"supported\":false,\"requested\":{},\"canonical_alternative\":null,\"mapping_kind\":null,\"declared_alternatives\":[{}]}}",
+                                    json_str(&name),
+                                    alts.join(",")
+                                ),
+                                "ok"
+                            ),
+                        }
                     }
                 }
             }

@@ -91,28 +91,33 @@ def main():
           r.get("ok") and r["result"]["supported"] is True
           and r["result"]["canonical_name"] == "sort"
           and r["result"]["category"] == "builtin"
-          and r["result"]["arity"] == "unary", r)
+          and r["result"]["arity"] == "unary"
+          and r["result"]["mapping_kind"] == "canonical", r)
 
     # alias canonicalization
     r = a.tool("describe_capability", name="to_string")
     check("D3 alias to_string -> canonical to-string",
           r.get("ok") and r["result"]["supported"] is True
-          and r["result"]["canonical_name"] == "to-string", r)
+          and r["result"]["canonical_name"] == "to-string"
+          and r["result"]["mapping_kind"] == "alias", r)
 
-    # declared synonyms
+    # declared synonyms are AUTHORITATIVE CORRECTIONS, not executable forms
     r = a.tool("describe_capability", name="sorted")
-    check("D4 declared synonym sorted -> sort",
-          r.get("ok") and r["result"]["supported"] is True
-          and r["result"]["canonical_name"] == "sort", r)
+    check("D4 declared synonym sorted -> supported false + canonical_alternative sort",
+          r.get("ok") and r["result"]["supported"] is False
+          and r["result"]["canonical_alternative"] == "sort"
+          and r["result"]["mapping_kind"] == "declared_synonym", r)
     r = a.tool("describe_capability", name="&&")
-    check("D4b declared synonym && -> and",
-          r.get("ok") and r["result"]["supported"] is True
-          and r["result"]["canonical_name"] == "and", r)
+    check("D4b declared synonym && -> supported false + canonical_alternative and",
+          r.get("ok") and r["result"]["supported"] is False
+          and r["result"]["canonical_alternative"] == "and"
+          and r["result"]["mapping_kind"] == "declared_synonym", r)
 
     # negative knowledge (no fuzzy)
     r = a.tool("describe_capability", name="removefunction")
     check("D5 removefunction -> supported false + declared_alternatives",
           r.get("ok") and r["result"]["supported"] is False
+          and r["result"]["canonical_alternative"] is None
           and "declared_alternatives" in r["result"], r)
     r = a.tool("describe_capability", name="filter")
     check("D5b filter -> supported false (no fuzzy alternative)",

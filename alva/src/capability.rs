@@ -306,11 +306,28 @@ pub static OPERATORS: &[Capability] = &[
     },
 ];
 
+/// How the requested name mapped to a capability.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum MappingKind {
+    /// requested name IS the canonical capability (executable form).
+    Canonical,
+    /// requested name is a compiler-recognized alternate SPELLING of the
+    /// canonical capability (executable form, e.g. `tostring` -> `to-string`).
+    Alias,
+}
+
 pub enum CapabilityOutcome {
-    /// name (canonical or declared alias/synonym) -> canonical capability.
-    Canonical(&'static Capability),
-    /// name is NOT a supported capability; declared alternatives only.
+    /// name is a canonical or alias spelling of a supported capability.
+    Supported {
+        cap: &'static Capability,
+        mapping: MappingKind,
+    },
+    /// name is NOT a supported capability. `canonical_alternative` is Some
+    /// ONLY for a compiler-declared semantic synonym (e.g. `sorted` ->
+    /// `sort`): the requested surface form is NOT executable; the compiler
+    /// authoritatively corrects it. Never fuzzy.
     Unsupported {
+        canonical_alternative: Option<&'static str>,
         supported_alternatives: Vec<&'static str>,
     },
 }
@@ -322,19 +339,29 @@ fn find_cap(name: &str) -> Option<&'static Capability> {
         .find(|c| c.canonical == name || c.aliases.contains(&name))
 }
 
-/// Deterministic capability resolution: canonical name / declared alias /
-/// declared synonym -> canonical; anything else -> NOT_SUPPORTED with ONLY
-/// compiler-declared alternatives (never fuzzy).
+/// Deterministic capability resolution. A declared semantic synonym is an
+/// AUTHORITATIVE CORRECTION, not an executable spelling: the requested form
+/// is reported unsupported with a `canonical_alternative` (mapping_kind =
+/// declared_synonym at the surface).
 pub fn resolve_capability(name: &str) -> CapabilityOutcome {
     if let Some(c) = find_cap(name) {
-        return CapabilityOutcome::Canonical(c);
+        let mapping = if c.canonical == name {
+            MappingKind::Canonical
+        } else {
+            MappingKind::Alias
+        };
+        return CapabilityOutcome::Supported { cap: c, mapping };
     }
     if let Some((_, canonical)) = SYNONYMS.iter().find(|(s, _)| *s == name) {
         if let Some(c) = find_cap(canonical) {
-            return CapabilityOutcome::Canonical(c);
+            return CapabilityOutcome::Unsupported {
+                canonical_alternative: Some(c.canonical),
+                supported_alternatives: vec![c.canonical],
+            };
         }
     }
     CapabilityOutcome::Unsupported {
+        canonical_alternative: None,
         supported_alternatives: Vec::new(),
     }
 }
@@ -411,8 +438,11 @@ mod tests {
                 "synonym target {canonical} missing"
             );
             match resolve_capability(syn) {
-                CapabilityOutcome::Canonical(c) => assert_eq!(c.canonical, *canonical),
-                _ => panic!("synonym {syn} did not resolve"),
+                CapabilityOutcome::Unsupported {
+                    canonical_alternative,
+                    ..
+                } => assert_eq!(canonical_alternative, Some(*canonical)),
+                _ => panic!("synonym {syn} must be an authoritative correction"),
             }
         }
     }
@@ -421,8 +451,10 @@ mod tests {
     fn negative_knowledge_is_deterministic() {
         match resolve_capability("removefunction") {
             CapabilityOutcome::Unsupported {
+                canonical_alternative,
                 supported_alternatives,
             } => {
+                assert_eq!(canonical_alternative, None);
                 assert!(supported_alternatives.is_empty());
             }
             _ => panic!("removefunction must be unsupported"),
@@ -433,12 +465,18 @@ mod tests {
         }
         // declared synonym resolves canonically
         match resolve_capability("sorted") {
-            CapabilityOutcome::Canonical(c) => assert_eq!(c.canonical, "sort"),
-            _ => panic!("sorted must resolve to sort"),
+            CapabilityOutcome::Unsupported {
+                canonical_alternative,
+                ..
+            } => assert_eq!(canonical_alternative, Some("sort")),
+            _ => panic!("sorted must be an authoritative correction to sort"),
         }
         match resolve_capability("&&") {
-            CapabilityOutcome::Canonical(c) => assert_eq!(c.canonical, "and"),
-            _ => panic!("&& must resolve to and"),
+            CapabilityOutcome::Unsupported {
+                canonical_alternative,
+                ..
+            } => assert_eq!(canonical_alternative, Some("and")),
+            _ => panic!("&& must be an authoritative correction to and"),
         }
     }
 }
