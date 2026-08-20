@@ -108,30 +108,59 @@ alva hole fill ...
 - cross-process commit locking
 - adversarial validation and fuzz testing
 
-## 30-second quickstart
+## Install the Developer Preview
+
+ALVA is a research prototype. The current packaged preview is
+`v0.14.1-preview.1`.
+
+Windows x64:
+
+```powershell
+irm https://raw.githubusercontent.com/zkidp/alva-core/main/scripts/install.ps1 | iex
+alva --version
+alva doctor
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.1/alva/examples/hello.alva -OutFile hello.alva
+alva check hello.alva
+```
+
+Linux x64 or macOS Apple Silicon:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/main/scripts/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+alva --version
+alva doctor
+curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.1/alva/examples/hello.alva
+alva check hello.alva
+```
+
+Release archives and `SHA256SUMS.txt` are also available from
+[GitHub Releases](https://github.com/zkidp/alva-core/releases).
+
+The prebuilt binary is enough for `check`, AIR/AEP editing, semantic views,
+typed-hole operations, and graph inspection. `build` and `run` compile generated
+Rust, so they require Rust and Cargo. WASM output additionally requires:
+
+```bash
+rustup target add wasm32-wasip1
+```
+
+`alva doctor` reports which optional toolchain pieces are available.
+
+## Build from source
 
 Requirements: Rust toolchain and Cargo.
 
 ```bash
-cd alva
+git clone https://github.com/zkidp/alva-core.git
+cd alva-core/alva
 cargo build --release
-```
-
-Linux / macOS:
-
-```bash
+./target/release/alva --version
 ./target/release/alva check examples/hello.alva
 ./target/release/alva run examples/hello.alva
 ```
 
-Windows:
-
-```powershell
-.\target\release\alva.exe check examples\hello.alva
-.\target\release\alva.exe run examples\hello.alva
-```
-
-Expected output:
+Expected run output:
 
 ```text
 hello, ai-native world

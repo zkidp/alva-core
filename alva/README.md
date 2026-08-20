@@ -1,6 +1,9 @@
-# alva —— AI 原生语言工具链 v0.1
+# alva —— AI 原生语言工具链 v0.14.1 Developer Preview
 
-工作名，随时可改。v0.1 实现"源码 → 校验 → Rust 代码生成"的最小闭环。
+工作名，随时可改。当前包版本为 `0.14.1-preview.1`；研究冻结 tag 与用户发行版本分别管理。
+
+预编译 binary、校验和及安装方式见仓库根目录 `README.md`。`check`、AIR/AEP
+和 semantic views 不要求本机安装 Rust；`build`/`run` 仍需 Rust 和 Cargo。
 
 ## 构建
 
