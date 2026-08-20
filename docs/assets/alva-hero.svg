@@ -24,8 +24,8 @@
       .mono { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
       .label { fill: #73809B; font-size: 20px; font-weight: 700; letter-spacing: 2px; }
       .title { fill: #EDF3FF; font-size: 30px; font-weight: 700; }
-      .body { fill: #A9B5CC; font-size: 22px; }
-      .operation { fill: #A9B5CC; font-size: 20px; }
+      .body { fill: #A9B5CC; font-size: 24px; }
+      .operation { fill: #A9B5CC; font-size: 22px; }
       .card { fill: #11182B; stroke: #25304A; stroke-width: 2; }
       .flow { fill: none; stroke: #38CFFF; stroke-width: 3; marker-end: url(#arrow-cyan); }
     </style>
@@ -68,20 +68,20 @@
 
     <rect x="910" y="210" width="202" height="180" rx="20" class="card"/>
     <text x="1011" y="256" text-anchor="middle" class="sans" fill="#EDF3FF" font-size="27" font-weight="700">Transaction</text>
-    <text x="945" y="305" class="mono operation">stage edits</text>
-    <text x="945" y="338" class="mono operation">revision-safe</text>
-    <text x="945" y="371" class="mono operation">abortable</text>
+    <text x="930" y="305" class="mono operation">stage edits</text>
+    <text x="930" y="338" class="mono operation">revision-safe</text>
+    <text x="930" y="371" class="mono operation">abortable</text>
 
     <path d="M 600 300 H 642" class="flow"/>
     <path d="M 860 300 H 902" class="flow"/>
 
     <path d="M 1011 390 V 420" class="flow"/>
     <rect x="540" y="428" width="472" height="104" rx="20" fill="#11182B" stroke="#38CFFF" stroke-width="2"/>
-    <text x="580" y="470" class="mono body">check</text>
-    <circle cx="704" cy="463" r="4" fill="#73809B"/>
-    <text x="728" y="470" class="mono body">semantic diff</text>
-    <circle cx="922" cy="463" r="4" fill="#73809B"/>
-    <text x="946" y="470" class="mono body" fill="#45E6A8">commit</text>
+    <text x="565" y="470" class="mono body">check</text>
+    <circle cx="665" cy="463" r="4" fill="#73809B"/>
+    <text x="690" y="470" class="mono body">semantic diff</text>
+    <circle cx="895" cy="463" r="4" fill="#73809B"/>
+    <text x="915" y="470" class="mono body" fill="#45E6A8">commit</text>
     <path d="M 582 492 H 970" stroke="#45E6A8" stroke-width="3" marker-end="url(#arrow-mint)"/>
     <text x="776" y="518" text-anchor="middle" class="sans label" fill="#45E6A8">VALIDATED REVISION</text>
   </g>

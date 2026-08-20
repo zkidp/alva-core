@@ -22,10 +22,10 @@
     <style>
       .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       .mono { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
-      .eyebrow { fill: #73809B; font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+      .eyebrow { fill: #73809B; font-size: 22px; font-weight: 700; letter-spacing: 2px; }
       .heading { fill: #EDF3FF; font-size: 30px; font-weight: 700; }
-      .body { fill: #A9B5CC; font-size: 23px; }
-      .operation { fill: #A9B5CC; font-size: 21px; }
+      .body { fill: #A9B5CC; font-size: 26px; }
+      .operation { fill: #A9B5CC; font-size: 24px; }
       .surface { fill: #11182B; stroke: #25304A; stroke-width: 2; }
       .flow { fill: none; stroke: #38CFFF; stroke-width: 3; marker-end: url(#arrow); }
     </style>
@@ -44,8 +44,8 @@
   </g>
 
   <path d="M 800 184 V 246" class="flow"/>
-  <rect x="681" y="199" width="238" height="38" rx="19" fill="#0B1020" stroke="#25304A" stroke-width="2"/>
-  <text x="800" y="225" text-anchor="middle" class="mono body">MCP / CLI / Skill</text>
+  <rect x="570" y="199" width="460" height="38" rx="19" fill="#0B1020" stroke="#25304A" stroke-width="2"/>
+  <text x="800" y="225" text-anchor="middle" class="mono body">Canonical Skill · MCP / CLI</text>
 
   <!-- ALVA boundary -->
   <g>
@@ -69,7 +69,7 @@
     <text x="667" y="471" class="mono operation">semantic diff</text>
     <text x="667" y="507" class="mono operation">check</text>
     <text x="667" y="543" class="mono operation" fill="#45E6A8">commit / abort</text>
-    <path d="M 846 425 V 540" stroke="#45E6A8" stroke-width="3" marker-end="url(#arrow-mint)"/>
+    <path d="M 910 425 V 540" stroke="#45E6A8" stroke-width="3" marker-end="url(#arrow-mint)"/>
 
     <!-- Operations -->
     <rect x="1030" y="350" width="365" height="205" rx="22" class="surface"/>
@@ -91,8 +91,8 @@
       <circle cx="36" cy="0" r="8" fill="#38CFFF"/>
       <circle cx="72" cy="0" r="8" fill="#45E6A8"/>
     </g>
-    <text x="690" y="658" text-anchor="middle" class="sans heading">Typed Program Representation</text>
-    <text x="1218" y="657" text-anchor="end" class="mono" fill="#A9B5CC" font-size="18">content-addressed revisions</text>
+    <text x="800" y="646" text-anchor="middle" class="sans heading">Typed Program Representation</text>
+    <text x="800" y="674" text-anchor="middle" class="mono" fill="#A9B5CC" font-size="22">content-addressed revisions</text>
   </g>
 
   <!-- Code generation and targets -->
