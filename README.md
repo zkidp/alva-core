@@ -262,6 +262,8 @@ integrations/codex/
 integrations/claude-code/
   thin Claude Code marketplace package for the canonical Skill and shared MCP
   server
+docs/distribution/
+  reviewed plans and gates for public package and marketplace distribution
 v0.8-EVIDENCE-BACKLOG.md
   evidence-backed v0.8 language/agent backlog (from three workloads)
 设计方案.md
@@ -282,6 +284,8 @@ Useful starting points:
 - [integrations/claude-code/README.md](integrations/claude-code/README.md) —
   install the same canonical Skill and `alva mcp` connection as a Claude Code
   plugin
+- [docs/distribution/agent-marketplaces-v1.md](docs/distribution/agent-marketplaces-v1.md)
+  — Phase 4A plan and authorization gates for public agent marketplaces
 - [设计方案.md](设计方案.md) — architecture / roadmap
 - [语法草案.md](语法草案.md) — grammar notes
 
