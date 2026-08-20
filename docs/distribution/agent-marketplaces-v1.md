@@ -29,8 +29,8 @@ Phase 3 plugin, or any existing release or research tag. It does not require
 
 Prepare a **Skills-only** public submission. OpenAI accepts Skills-only,
 MCP-only, and combined submissions into one directory shared by ChatGPT and
-Codex. A submission with MCP requires a public production MCP URL and may
-require domain verification. ALVA's supported MCP server is intentionally a
+Codex. A submission with MCP requires a public production MCP URL and verified
+control of the MCP host domain. ALVA's supported MCP server is intentionally a
 local STDIO process, so it must not be represented as a public MCP endpoint.
 
 Submission source:
