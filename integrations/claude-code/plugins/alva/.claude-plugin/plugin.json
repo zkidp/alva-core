@@ -1,0 +1,13 @@
+{
+  "name": "alva",
+  "version": "0.1.0",
+  "description": "Connect Claude Code to ALVA's canonical Skill and local semantic MCP server.",
+  "author": {
+    "name": "zkidp",
+    "url": "https://github.com/zkidp"
+  },
+  "homepage": "https://github.com/zkidp/alva-core/tree/main/integrations/claude-code",
+  "repository": "https://github.com/zkidp/alva-core",
+  "license": "Apache-2.0",
+  "keywords": ["alva", "semantic-editing", "mcp", "coding-agent"]
+}
