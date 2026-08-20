@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" role="img" aria-labelledby="title desc">
+  <title id="title">ALVA semantic editing pipeline</title>
+  <desc id="desc">A coding agent moves through semantic views, typed operations, a staged transaction, checks, semantic diff, and commit before ALVA generates Rust for native and WASM targets.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1020"/>
+      <stop offset="1" stop-color="#0E1426"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7C63FF"/>
+      <stop offset="1" stop-color="#38CFFF"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#25304A" stroke-width="1" opacity="0.26"/>
+    </pattern>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#38CFFF"/>
+    </marker>
+    <marker id="arrow-mint" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#45E6A8"/>
+    </marker>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
+      .label { fill: #73809B; font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+      .title { fill: #EDF3FF; font-size: 30px; font-weight: 700; }
+      .body { fill: #A9B5CC; font-size: 24px; }
+      .operation { fill: #A9B5CC; font-size: 22px; }
+      .card { fill: #11182B; stroke: #25304A; stroke-width: 2; }
+      .flow { fill: none; stroke: #38CFFF; stroke-width: 3; marker-end: url(#arrow-cyan); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="720" rx="28" fill="url(#background)"/>
+  <rect x="1" y="1" width="1598" height="718" rx="27" fill="none" stroke="#25304A" stroke-width="2"/>
+  <rect x="1" y="1" width="1598" height="718" rx="27" fill="url(#grid)"/>
+
+  <text x="64" y="62" class="sans label">SEMANTIC EDITING PIPELINE</text>
+  <path d="M 64 82 H 1536" stroke="url(#accent)" stroke-width="3" opacity="0.9"/>
+
+  <!-- Coding agent -->
+  <g>
+    <rect x="64" y="205" width="220" height="210" rx="24" class="card"/>
+    <path d="M 146 260 L 174 232 L 202 260 L 174 288 Z" fill="none" stroke="#7C63FF" stroke-width="4"/>
+    <circle cx="174" cy="260" r="7" fill="#38CFFF"/>
+    <path d="M 174 288 V 310 M 146 260 H 122 M 202 260 H 226" stroke="#38CFFF" stroke-width="3"/>
+    <text x="174" y="352" text-anchor="middle" class="sans title">Coding Agent</text>
+    <text x="174" y="385" text-anchor="middle" class="sans body">MCP or CLI</text>
+  </g>
+
+  <!-- ALVA semantic runtime -->
+  <g>
+    <rect x="352" y="118" width="800" height="454" rx="30" fill="#0D1428" stroke="url(#accent)" stroke-width="3"/>
+    <rect x="378" y="140" width="218" height="38" rx="19" fill="#171E38" stroke="#7C63FF" stroke-width="2"/>
+    <text x="487" y="166" text-anchor="middle" class="sans label" fill="#EDF3FF">ALVA RUNTIME</text>
+
+    <rect x="390" y="210" width="210" height="180" rx="20" class="card"/>
+    <text x="495" y="256" text-anchor="middle" class="sans" fill="#EDF3FF" font-size="27" font-weight="700">Semantic Views</text>
+    <text x="425" y="305" class="mono operation">resolve</text>
+    <text x="425" y="338" class="mono operation">inspect</text>
+    <text x="425" y="371" class="mono operation">body</text>
+
+    <rect x="650" y="210" width="210" height="180" rx="20" class="card"/>
+    <text x="755" y="256" text-anchor="middle" class="sans" fill="#EDF3FF" font-size="27" font-weight="700">Typed Ops</text>
+    <text x="685" y="305" class="mono operation">discover</text>
+    <text x="685" y="338" class="mono operation">describe</text>
+    <text x="685" y="371" class="mono operation">construct</text>
+
+    <rect x="910" y="210" width="202" height="180" rx="20" class="card"/>
+    <text x="1011" y="256" text-anchor="middle" class="sans" fill="#EDF3FF" font-size="27" font-weight="700">Transaction</text>
+    <text x="930" y="305" class="mono operation">stage edits</text>
+    <text x="930" y="338" class="mono operation">revision-safe</text>
+    <text x="930" y="371" class="mono operation">abortable</text>
+
+    <path d="M 600 300 H 642" class="flow"/>
+    <path d="M 860 300 H 902" class="flow"/>
+
+    <path d="M 1011 390 V 420" class="flow"/>
+    <rect x="540" y="428" width="472" height="104" rx="20" fill="#11182B" stroke="#38CFFF" stroke-width="2"/>
+    <text x="565" y="470" class="mono body">check</text>
+    <circle cx="665" cy="463" r="4" fill="#73809B"/>
+    <text x="690" y="470" class="mono body">semantic diff</text>
+    <circle cx="895" cy="463" r="4" fill="#73809B"/>
+    <text x="915" y="470" class="mono body" fill="#45E6A8">commit</text>
+    <path d="M 582 492 H 970" stroke="#45E6A8" stroke-width="3" marker-end="url(#arrow-mint)"/>
+    <text x="776" y="518" text-anchor="middle" class="sans label" fill="#45E6A8">VALIDATED REVISION</text>
+  </g>
+
+  <!-- Program graph and targets -->
+  <path d="M 284 310 H 382" class="flow"/>
+  <path d="M 1152 348 H 1252" class="flow"/>
+  <g>
+    <text x="1362" y="154" text-anchor="middle" class="sans title">Typed Program Graph</text>
+    <path d="M 1280 226 L 1350 192 L 1432 224 L 1410 306 L 1320 318 L 1260 272 Z" fill="none" stroke="#38CFFF" stroke-width="3"/>
+    <path d="M 1280 226 L 1410 306 M 1350 192 L 1320 318 M 1260 272 L 1432 224" stroke="#7C63FF" stroke-width="2" opacity="0.8"/>
+    <circle cx="1280" cy="226" r="11" fill="#7C63FF"/>
+    <circle cx="1350" cy="192" r="11" fill="#38CFFF"/>
+    <circle cx="1432" cy="224" r="11" fill="#7C63FF"/>
+    <circle cx="1410" cy="306" r="11" fill="#38CFFF"/>
+    <circle cx="1320" cy="318" r="11" fill="#45E6A8"/>
+    <circle cx="1260" cy="272" r="11" fill="#38CFFF"/>
+  </g>
+
+  <path d="M 1360 335 V 384" class="flow"/>
+  <rect x="1270" y="390" width="180" height="66" rx="18" class="card"/>
+  <text x="1360" y="433" text-anchor="middle" class="mono title">Rust</text>
+
+  <path d="M 1360 456 V 486 M 1360 486 L 1280 520 M 1360 486 L 1440 520" fill="none" stroke="#38CFFF" stroke-width="3"/>
+  <rect x="1192" y="520" width="176" height="62" rx="18" class="card"/>
+  <text x="1280" y="560" text-anchor="middle" class="sans body">Native</text>
+  <rect x="1390" y="520" width="176" height="62" rx="18" class="card"/>
+  <text x="1478" y="560" text-anchor="middle" class="sans body">WASM/WASI</text>
+
+  <text x="800" y="665" text-anchor="middle" class="sans title">Semantic editing instead of blind text patching</text>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">ALVA social preview</title>
+  <desc id="desc">ALVA, a compiler and semantic editing runtime for AI coding agents, with an abstract typed graph symbol.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1020"/>
+      <stop offset="1" stop-color="#10172A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C63FF"/>
+      <stop offset="1" stop-color="#38CFFF"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#25304A" stroke-width="1" opacity="0.22"/>
+    </pattern>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#background)"/>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+  <rect x="24" y="24" width="1232" height="592" rx="28" fill="none" stroke="#25304A" stroke-width="2"/>
+  <path d="M 64 72 H 1216" stroke="url(#accent)" stroke-width="4"/>
+
+  <!-- Typed graph / transaction symbol -->
+  <g transform="translate(90 126)">
+    <path d="M 86 56 L 226 30 L 342 112 L 316 268 L 176 324 L 62 232 Z" fill="#11182B" stroke="url(#accent)" stroke-width="5"/>
+    <path d="M 86 56 L 342 112 M 226 30 L 316 268 M 62 232 L 342 112 M 176 324 L 86 56 M 62 232 L 316 268" fill="none" stroke="#38CFFF" stroke-width="3" opacity="0.75"/>
+    <circle cx="86" cy="56" r="18" fill="#7C63FF" stroke="#EDF3FF" stroke-width="3"/>
+    <circle cx="226" cy="30" r="18" fill="#38CFFF" stroke="#EDF3FF" stroke-width="3"/>
+    <circle cx="342" cy="112" r="18" fill="#7C63FF" stroke="#EDF3FF" stroke-width="3"/>
+    <circle cx="316" cy="268" r="18" fill="#38CFFF" stroke="#EDF3FF" stroke-width="3"/>
+    <circle cx="176" cy="324" r="20" fill="#45E6A8" stroke="#EDF3FF" stroke-width="3"/>
+    <circle cx="62" cy="232" r="18" fill="#38CFFF" stroke="#EDF3FF" stroke-width="3"/>
+    <path d="M 144 164 L 181 201 L 260 118" fill="none" stroke="#45E6A8" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="40" y="374" width="350" height="48" rx="24" fill="#11182B" stroke="#45E6A8" stroke-width="2"/>
+    <text x="215" y="406" text-anchor="middle" class="mono" fill="#45E6A8" font-size="20" font-weight="700">CHECK · DIFF · COMMIT</text>
+  </g>
+
+  <!-- Brand copy -->
+  <g transform="translate(520 146)">
+    <text x="0" y="88" class="sans" fill="#EDF3FF" font-size="104" font-weight="800" letter-spacing="3">ALVA</text>
+    <rect x="0" y="116" width="630" height="4" rx="2" fill="url(#accent)"/>
+    <text x="0" y="174" class="sans" fill="#EDF3FF" font-size="36" font-weight="650">A compiler and semantic editing runtime</text>
+    <text x="0" y="220" class="sans" fill="#EDF3FF" font-size="36" font-weight="650">for AI coding agents</text>
+    <text x="0" y="294" class="sans" fill="#A9B5CC" font-size="25">Typed edits · Transactions · MCP · Native · WASM</text>
+    <circle cx="8" cy="346" r="7" fill="#7C63FF"/>
+    <circle cx="34" cy="346" r="7" fill="#38CFFF"/>
+    <circle cx="60" cy="346" r="7" fill="#45E6A8"/>
+  </g>
+
+  <text x="1188" y="578" text-anchor="end" class="mono" fill="#73809B" font-size="22">github.com/zkidp/alva-core</text>
+</svg>
