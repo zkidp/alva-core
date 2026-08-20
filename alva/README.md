@@ -203,6 +203,12 @@ abort_transaction。
 - Agent 不需要知道 AIR 内部 slot 名或 Value 枚举（friendly positions 映射）；
 - 模式 C 禁止 `.alva` 文件访问（工作区只含权威 AIR store）。
 
+`alva mcp` 在同一 binary 中提供共享 STDIO MCP adapter。它同时兼容 2025
+initialize handshake 与 2026-07-28 per-request metadata，并把工具调用转交给同一
+AEP registry / AIR transaction implementation。MCP 事务不依赖隐藏 transport
+session：`begin_transaction` 返回显式 `transaction_id`，后续调用必须携带该 handle。
+配置与 v1 tool surface 见 [`integrations/mcp/README.md`](../integrations/mcp/README.md)。
+
 ## A/C Formal Correctness Experiment（v0.6）
 
 `benchmarks/ac/run_ac.py`：8 个冻结任务、A（文本编辑）/ C（Agent Runtime）随机

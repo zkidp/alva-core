@@ -1,4 +1,4 @@
-# CLI semantic-edit workflow
+# Semantic-edit workflow
 
 ## Preflight and authority
 
@@ -20,12 +20,23 @@ The second case is an authority transition, not an ordinary text-file update.
 Mention it before mutation and expect new graph-store files in version-control
 status. Never patch generation files directly.
 
-## Keep one JSON-lines session
+## Prefer MCP when available
 
-Launch `alva agent` as a persistent child process with writable stdin and
-readable stdout. Send exactly one JSON object per line and read exactly one JSON
-response per request. Keep the process alive through discovery, mutation,
-checking, and commit or abort.
+If the host exposes ALVA MCP tools, use them directly. Start with
+`begin_transaction`, retain its explicit `transaction_id`, and include that
+handle in every inspection, discovery, mutation, check, and finish call. Do not
+substitute shell invocations for available semantic MCP tools.
+
+The MCP server exposes the same AEP registry and AIR transaction implementation
+as the CLI fallback. Treat each tool's advertised input schema as authoritative.
+Always end a transaction with `commit_transaction` or `abort_transaction`.
+
+## CLI fallback: keep one JSON-lines session
+
+When MCP is not available, launch `alva agent` as a persistent child process
+with writable stdin and readable stdout. Send exactly one JSON object per line
+and read exactly one JSON response per request. Keep the process alive through
+discovery, mutation, checking, and commit or abort.
 
 Start with a request ID that makes transcripts easy to audit:
 
