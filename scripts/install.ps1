@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $repository = if ($env:ALVA_REPOSITORY) { $env:ALVA_REPOSITORY } else { "zkidp/alva-core" }
-$version = if ($env:ALVA_VERSION) { $env:ALVA_VERSION } else { "v0.14.1-preview.1" }
+$version = if ($env:ALVA_VERSION) { $env:ALVA_VERSION } else { "v0.14.1-preview.2" }
 $installDirectory = if ($env:ALVA_INSTALL_DIR) {
     $env:ALVA_INSTALL_DIR
 } else {
