@@ -29,6 +29,14 @@ const MCP_TOOLS: &[&str] = &[
     "abort_transaction",
 ];
 
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+enum ProtocolEra {
+    #[default]
+    Undecided,
+    Legacy,
+    Modern,
+}
+
 struct AgentChild {
     child: Child,
     input: BufWriter<ChildStdin>,
@@ -150,11 +158,29 @@ impl Gateway {
         forwarded.insert("tool".to_string(), json!(name));
         let response = child.call(&Value::Object(forwarded))?;
         ensure_agent_ok(&response)?;
-        let result = response.get("result").cloned().unwrap_or(Value::Null);
+        let mut result = response.get("result").cloned().unwrap_or(Value::Null);
+        if name == "applicable_operations" {
+            filter_applicable_operations(&mut result);
+        }
         if matches!(name, "commit_transaction" | "abort_transaction") {
             self.active = None;
         }
         Ok(result)
+    }
+}
+
+fn filter_applicable_operations(result: &mut Value) {
+    let Some(object) = result.as_object_mut() else {
+        return;
+    };
+    for key in ["inspection", "mutation", "context_operations"] {
+        if let Some(operations) = object.get_mut(key).and_then(Value::as_array_mut) {
+            operations.retain(|operation| {
+                operation
+                    .as_str()
+                    .is_some_and(|name| MCP_TOOLS.contains(&name))
+            });
+        }
     }
 }
 
@@ -173,12 +199,17 @@ fn server_info() -> Value {
     json!({"name": SERVER_NAME, "version": env!("CARGO_PKG_VERSION")})
 }
 
-fn is_modern(request: &Value) -> bool {
-    request.get("method").and_then(Value::as_str) == Some("server/discover")
-        || request
-            .pointer("/params/_meta/io.modelcontextprotocol~1protocolVersion")
-            .and_then(Value::as_str)
-            == Some(MODERN_VERSION)
+fn claims_modern(request: &Value) -> bool {
+    if request.get("method").and_then(Value::as_str) == Some("server/discover") {
+        return true;
+    }
+    request
+        .pointer("/params/_meta")
+        .and_then(Value::as_object)
+        .is_some_and(|meta| {
+            meta.keys()
+                .any(|key| key.starts_with("io.modelcontextprotocol/"))
+        })
 }
 
 fn validate_modern_envelope(request: &Value) -> Result<(), Value> {
@@ -190,20 +221,28 @@ fn validate_modern_envelope(request: &Value) -> Result<(), Value> {
             None,
         ));
     };
-    let version = meta
+    let Some(version) = meta
         .get("io.modelcontextprotocol/protocolVersion")
-        .and_then(Value::as_str);
-    if version != Some(MODERN_VERSION) {
+        .and_then(Value::as_str)
+    else {
+        return Err(error(
+            request.get("id").cloned().unwrap_or(Value::Null),
+            -32602,
+            "Invalid params: modern MCP metadata requires protocolVersion",
+            None,
+        ));
+    };
+    if version != MODERN_VERSION {
         return Err(error(
             request.get("id").cloned().unwrap_or(Value::Null),
             -32022,
             "Unsupported protocol version",
-            Some(json!({"supportedVersions":[MODERN_VERSION]})),
+            Some(json!({"supported":[MODERN_VERSION],"requested":version})),
         ));
     }
-    if meta
+    if !meta
         .get("io.modelcontextprotocol/clientCapabilities")
-        .is_some_and(|value| !value.is_object())
+        .is_some_and(Value::is_object)
         || meta
             .get("io.modelcontextprotocol/clientInfo")
             .is_some_and(|value| {
@@ -220,6 +259,26 @@ fn validate_modern_envelope(request: &Value) -> Result<(), Value> {
         ));
     }
     Ok(())
+}
+
+fn era_mismatch(id: Value, established: ProtocolEra, requested: ProtocolEra) -> Value {
+    error(
+        id,
+        -32602,
+        "Invalid params: protocol era does not match this STDIO connection",
+        Some(json!({
+            "established": match established {
+                ProtocolEra::Legacy => "legacy",
+                ProtocolEra::Modern => MODERN_VERSION,
+                ProtocolEra::Undecided => "undecided",
+            },
+            "requested": match requested {
+                ProtocolEra::Legacy => "legacy",
+                ProtocolEra::Modern => MODERN_VERSION,
+                ProtocolEra::Undecided => "undecided",
+            }
+        })),
+    )
 }
 
 fn modernize_result(mut result: Value, modern: bool) -> Value {
@@ -312,24 +371,35 @@ fn call_result(value: Value, is_error: bool) -> Value {
     })
 }
 
-fn dispatch(request: &Value, gateway: &mut Gateway) -> Option<Value> {
+fn dispatch(
+    request: &Value,
+    gateway: &mut Gateway,
+    protocol_era: &mut ProtocolEra,
+) -> Option<Value> {
     let id = request.get("id").cloned().unwrap_or(Value::Null);
     let method = match request.get("method").and_then(Value::as_str) {
         Some(method) => method,
         None => return Some(error(id, -32600, "Invalid Request", None)),
     };
-    let notification = request.get("id").is_none();
-    if notification {
-        return None;
-    }
-    let modern = is_modern(request);
-    let has_modern_claim = request
-        .pointer("/params/_meta/io.modelcontextprotocol~1protocolVersion")
-        .is_some();
-    if method == "server/discover" || has_modern_claim {
+    // JSON-RPC notifications never receive a response. Era selection is made
+    // by the opening request, not by follow-up notifications.
+    request.get("id")?;
+    let modern = claims_modern(request);
+    let requested_era = if modern {
+        ProtocolEra::Modern
+    } else {
+        ProtocolEra::Legacy
+    };
+    if modern {
         if let Err(response) = validate_modern_envelope(request) {
             return Some(response);
         }
+    }
+    if *protocol_era != ProtocolEra::Undecided && *protocol_era != requested_era {
+        return Some(era_mismatch(id, *protocol_era, requested_era));
+    }
+    if *protocol_era == ProtocolEra::Undecided {
+        *protocol_era = requested_era;
     }
     match method {
         "server/discover" => Some(success(
@@ -400,6 +470,7 @@ pub fn cmd_mcp() -> i32 {
     let stdout = std::io::stdout();
     let mut output = BufWriter::new(stdout.lock());
     let mut gateway = Gateway::default();
+    let mut protocol_era = ProtocolEra::default();
     for line in stdin.lock().lines() {
         let line = match line {
             Ok(line) => line,
@@ -412,7 +483,7 @@ pub fn cmd_mcp() -> i32 {
             continue;
         }
         let response = match serde_json::from_str::<Value>(&line) {
-            Ok(request) => dispatch(&request, &mut gateway),
+            Ok(request) => dispatch(&request, &mut gateway, &mut protocol_era),
             Err(parse_error) => Some(error(
                 Value::Null,
                 -32700,

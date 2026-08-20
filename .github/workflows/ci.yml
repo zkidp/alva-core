@@ -41,6 +41,14 @@ jobs:
         working-directory: alva
         run: cargo build
 
+      - name: MCP protocol fixture
+        run: |
+          binary="alva/target/debug/alva"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            binary="$binary.exe"
+          fi
+          python tests/mcp/mcp_protocol_test.py "$binary"
+
       - name: Shell installer syntax
         run: bash -n scripts/install.sh
 

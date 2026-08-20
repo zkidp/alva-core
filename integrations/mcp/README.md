@@ -12,6 +12,11 @@ The server supports both protocol eras:
   `io.modelcontextprotocol/*` metadata to every request without an initialize
   handshake.
 
+The opening exchange fixes the protocol era for that STDIO connection. A
+legacy connection cannot switch to a 2026 envelope, and a modern connection
+cannot later omit its modern metadata. Start a new `alva mcp` process to use a
+different era.
+
 The transport connection is not program authority. Call `begin_transaction`
 with an `alva.toml` path, then pass the returned `transaction_id` to every later
 tool. Finish with `commit_transaction` or `abort_transaction`. EOF discards an
@@ -47,3 +52,7 @@ Tool schemas are generated from the typed AEP operation registry. Experimental
 A1 operations remain hidden unless their existing feature gate is explicitly
 enabled. Results include both `structuredContent` and the same serialized JSON
 in a text content block for older clients.
+
+`applicable_operations` is filtered to this v1 MCP surface. Every operation it
+returns is therefore directly callable through the same connection; the wider
+CLI/AEP registry remains available through the documented CLI fallback.

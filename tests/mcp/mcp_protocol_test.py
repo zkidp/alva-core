@@ -87,6 +87,15 @@ def legacy_fixture(binary: Path) -> None:
     assert "inspect_change_impact" not in names and "inspect_schema_gaps" not in names
     assert "change_field" in names
     assert "resultType" not in first["result"]
+    mixed = mcp.request(
+        {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "method": "tools/list",
+            "params": {"_meta": MODERN_META},
+        }
+    )
+    assert mixed["error"]["code"] == -32602, mixed
     mcp.close()
 
 
@@ -113,6 +122,8 @@ def modern_fixture(binary: Path) -> None:
     )["result"]
     assert listed["resultType"] == "complete"
     assert listed["ttlMs"] == 0 and listed["cacheScope"] == "private"
+    mixed = mcp.request({"jsonrpc": "2.0", "id": 3, "method": "tools/list", "params": {}})
+    assert mixed["error"]["code"] == -32602, mixed
     mcp.close()
 
 
@@ -129,10 +140,45 @@ def errors_fixture(binary: Path) -> None:
     unknown_tool = mcp.tool(6, "not_a_tool", {})
     assert unknown_tool["isError"] is True
     structured(unknown_tool)
-    unsupported = mcp.request(
+    mcp.close()
+
+    missing_version_mcp = Mcp(binary)
+    missing_version = missing_version_mcp.request(
         {
             "jsonrpc": "2.0",
             "id": 7,
+            "method": "server/discover",
+            "params": {
+                "_meta": {
+                    "io.modelcontextprotocol/clientCapabilities": {},
+                }
+            },
+        }
+    )
+    assert missing_version["error"]["code"] == -32602, missing_version
+    missing_version_mcp.close()
+
+    missing_capabilities_mcp = Mcp(binary)
+    missing_capabilities = missing_capabilities_mcp.request(
+        {
+            "jsonrpc": "2.0",
+            "id": 8,
+            "method": "server/discover",
+            "params": {
+                "_meta": {
+                    "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                }
+            },
+        }
+    )
+    assert missing_capabilities["error"]["code"] == -32602, missing_capabilities
+    missing_capabilities_mcp.close()
+
+    unsupported_mcp = Mcp(binary)
+    unsupported = unsupported_mcp.request(
+        {
+            "jsonrpc": "2.0",
+            "id": 9,
             "method": "tools/list",
             "params": {
                 "_meta": {
@@ -143,7 +189,11 @@ def errors_fixture(binary: Path) -> None:
         }
     )
     assert unsupported["error"]["code"] == -32022
-    mcp.close()
+    assert unsupported["error"]["data"] == {
+        "supported": ["2026-07-28"],
+        "requested": "2099-01-01",
+    }, unsupported
+    unsupported_mcp.close()
 
 
 def semantic_fixture(binary: Path, repo: Path, commit: bool) -> None:
@@ -154,15 +204,40 @@ def semantic_fixture(binary: Path, repo: Path, commit: bool) -> None:
         source_before = source.read_bytes()
 
         mcp = Mcp(binary)
-        begun = structured(mcp.tool(10, "begin_transaction", {"project": str(project / "alva.toml")}))
+        listed = mcp.request(
+            {"jsonrpc": "2.0", "id": 10, "method": "tools/list", "params": {}}
+        )["result"]
+        exposed = {tool["name"] for tool in listed["tools"]}
+        begun = structured(mcp.tool(11, "begin_transaction", {"project": str(project / "alva.toml")}))
         transaction = begun["transaction_id"]
+        resolved = structured(
+            mcp.tool(
+                12,
+                "resolve_entity",
+                {"transaction_id": transaction, "name": "demo.app.run", "kind": "function"},
+            )
+        )["entity"]
+        applicable = structured(
+            mcp.tool(
+                13,
+                "applicable_operations",
+                {"transaction_id": transaction, "entity": resolved},
+            )
+        )
+        advertised = set(
+            applicable["inspection"]
+            + applicable["mutation"]
+            + applicable["context_operations"]
+        )
+        assert advertised <= exposed, (advertised, exposed)
+        assert "append_step" not in advertised
         body = structured(
-            mcp.tool(11, "inspect_body", {"transaction_id": transaction, "function": "demo.app.run"})
+            mcp.tool(14, "inspect_body", {"transaction_id": transaction, "function": "demo.app.run"})
         )["body"]
         literal = re.search(r"literal value=a rev=([0-9a-f]{64})", body)
         assert literal, body
         changed = mcp.tool(
-            12,
+            15,
             "change_field",
             {
                 "transaction_id": transaction,
@@ -181,11 +256,11 @@ def semantic_fixture(binary: Path, repo: Path, commit: bool) -> None:
             assert not (project / "alva-air").exists()
             return
 
-        diff = structured(mcp.tool(13, "preview_semantic_diff", {"transaction_id": transaction}))
+        diff = structured(mcp.tool(16, "preview_semantic_diff", {"transaction_id": transaction}))
         assert diff["diff"].strip(), diff
-        checked = mcp.tool(14, "check_transaction", {"transaction_id": transaction})
+        checked = mcp.tool(17, "check_transaction", {"transaction_id": transaction})
         assert checked["isError"] is False, checked
-        committed = mcp.tool(15, "commit_transaction", {"transaction_id": transaction})
+        committed = mcp.tool(18, "commit_transaction", {"transaction_id": transaction})
         assert committed["isError"] is False, committed
         mcp.close()
         assert source.read_bytes() == source_before
