@@ -106,4 +106,4 @@ jobs:
             --verify-tag \
             --prerelease \
             --title "ALVA $GITHUB_REF_NAME — Developer Preview" \
-            --notes-file .github/release-notes/v0.14.1-preview.1.md
+            --notes-file ".github/release-notes/${GITHUB_REF_NAME}.md"

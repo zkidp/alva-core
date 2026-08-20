@@ -2,7 +2,7 @@
 set -eu
 
 repository="${ALVA_REPOSITORY:-zkidp/alva-core}"
-version="${ALVA_VERSION:-v0.14.1-preview.1}"
+version="${ALVA_VERSION:-v0.14.1-preview.2}"
 install_dir="${ALVA_INSTALL_DIR:-$HOME/.local/bin}"
 
 case "$(uname -s)" in

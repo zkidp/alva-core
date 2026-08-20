@@ -1,6 +1,6 @@
 [package]
 name = "alva-lang"
-version = "0.14.1-preview.1"
+version = "0.14.1-preview.2"
 edition = "2021"
 
 [[bin]]

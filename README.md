@@ -111,7 +111,7 @@ alva hole fill ...
 ## Install the Developer Preview
 
 ALVA is a research prototype. The current packaged preview is
-`v0.14.1-preview.1`.
+`v0.14.1-preview.2`.
 
 Windows x64:
 
@@ -119,7 +119,7 @@ Windows x64:
 irm https://raw.githubusercontent.com/zkidp/alva-core/main/scripts/install.ps1 | iex
 alva --version
 alva doctor
-irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.1/alva/examples/hello.alva -OutFile hello.alva
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva -OutFile hello.alva
 alva check hello.alva
 ```
 
@@ -130,7 +130,7 @@ curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/main/scripts/instal
 export PATH="$HOME/.local/bin:$PATH"
 alva --version
 alva doctor
-curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.1/alva/examples/hello.alva
+curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva
 alva check hello.alva
 ```
 
