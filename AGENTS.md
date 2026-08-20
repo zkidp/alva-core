@@ -13,20 +13,16 @@ usable as a standalone public project.
   documentation when those directories are introduced.
 - `scripts/`: maintained developer and release utilities.
 
-The root design drafts and evidence backlog are historical documents. Do not
-extend them with new hypotheses. Move stable implemented facts into `docs/`;
-put unpublished proposals and research planning in the private lab repository.
-
 ## Repository boundary
 
-Do not add manuscripts, reviewer notes, raw research sessions, held-out data,
-author provenance, credentials, or duplicate evaluation datasets. Evaluation
-packages must pin this repository by commit SHA instead of copying the compiler
-into another active repository.
+Keep this repository self-contained and suitable for public use.
 
-Do not promote a semantic capability merely because it is convenient for one
-experiment. Follow the project's evidence-gate process and keep experimental
-work outside this repository until its implementation is accepted.
+Do not commit credentials, private datasets, raw agent transcripts, local
+experiment artifacts, generated build outputs, or machine-specific
+configuration.
+
+Public examples and tests must be reproducible from files contained in this
+repository.
 
 ## Before committing
 
