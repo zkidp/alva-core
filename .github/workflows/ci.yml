@@ -52,6 +52,9 @@ jobs:
       - name: Codex plugin packaging fixture
         run: python tests/integrations/codex_plugin_test.py
 
+      - name: Claude Code plugin packaging fixture
+        run: python tests/integrations/claude_code_plugin_test.py
+
       - name: Shell installer syntax
         run: bash -n scripts/install.sh
 

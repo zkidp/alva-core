@@ -259,6 +259,9 @@ integrations/mcp/
   shared STDIO server setup and compatibility contract
 integrations/codex/
   thin Codex marketplace package for the canonical Skill and shared MCP server
+integrations/claude-code/
+  thin Claude Code marketplace package for the canonical Skill and shared MCP
+  server
 v0.8-EVIDENCE-BACKLOG.md
   evidence-backed v0.8 language/agent backlog (from three workloads)
 设计方案.md
@@ -276,6 +279,9 @@ Useful starting points:
   setup for Codex, Claude Code, and other compatible hosts
 - [integrations/codex/README.md](integrations/codex/README.md) — install the
   canonical Skill and `alva mcp` connection as a Codex plugin
+- [integrations/claude-code/README.md](integrations/claude-code/README.md) —
+  install the same canonical Skill and `alva mcp` connection as a Claude Code
+  plugin
 - [设计方案.md](设计方案.md) — architecture / roadmap
 - [语法草案.md](语法草案.md) — grammar notes
 
