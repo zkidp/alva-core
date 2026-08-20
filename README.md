@@ -16,6 +16,11 @@ for native or WASM/WASI targets.
 [Claude Code](integrations/claude-code/README.md) ·
 [Releases](https://github.com/zkidp/alva-core/releases)
 
+<p align="center">
+  <img src="docs/assets/alva-hero.svg"
+       alt="ALVA semantic editing pipeline from coding agent through typed operations and transactions to Rust, native, and WASM targets">
+</p>
+
 ## Quickstart
 
 The current Developer Preview is **`v0.14.1-preview.2`**. The installers
@@ -174,18 +179,10 @@ Smaller programs are available under [`alva/examples/`](alva/examples/).
 
 ## How it works
 
-```mermaid
-flowchart LR
-    A[Coding agent] --> B[Semantic views]
-    B --> C[Typed operations]
-    C --> D[Staged transaction]
-    D --> E[Structural and semantic checks]
-    E -->|valid| F[Commit program revision]
-    E -->|invalid| G[Repair or abort]
-    F --> H[Rust code generation]
-    H --> I[Native or WASM/WASI]
-    G --> B
-```
+<p align="center">
+  <img src="docs/assets/alva-architecture.svg"
+       alt="ALVA architecture connecting coding agents through semantic views, typed operations and transactions to Rust native and WASM targets">
+</p>
 
 ALVA stores authoritative programs as typed, content-addressed graphs with
 stable named entities, immutable path-copy updates, explicit dependencies, and
