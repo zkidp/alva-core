@@ -1,5 +1,13 @@
 # Alva
 
+> **Repository visibility: PUBLIC.** This is the public implementation
+> snapshot for Alva: compiler, AEP, examples, tests, and public design
+> documentation. Evaluation evidence is maintained separately in
+> [`zkidp/alva-research`](https://github.com/zkidp/alva-research), which may be
+> private during anonymous review. Manuscript
+> sources, raw private artifacts, author provenance, and submission staging do
+> not belong in this repository.
+
 **What if AI agents stopped editing source code?**
 
 Alva is an experimental programming system designed around AI agents as the primary program authors.

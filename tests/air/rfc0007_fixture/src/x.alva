@@ -1,0 +1,27 @@
+(module
+  (name "rfc0007.a")
+  (version "0.1.0")
+  (export run)
+  (fn normalize
+    (params
+      (param alpha (prim i64))
+      (param beta (prim string)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (let tmp (prim i64) (ref alpha)
+        (ref tmp))))
+  (fn other
+    (params
+      (param alpha (prim string))
+      (param gamma (prim bool)))
+    (returns (prim string))
+    (pure)
+    (body
+      (let tmp (prim string) (ref alpha)
+        (ref tmp))))
+  (fn run
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (pure)
+    (body (ok (nil)))))
