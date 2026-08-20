@@ -96,7 +96,7 @@ interface.
 | Compiler | `.alva` parsing and semantic checking, Rust code generation, native builds, and WASM/WASI output |
 | Language | Records, enums, exhaustive match, vectors, maps, `result<T, E>`, contracts, property tests, benchmarks, and typed Rust FFI |
 | Semantic runtime | Content-addressed program revisions, transactional edits, stale-revision detection, structural verification, crash-safe generations, and cross-process commit locking |
-| Agent interface | Entity, dependency, caller, impact, and body views; typed operation discovery and construction; semantic diff; structured diagnostics |
+| Agent interface | Entity, dependency, caller, and body views; typed operation discovery and construction; semantic diff; structured diagnostics |
 | Integrations | Local STDIO MCP server, canonical agent Skill, and thin Codex and Claude Code plugin packages |
 
 ## A semantic edit in one transaction
