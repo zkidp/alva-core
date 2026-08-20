@@ -151,7 +151,7 @@ impl Diag {
 
     pub fn to_json(&self) -> String {
         let mut parts = vec![
-            format!("\"schema_version\":\"1\""),
+            "\"schema_version\":\"1\"".to_string(),
             format!("\"code\":\"{}\"", json_escape(&self.code)),
             format!("\"severity\":\"{}\"", self.severity),
         ];

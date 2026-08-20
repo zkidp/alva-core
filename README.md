@@ -238,6 +238,8 @@ examples/store_split/
   S3-style object store (multi-module)
 examples/build_system/
   incremental build system (multi-module, B1-B11 acceptance)
+integrations/skills/alva/
+  canonical CLI-first skill for semantic edits by coding agents
 v0.8-EVIDENCE-BACKLOG.md
   evidence-backed v0.8 language/agent backlog (from three workloads)
 设计方案.md
@@ -249,6 +251,8 @@ v0.8-EVIDENCE-BACKLOG.md
 Useful starting points:
 
 - [alva/README.md](alva/README.md) — toolchain and command reference
+- [integrations/skills/alva/SKILL.md](integrations/skills/alva/SKILL.md) —
+  canonical coding-agent workflow for transactional semantic edits
 - [设计方案.md](设计方案.md) — architecture / roadmap
 - [语法草案.md](语法草案.md) — grammar notes
 
