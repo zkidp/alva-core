@@ -9,7 +9,6 @@
       "name": "alva",
       "source": "./plugins/alva",
       "description": "Connect Claude Code to ALVA's canonical Skill and local semantic MCP server",
-      "version": "0.1.0",
       "category": "development"
     }
   ]

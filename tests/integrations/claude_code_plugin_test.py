@@ -57,7 +57,7 @@ def main() -> None:
     entry = entries[0]
     assert entry["name"] == manifest["name"]
     assert entry["source"] == "./plugins/alva"
-    assert entry["version"] == manifest["version"]
+    assert "version" not in entry
 
     print(
         "PASS: Claude Code plugin manifest, MCP wiring, marketplace, "

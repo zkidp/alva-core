@@ -19,7 +19,7 @@ alva doctor
 From the repository root:
 
 ```bash
-claude plugin marketplace add integrations/claude-code
+claude plugin marketplace add ./integrations/claude-code
 claude plugin install alva@alva
 ```
 
