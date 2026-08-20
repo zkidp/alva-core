@@ -1,7 +1,10 @@
 # Example: change a hello message semantically
 
 Assume `/workspace/hello/alva.toml` declares module `hello` with function
-`main`. Keep all requests below in one persistent `alva agent` process.
+`main`. Prefer the ALVA MCP server and include the `transaction_id` returned by
+`begin_transaction` in every later tool call. The JSON below shows the
+equivalent CLI fallback wire shape; keep those requests in one persistent
+`alva agent` process.
 
 ## 1. Begin and discover
 

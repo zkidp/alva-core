@@ -8,8 +8,72 @@
 
 pub struct ArgSpec {
     pub name: &'static str,
-    pub shape: &'static str,
+    pub schema: ArgSchema,
     pub required: bool,
+}
+
+/// Executable argument vocabulary shared by AEP discovery and MCP JSON Schema.
+///
+/// The display text remains useful to humans, but JSON types are selected by
+/// the enum variant rather than inferred by parsing that text.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ArgSchema {
+    String(&'static str),
+    Bool(&'static str),
+    Revision(&'static str),
+    EntityRef(&'static str),
+    Symbol(&'static str),
+    Enum(&'static str, &'static [&'static str]),
+    Array(&'static str),
+    Object(&'static str),
+    TypeExpr(&'static str),
+    Path(&'static str),
+    Flexible(&'static str),
+}
+
+impl ArgSchema {
+    pub fn shape(self) -> &'static str {
+        match self {
+            Self::String(s)
+            | Self::Bool(s)
+            | Self::Revision(s)
+            | Self::EntityRef(s)
+            | Self::Symbol(s)
+            | Self::Enum(s, _)
+            | Self::Array(s)
+            | Self::Object(s)
+            | Self::TypeExpr(s)
+            | Self::Path(s)
+            | Self::Flexible(s) => s,
+        }
+    }
+
+    pub fn json_schema(self) -> serde_json::Value {
+        let description = self.shape();
+        match self {
+            Self::Bool(_) => serde_json::json!({"type":"boolean","description":description}),
+            Self::Enum(_, values) => serde_json::json!({
+                "type":"string", "enum":values, "description":description
+            }),
+            Self::Array(_) => serde_json::json!({
+                "type":"array", "items":{}, "description":description
+            }),
+            Self::Object(_) => serde_json::json!({
+                "type":"object", "additionalProperties":true, "description":description
+            }),
+            Self::Flexible(_) => serde_json::json!({"description":description}),
+            Self::Revision(_) => serde_json::json!({
+                "type":"string", "minLength":1, "description":description
+            }),
+            Self::EntityRef(_)
+            | Self::Symbol(_)
+            | Self::TypeExpr(_)
+            | Self::Path(_)
+            | Self::String(_) => {
+                serde_json::json!({"type":"string","minLength":1,"description":description})
+            }
+        }
+    }
 }
 
 pub struct OperationSpec {
@@ -61,11 +125,64 @@ pub const POSITION_NAMES: &[&str] = &[
     "acc_init",
 ];
 
-const fn arg(name: &'static str, shape: &'static str, required: bool) -> ArgSpec {
+fn arg(name: &'static str, shape: &'static str, required: bool) -> ArgSpec {
     ArgSpec {
         name,
-        shape,
+        schema: schema_for_shape(shape),
         required,
+    }
+}
+
+/// Closed migration map from the historical display vocabulary into typed
+/// schemas. This is deliberately exhaustive rather than heuristic: an unknown
+/// description fails during registry construction instead of silently
+/// producing an incorrect MCP schema.
+fn schema_for_shape(shape: &'static str) -> ArgSchema {
+    match shape {
+        "bool" => ArgSchema::Bool(shape),
+        "revision" | "record-construction revision" => ArgSchema::Revision(shape),
+        "entity-id|name" | "entity-id|qualified fn" | "hole-id" => ArgSchema::EntityRef(shape),
+        "symbol" | "field" | "field name" | "target" => ArgSchema::Symbol(shape),
+        "type" | "type string" | "type name" | "record type name" => ArgSchema::TypeExpr(shape),
+        "path to alva.toml" => ArgSchema::Path(shape),
+        "revisions (repeatable)" | "param specs" => ArgSchema::Array(shape),
+        "field=value pairs" => ArgSchema::Object(shape),
+        "revision | type string | json array" => ArgSchema::Flexible(shape),
+        "string(module|function|type|record|enum)" => {
+            ArgSchema::Enum(shape, &["module", "function", "type", "record", "enum"])
+        }
+        "string(field|record|record_update|veclit|fold|match|ok|err|not|range)" => ArgSchema::Enum(
+            shape,
+            &[
+                "field",
+                "record",
+                "record_update",
+                "veclit",
+                "fold",
+                "match",
+                "ok",
+                "err",
+                "not",
+                "range",
+            ],
+        ),
+        "string(builtin|operator|all)" => ArgSchema::Enum(shape, &["builtin", "operator", "all"]),
+        "string|i64|bool|bytes|nil" => {
+            ArgSchema::Enum(shape, &["string", "i64", "bool", "bytes", "nil"])
+        }
+        "contains|any|all|find" => ArgSchema::Enum(shape, &["contains", "any", "all", "find"]),
+        "string(pure|io)" => ArgSchema::Enum(shape, &["pure", "io"]),
+        "io|clock|unsafe-ffi" => ArgSchema::Enum(shape, &["io", "clock", "unsafe-ffi"]),
+        "string"
+        | "string(qualified module.fn)"
+        | "qualified fn or builtin"
+        | "module fn"
+        | "module name"
+        | "==|+|..."
+        | "kind-dependent slot position (see describe_operation expected_positions)" => {
+            ArgSchema::String(shape)
+        }
+        other => panic!("untyped AEP argument shape: {other}"),
     }
 }
 
@@ -662,6 +779,31 @@ pub fn visible<'a>() -> impl Iterator<Item = &'static OperationSpec> + 'a {
     registry().iter().filter(|s| match s.gate {
         Some(g) => gate_enabled(g),
         None => true,
+    })
+}
+
+/// Deterministic JSON Schema 2020-12 input schema generated from the same
+/// typed operation registry used by AEP discovery and dispatch.
+pub fn operation_input_schema(spec: &OperationSpec) -> serde_json::Value {
+    let mut properties = serde_json::Map::new();
+    let mut required = Vec::new();
+    let mut additional_properties = serde_json::Value::Bool(false);
+    for argument in &spec.arguments {
+        if argument.name.starts_with("...") {
+            additional_properties = argument.schema.json_schema();
+            continue;
+        }
+        properties.insert(argument.name.to_string(), argument.schema.json_schema());
+        if argument.required {
+            required.push(serde_json::json!(argument.name));
+        }
+    }
+    serde_json::json!({
+        "$schema":"https://json-schema.org/draft/2020-12/schema",
+        "type":"object",
+        "properties":properties,
+        "required":required,
+        "additionalProperties":additional_properties
     })
 }
 

@@ -7,6 +7,7 @@ mod codegen;
 mod construction;
 mod diag;
 mod manifest;
+mod mcp;
 mod project;
 mod s_expr;
 
@@ -51,6 +52,7 @@ fn run() -> i32 {
         "air" => cmd_air(rest),
         "edit" => cmd_edit(rest),
         "agent" => cmd_agent(rest),
+        "mcp" => mcp::cmd_mcp(),
         "hole" => cmd_hole(rest),
         "view" => cmd_view(rest),
         "capabilities" => cmd_capabilities(rest),
@@ -3295,7 +3297,7 @@ fn describe_json(op: &aep::OperationSpec) -> String {
             format!(
                 "{{\"name\":{},\"shape\":{},\"required\":{}}}",
                 json_str(a.name),
-                json_str(a.shape),
+                json_str(a.schema.shape()),
                 if a.required { "true" } else { "false" }
             )
         })
@@ -4960,7 +4962,7 @@ fn cmd_manifest(rest: &[String]) -> i32 {
 }
 
 fn usage() {
-    eprintln!("usage: alva <check|build|run|manifest|project|impact|air|edit|agent|hole|view|capabilities|doctor> [arguments]");
+    eprintln!("usage: alva <check|build|run|manifest|project|impact|air|edit|agent|mcp|hole|view|capabilities|doctor> [arguments]");
     eprintln!("       alva --version");
 }
 

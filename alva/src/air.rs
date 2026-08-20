@@ -4158,16 +4158,14 @@ impl EditSession {
             .get(&rev)
             .map(|n| n.fields.clone())
             .unwrap_or_default();
+        let slots = self
+            .graph
+            .get(&rev)
+            .map(|n| n.slots.clone())
+            .unwrap_or_default();
         fields.insert(field.to_string(), value.clone());
-        validate_node(
-            &kind,
-            &fields,
-            &self
-                .graph
-                .get(&rev)
-                .map(|n| n.slots.clone())
-                .unwrap_or_default(),
-        )?;
+        validate_node(&kind, &fields, &slots)?;
+        let new_revision = self.graph.compute_revision(&kind, &fields, &slots);
         let r = rev.clone();
         self.stage(|g| {
             if let Some(n) = g.nodes.get_mut(&r) {
@@ -4175,7 +4173,10 @@ impl EditSession {
             }
             Ok(())
         })?;
-        Ok(self.graph.resolve_rev(&rev).unwrap_or_default())
+        if !self.graph.nodes.contains_key(&new_revision) {
+            return Err("set_field: staged revision was not materialized".to_string());
+        }
+        Ok(new_revision)
     }
 
     pub fn delete_entity(&mut self, handle: &str) -> Result<(), String> {

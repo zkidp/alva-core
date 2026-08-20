@@ -147,6 +147,21 @@ rustup target add wasm32-wasip1
 
 `alva doctor` reports which optional toolchain pieces are available.
 
+## Connect a coding agent through MCP
+
+The same `alva` binary includes a local STDIO MCP server:
+
+```text
+alva mcp
+```
+
+It supports both the 2025 initialize handshake and the stateless 2026-07-28
+request envelope. ALVA program state is never tied to a hidden MCP session:
+`begin_transaction` returns an explicit `transaction_id`, and every later
+semantic tool requires that handle through commit or abort. See
+[integrations/mcp/README.md](integrations/mcp/README.md) for host configuration
+and protocol details.
+
 ## Build from source
 
 Requirements: Rust toolchain and Cargo.
@@ -239,7 +254,9 @@ examples/store_split/
 examples/build_system/
   incremental build system (multi-module, B1-B11 acceptance)
 integrations/skills/alva/
-  canonical CLI-first skill for semantic edits by coding agents
+  canonical MCP-first, CLI-fallback skill for semantic edits by coding agents
+integrations/mcp/
+  shared STDIO server setup and compatibility contract
 v0.8-EVIDENCE-BACKLOG.md
   evidence-backed v0.8 language/agent backlog (from three workloads)
 设计方案.md
@@ -253,6 +270,8 @@ Useful starting points:
 - [alva/README.md](alva/README.md) — toolchain and command reference
 - [integrations/skills/alva/SKILL.md](integrations/skills/alva/SKILL.md) —
   canonical coding-agent workflow for transactional semantic edits
+- [integrations/mcp/README.md](integrations/mcp/README.md) — shared MCP server
+  setup for Codex, Claude Code, and other compatible hosts
 - [设计方案.md](设计方案.md) — architecture / roadmap
 - [语法草案.md](语法草案.md) — grammar notes
 
