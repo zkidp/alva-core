@@ -1,6 +1,6 @@
 # alva —— AI 原生语言工具链 v0.14.1 Developer Preview
 
-工作名，随时可改。当前包版本为 `0.14.1-preview.2`；研究冻结 tag 与用户发行版本分别管理。
+工作名，随时可改。当前包版本为 `0.14.1-preview.2`；预览版 API 仍可能变化。
 
 预编译 binary、校验和及安装方式见仓库根目录 `README.md`。`check`、AIR/AEP
 和 semantic views 不要求本机安装 Rust；`build`/`run` 仍需 Rust 和 Cargo。
@@ -208,16 +208,3 @@ initialize handshake 与 2026-07-28 per-request metadata，并把工具调用转
 AEP registry / AIR transaction implementation。MCP 事务不依赖隐藏 transport
 session：`begin_transaction` 返回显式 `transaction_id`，后续调用必须携带该 handle。
 配置与 v1 tool surface 见 [`integrations/mcp/README.md`](../integrations/mcp/README.md)。
-
-## A/C Formal Correctness Experiment（v0.6）
-
-`benchmarks/ac/run_ac.py`：8 个冻结任务、A（文本编辑）/ C（Agent Runtime）随机
-交错、每任务每模式 ≥5 次、独立进程/全新工作区、完整 transcript/tool calls/
-stdout/stderr/checker/verifier、hidden verifier 位于 Agent 不可见位置、完整指标
-schema。当前为脚本化演示（协议/日志/指标可执行）；真实模型测量需隔离 Agent
-基础设施，结果不得冒充。
-
-## 设计文档
-
-- [设计方案.md](../设计方案.md)
-- [语法草案.md](../语法草案.md)

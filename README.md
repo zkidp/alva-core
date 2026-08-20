@@ -1,13 +1,5 @@
 # Alva
 
-> **Repository visibility: PUBLIC.** This is the public implementation
-> snapshot for Alva: compiler, AEP, examples, tests, and public design
-> documentation. Evaluation evidence is maintained separately in
-> [`zkidp/alva-research`](https://github.com/zkidp/alva-research), which may be
-> private during anonymous review. Manuscript
-> sources, raw private artifacts, author provenance, and submission staging do
-> not belong in this repository.
-
 **What if AI agents stopped editing source code?**
 
 Alva is an experimental programming system designed around AI agents as the primary program authors.
@@ -262,14 +254,6 @@ integrations/codex/
 integrations/claude-code/
   thin Claude Code marketplace package for the canonical Skill and shared MCP
   server
-docs/distribution/
-  reviewed plans and gates for public package and marketplace distribution
-v0.8-EVIDENCE-BACKLOG.md
-  evidence-backed v0.8 language/agent backlog (from three workloads)
-设计方案.md
-  architecture and design notes
-语法草案.md
-  language grammar and implementation notes
 ```
 
 Useful starting points:
@@ -284,10 +268,6 @@ Useful starting points:
 - [integrations/claude-code/README.md](integrations/claude-code/README.md) —
   install the same canonical Skill and `alva mcp` connection as a Claude Code
   plugin
-- [docs/distribution/agent-marketplaces-v1.md](docs/distribution/agent-marketplaces-v1.md)
-  — Phase 4A plan and authorization gates for public agent marketplaces
-- [设计方案.md](设计方案.md) — architecture / roadmap
-- [语法草案.md](语法草案.md) — grammar notes
 
 ## Roadmap
 
@@ -306,10 +286,6 @@ Two full multi-module systems are shipped as examples:
 - `examples/build_system/` - an incremental build graph (content-based cache,
   deterministic topo order, reverse invalidation, persistence/restart,
   crash-safe promote, B1-B11 acceptance suite).
-
-`v0.8-EVIDENCE-BACKLOG.md` records which language/agent-interface gaps these
-workloads evidence, and separates confirmed language gaps from compiler
-correctness bugs and agent-interface hypotheses.
 
 Issues, experiments, counterexamples, and critical feedback are welcome.
 

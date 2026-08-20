@@ -2,9 +2,8 @@
 """Public, self-contained AEP regression for RFC-0003 create_query.
 
 Runs entirely on tests/codegen/query and drives `alva agent` directly over
-its JSON-lines protocol (no benchmarks/ac fixtures, no network gateway), so
-it is part of the public snapshot CI. Also asserts RFC-0002 A1 tools are
-experimental/default-off on this tree.
+its JSON-lines protocol without external fixtures or a network gateway. It
+also asserts RFC-0002 A1 tools are experimental/default-off on this tree.
 
 Usage: ALVA=<alva-exe> python tests/air/query_aep_test.py
 """
@@ -170,7 +169,7 @@ def main():
         if r.get("ok") or "E_QUERY_ELEM_VAR_INVALID" not in r.get("message", ""):
             fail(f"invalid elem_var '{bad}' should be rejected: {r}")
 
-    # RFC-0002 A1 tools are experimental/default-off on the public snapshot
+    # RFC-0002 A1 tools are experimental/default-off in this build
     r = ag.tool_raw("inspect_change_impact", entity="type:query.x.Item")
     if r.get("ok") or "E_AEP_UNKNOWN_TOOL" not in r.get("message", ""):
         fail(f"inspect_change_impact should be default-off: {r}")
