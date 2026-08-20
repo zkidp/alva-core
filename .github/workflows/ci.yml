@@ -49,6 +49,9 @@ jobs:
           fi
           python tests/mcp/mcp_protocol_test.py "$binary"
 
+      - name: Codex plugin packaging fixture
+        run: python tests/integrations/codex_plugin_test.py
+
       - name: Shell installer syntax
         run: bash -n scripts/install.sh
 

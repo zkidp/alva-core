@@ -1,0 +1,20 @@
+{
+  "name": "alva",
+  "interface": {
+    "displayName": "ALVA"
+  },
+  "plugins": [
+    {
+      "name": "alva",
+      "source": {
+        "source": "local",
+        "path": "./plugins/alva"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

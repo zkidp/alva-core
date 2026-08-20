@@ -1,0 +1,27 @@
+{
+  "name": "alva",
+  "version": "0.1.0",
+  "description": "Connect Codex to ALVA's canonical Skill and local semantic MCP server.",
+  "author": {
+    "name": "zkidp",
+    "url": "https://github.com/zkidp"
+  },
+  "homepage": "https://github.com/zkidp/alva-core/tree/main/integrations/codex",
+  "repository": "https://github.com/zkidp/alva-core",
+  "license": "Apache-2.0",
+  "keywords": ["alva", "semantic-editing", "mcp", "coding-agent"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ALVA",
+    "shortDescription": "Edit ALVA projects through their semantic interface.",
+    "longDescription": "Provides the canonical ALVA workflow and connects Codex to the local alva mcp semantic server.",
+    "developerName": "ALVA",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Inspect this ALVA project and make the requested semantic change.",
+      "Diagnose this ALVA project using structured semantic diagnostics."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

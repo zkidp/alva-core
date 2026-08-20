@@ -257,6 +257,8 @@ integrations/skills/alva/
   canonical MCP-first, CLI-fallback skill for semantic edits by coding agents
 integrations/mcp/
   shared STDIO server setup and compatibility contract
+integrations/codex/
+  thin Codex marketplace package for the canonical Skill and shared MCP server
 v0.8-EVIDENCE-BACKLOG.md
   evidence-backed v0.8 language/agent backlog (from three workloads)
 设计方案.md
@@ -272,6 +274,8 @@ Useful starting points:
   canonical coding-agent workflow for transactional semantic edits
 - [integrations/mcp/README.md](integrations/mcp/README.md) — shared MCP server
   setup for Codex, Claude Code, and other compatible hosts
+- [integrations/codex/README.md](integrations/codex/README.md) — install the
+  canonical Skill and `alva mcp` connection as a Codex plugin
 - [设计方案.md](设计方案.md) — architecture / roadmap
 - [语法草案.md](语法草案.md) — grammar notes
 
