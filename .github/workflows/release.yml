@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            platform: linux-x86_64
+            binary: alva
+            archive: tar.gz
+          - runner: windows-2025
+            target: x86_64-pc-windows-msvc
+            platform: windows-x86_64
+            binary: alva.exe
+            archive: zip
+          - runner: macos-15
+            target: aarch64-apple-darwin
+            platform: macos-aarch64
+            binary: alva
+            archive: tar.gz
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --locked --release --manifest-path alva/Cargo.toml --target ${{ matrix.target }}
+
+      - name: Verify tag matches package version
+        shell: bash
+        run: |
+          package_version="$(awk -F '"' '/^version = / { print $2; exit }' alva/Cargo.toml)"
+          test "$GITHUB_REF_NAME" = "v${package_version}"
+
+      - name: Smoke test release binary
+        shell: bash
+        run: ./alva/target/${{ matrix.target }}/release/${{ matrix.binary }} --version
+
+      - name: Package Unix artifact
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          asset="alva-${GITHUB_REF_NAME}-${{ matrix.platform }}"
+          mkdir "$asset"
+          cp "alva/target/${{ matrix.target }}/release/${{ matrix.binary }}" "$asset/"
+          cp LICENSE "$asset/"
+          tar -czf "${asset}.tar.gz" "$asset"
+
+      - name: Package Windows artifact
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $asset = "alva-$env:GITHUB_REF_NAME-${{ matrix.platform }}"
+          New-Item -ItemType Directory -Path $asset | Out-Null
+          Copy-Item "alva/target/${{ matrix.target }}/release/${{ matrix.binary }}" "$asset/"
+          Copy-Item LICENSE "$asset/"
+          Compress-Archive -Path $asset -DestinationPath "$asset.zip"
+
+      - name: Upload packaged binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: alva-${{ matrix.platform }}
+          path: alva-v*-${{ matrix.platform }}.${{ matrix.archive }}
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download packaged binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Assemble release and checksums
+        shell: bash
+        run: |
+          mkdir release
+          find dist -type f \( -name '*.zip' -o -name '*.tar.gz' \) -exec cp '{}' release/ \;
+          cd release
+          sha256sum ./* > SHA256SUMS.txt
+
+      - name: Create GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --prerelease \
+            --title "ALVA $GITHUB_REF_NAME — Developer Preview" \
+            --notes-file .github/release-notes/v0.14.1-preview.1.md

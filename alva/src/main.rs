@@ -32,6 +32,10 @@ fn main() {
 
 fn run() -> i32 {
     let args: Vec<String> = std::env::args().collect();
+    if args.len() == 2 && matches!(args[1].as_str(), "--version" | "-V" | "version") {
+        println!("alva {}", env!("CARGO_PKG_VERSION"));
+        return 0;
+    }
     if args.len() < 2 {
         usage();
         std::process::exit(2);
@@ -50,6 +54,7 @@ fn run() -> i32 {
         "hole" => cmd_hole(rest),
         "view" => cmd_view(rest),
         "capabilities" => cmd_capabilities(rest),
+        "doctor" => cmd_doctor(rest),
         other => {
             eprintln!("unknown command: {other}");
             usage();
@@ -57,6 +62,76 @@ fn run() -> i32 {
         }
     };
     code
+}
+
+fn probe_command(program: &str, arguments: &[&str]) -> Result<String, String> {
+    let output = Command::new(program)
+        .args(arguments)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err(String::from_utf8_lossy(&output.stderr).trim().to_string());
+    }
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .next()
+        .unwrap_or("")
+        .trim()
+        .to_string())
+}
+
+fn cmd_doctor(rest: &[String]) -> i32 {
+    if !rest.is_empty() {
+        eprintln!("usage: alva doctor");
+        return 2;
+    }
+
+    println!("ALVA compiler      OK (alva {})", env!("CARGO_PKG_VERSION"));
+
+    let rust_ok = match probe_command("rustc", &["--version"]) {
+        Ok(version) => {
+            println!("Rust toolchain     OK ({version})");
+            true
+        }
+        Err(_) => {
+            println!("Rust toolchain     MISSING (required for native build/run)");
+            false
+        }
+    };
+
+    let cargo_ok = match probe_command("cargo", &["--version"]) {
+        Ok(version) => {
+            println!("Cargo              OK ({version})");
+            true
+        }
+        Err(_) => {
+            println!("Cargo              MISSING (required for native build/run)");
+            false
+        }
+    };
+
+    let wasm_ok = Command::new("rustup")
+        .args(["target", "list", "--installed"])
+        .output()
+        .ok()
+        .filter(|output| output.status.success())
+        .map(|output| {
+            String::from_utf8_lossy(&output.stdout)
+                .lines()
+                .any(|line| line.trim() == "wasm32-wasip1")
+        })
+        .unwrap_or(false);
+    if wasm_ok {
+        println!("WASM target        OK (wasm32-wasip1)");
+    } else {
+        println!("WASM target        MISSING (optional; rustup target add wasm32-wasip1)");
+    }
+
+    if rust_ok && cargo_ok {
+        0
+    } else {
+        1
+    }
 }
 
 /// Offline capability catalog probe interface (compiler-owned; not an AEP
@@ -4885,7 +4960,8 @@ fn cmd_manifest(rest: &[String]) -> i32 {
 }
 
 fn usage() {
-    eprintln!("usage: alva <check|build|run|manifest> <file.alva> [--json] [--target native|wasm] [--test] [--bench] [--release] [--out-dir <path>]");
+    eprintln!("usage: alva <check|build|run|manifest|project|impact|air|edit|agent|hole|view|capabilities|doctor> [arguments]");
+    eprintln!("       alva --version");
 }
 
 fn parse_args(rest: &[String]) -> CliArgs {

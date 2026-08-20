@@ -41,6 +41,25 @@ jobs:
         working-directory: alva
         run: cargo build
 
+      - name: Shell installer syntax
+        run: bash -n scripts/install.sh
+
+      - name: PowerShell installer syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path scripts/install.ps1),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count) {
+            $errors | Format-List
+            exit 1
+          }
+
       - name: Conformance tests (parser / typecheck / contracts / effects)
         run: bash tests/run_conformance.sh
 
@@ -76,3 +95,29 @@ jobs:
 
       - name: SigV4 auth fuzz
         run: bash tests/s3-rclone/fuzz_auth.sh
+
+  macos-arm64-smoke:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-wasip1
+
+      - name: Compiler tests
+        working-directory: alva
+        run: cargo test
+
+      - name: Build compiler
+        working-directory: alva
+        run: cargo build
+
+      - name: CLI and native/WASM smoke
+        run: |
+          ./alva/target/debug/alva --version
+          ./alva/target/debug/alva check alva/examples/hello.alva
+          ./alva/target/debug/alva run alva/examples/hello.alva
+          ./alva/target/debug/alva build alva/examples/hello.alva --target wasm

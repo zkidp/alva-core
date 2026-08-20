@@ -5,3 +5,4 @@ benchmarks/ac/results/case-study-t07/.mplconfig/
 # Paper workspace is maintained in the private repo (alva-paper/) - never commit here
 paper/
 __pycache__/
+out/
