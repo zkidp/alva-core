@@ -1,0 +1,132 @@
+;; STDLIB-MATURATION-00：alva.std.string 端到端测试。
+;; Unicode 语义锁定：len=bytes、chars=code points、substring=byte offsets。
+(module
+  (name "string.demo")
+  (version "0.1.0")
+  (dep "alva.std.string" "0.1.0")
+  (export run)
+
+  (fn run
+    (params)
+    (returns (prim bool))
+    (pure)
+    (body (bool true)))
+
+  ;; ---- inspection ----
+
+  (test is_empty
+    (body
+      (and (call alva.std.string.is_empty (string ""))
+           (not (call alva.std.string.is_empty (string "x"))))))
+
+  (test starts_with
+    (body
+      (and (call alva.std.string.starts_with (string "hello") (string "he"))
+           (not (call alva.std.string.starts_with (string "hello") (string "lo"))))))
+
+  (test ends_with
+    (body
+      (and (call alva.std.string.ends_with (string "hello") (string "lo"))
+           (not (call alva.std.string.ends_with (string "hello") (string "he"))))))
+
+  (test contains
+    (body
+      (and (call alva.std.string.contains (string "hello world") (string "lo wo"))
+           (not (call alva.std.string.contains (string "hello") (string "xyz"))))))
+
+  ;; ---- normalization ----
+
+  (test trim
+    (body
+      (== (call alva.std.string.trim (string "  hi  "))
+          (string "hi"))))
+
+  (test trim_start
+    (body
+      (== (call alva.std.string.trim_start (string "  hi  "))
+          (string "hi  "))))
+
+  (test trim_end
+    (body
+      (== (call alva.std.string.trim_end (string "  hi  "))
+          (string "  hi"))))
+
+  (test lower_upper
+    (body
+      (and (== (call alva.std.string.lower (string "HÉLLO"))
+               (string "héllo"))
+           (== (call alva.std.string.upper (string "héllo"))
+               (string "HÉLLO")))))
+
+  ;; ---- transformation ----
+
+  (test replace
+    (body
+      (== (call alva.std.string.replace
+            (string "a-b-c")
+            (string "-")
+            (string "_"))
+          (string "a_b_c"))))
+
+  (test substring_ok
+    (body
+      (== (unwrap
+            (call alva.std.string.substring
+              (string "hello")
+              (int 1)
+              (int 3)))
+          (string "el"))))
+
+  (test substring_out_of_range
+    (body
+      (== (try (call alva.std.string.substring
+                 (string "hello")
+                 (int 1)
+                 (int 99))
+               (catch e (string "err")))
+          (string "err"))))
+
+  (test repeat
+    (body
+      (and (== (call alva.std.string.repeat (string "ab") (int 3))
+               (string "ababab"))
+           (== (call alva.std.string.repeat (string "ab") (int 0))
+               (string "")))))
+
+  ;; ---- decomposition ----
+
+  (test lines
+    (body
+      (== (get
+            (call alva.std.string.lines (string "a\nb\nc"))
+            (int 1))
+          (string "b"))))
+
+  (test chars_code_points
+    (body
+      (== (len
+            (call alva.std.string.chars (string "a😀b")))
+          (int 3))))
+
+  ;; "a" + family emoji (7 code points incl. 3 ZWJ) + "b" = 9 code points
+  (test chars_family_emoji_code_points
+    (body
+      (== (len
+            (call alva.std.string.chars (string "a👨‍👩‍👧‍👦b")))
+          (int 9))))
+
+  ;; ---- conversion ----
+
+  (test from_utf8_ok
+    (body
+      (== (unwrap
+            (call alva.std.string.from_utf8
+              (to-bytes (string "hi"))))
+          (string "hi"))))
+
+  (test from_utf8_invalid
+    (body
+      (== (try (call alva.std.string.from_utf8 (bytes "ff"))
+               (catch e (string "err")))
+          (string "err"))))
+)

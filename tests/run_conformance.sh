@@ -130,6 +130,14 @@ else
   FAILED=1
 fi
 
+# stdlib（STDLIB-MATURATION-00）：alva.std.string 端到端
+if bash "$ROOT/tests/stdlib/string/run_test.sh"; then
+  echo "PASS stdlib string"
+else
+  echo "FAIL stdlib string"
+  FAILED=1
+fi
+
 # contracts: build and run tests
 for f in "$ROOT"/tests/contracts/*.alva; do
   [ -e "$f" ] || continue

@@ -1,0 +1,5 @@
+[project]
+name = "string_demo"
+
+[modules]
+"string.demo" = "src/app.alva"
