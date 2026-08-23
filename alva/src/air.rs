@@ -4434,6 +4434,7 @@ fn prim_from_name(name: &str) -> Option<ast::Prim> {
         "bool" => ast::Prim::Bool,
         "string" => ast::Prim::String,
         "bytes" => ast::Prim::Bytes,
+        "json" => ast::Prim::Json,
         "nil" => ast::Prim::Nil,
         _ => return None,
     })

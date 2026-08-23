@@ -119,6 +119,10 @@ fn codegen_inner(
         // glue 的 fs 原语依赖 sha2（内容寻址校验），对所有生成 crate 提供。
         cargo.push_str("sha2 = \"0.10\"\n");
     }
+    if !declared.contains("serde_json") {
+        // glue 的 json 原语（alva.std.json）依赖 serde_json，对所有生成 crate 提供。
+        cargo.push_str("serde_json = \"1\"\n");
+    }
     for (c, v) in &module.rust_deps {
         cargo.push_str(&format!("{c} = \"{v}\"\n"));
     }
@@ -1424,6 +1428,143 @@ mod glue {
         }
         0
     }
+
+    // ===== alva.std.json runtime (JSON value type) =====
+
+    pub fn json_parse(text: String) -> Result<serde_json::Value, String> {
+        serde_json::from_str(&text).map_err(|e| format!("json.parse: {e}"))
+    }
+
+    pub fn json_serialize(v: &serde_json::Value) -> String {
+        v.to_string()
+    }
+
+    pub fn json_pretty(v: &serde_json::Value) -> String {
+        serde_json::to_string_pretty(v).unwrap_or_else(|_| v.to_string())
+    }
+
+    pub fn json_get(v: &serde_json::Value, key: String) -> Result<serde_json::Value, String> {
+        match v.get(&key) {
+            Some(x) => Ok(x.clone()),
+            None => Err(format!("json.get: no field '{key}'")),
+        }
+    }
+
+    pub fn json_index(v: &serde_json::Value, i: i64) -> Result<serde_json::Value, String> {
+        if i < 0 {
+            return Err(format!("json.index: negative index {i}"));
+        }
+        match v.get(i as usize) {
+            Some(x) => Ok(x.clone()),
+            None => Err(format!("json.index: index {i} out of range")),
+        }
+    }
+
+    pub fn json_keys(v: &serde_json::Value) -> Result<Vec<String>, String> {
+        match v {
+            serde_json::Value::Object(m) => Ok(m.keys().cloned().collect()),
+            _ => Err("json.keys: value is not an object".to_string()),
+        }
+    }
+
+    pub fn json_length(v: &serde_json::Value) -> Result<i64, String> {
+        match v {
+            serde_json::Value::Array(a) => Ok(a.len() as i64),
+            serde_json::Value::Object(m) => Ok(m.len() as i64),
+            serde_json::Value::String(s) => Ok(s.chars().count() as i64),
+            _ => Err("json.length: value has no length".to_string()),
+        }
+    }
+
+    pub fn json_set(
+        v: &serde_json::Value,
+        key: String,
+        val: serde_json::Value,
+    ) -> Result<serde_json::Value, String> {
+        match v {
+            serde_json::Value::Object(m) => {
+                let mut m2 = m.clone();
+                m2.insert(key.clone(), val);
+                Ok(serde_json::Value::Object(m2))
+            }
+            _ => Err(format!("json.set: value is not an object (key '{key}')")),
+        }
+    }
+
+    pub fn json_is_object(v: &serde_json::Value) -> bool {
+        v.is_object()
+    }
+
+    pub fn json_is_array(v: &serde_json::Value) -> bool {
+        v.is_array()
+    }
+
+    pub fn json_is_string(v: &serde_json::Value) -> bool {
+        v.is_string()
+    }
+
+    pub fn json_is_number(v: &serde_json::Value) -> bool {
+        v.is_number()
+    }
+
+    pub fn json_is_bool(v: &serde_json::Value) -> bool {
+        v.is_boolean()
+    }
+
+    pub fn json_is_null(v: &serde_json::Value) -> bool {
+        v.is_null()
+    }
+
+    pub fn json_as_string(v: &serde_json::Value) -> Result<String, String> {
+        v.as_str()
+            .map(|s| s.to_string())
+            .ok_or_else(|| "json.as-string: value is not a string".to_string())
+    }
+
+    pub fn json_as_i64(v: &serde_json::Value) -> Result<i64, String> {
+        v.as_i64()
+            .ok_or_else(|| "json.as-i64: value is not an integer".to_string())
+    }
+
+    pub fn json_as_f64(v: &serde_json::Value) -> Result<f64, String> {
+        v.as_f64()
+            .ok_or_else(|| "json.as-f64: value is not a number".to_string())
+    }
+
+    pub fn json_as_bool(v: &serde_json::Value) -> Result<bool, String> {
+        v.as_bool()
+            .ok_or_else(|| "json.as-bool: value is not a bool".to_string())
+    }
+
+    pub fn json_from_string(s: String) -> serde_json::Value {
+        serde_json::Value::String(s)
+    }
+
+    pub fn json_from_i64(i: i64) -> serde_json::Value {
+        serde_json::Value::Number(i.into())
+    }
+
+    pub fn json_from_f64(x: f64) -> serde_json::Value {
+        serde_json::Number::from_f64(x)
+            .map(serde_json::Value::Number)
+            .unwrap_or(serde_json::Value::Null)
+    }
+
+    pub fn json_from_bool(b: bool) -> serde_json::Value {
+        serde_json::Value::Bool(b)
+    }
+
+    pub fn json_from_nil() -> serde_json::Value {
+        serde_json::Value::Null
+    }
+
+    pub fn json_array(items: Vec<serde_json::Value>) -> serde_json::Value {
+        serde_json::Value::Array(items)
+    }
+
+    pub fn json_object(m: std::collections::HashMap<String, serde_json::Value>) -> serde_json::Value {
+        serde_json::Value::Object(m.into_iter().collect())
+    }
 }
 "#;
 
@@ -1442,6 +1583,7 @@ fn prim_rust(p: &Prim) -> &'static str {
         Prim::Bool => "bool",
         Prim::String => "String",
         Prim::Bytes => "Vec<u8>",
+        Prim::Json => "serde_json::Value",
         Prim::Nil => "()",
     }
 }

@@ -1,0 +1,378 @@
+;; alva.std.json — JSON value type and operations (STDLIB-MATURATION-00 Phase 1)
+;;
+;; 设计：`(prim json)` 映射到运行时 serde_json::Value；本模块提供类型化的
+;; parse/serialize/access/construct 操作，全部为纯函数（无 eff），调用方无需
+;; 声明任何 capability。解析/序列化/访问的实现在编译器内置的 glue 运行时，
+;; 通过 (extern glue.* ...) 绑定，模板替换在 codegen 阶段完成。
+(module
+  (name "alva.std.json")
+  (version "0.1.0")
+  (cap unsafe-ffi)
+  (export parse serialize pretty get index keys length set
+          is_object is_array is_string is_number is_bool is_null
+          as_string as_i64 as_f64 as_bool
+          from_string from_i64 from_f64 from_bool from_nil array object)
+
+  ;; ---- parse / serialize ----
+
+  (extern glue.json_parse
+    (params (param text (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_parse({text})"))
+
+  (extern glue.json_serialize
+    (params (param v (prim json)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::json_serialize(&{v})"))
+
+  (extern glue.json_pretty
+    (params (param v (prim json)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::json_pretty(&{v})"))
+
+  ;; ---- access / inspection ----
+
+  (extern glue.json_get
+    (params (param v (prim json)) (param key (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_get(&{v}, {key})"))
+
+  (extern glue.json_index
+    (params (param v (prim json)) (param i (prim i64)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_index(&{v}, {i})"))
+
+  (extern glue.json_keys
+    (params (param v (prim json)))
+    (returns (result (vec (prim string)) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_keys(&{v})"))
+
+  (extern glue.json_length
+    (params (param v (prim json)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_length(&{v})"))
+
+  (extern glue.json_set
+    (params
+      (param v (prim json))
+      (param key (prim string))
+      (param val (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_set(&{v}, {key}, {val})"))
+
+  (extern glue.json_is_object
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::json_is_object(&{v})"))
+
+  (extern glue.json_is_array
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::json_is_array(&{v})"))
+
+  (extern glue.json_is_string
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::json_is_string(&{v})"))
+
+  (extern glue.json_is_number
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::json_is_number(&{v})"))
+
+  (extern glue.json_is_bool
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::json_is_bool(&{v})"))
+
+  (extern glue.json_is_null
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::json_is_null(&{v})"))
+
+  (extern glue.json_as_string
+    (params (param v (prim json)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_as_string(&{v})"))
+
+  (extern glue.json_as_i64
+    (params (param v (prim json)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_as_i64(&{v})"))
+
+  (extern glue.json_as_f64
+    (params (param v (prim json)))
+    (returns (result (prim f64) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_as_f64(&{v})"))
+
+  (extern glue.json_as_bool
+    (params (param v (prim json)))
+    (returns (result (prim bool) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_as_bool(&{v})"))
+
+  ;; ---- construction ----
+
+  (extern glue.json_from_string
+    (params (param s (prim string)))
+    (returns (prim json))
+    (pure)
+    (unsafe)
+    (rust "glue::json_from_string({s})"))
+
+  (extern glue.json_from_i64
+    (params (param i (prim i64)))
+    (returns (prim json))
+    (pure)
+    (unsafe)
+    (rust "glue::json_from_i64({i})"))
+
+  (extern glue.json_from_f64
+    (params (param x (prim f64)))
+    (returns (prim json))
+    (pure)
+    (unsafe)
+    (rust "glue::json_from_f64({x})"))
+
+  (extern glue.json_from_bool
+    (params (param b (prim bool)))
+    (returns (prim json))
+    (pure)
+    (unsafe)
+    (rust "glue::json_from_bool({b})"))
+
+  (extern glue.json_from_nil
+    (params)
+    (returns (prim json))
+    (pure)
+    (unsafe)
+    (rust "glue::json_from_nil()"))
+
+  (extern glue.json_array
+    (params (param items (vec (prim json))))
+    (returns (prim json))
+    (pure)
+    (unsafe)
+    (rust "glue::json_array({items})"))
+
+  (extern glue.json_object
+    (params (param m (map (prim string) (prim json))))
+    (returns (prim json))
+    (pure)
+    (unsafe)
+    (rust "glue::json_object({m})"))
+
+  ;; ---- typed wrappers (public API) ----
+
+  (fn parse
+    (params (param text (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_parse (ref text))))
+
+  (fn serialize
+    (params (param v (prim json)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.json_serialize (ref v))))
+
+  (fn pretty
+    (params (param v (prim json)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.json_pretty (ref v))))
+
+  (fn get
+    (params (param v (prim json)) (param key (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_get (ref v) (ref key))))
+
+  (fn index
+    (params (param v (prim json)) (param i (prim i64)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_index (ref v) (ref i))))
+
+  (fn keys
+    (params (param v (prim json)))
+    (returns (result (vec (prim string)) (prim string)))
+    (pure)
+    (body
+      (call glue.json_keys (ref v))))
+
+  (fn length
+    (params (param v (prim json)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (call glue.json_length (ref v))))
+
+  (fn set
+    (params
+      (param v (prim json))
+      (param key (prim string))
+      (param val (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_set (ref v) (ref key) (ref val))))
+
+  (fn is_object
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.json_is_object (ref v))))
+
+  (fn is_array
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.json_is_array (ref v))))
+
+  (fn is_string
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.json_is_string (ref v))))
+
+  (fn is_number
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.json_is_number (ref v))))
+
+  (fn is_bool
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.json_is_bool (ref v))))
+
+  (fn is_null
+    (params (param v (prim json)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.json_is_null (ref v))))
+
+  (fn as_string
+    (params (param v (prim json)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (call glue.json_as_string (ref v))))
+
+  (fn as_i64
+    (params (param v (prim json)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (call glue.json_as_i64 (ref v))))
+
+  (fn as_f64
+    (params (param v (prim json)))
+    (returns (result (prim f64) (prim string)))
+    (pure)
+    (body
+      (call glue.json_as_f64 (ref v))))
+
+  (fn as_bool
+    (params (param v (prim json)))
+    (returns (result (prim bool) (prim string)))
+    (pure)
+    (body
+      (call glue.json_as_bool (ref v))))
+
+  (fn from_string
+    (params (param s (prim string)))
+    (returns (prim json))
+    (pure)
+    (body
+      (call glue.json_from_string (ref s))))
+
+  (fn from_i64
+    (params (param i (prim i64)))
+    (returns (prim json))
+    (pure)
+    (body
+      (call glue.json_from_i64 (ref i))))
+
+  (fn from_f64
+    (params (param x (prim f64)))
+    (returns (prim json))
+    (pure)
+    (body
+      (call glue.json_from_f64 (ref x))))
+
+  (fn from_bool
+    (params (param b (prim bool)))
+    (returns (prim json))
+    (pure)
+    (body
+      (call glue.json_from_bool (ref b))))
+
+  (fn from_nil
+    (params)
+    (returns (prim json))
+    (pure)
+    (body
+      (call glue.json_from_nil)))
+
+  (fn array
+    (params (param items (vec (prim json))))
+    (returns (prim json))
+    (pure)
+    (body
+      (call glue.json_array (ref items))))
+
+  (fn object
+    (params (param m (map (prim string) (prim json))))
+    (returns (prim json))
+    (pure)
+    (body
+      (call glue.json_object (ref m)))))

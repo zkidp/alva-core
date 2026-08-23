@@ -9,9 +9,7 @@ use std::path::{Path, PathBuf};
 /// 声明 `(use "alva.std.*" ...)` 依赖时自动注入，无需在 alva.toml 列出。
 /// std 模块本身是普通模块：类型检查走 check_with_external，AIR/manifest/
 /// AEP 全部自然可用；运行时实现通过 glue externs 绑定。
-// 首个消费者（alva.std.json）随 JSON 里程碑 commit 落地，避免 include_str!
-// 在机制 commit 阶段引用尚未入库的源码。
-pub const STD_SOURCES: &[(&str, &str)] = &[];
+pub const STD_SOURCES: &[(&str, &str)] = &[("alva.std.json", include_str!("std_src/json.alva"))];
 
 pub struct Project {
     pub name: String,

@@ -30,6 +30,7 @@ pub enum Prim {
     Bool,
     String,
     Bytes,
+    Json,
     Nil,
 }
 
@@ -48,6 +49,7 @@ pub fn prim_name(p: &Prim) -> &'static str {
         Prim::Bool => "bool",
         Prim::String => "string",
         Prim::Bytes => "bytes",
+        Prim::Json => "json",
         Prim::Nil => "nil",
     }
 }
@@ -624,6 +626,7 @@ fn parse_type_expr(n: &Node) -> Result<TypeExpr, Vec<Diag>> {
                     Some("bool") => Prim::Bool,
                     Some("string") => Prim::String,
                     Some("bytes") => Prim::Bytes,
+                    Some("json") => Prim::Json,
                     Some("nil") => Prim::Nil,
                     _ => return Err(vec![Diag::error_at(n.span(), "unknown primitive type")]),
                 };

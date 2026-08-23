@@ -94,7 +94,8 @@ fn is_integer(t: &Ty) -> bool {
 
 fn is_hashable_key(t: &Ty) -> bool {
     match t {
-        Ty::Prim(p) => !matches!(p, Prim::F32 | Prim::F64),
+        // serde_json::Value 未实现 Hash，不能作为 map key；浮点同理。
+        Ty::Prim(p) => !matches!(p, Prim::F32 | Prim::F64 | Prim::Json),
         _ => false,
     }
 }
@@ -1237,7 +1238,8 @@ impl<'a> Checker<'a> {
                         | Prim::F32
                         | Prim::F64
                         | Prim::Bool
-                        | Prim::String,
+                        | Prim::String
+                        | Prim::Json,
                     ) => {}
                     Ty::Unknown => {}
                     _ => {
@@ -2004,7 +2006,8 @@ impl<'a> Checker<'a> {
                         | Prim::F32
                         | Prim::F64
                         | Prim::Bool
-                        | Prim::String,
+                        | Prim::String
+                        | Prim::Json,
                 ) | Ty::Unknown
             );
             if !printable {
