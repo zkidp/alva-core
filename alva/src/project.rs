@@ -5,6 +5,14 @@ use crate::diag::Diag;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
+/// 编译器托管的 std 模块：源码以 .alva 形式内嵌进二进制，当项目任一模块
+/// 声明 `(use "alva.std.*" ...)` 依赖时自动注入，无需在 alva.toml 列出。
+/// std 模块本身是普通模块：类型检查走 check_with_external，AIR/manifest/
+/// AEP 全部自然可用；运行时实现通过 glue externs 绑定。
+// 首个消费者（alva.std.json）随 JSON 里程碑 commit 落地，避免 include_str!
+// 在机制 commit 阶段引用尚未入库的源码。
+pub const STD_SOURCES: &[(&str, &str)] = &[];
+
 pub struct Project {
     pub name: String,
     pub modules: Vec<(String, PathBuf)>,
@@ -74,7 +82,54 @@ pub fn load_modules(project: &Project) -> Result<Vec<LoadedModule>, Vec<Diag>> {
         }
     }
     if diags.is_empty() {
+        inject_std_modules(&mut out)?;
         Ok(out)
+    } else {
+        Err(diags)
+    }
+}
+
+/// 注入项目依赖的 std 模块（迭代处理 std→std 依赖）。
+fn inject_std_modules(out: &mut Vec<LoadedModule>) -> Result<(), Vec<Diag>> {
+    let mut diags = Vec::new();
+    loop {
+        let mut added = false;
+        let mut to_add: Vec<&str> = Vec::new();
+        for lm in out.iter() {
+            for (dep, _) in &lm.module.deps {
+                if let Some((name, _)) = STD_SOURCES.iter().find(|(n, _)| *n == dep) {
+                    if !out.iter().any(|m| &m.name == name) && !to_add.contains(name) {
+                        to_add.push(name);
+                    }
+                }
+            }
+        }
+        for name in to_add {
+            let (_, src) = STD_SOURCES
+                .iter()
+                .find(|(n, _)| *n == name)
+                .expect("std source");
+            let limits = crate::s_expr::Limits::from_env();
+            match crate::s_expr::parse_with_limits(src, &limits) {
+                Ok(tree) => match crate::ast::from_tree(&tree) {
+                    Ok(module) => {
+                        out.push(LoadedModule {
+                            name: name.to_string(),
+                            module,
+                        });
+                        added = true;
+                    }
+                    Err(ds) => diags.extend(ds),
+                },
+                Err(e) => diags.push(Diag::error_at(e.span(), e.message()).with_code(e.code())),
+            }
+        }
+        if !added {
+            break;
+        }
+    }
+    if diags.is_empty() {
+        Ok(())
     } else {
         Err(diags)
     }
@@ -203,6 +258,7 @@ pub fn load_modules_air(
             Err(e) => return Err(vec![Diag::error(e)]),
         }
     }
+    inject_std_modules(&mut out)?;
     Ok(out)
 }
 
@@ -352,6 +408,9 @@ pub fn codegen_project(
     // glue 的 fs 原语依赖 sha2（内容寻址校验），对所有生成 crate 提供。
     deps.entry("sha2".to_string())
         .or_insert_with(|| "0.10".to_string());
+    // glue 的 json 原语（alva.std.json）依赖 serde_json，对所有生成 crate 提供。
+    deps.entry("serde_json".to_string())
+        .or_insert_with(|| "1".to_string());
     for (c, v) in deps {
         cargo.push_str(&format!("{c} = \"{v}\"\n"));
     }
