@@ -1565,6 +1565,94 @@ mod glue {
     pub fn json_object(m: std::collections::HashMap<String, serde_json::Value>) -> serde_json::Value {
         serde_json::Value::Object(m.into_iter().collect())
     }
+
+    // ===== alva.std.string runtime =====
+    //
+    // Unicode 语义锁定（v1，不承诺完整 Unicode text model）：
+    //   len        = byte length（沿用现有 builtin 语义，不变）
+    //   chars      = Unicode code points（scalars）
+    //   substring  = byte offsets；非 char boundary / 越界返回 Err
+    //   lines      = Rust str::lines 语义（按 \n 切分并去掉行尾 \r）
+    //   grapheme segmentation 推迟到未来 alva.std.unicode
+
+    pub fn str_is_empty(s: String) -> bool {
+        s.is_empty()
+    }
+
+    pub fn str_starts_with(s: String, p: String) -> bool {
+        s.starts_with(&p)
+    }
+
+    pub fn str_ends_with(s: String, p: String) -> bool {
+        s.ends_with(&p)
+    }
+
+    pub fn str_contains(s: String, p: String) -> bool {
+        s.contains(&p)
+    }
+
+    pub fn str_trim(s: String) -> String {
+        s.trim().to_string()
+    }
+
+    pub fn str_trim_start(s: String) -> String {
+        s.trim_start().to_string()
+    }
+
+    pub fn str_trim_end(s: String) -> String {
+        s.trim_end().to_string()
+    }
+
+    pub fn str_lower(s: String) -> String {
+        s.to_lowercase()
+    }
+
+    pub fn str_upper(s: String) -> String {
+        s.to_uppercase()
+    }
+
+    pub fn str_replace(s: String, from: String, to: String) -> String {
+        s.replace(&from, &to)
+    }
+
+    pub fn str_repeat(s: String, n: i64) -> String {
+        if n <= 0 {
+            String::new()
+        } else {
+            s.repeat(n as usize)
+        }
+    }
+
+    pub fn str_lines(s: String) -> Vec<String> {
+        s.lines().map(|x| x.to_string()).collect()
+    }
+
+    pub fn str_chars(s: String) -> Vec<String> {
+        s.chars().map(|c| c.to_string()).collect()
+    }
+
+    pub fn str_substring(s: String, start: i64, end: i64) -> Result<String, String> {
+        if start < 0 || end < start {
+            return Err(format!("string.substring: invalid range [{start}, {end})"));
+        }
+        let (a, b) = (start as usize, end as usize);
+        if b > s.len() {
+            return Err(format!(
+                "string.substring: end {end} out of range (len {})",
+                s.len()
+            ));
+        }
+        if !s.is_char_boundary(a) || !s.is_char_boundary(b) {
+            return Err(
+                "string.substring: range does not fall on char boundaries".to_string(),
+            );
+        }
+        Ok(s[a..b].to_string())
+    }
+
+    pub fn str_from_utf8(b: Vec<u8>) -> Result<String, String> {
+        String::from_utf8(b).map_err(|e| format!("string.from_utf8: {e}"))
+    }
 }
 "#;
 

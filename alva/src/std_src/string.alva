@@ -1,0 +1,253 @@
+;; alva.std.string — string inspection / normalization / transformation /
+;; decomposition / conversion (STDLIB-MATURATION-00 v1, no language core change)
+;;
+;; Unicode 语义锁定（v1）：
+;;   len        = byte length（沿用 builtin，未在本模块重复）
+;;   chars      = Unicode code points（scalars）
+;;   substring  = byte offsets；非 char boundary / 越界返回 Err
+;;   lines      = 按 \n 切分并去掉行尾 \r
+;;   grapheme segmentation 推迟到未来 alva.std.unicode
+(module
+  (name "alva.std.string")
+  (version "0.1.0")
+  (cap unsafe-ffi)
+  (export is_empty starts_with ends_with contains
+          trim trim_start trim_end lower upper
+          replace substring repeat
+          lines chars
+          from_utf8)
+
+  ;; ---- inspection ----
+
+  (extern glue.str_is_empty
+    (params (param s (prim string)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::str_is_empty({s})"))
+
+  (extern glue.str_starts_with
+    (params (param s (prim string)) (param p (prim string)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::str_starts_with({s}, {p})"))
+
+  (extern glue.str_ends_with
+    (params (param s (prim string)) (param p (prim string)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::str_ends_with({s}, {p})"))
+
+  (extern glue.str_contains
+    (params (param s (prim string)) (param p (prim string)))
+    (returns (prim bool))
+    (pure)
+    (unsafe)
+    (rust "glue::str_contains({s}, {p})"))
+
+  ;; ---- normalization ----
+
+  (extern glue.str_trim
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::str_trim({s})"))
+
+  (extern glue.str_trim_start
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::str_trim_start({s})"))
+
+  (extern glue.str_trim_end
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::str_trim_end({s})"))
+
+  (extern glue.str_lower
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::str_lower({s})"))
+
+  (extern glue.str_upper
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::str_upper({s})"))
+
+  ;; ---- transformation ----
+
+  (extern glue.str_replace
+    (params
+      (param s (prim string))
+      (param from (prim string))
+      (param to (prim string)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::str_replace({s}, {from}, {to})"))
+
+  (extern glue.str_substring
+    (params
+      (param s (prim string))
+      (param start (prim i64))
+      (param end (prim i64)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::str_substring({s}, {start}, {end})"))
+
+  (extern glue.str_repeat
+    (params (param s (prim string)) (param n (prim i64)))
+    (returns (prim string))
+    (pure)
+    (unsafe)
+    (rust "glue::str_repeat({s}, {n})"))
+
+  ;; ---- decomposition ----
+
+  (extern glue.str_lines
+    (params (param s (prim string)))
+    (returns (vec (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::str_lines({s})"))
+
+  (extern glue.str_chars
+    (params (param s (prim string)))
+    (returns (vec (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::str_chars({s})"))
+
+  ;; ---- conversion ----
+
+  (extern glue.str_from_utf8
+    (params (param b (prim bytes)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::str_from_utf8({b})"))
+
+  ;; ---- typed wrappers (public API) ----
+
+  (fn is_empty
+    (params (param s (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.str_is_empty (ref s))))
+
+  (fn starts_with
+    (params (param s (prim string)) (param p (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.str_starts_with (ref s) (ref p))))
+
+  (fn ends_with
+    (params (param s (prim string)) (param p (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.str_ends_with (ref s) (ref p))))
+
+  (fn contains
+    (params (param s (prim string)) (param p (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (call glue.str_contains (ref s) (ref p))))
+
+  (fn trim
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.str_trim (ref s))))
+
+  (fn trim_start
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.str_trim_start (ref s))))
+
+  (fn trim_end
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.str_trim_end (ref s))))
+
+  (fn lower
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.str_lower (ref s))))
+
+  (fn upper
+    (params (param s (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.str_upper (ref s))))
+
+  (fn replace
+    (params
+      (param s (prim string))
+      (param from (prim string))
+      (param to (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.str_replace (ref s) (ref from) (ref to))))
+
+  (fn substring
+    (params
+      (param s (prim string))
+      (param start (prim i64))
+      (param end (prim i64)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (call glue.str_substring (ref s) (ref start) (ref end))))
+
+  (fn repeat
+    (params (param s (prim string)) (param n (prim i64)))
+    (returns (prim string))
+    (pure)
+    (body
+      (call glue.str_repeat (ref s) (ref n))))
+
+  (fn lines
+    (params (param s (prim string)))
+    (returns (vec (prim string)))
+    (pure)
+    (body
+      (call glue.str_lines (ref s))))
+
+  (fn chars
+    (params (param s (prim string)))
+    (returns (vec (prim string)))
+    (pure)
+    (body
+      (call glue.str_chars (ref s))))
+
+  (fn from_utf8
+    (params (param b (prim bytes)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (call glue.str_from_utf8 (ref b))))
+)
