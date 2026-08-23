@@ -1,0 +1,5 @@
+[project]
+name = "json_demo"
+
+[modules]
+"json.demo" = "src/app.alva"

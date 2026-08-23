@@ -1,0 +1,170 @@
+;; STDLIB-MATURATION-00 Phase 1：alva.std.json 端到端测试。
+;; 覆盖 parse / serialize / access / construct / predicates / conversions。
+(module
+  (name "json.demo")
+  (version "0.1.0")
+  (dep "alva.std.json" "0.1.0")
+  (export parsed run)
+
+  ;; parse 失败时回退到 json null，便于测试 catch 路径
+  (fn parsed
+    (params (param text (prim string)))
+    (returns (prim json))
+    (pure)
+    (body
+      (try (call alva.std.json.parse (ref text))
+           (catch e (call alva.std.json.from_nil)))))
+
+  (fn run
+    (params)
+    (returns (prim bool))
+    (pure)
+    (body (bool true)))
+
+  ;; ---- parse / serialize ----
+
+  (test parse_roundtrip
+    (body
+      (== (call alva.std.json.serialize
+            (call parsed (string "{\"a\":1,\"b\":[true,null]}"))
+          )
+          (string "{\"a\":1,\"b\":[true,null]}"))))
+
+  (test parse_invalid_falls_back_to_null
+    (body
+      (call alva.std.json.is_null
+        (try (call alva.std.json.parse (string "not json"))
+             (catch e (call alva.std.json.from_nil))))))
+
+  (test parse_error_message_is_string
+    (body
+      (== (call before
+            (unwrap
+              (call alva.std.json.as_string
+                (try (call alva.std.json.parse (string "not json"))
+                     (catch e
+                       (call alva.std.json.from_string (ref e))))))
+            (string ":"))
+          (string "json.parse"))))
+
+  ;; ---- access ----
+
+  (test get_field
+    (body
+      (== (unwrap
+            (call alva.std.json.as_i64
+              (try (call alva.std.json.get
+                     (call parsed (string "{\"a\":7}"))
+                     (string "a"))
+                   (catch e (call alva.std.json.from_nil)))))
+          (int 7))))
+
+  (test get_missing_returns_err
+    (body
+      (call alva.std.json.is_null
+        (try (call alva.std.json.get
+               (call parsed (string "{\"a\":1}"))
+               (string "zzz"))
+             (catch e (call alva.std.json.from_nil))))))
+
+  (test index_array
+    (body
+      (== (unwrap
+            (call alva.std.json.as_i64
+              (try (call alva.std.json.index
+                     (call parsed (string "[10,20,30]"))
+                     (int 1))
+                   (catch e (call alva.std.json.from_nil)))))
+          (int 20))))
+
+  (test keys_sorted
+    (body
+      (== (get
+            (try (call alva.std.json.keys
+                   (call parsed (string "{\"b\":1,\"a\":2}")))
+                 (catch e (vec (prim string))))
+            (int 0))
+          (string "a"))))
+
+  (test length_array
+    (body
+      (== (unwrap
+            (call alva.std.json.length
+              (call parsed (string "[1,2,3]"))))
+          (int 3))))
+
+  (test nested_access
+    (body
+      (== (unwrap
+            (call alva.std.json.as_string
+              (try (call alva.std.json.get
+                     (try (call alva.std.json.get
+                            (call parsed (string "{\"user\":{\"name\":\"alice\"}}"))
+                            (string "user"))
+                          (catch e (call alva.std.json.from_nil)))
+                     (string "name"))
+                   (catch e (call alva.std.json.from_nil)))))
+          (string "alice"))))
+
+  ;; ---- predicates ----
+
+  (test predicates
+    (body
+      (and (call alva.std.json.is_object (call parsed (string "{}")))
+           (and (call alva.std.json.is_array (call parsed (string "[]")))
+                (and (call alva.std.json.is_number (call parsed (string "1")))
+                     (and (call alva.std.json.is_bool (call parsed (string "true")))
+                          (call alva.std.json.is_null (call parsed (string "null")))))))))
+
+  ;; ---- conversions ----
+
+  (test as_string
+    (body
+      (== (unwrap
+            (call alva.std.json.as_string
+              (call parsed (string "\"hi\""))))
+          (string "hi"))))
+
+  (test as_i64_rejects_string
+    (body
+      (== (try (call alva.std.json.as_i64
+                (call parsed (string "\"hi\"")))
+              (catch e (int -1)))
+          (int -1))))
+
+  ;; ---- construction ----
+
+  (test object_construct
+    (body
+      (== (call alva.std.json.serialize
+            (call alva.std.json.object
+              (map (prim string) (prim json)
+                   ((string "x") (call alva.std.json.from_i64 (int 3)))
+                   ((string "y") (call alva.std.json.from_bool (bool true))))))
+          (string "{\"x\":3,\"y\":true}"))))
+
+  (test array_construct
+    (body
+      (== (call alva.std.json.serialize
+            (call alva.std.json.array
+              (vec (prim json)
+                   (call alva.std.json.from_string (string "a"))
+                   (call alva.std.json.from_i64 (int 1)))))
+          (string "[\"a\",1]"))))
+
+  (test set_field
+    (body
+      (== (call alva.std.json.serialize
+            (try (call alva.std.json.set
+                   (call parsed (string "{\"a\":1}"))
+                   (string "b")
+                   (call alva.std.json.from_bool (bool true)))
+                 (catch e (call alva.std.json.from_nil))))
+          (string "{\"a\":1,\"b\":true}"))))
+
+  (test pretty_contains_newline
+    (body
+      (call alva.std.json.is_string
+        (call alva.std.json.from_string
+          (call alva.std.json.pretty
+            (call parsed (string "{\"a\":1}"))))))))

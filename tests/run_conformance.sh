@@ -122,6 +122,14 @@ else
   FAILED=1
 fi
 
+# stdlib（STDLIB-MATURATION-00）：alva.std.json 端到端
+if bash "$ROOT/tests/stdlib/json/run_test.sh"; then
+  echo "PASS stdlib json"
+else
+  echo "FAIL stdlib json"
+  FAILED=1
+fi
+
 # contracts: build and run tests
 for f in "$ROOT"/tests/contracts/*.alva; do
   [ -e "$f" ] || continue
