@@ -3014,6 +3014,84 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     }
                 }
             }
+            "migrate_signature" => {
+                // E3 feasibility: SAME BINARY + env gate. When the gate is
+                // off, the operation is invisible to discovery AND inert at
+                // dispatch; it composes only existing EditSession APIs and
+                // does NOT check or commit (the agent still calls
+                // check_transaction / commit_transaction itself).
+                if !aep::gate_enabled(aep::GATE_E3_HIGH) {
+                    resp!(false, "null", "E_AEP_UNKNOWN_TOOL: unknown operation")
+                } else {
+                    let s = need_session!();
+                    let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+                    let param = req.get("param").and_then(|v| v.as_str()).unwrap_or("");
+                    let type_name = req
+                        .get("type")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("string");
+                    let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
+                    match (|| -> Result<String, String> {
+                        if param.is_empty() {
+                            return Err("migrate_signature: param name required".to_string());
+                        }
+                        let fn_entity = resolve_entity_in_graph(&s.graph, function)
+                            .ok_or_else(|| format!("entity not found: {function}"))?;
+                        let (fn_rev, fn_name) = s
+                            .graph
+                            .resolve(&fn_entity)
+                            .map(|n| {
+                                let name = match n.fields.get("name") {
+                                    Some(air::Value::Str(s)) => s.clone(),
+                                    _ => String::new(),
+                                };
+                                (n.revision.clone(), name)
+                            })
+                            .ok_or_else(|| format!("entity not found: {function}"))?;
+                        if fn_name.is_empty() {
+                            return Err(format!("entity has no name field: {function}"));
+                        }
+                        // 1. new parameter (same construction as add_param)
+                        let ty = type_expr_for(type_name, &mut s.graph)?;
+                        let mut f = BTreeMap::new();
+                        f.insert("name".to_string(), air::Value::Str(param.to_string()));
+                        let mut slots = BTreeMap::new();
+                        slots.insert("type".to_string(), vec![ty]);
+                        let param_rev = s.create_node("param", f, slots)?;
+                        s.append_child(&fn_rev, "params", &param_rev)?;
+                        // 2. migrate every call site that references the
+                        //    function by its source name (call nodes store the
+                        //    source-level callee name, as view_callers does)
+                        let arg_val = prim_value_for(type_name, value)?;
+                        let mut af = BTreeMap::new();
+                        af.insert("value".to_string(), arg_val);
+                        let callers: Vec<String> = s
+                            .graph
+                            .nodes
+                            .values()
+                            .filter(|n| {
+                                n.kind == "call"
+                                    && n.fields.get("name")
+                                        == Some(&air::Value::Str(fn_name.clone()))
+                            })
+                            .map(|n| n.revision.clone())
+                            .collect();
+                        for call_rev in callers {
+                            let arg_rev =
+                                s.create_node("literal", af.clone(), BTreeMap::new())?;
+                            s.append_child(&call_rev, "args", &arg_rev)?;
+                        }
+                        Ok(fn_entity)
+                    })() {
+                        Ok(entity) => resp!(
+                            true,
+                            &format!("{{\"entity\":{}}}", json_str(&entity)),
+                            "ok"
+                        ),
+                        Err(e) => resp!(false, "null", &e),
+                    }
+                }
+            }
             other => {
                 let cands = aep::closest(other, 6);
                 resp!(

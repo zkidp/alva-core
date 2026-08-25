@@ -93,6 +93,9 @@ pub struct OperationSpec {
 }
 
 pub const GATE_A1: &str = "ALVA_AEP_ENABLE_EXPERIMENTAL_A1";
+/// E3 feasibility gate: when unset, the compound operation is hidden from
+/// discovery AND inert at dispatch, so one binary serves both arms.
+pub const GATE_E3_HIGH: &str = "ALVA_AEP_ENABLE_E3_HIGH";
 
 /// Canonical friendly position vocabulary for `replace_expression`.
 ///
@@ -758,6 +761,22 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             "inspect_schema_gaps entity=queue.model.Job",
             Some(GATE_A1),
         ),
+        spec(
+            "migrate_signature",
+            vec!["migrate_sig"],
+            vec!["function"],
+            vec![
+                arg("function", "module fn", true),
+                arg("param", "symbol", true),
+                arg("type", "type", false),
+                arg("value", "string", false),
+            ],
+            vec!["transaction"],
+            "mutation",
+            "entity",
+            "migrate_signature function=store.router.handle param=retries type=i64 value=1",
+            Some(GATE_E3_HIGH),
+        ),
     ]
 });
 
@@ -844,4 +863,54 @@ pub fn context_ops() -> Vec<&'static OperationSpec> {
     let mut out: Vec<&'static OperationSpec> = visible().filter(|s| s.scope != "entity").collect();
     out.sort_by_key(|s| s.name);
     out
+}
+
+#[cfg(test)]
+mod e3_tool_surface_tests {
+    use super::*;
+
+    // The static registry has 41 spec() entries, of which 2 are gated behind
+    // GATE_A1 (inspect_change_impact, inspect_schema_gaps). The E3 runtime
+    // check holds GATE_A1 constant in BOTH arms so the ONLY difference is
+    // the E3 gate: LOW = 41 visible, HIGH = 42 visible, added exactly
+    // migrate_signature. (With GATE_A1 off, both counts are 2 lower; the
+    // comparison is unchanged.)
+    #[test]
+    fn runtime_exposed_surface_e3_gate_adds_exactly_one_operation() {
+        std::env::set_var(GATE_A1, "1");
+        std::env::remove_var(GATE_E3_HIGH);
+        let low: Vec<&str> = visible().map(|s| s.name).collect();
+        assert_eq!(
+            low.len(),
+            41,
+            "E3 gate OFF must expose exactly the 41 baseline operations"
+        );
+        assert!(
+            !low.contains(&"migrate_signature"),
+            "E3 gate OFF must hide migrate_signature"
+        );
+        std::env::set_var(GATE_E3_HIGH, "1");
+        let high: Vec<&str> = visible().map(|s| s.name).collect();
+        assert_eq!(
+            high.len(),
+            42,
+            "E3 gate ON must expose exactly one additional operation"
+        );
+        assert!(
+            high.contains(&"migrate_signature"),
+            "E3 gate ON must expose migrate_signature"
+        );
+        let added: Vec<&str> = high
+            .iter()
+            .filter(|n| !low.contains(n))
+            .copied()
+            .collect();
+        assert_eq!(
+            added,
+            vec!["migrate_signature"],
+            "the only added operation must be migrate_signature"
+        );
+        std::env::remove_var(GATE_A1);
+        std::env::remove_var(GATE_E3_HIGH);
+    }
 }
