@@ -1,0 +1,29 @@
+(module
+  (name "gp.b")
+  (version "0.1.0")
+  (export compute caller_b)
+
+  (fn compute
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (call add (ref x) (int 1))))
+
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref a)))
+
+  (fn caller_b
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call compute (int 6))))
+)

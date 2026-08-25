@@ -1,0 +1,28 @@
+(module
+  (name "gp.main")
+  (version "0.1.0")
+  (export run outer compute)
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call outer (call compute (int 1)))))
+
+  (fn outer
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn compute
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+)

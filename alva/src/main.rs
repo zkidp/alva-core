@@ -3051,6 +3051,48 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         if fn_name.is_empty() {
                             return Err(format!("entity has no name field: {function}"));
                         }
+                        // 2. Compute module-scoped caller matching BEFORE the
+                        //    mutation: appending the parameter rebuilds
+                        //    revisions bottom-up, so the function's revision
+                        //    is only valid before the mutation. Module
+                        //    context is the same information a LOW agent has
+                        //    from inspections. A call belongs to the target
+                        //    iff:
+                        //      (a) it uses the unqualified source name AND
+                        //          its enclosing function lives in the
+                        //          target's module; or
+                        //      (b) it uses the qualified "module.fn" name
+                        //          from anywhere.
+                        //    This deliberately avoids a global name match,
+                        //    which would mis-migrate same-named functions in
+                        //    other modules.
+                        let target_module: String = s
+                            .graph
+                            .module_entities
+                            .iter()
+                            .find(|me| {
+                                s.graph.resolve(me).and_then(|mn| {
+                                    mn.slots
+                                        .get("functions")
+                                        .map(|f| f.contains(&fn_rev))
+                                }).unwrap_or(false)
+                            })
+                            .map(|me| me.trim_start_matches("module:").to_string())
+                            .unwrap_or_default();
+                        let qualified = if target_module.is_empty() {
+                            fn_name.clone()
+                        } else {
+                            format!("{target_module}.{fn_name}")
+                        };
+                        let mut fn_module: BTreeMap<String, String> = BTreeMap::new();
+                        for me in s.graph.module_entities.clone() {
+                            let mname = me.trim_start_matches("module:").to_string();
+                            if let Some(mn) = s.graph.resolve(&me) {
+                                for fid in mn.slots.get("functions").cloned().unwrap_or_default() {
+                                    fn_module.insert(fid, mname.clone());
+                                }
+                            }
+                        }
                         // 1. new parameter (same construction as add_param)
                         let ty = type_expr_for(type_name, &mut s.graph)?;
                         let mut f = BTreeMap::new();
@@ -3059,22 +3101,35 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         slots.insert("type".to_string(), vec![ty]);
                         let param_rev = s.create_node("param", f, slots)?;
                         s.append_child(&fn_rev, "params", &param_rev)?;
-                        // 2. migrate every call site that references the
-                        //    function by its source name (call nodes store the
-                        //    source-level callee name, as view_callers does)
+                        // 3. migrate the module-scoped call sites.
                         let arg_val = prim_value_for(type_name, value)?;
                         let mut af = BTreeMap::new();
                         af.insert("value".to_string(), arg_val);
-                        let callers: Vec<String> = s
-                            .graph
-                            .nodes
-                            .values()
-                            .filter(|n| {
-                                n.kind == "call"
-                                    && n.fields.get("name")
-                                        == Some(&air::Value::Str(fn_name.clone()))
+                        let callers: Vec<String> = air::walk_expressions(&s.graph)
+                            .into_iter()
+                            .filter(|(rev, kind, fn_e, _)| {
+                                if kind != "call" {
+                                    return false;
+                                }
+                                let Some(n) = s.graph.get(rev) else {
+                                    return false;
+                                };
+                                let Some(air::Value::Str(cname)) = n.fields.get("name") else {
+                                    return false;
+                                };
+                                if cname == &qualified {
+                                    return true;
+                                }
+                                if cname == &fn_name {
+                                    return !fn_e.is_empty()
+                                        && fn_module
+                                            .get(fn_e)
+                                            .map(|m| m == &target_module)
+                                            .unwrap_or(false);
+                                }
+                                false
                             })
-                            .map(|n| n.revision.clone())
+                            .map(|(rev, _, _, _)| rev.clone())
                             .collect();
                         for call_rev in callers {
                             let arg_rev =

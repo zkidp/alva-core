@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """E3 golden-pair tests (zero-model): HIGH migrate_signature vs the canonical
-LOW primitive sequence on a frozen fixture.
+LOW primitive sequence, qualified across caller multiplicity, nesting,
+module boundaries, duplicate callee names, and invalid inputs.
 
-Layers (GOLDEN-PAIR-SPEC.md):
-  1. success: same final authoritative state (semantic hash + entity heads)
-  2. validation: same check result / commit admissibility
-  3. failure: same rejection of invalid inputs; gate-OFF inertness
+Cases (GOLDEN-PAIR-SPEC.md):
+  GP01 one caller
+  GP02 many callers (multiple functions)
+  GP03 zero callers
+  GP04 nested call
+  GP05 cross-module caller (qualified name)
+  GP06 duplicate callee names in two modules (target module scoping)
+  GP07 invalid entity
+  GP08 invalid type/value
+  gate-OFF inertness
 
 Usage: ALVA=<alva-exe> python tests/e3/golden_pair_test.py
 """
@@ -19,9 +26,30 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FIXTURE = os.path.join(HERE, "fixtures", "gp_basic")
+FIXTURES = os.path.join(HERE, "fixtures")
 ENV = dict(os.environ)
 ENV.setdefault("ALVA_AEP_ENABLE_EXPERIMENTAL_A1", "1")
+
+CASES = [
+    dict(name="GP01 one caller", fixture="gp01_one_caller",
+         target="gp.main.compute",
+         inspect=[("gp.main.run", "compute")]),
+    dict(name="GP02 many callers", fixture="gp02_many_callers",
+         target="gp.main.compute",
+         inspect=[("gp.main.run", "compute"), ("gp.main.run2", "compute")]),
+    dict(name="GP03 zero callers", fixture="gp03_zero_callers",
+         target="gp.main.compute", inspect=[]),
+    dict(name="GP04 nested call", fixture="gp04_nested_call",
+         target="gp.main.compute",
+         inspect=[("gp.main.run", "compute")]),
+    dict(name="GP05 cross-module caller", fixture="gp05_cross_module",
+         target="gp.a.compute",
+         inspect=[("gp.b.caller_b", "gp.a.compute")]),
+    dict(name="GP06 duplicate callee names", fixture="gp06_dup_names",
+         target="gp.a.compute",
+         inspect=[("gp.a.caller_a", "compute")],
+         untouched_module="module:gp.b"),
+]
 
 
 def fail(msg):
@@ -69,16 +97,16 @@ class Agent:
         self.p.wait()
 
 
-def fresh_project():
+def fresh_project(fixture):
     work = tempfile.mkdtemp(prefix="gp-")
     proj_dir = os.path.join(work, "proj")
-    shutil.copytree(FIXTURE, proj_dir)
+    shutil.copytree(os.path.join(FIXTURES, fixture), proj_dir)
     return os.path.join(proj_dir, "alva.toml")
 
 
-def final_state(alva, project):
-    """Open the committed authoritative store in a fresh cmd_edit process and
-    return (semantic_hash, module heads) of the final state."""
+def state_heads(alva, project):
+    """Open the project (source or committed store) in a fresh cmd_edit
+    process and return (semantic_hash, sorted module heads)."""
     p = subprocess.Popen(
         [alva, "edit"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         text=True, encoding="utf-8",
@@ -90,28 +118,29 @@ def final_state(alva, project):
     p.wait()
     r = json.loads(line)
     if not r.get("ok"):
-        fail(f"final-state begin failed: {r}")
+        fail(f"state begin failed: {r}")
     res = r["result"]
-    return res["base_hash"], sorted(res["modules"])
+    return res["base_hash"], res["modules"]
 
 
-def run_arm(alva, mode):
-    project = fresh_project()
+def run_arm(alva, case, mode):
+    project = fresh_project(case["fixture"])
     a = Agent(alva, project, gate_on=(mode == "high"))
     a.ok("begin_transaction", project=project)
     if mode == "high":
-        a.ok("migrate_signature", function="gp.main.compute",
+        a.ok("migrate_signature", function=case["target"],
              param="factor", type="i64", value="2")
     else:
-        insp = a.ok("inspect_function", name="gp.main.run")
-        body = insp["result"]["body"]
-        callers = re.findall(r"call name=compute rev=([0-9a-f]{64})", body)
-        if len(callers) != 2:
-            fail(f"expected 2 compute call sites, found {len(callers)}: {callers}")
-        a.ok("add_param", function="gp.main.compute", name="factor", type="i64")
+        callers = set()
+        for fn, token in case["inspect"]:
+            insp = a.ok("inspect_function", name=fn)
+            body = insp["result"]["body"]
+            pat = rf"call name={re.escape(token)} rev=([0-9a-f]{{64}})"
+            callers.update(re.findall(pat, body))
+        a.ok("add_param", function=case["target"], name="factor", type="i64")
         lit = a.ok("create_literal", type="i64", value="2")
         arg_rev = lit["result"]["revision"]
-        for c in sorted(set(callers)):
+        for c in sorted(callers):
             a.ok("add_call_arg", call=c, arg=arg_rev)
     check = a.call("check_transaction")
     commit = a.call("commit_transaction")
@@ -119,64 +148,73 @@ def run_arm(alva, mode):
     return project, check, commit
 
 
-def layer1_success(alva):
-    low_proj, low_check, low_commit = run_arm(alva, "low")
-    high_proj, high_check, high_commit = run_arm(alva, "high")
-    # Layer 2: validation equivalence (check + commit admissibility).
+def run_case(alva, case):
+    low_proj, low_check, low_commit = run_arm(alva, case, "low")
+    high_proj, high_check, high_commit = run_arm(alva, case, "high")
+    # Layer 2: validation equivalence.
     if low_check["ok"] != high_check["ok"]:
-        fail(f"check differs: LOW {low_check.get('message')} vs "
-             f"HIGH {high_check.get('message')}")
+        fail(f"{case['name']}: check differs: LOW {low_check.get('message')} "
+             f"vs HIGH {high_check.get('message')}")
     if low_commit["ok"] != high_commit["ok"]:
-        fail(f"commit differs: LOW {low_commit.get('message')} vs "
-             f"HIGH {high_commit.get('message')}")
+        fail(f"{case['name']}: commit differs: LOW {low_commit.get('message')} "
+             f"vs HIGH {high_commit.get('message')}")
     if not (low_check["ok"] and low_commit["ok"]):
-        fail("success fixture expected both arms to pass check and commit")
-    # Layer 1: final authoritative state (semantic hash + entity heads).
-    low_state = final_state(alva, low_proj)
-    high_state = final_state(alva, high_proj)
+        fail(f"{case['name']}: expected both arms to pass check and commit")
+    # Layer 1: final authoritative state equality.
+    low_state = state_heads(alva, low_proj)
+    high_state = state_heads(alva, high_proj)
     if low_state != high_state:
-        fail(f"final state differs:\n  LOW  {low_state}\n  HIGH {high_state}")
-    log(f"LAYER 1+2 (success + validation): PASS "
-        f"(final semantic hash {low_state[0][:12]}..., heads match)")
+        fail(f"{case['name']}: final state differs:\n  LOW  {low_state}\n"
+             f"  HIGH {high_state}")
+    # GP06: duplicate-name target must NOT touch the other module.
+    untouched = case.get("untouched_module")
+    if untouched:
+        baseline = state_heads(alva, fresh_project(case["fixture"]))
+        if high_state[1][untouched] != baseline[1][untouched]:
+            fail(f"{case['name']}: untouched module {untouched} was modified: "
+                 f"{baseline[1][untouched]} -> {high_state[1][untouched]}")
+    log(f"{case['name']}: PASS (final hash {low_state[0][:12]}..., "
+        f"heads match)")
 
 
-def layer3_failure(alva):
-    # unknown function: HIGH and LOW must both reject
-    p1 = fresh_project()
+def negative_cases(alva):
+    # GP07: unknown entity rejected by both arms.
+    p1 = fresh_project("gp01_one_caller")
     a = Agent(alva, p1, gate_on=True)
     a.ok("begin_transaction", project=p1)
     high_unknown = a.call("migrate_signature", function="gp.main.nope",
                           param="factor", type="i64", value="2")
     a.close()
-    p2 = fresh_project()
+    p2 = fresh_project("gp01_one_caller")
     b = Agent(alva, p2, gate_on=False)
     b.ok("begin_transaction", project=p2)
     low_unknown = b.call("add_param", function="gp.main.nope",
                          name="factor", type="i64")
     b.close()
     if high_unknown["ok"] or low_unknown["ok"]:
-        fail(f"unknown function must be rejected: HIGH {high_unknown}, "
+        fail(f"GP07 unknown entity must be rejected: HIGH {high_unknown}, "
              f"LOW {low_unknown}")
-    # bad literal value: HIGH and LOW must both reject
-    p3 = fresh_project()
+    # GP08: invalid type/value rejected by both arms.
+    p3 = fresh_project("gp01_one_caller")
     c = Agent(alva, p3, gate_on=True)
     c.ok("begin_transaction", project=p3)
     high_bad = c.call("migrate_signature", function="gp.main.compute",
                       param="factor", type="i64", value="not-an-int")
     c.close()
-    p4 = fresh_project()
+    p4 = fresh_project("gp01_one_caller")
     d = Agent(alva, p4, gate_on=False)
     d.ok("begin_transaction", project=p4)
     low_bad = d.call("create_literal", type="i64", value="not-an-int")
     d.close()
     if high_bad["ok"] or low_bad["ok"]:
-        fail(f"bad literal must be rejected: HIGH {high_bad}, LOW {low_bad}")
-    log("LAYER 3 (failure equivalence): PASS (unknown entity and bad literal "
-        "rejected in both arms)")
+        fail(f"GP08 invalid literal must be rejected: HIGH {high_bad}, "
+             f"LOW {low_bad}")
+    log("GP07 invalid entity: PASS (rejected in both arms)")
+    log("GP08 invalid type/value: PASS (rejected in both arms)")
 
 
 def gate_off_inert(alva):
-    project = fresh_project()
+    project = fresh_project("gp01_one_caller")
     a = Agent(alva, project, gate_on=False)
     a.ok("begin_transaction", project=project)
     r = a.call("migrate_signature", function="gp.main.compute",
@@ -184,15 +222,16 @@ def gate_off_inert(alva):
     a.close()
     if r.get("ok") or "E_AEP_UNKNOWN_TOOL" not in r.get("error_code", ""):
         fail(f"gate OFF must make migrate_signature inert, got {r}")
-    log("GATE-OFF INERTNESS: PASS (migrate_signature hidden and inert)")
+    log("GATE-OFF INERTNESS: PASS")
 
 
 def main():
     alva = os.environ.get("ALVA")
     if not alva:
         fail("set ALVA to the alva executable")
-    layer1_success(alva)
-    layer3_failure(alva)
+    for case in CASES:
+        run_case(alva, case)
+    negative_cases(alva)
     gate_off_inert(alva)
     log("GOLDEN-PAIR SUITE: PASS")
 

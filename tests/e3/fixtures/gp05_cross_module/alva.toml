@@ -1,0 +1,6 @@
+[project]
+name = "gp05"
+
+[modules]
+"gp.a" = "src/a.alva"
+"gp.b" = "src/b.alva"

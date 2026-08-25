@@ -1,0 +1,14 @@
+(module
+  (name "gp.b")
+  (version "0.1.0")
+  (dep "gp.a" "0.1.0")
+  (export caller_b)
+
+  (fn caller_b
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (call gp.a.compute (ref x))))
+)

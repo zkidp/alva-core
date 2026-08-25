@@ -1,0 +1,5 @@
+[project]
+name = "gp04"
+
+[modules]
+"gp.main" = "src/main.alva"
