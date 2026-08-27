@@ -13,9 +13,11 @@ WORKDIR /src/alva
 RUN cargo build --release --bin alva
 
 FROM debian:bookworm-slim
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# No apt step: the CA bundle is copied from the build stage so image
+# assembly does not depend on external package mirrors (Alibaba/China hosts
+# observed very slow deb.debian.org access during the first build attempt).
+COPY --from=build /etc/ssl/certs/ca-certificates.crt \
+    /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /src/alva/target/release/alva /usr/local/bin/alva
 COPY tests/e3/runner/container/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
