@@ -39,6 +39,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import runner_core as rc  # noqa: E402
+from deepseek_relay import DeepSeekRelay  # noqa: E402
 
 AUTH = "E3_EXECUTION_AUTHORIZED"
 
@@ -77,6 +78,13 @@ class ProviderRelay:
         raise RuntimeError("HOLD_MODEL_RELAY_PROTOCOL_UNPINNED")
 
 
+def load_tool_defs(arm):
+    path = os.path.join(HERE, "tool-schemas",
+                        "TOOLS-HIGH.json" if arm == "HIGH"
+                        else "TOOLS-LOW.json")
+    return json.load(open(path, encoding="utf-8"))["tools"]
+
+
 def assert_execution_freeze(args, m, alva):
     """Fail-closed identity checks against EXECUTION-FREEZE.json. Any
     mismatch or REQUIRED_INPUT placeholder stops the run before any model
@@ -107,8 +115,9 @@ def assert_execution_freeze(args, m, alva):
     if rc.sha256_file(alva).lower() != \
             freeze.get("alva_binary_sha256", "").lower():
         raise RuntimeError("FAIL_CLOSED: alva binary SHA mismatch")
-    runner_hash = rc.sha256_file(os.path.join(HERE, "runner_core.py")) + \
-        rc.sha256_file(os.path.join(HERE, "formal_runner.py"))
+    runner_hash = (rc.sha256_file(os.path.join(HERE, "runner_core.py")) +
+                   rc.sha256_file(os.path.join(HERE, "formal_runner.py")) +
+                   rc.sha256_file(os.path.join(HERE, "deepseek_relay.py")))
     if runner_hash.lower() != freeze.get("runner_files_sha256", "").lower():
         raise RuntimeError("FAIL_CLOSED: runner file hash mismatch")
     # per-run manifest identity
@@ -144,8 +153,16 @@ def run_one(args, m):
     # FRESH experimental agent: empty call log, no active transaction.
     call_log = []
     agent = rc.RecordingAgent(alva, toml, gate_on=gate_on, call_log=call_log)
-    relay = (ScriptedRelay(args.script) if args.relay == "scripted"
-             else ProviderRelay(m.get("model", {})))
+    run_dir = os.path.join(args.out_dir, f"RUN-{m['task_id']}-"
+                                        f"{m.get('arm')}-r{m.get('rep')}")
+    os.makedirs(run_dir, exist_ok=True)
+    if args.relay == "scripted":
+        relay = ScriptedRelay(args.script)
+    else:
+        relay = DeepSeekRelay(
+            load_tool_defs(m.get("arm", "LOW")),
+            os.path.join(args.out_dir, "FINGERPRINT.json"),
+            os.path.join(run_dir, "telemetry.jsonl"))
     messages = [{"role": "user", "content": m["task_statement"]}]
     max_steps = m.get("max_tool_steps", 200)
     steps = 0
@@ -163,9 +180,14 @@ def run_one(args, m):
             call_args = {k: (v.replace("{{project}}", toml)
                              if isinstance(v, str) else v)
                          for k, v in step.get("args", {}).items()}
+            if step.get("assistant"):
+                messages.append(step["assistant"])
             r = agent.call(step["tool"], **call_args)
-            messages.append({"role": "tool", "tool": step["tool"],
-                             "result": r})
+            messages.append({
+                "role": "tool",
+                "tool_call_id": step.get("tool_call_id", ""),
+                "content": json.dumps(r),
+            })
     except rc.ApiUnreachableError:
         agent.close()
         termination = "API_UNREACHABLE"
@@ -239,8 +261,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-manifest", required=True)
     ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--relay", choices=["provider", "scripted"],
-                    default="provider")
+    ap.add_argument("--relay", choices=["deepseek", "scripted"],
+                    default="deepseek")
     ap.add_argument("--script", default=None,
                     help="scripted relay plan (no-model rehearsal only)")
     ap.add_argument("--freeze-manifest",
