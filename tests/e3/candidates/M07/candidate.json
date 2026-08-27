@@ -1,0 +1,40 @@
+{
+  "id": "M07",
+  "group": "matched",
+  "title": "add scale parameter to compute (multi-arg caller)",
+  "task_statement": "Add a scale parameter of type i64 to compute, and pass the value 3 at its caller (which already passes two arguments).",
+  "fixture": "fixture",
+  "functions": ["m07.compute", "m07.run"],
+  "structural": {"touched_functions": 2, "modules": 1, "call_depth": 0, "mutations": 3, "loc": 45},
+  "low_sequence": {
+    "inspect": [["m07.run", "compute"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m07.compute", "name": "scale", "type": "i64"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "3"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m07.compute", "m07.run"],
+    "structural": [
+      {"kind": "has_param", "function": "m07.compute", "param": "scale", "type": "(prim i64)"},
+      {"kind": "call_arg_count", "function": "m07.run", "call_name": "compute", "args": 3},
+      {"kind": "call_arg_literal", "function": "m07.run", "call_name": "compute", "arg_index": 2, "value": "3"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value (4 instead of 3)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m07.compute", "name": "scale", "type": "i64"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "4"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param added with wrong type (string)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m07.compute", "name": "scale", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "x"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

@@ -1,0 +1,28 @@
+(module
+  (name "m05")
+  (version "0.1.0")
+  (export apply outer run)
+
+  (fn apply
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn outer
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call outer (call apply (int 7)))))
+)

@@ -102,6 +102,18 @@ def discover_blocks(a, inspect_blocks):
     return blocks
 
 
+def discover_calls(a, inspect_calls):
+    calls = []
+    for spec in inspect_calls or []:
+        insp = a.ok("inspect_function", name=spec["fn"])
+        body = insp["result"]["body"]
+        found = re.findall(
+            rf"call name={re.escape(spec['call'])} rev=([0-9a-f]{{64}})",
+            body)
+        calls.extend(found)
+    return calls
+
+
 def expand(blob, slots):
     out = blob
     for key, val in slots.items():
@@ -116,6 +128,8 @@ def apply_ops(alva, project, manifest, ops):
     slots = {}
     for i, b in enumerate(discover_blocks(a, manifest.get("inspect_blocks", []))):
         slots[f"block{i}"] = b
+    for i, c in enumerate(discover_calls(a, manifest.get("inspect_calls", []))):
+        slots[f"call{i}"] = c
     for op in ops:
         tool = op["tool"]
         args = dict(op.get("args", {}))

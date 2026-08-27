@@ -1,0 +1,20 @@
+(module
+  (name "n07")
+  (version "0.1.0")
+  (export render run)
+
+  (fn render
+    (params
+      (param x (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn run
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (call render (string "old"))))
+)

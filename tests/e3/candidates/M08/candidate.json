@@ -1,0 +1,42 @@
+{
+  "id": "M08",
+  "group": "matched",
+  "title": "add marker parameter to pack (bytes)",
+  "task_statement": "Add a marker parameter of type bytes to pack, and pass the hex value 00ff at both callers.",
+  "fixture": "fixture",
+  "functions": ["m08.pack", "m08.greet", "m08.farewell"],
+  "structural": {"touched_functions": 3, "modules": 1, "call_depth": 0, "mutations": 4, "loc": 55},
+  "low_sequence": {
+    "inspect": [["m08.greet", "pack"], ["m08.farewell", "pack"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m08.pack", "name": "marker", "type": "bytes"}},
+      {"tool": "create_literal", "args": {"type": "bytes", "value": "00ff"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m08.pack", "m08.greet", "m08.farewell"],
+    "structural": [
+      {"kind": "has_param", "function": "m08.pack", "param": "marker", "type": "(prim bytes)"},
+      {"kind": "call_arg_count", "function": "m08.greet", "call_name": "pack", "args": 2},
+      {"kind": "call_arg_count", "function": "m08.farewell", "call_name": "pack", "args": 2},
+      {"kind": "call_arg_literal", "function": "m08.greet", "call_name": "pack", "arg_index": 1, "value": "00ff"},
+      {"kind": "call_arg_literal", "function": "m08.farewell", "call_name": "pack", "arg_index": 1, "value": "00ff"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value (00fe instead of 00ff)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m08.pack", "name": "marker", "type": "bytes"}},
+       {"tool": "create_literal", "args": {"type": "bytes", "value": "00fe"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param added with wrong type (string)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m08.pack", "name": "marker", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "x"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

@@ -1,0 +1,13 @@
+(module
+  (name "n09")
+  (version "0.1.0")
+  (export choose)
+
+  (fn choose
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+)

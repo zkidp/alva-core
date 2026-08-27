@@ -1,0 +1,32 @@
+{
+  "id": "N07",
+  "group": "neutral",
+  "title": "change a call argument from old to new",
+  "task_statement": "Change the argument passed to render at the call site from \"old\" to \"new\".",
+  "fixture": "fixture",
+  "functions": ["n07.render", "n07.run"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 0, "mutations": 2, "loc": 42},
+  "low_sequence": {
+    "inspect_calls": [{"fn": "n07.run", "call": "render"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "string", "value": "new"}, "as": "n1"},
+      {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n07.run"],
+    "structural": [
+      {"kind": "call_arg_literal", "function": "n07.run", "call_name": "render", "arg_index": 0, "value": "new"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "no change (still \"old\")",
+     "ops": []},
+    {"id": "W2", "reason": "wrong value (\"x\")",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "string", "value": "x"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}}
+     ]}
+  ]
+}

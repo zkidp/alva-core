@@ -1,0 +1,6 @@
+[project]
+name = "m11"
+
+[modules]
+"m11a" = "src/a.alva"
+"m11b" = "src/b.alva"

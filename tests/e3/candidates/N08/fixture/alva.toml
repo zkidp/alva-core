@@ -1,0 +1,5 @@
+[project]
+name = "n08"
+
+[modules]
+"n08" = "src/main.alva"

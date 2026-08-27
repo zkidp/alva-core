@@ -1,0 +1,13 @@
+(module
+  (name "m11b")
+  (version "0.1.0")
+  (dep "m11a" "0.1.0")
+  (export remote)
+
+  (fn remote
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (call m11a.merge (string "y"))))
+)

@@ -1,0 +1,32 @@
+{
+  "id": "N04",
+  "group": "neutral",
+  "title": "mark save as io",
+  "task_statement": "Mark the function save as effectful (io).",
+  "fixture": "fixture",
+  "functions": ["n04.save", "n04.run"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 0, "mutations": 1, "loc": 40},
+  "low_sequence": {
+    "inspect": [],
+    "ops": [
+      {"tool": "set_effect", "args": {"function": "n04.save", "effect": "io"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n04.save"],
+    "structural": [
+      {"kind": "function_effect", "function": "n04.save", "effect": "io"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "effect left pure",
+     "ops": [
+       {"tool": "set_effect", "args": {"function": "n04.save", "effect": "pure"}}
+     ]},
+    {"id": "W2", "reason": "wrong function marked (run instead of save)",
+     "ops": [
+       {"tool": "set_effect", "args": {"function": "n04.run", "effect": "io"}}
+     ]}
+  ]
+}

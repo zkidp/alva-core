@@ -1,0 +1,39 @@
+(module
+  (name "n10")
+  (version "0.1.0")
+  (export run)
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call add
+        (call one (int 1))
+        (call two (int 2)))))
+
+  (fn one
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn two
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref a)))
+)

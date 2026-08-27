@@ -1,0 +1,45 @@
+(module
+  (name "m10")
+  (version "0.1.0")
+  (export save run1 run2 run3)
+
+  (fn save
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn run1
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call add
+        (call save (int 1))
+        (call save (int 2)))))
+
+  (fn run2
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call save (int 3))))
+
+  (fn run3
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call save (int 4))))
+
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref a)))
+)

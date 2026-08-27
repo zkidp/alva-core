@@ -1,0 +1,21 @@
+(module
+  (name "m07")
+  (version "0.1.0")
+  (export compute run)
+
+  (fn compute
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref a)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call compute (int 1) (int 2))))
+)

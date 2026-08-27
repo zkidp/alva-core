@@ -1,0 +1,40 @@
+{
+  "id": "M09",
+  "group": "matched",
+  "title": "add prefix parameter to fmt",
+  "task_statement": "Add a prefix parameter of type string to fmt, and pass '#' at its cross-module caller.",
+  "fixture": "fixture",
+  "functions": ["m09a.fmt", "m09b.caller_b"],
+  "structural": {"touched_functions": 2, "modules": 2, "call_depth": 0, "mutations": 3, "loc": 52},
+  "low_sequence": {
+    "inspect": [["m09b.caller_b", "m09a.fmt"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m09a.fmt", "name": "prefix", "type": "string"}},
+      {"tool": "create_literal", "args": {"type": "string", "value": "#"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m09a.fmt", "m09b.caller_b"],
+    "structural": [
+      {"kind": "has_param", "function": "m09a.fmt", "param": "prefix", "type": "(prim string)"},
+      {"kind": "call_arg_count", "function": "m09b.caller_b", "call_name": "m09a.fmt", "args": 2},
+      {"kind": "call_arg_literal", "function": "m09b.caller_b", "call_name": "m09a.fmt", "arg_index": 1, "value": "#"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value ('$' instead of '#')",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m09a.fmt", "name": "prefix", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "$"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param named differently (prefix2)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m09a.fmt", "name": "prefix2", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "#"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "N05",
+  "group": "neutral",
+  "title": "add helper function and wire a call",
+  "task_statement": "Add a pure helper function helper() returning 42, and make run call it.",
+  "fixture": "fixture",
+  "functions": ["n05.run"],
+  "structural": {"touched_functions": 2, "modules": 1, "call_depth": 0, "mutations": 5, "loc": 38},
+  "low_sequence": {
+    "inspect_blocks": [{"fn": "n05.run"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "42"}, "as": "lit"},
+      {"tool": "add_function", "args": {"module": "n05", "name": "helper", "returns": "i64", "params": []}},
+      {"tool": "append_step", "args": {"function": "n05.helper", "step": "{{lit}}"}},
+      {"tool": "create_call", "args": {"name": "helper", "args": []}, "as": "callrev"},
+      {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{callrev}}", "position": "step"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n05.run", "n05.helper"],
+    "structural": [
+      {"kind": "entity_exists", "entity": "n05.helper"},
+      {"kind": "body_call_count", "function": "n05.run", "call_name": "helper", "count": 1},
+      {"kind": "body_literal_value", "function": "n05.helper", "value": "42"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "helper returns 43 instead of 42",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "43"}, "as": "lit"},
+       {"tool": "add_function", "args": {"module": "n05", "name": "helper", "returns": "i64", "params": []}},
+       {"tool": "append_step", "args": {"function": "n05.helper", "step": "{{lit}}"}},
+       {"tool": "create_call", "args": {"name": "helper", "args": []}, "as": "callrev"},
+       {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{callrev}}", "position": "step"}}
+     ]},
+    {"id": "W2", "reason": "call not wired into run",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "42"}, "as": "lit"},
+       {"tool": "add_function", "args": {"module": "n05", "name": "helper", "returns": "i64", "params": []}},
+       {"tool": "append_step", "args": {"function": "n05.helper", "step": "{{lit}}"}}
+     ]}
+  ]
+}

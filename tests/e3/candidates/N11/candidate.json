@@ -1,0 +1,33 @@
+{
+  "id": "N11",
+  "group": "neutral",
+  "title": "append a trailing literal step",
+  "task_statement": "Append a trailing (int 0) step to the body of run.",
+  "fixture": "fixture",
+  "functions": ["n11.run"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 0, "mutations": 2, "loc": 26},
+  "low_sequence": {
+    "inspect": [],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "0"}, "as": "lit"},
+      {"tool": "append_step", "args": {"function": "n11.run", "step": "{{lit}}"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n11.run"],
+    "structural": [
+      {"kind": "body_step_count", "function": "n11.run", "count": 2},
+      {"kind": "body_literal_at", "function": "n11.run", "index": 0, "value": "0"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "no change at all",
+     "ops": []},
+    {"id": "W2", "reason": "wrong literal value (1 instead of 0)",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "1"}, "as": "lit"},
+       {"tool": "append_step", "args": {"function": "n11.run", "step": "{{lit}}"}}
+     ]}
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "N08",
+  "group": "neutral",
+  "title": "swap two constants",
+  "task_statement": "In pair, swap the two call arguments so left receives 5 and right receives 3.",
+  "fixture": "fixture",
+  "functions": ["n08.pair", "n08.left", "n08.right", "n08.add"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 1, "mutations": 4, "loc": 58},
+  "low_sequence": {
+    "inspect_calls": [{"fn": "n08.pair", "call": "left"}, {"fn": "n08.pair", "call": "right"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "5"}, "as": "n1"},
+      {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "3"}, "as": "n2"},
+      {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n08.pair"],
+    "structural": [
+      {"kind": "body_literal_values", "function": "n08.pair", "values": ["5", "3"]}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "values unchanged (3, 5)",
+     "ops": []},
+    {"id": "W2", "reason": "wrong values (4 and 3)",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "4"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "3"}, "as": "n2"},
+       {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}}
+     ]}
+  ]
+}

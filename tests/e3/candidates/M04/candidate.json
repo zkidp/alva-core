@@ -1,0 +1,30 @@
+{
+  "id": "M04",
+  "group": "matched",
+  "title": "add retries parameter to noop",
+  "task_statement": "Add a retries parameter of type i64 to noop (it has no callers).",
+  "fixture": "fixture",
+  "functions": ["m04.noop"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 0, "mutations": 2, "loc": 30},
+  "low_sequence": {
+    "inspect": [],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m04.noop", "name": "retries", "type": "i64"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m04.noop"],
+    "structural": [
+      {"kind": "has_param", "function": "m04.noop", "param": "retries", "type": "(prim i64)"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "param added with wrong type (string)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m04.noop", "name": "retries", "type": "string"}}
+     ]},
+    {"id": "W2", "reason": "no change at all",
+     "ops": []}
+  ]
+}

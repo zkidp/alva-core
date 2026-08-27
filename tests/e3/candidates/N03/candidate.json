@@ -1,0 +1,32 @@
+{
+  "id": "N03",
+  "group": "neutral",
+  "title": "rename helper hlp to helper2",
+  "task_statement": "Rename the helper function hlp to helper2 (its caller reference follows).",
+  "fixture": "fixture",
+  "functions": ["n03.hlp", "n03.run"],
+  "structural": {"touched_functions": 2, "modules": 1, "call_depth": 0, "mutations": 1, "loc": 42},
+  "low_sequence": {
+    "inspect": [],
+    "ops": [
+      {"tool": "rename_entity", "args": {"entity": "n03.hlp", "new_name": "helper2"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n03.hlp", "n03.run"],
+    "structural": [
+      {"kind": "entity_exists", "entity": "n03.helper2"},
+      {"kind": "entity_absent", "entity": "n03.hlp"},
+      {"kind": "body_call_count", "function": "n03.run", "call_name": "helper2", "count": 1}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "renamed to the wrong name (helper3)",
+     "ops": [
+       {"tool": "rename_entity", "args": {"entity": "n03.hlp", "new_name": "helper3"}}
+     ]},
+    {"id": "W2", "reason": "no change at all",
+     "ops": []}
+  ]
+}

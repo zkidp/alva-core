@@ -228,9 +228,10 @@ def run_checks(alva, project_dir, checkspec, baseline):
                      f"expected {chk['count']}")
         elif kind == "body_contains_kind":
             _, _, body = inspect(alva, project_dir, chk["function"])
-            if f"({chk['kind']} " not in body:
+            node_kind = chk["node_kind"]
+            if f"({node_kind} " not in body:
                 fail(f"body_contains_kind: {chk['function']} lacks "
-                     f"{chk['kind']} node")
+                     f"{node_kind} node")
         elif kind == "body_literal_value":
             _, _, body = inspect(alva, project_dir, chk["function"])
             vals = literal_values(body)

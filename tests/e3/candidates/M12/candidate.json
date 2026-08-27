@@ -1,0 +1,40 @@
+{
+  "id": "M12",
+  "group": "matched",
+  "title": "add limit parameter to scan (deeply nested caller)",
+  "task_statement": "Add a limit parameter of type i64 to scan, and pass the value 9 at its deeply nested caller.",
+  "fixture": "fixture",
+  "functions": ["m12.scan", "m12.mid", "m12.outer", "m12.run"],
+  "structural": {"touched_functions": 2, "modules": 1, "call_depth": 2, "mutations": 3, "loc": 68},
+  "low_sequence": {
+    "inspect": [["m12.run", "scan"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m12.scan", "name": "limit", "type": "i64"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "9"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m12.scan", "m12.run"],
+    "structural": [
+      {"kind": "has_param", "function": "m12.scan", "param": "limit", "type": "(prim i64)"},
+      {"kind": "call_arg_count", "function": "m12.run", "call_name": "scan", "args": 2},
+      {"kind": "call_arg_literal", "function": "m12.run", "call_name": "scan", "arg_index": 1, "value": "9"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value (8 instead of 9)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m12.scan", "name": "limit", "type": "i64"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "8"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param added with wrong type (string)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m12.scan", "name": "limit", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "x"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

@@ -1,0 +1,20 @@
+(module
+  (name "n03")
+  (version "0.1.0")
+  (export hlp run)
+
+  (fn hlp
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call hlp (int 3))))
+)

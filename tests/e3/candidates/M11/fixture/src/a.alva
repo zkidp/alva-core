@@ -1,0 +1,20 @@
+(module
+  (name "m11a")
+  (version "0.1.0")
+  (export merge local)
+
+  (fn merge
+    (params
+      (param a (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (ref a)))
+
+  (fn local
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (call merge (string "x"))))
+)

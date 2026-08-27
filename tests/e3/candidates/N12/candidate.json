@@ -1,0 +1,49 @@
+{
+  "id": "N12",
+  "group": "neutral",
+  "title": "change three literals",
+  "task_statement": "Change the three call arguments in run from 1, 2, 3 to 4, 5, 6.",
+  "fixture": "fixture",
+  "functions": ["n12.run", "n12.one", "n12.two", "n12.three", "n12.add"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 1, "mutations": 6, "loc": 78},
+  "low_sequence": {
+    "inspect_calls": [
+      {"fn": "n12.run", "call": "one"},
+      {"fn": "n12.run", "call": "two"},
+      {"fn": "n12.run", "call": "three"}
+    ],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "4"}, "as": "n1"},
+      {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "5"}, "as": "n2"},
+      {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "6"}, "as": "n3"},
+      {"tool": "replace_expression", "args": {"parent": "{{call2}}", "child": "{{n3}}", "position": "arg"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n12.run"],
+    "structural": [
+      {"kind": "body_literal_values", "function": "n12.run", "values": ["4", "5", "6"]}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "only two of three literals changed",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "4"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "5"}, "as": "n2"},
+       {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}}
+     ]},
+    {"id": "W2", "reason": "wrong values (7, 5, 6)",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "7"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "5"}, "as": "n2"},
+       {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "6"}, "as": "n3"},
+       {"tool": "replace_expression", "args": {"parent": "{{call2}}", "child": "{{n3}}", "position": "arg"}}
+     ]}
+  ]
+}

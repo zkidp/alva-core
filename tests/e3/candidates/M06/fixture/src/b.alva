@@ -1,0 +1,13 @@
+(module
+  (name "m06b")
+  (version "0.1.0")
+  (dep "m06a" "0.1.0")
+  (export caller_b)
+
+  (fn caller_b
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (call m06a.render (string "hi"))))
+)

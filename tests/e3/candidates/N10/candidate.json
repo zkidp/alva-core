@@ -1,0 +1,40 @@
+{
+  "id": "N10",
+  "group": "neutral",
+  "title": "change two call arguments",
+  "task_statement": "Change the argument to one from 1 to 7 and the argument to two from 2 to 8.",
+  "fixture": "fixture",
+  "functions": ["n10.run", "n10.one", "n10.two", "n10.add"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 1, "mutations": 4, "loc": 62},
+  "low_sequence": {
+    "inspect_calls": [{"fn": "n10.run", "call": "one"}, {"fn": "n10.run", "call": "two"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "7"}, "as": "n1"},
+      {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "8"}, "as": "n2"},
+      {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n10.run"],
+    "structural": [
+      {"kind": "call_arg_literal", "function": "n10.run", "call_name": "one", "arg_index": 0, "value": "7"},
+      {"kind": "call_arg_literal", "function": "n10.run", "call_name": "two", "arg_index": 0, "value": "8"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "only the first argument changed",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "7"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}}
+     ]},
+    {"id": "W2", "reason": "wrong values (6 and 8)",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "6"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "8"}, "as": "n2"},
+       {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}}
+     ]}
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "N06",
+  "group": "neutral",
+  "title": "change two literals inside fee",
+  "task_statement": "In fee, change the first id argument from 10 to 20 and the second from 5 to 6.",
+  "fixture": "fixture",
+  "functions": ["n06.fee", "n06.id", "n06.add"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 1, "mutations": 4, "loc": 58},
+  "low_sequence": {
+    "inspect_calls": [{"fn": "n06.fee", "call": "id"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "20"}, "as": "n1"},
+      {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "6"}, "as": "n2"},
+      {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n06.fee"],
+    "structural": [
+      {"kind": "body_literal_values", "function": "n06.fee", "values": ["20", "6"]}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "only the first literal changed",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "20"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}}
+     ]},
+    {"id": "W2", "reason": "wrong values (21 and 6)",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "21"}, "as": "n1"},
+       {"tool": "replace_expression", "args": {"parent": "{{call0}}", "child": "{{n1}}", "position": "arg"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "6"}, "as": "n2"},
+       {"tool": "replace_expression", "args": {"parent": "{{call1}}", "child": "{{n2}}", "position": "arg"}}
+     ]}
+  ]
+}

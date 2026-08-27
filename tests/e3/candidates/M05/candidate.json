@@ -1,0 +1,40 @@
+{
+  "id": "M05",
+  "group": "matched",
+  "title": "add factor parameter to apply (nested caller)",
+  "task_statement": "Add a factor parameter of type i64 to apply, and pass the value 2 at its nested caller.",
+  "fixture": "fixture",
+  "functions": ["m05.apply", "m05.outer", "m05.run"],
+  "structural": {"touched_functions": 2, "modules": 1, "call_depth": 1, "mutations": 3, "loc": 55},
+  "low_sequence": {
+    "inspect": [["m05.run", "apply"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m05.apply", "name": "factor", "type": "i64"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "2"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m05.apply", "m05.run"],
+    "structural": [
+      {"kind": "has_param", "function": "m05.apply", "param": "factor", "type": "(prim i64)"},
+      {"kind": "call_arg_count", "function": "m05.run", "call_name": "apply", "args": 2},
+      {"kind": "call_arg_literal", "function": "m05.run", "call_name": "apply", "arg_index": 1, "value": "2"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value (3 instead of 2)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m05.apply", "name": "factor", "type": "i64"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "3"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param added with wrong type (string)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m05.apply", "name": "factor", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "x"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

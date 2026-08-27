@@ -1,0 +1,35 @@
+{
+  "id": "N09",
+  "group": "neutral",
+  "title": "wrap choose body in a branch",
+  "task_statement": "Make choose return 0 when a constant flag is true, and 1 otherwise (add an if node as its body).",
+  "fixture": "fixture",
+  "functions": ["n09.choose"],
+  "structural": {"touched_functions": 1, "modules": 1, "call_depth": 0, "mutations": 4, "loc": 30},
+  "low_sequence": {
+    "inspect_blocks": [{"fn": "n09.choose"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "bool", "value": "true"}, "as": "cond"},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "0"}, "as": "t"},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "1"}, "as": "e"},
+      {"tool": "create_if", "args": {"cond": "{{cond}}", "then": "{{t}}", "else": "{{e}}"}, "as": "ifrev"},
+      {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{ifrev}}", "position": "step"}}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["n09.choose"],
+    "structural": [
+      {"kind": "body_contains_kind", "function": "n09.choose", "node_kind": "if"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "no change at all",
+     "ops": []},
+    {"id": "W2", "reason": "body replaced with a literal instead of an if",
+     "ops": [
+       {"tool": "create_literal", "args": {"type": "i64", "value": "0"}, "as": "lit"},
+       {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{lit}}", "position": "step"}}
+     ]}
+  ]
+}

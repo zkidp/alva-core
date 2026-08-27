@@ -1,0 +1,12 @@
+(module
+  (name "n05")
+  (version "0.1.0")
+  (export run)
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (int 0)))
+)

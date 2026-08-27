@@ -1,0 +1,13 @@
+(module
+  (name "m09b")
+  (version "0.1.0")
+  (dep "m09a" "0.1.0")
+  (export caller_b)
+
+  (fn caller_b
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (call m09a.fmt (string "v"))))
+)

@@ -1,0 +1,42 @@
+{
+  "id": "M11",
+  "group": "matched",
+  "title": "add suffix parameter to merge (mixed unqualified/qualified callers)",
+  "task_statement": "Add a suffix parameter of type string to merge, and pass '.' at both callers (one unqualified, one qualified cross-module).",
+  "fixture": "fixture",
+  "functions": ["m11a.merge", "m11a.local", "m11b.remote"],
+  "structural": {"touched_functions": 3, "modules": 2, "call_depth": 0, "mutations": 4, "loc": 70},
+  "low_sequence": {
+    "inspect": [["m11a.local", "merge"], ["m11b.remote", "m11a.merge"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m11a.merge", "name": "suffix", "type": "string"}},
+      {"tool": "create_literal", "args": {"type": "string", "value": "."}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m11a.merge", "m11a.local", "m11b.remote"],
+    "structural": [
+      {"kind": "has_param", "function": "m11a.merge", "param": "suffix", "type": "(prim string)"},
+      {"kind": "call_arg_count", "function": "m11a.local", "call_name": "merge", "args": 2},
+      {"kind": "call_arg_count", "function": "m11b.remote", "call_name": "m11a.merge", "args": 2},
+      {"kind": "call_arg_literal", "function": "m11a.local", "call_name": "merge", "arg_index": 1, "value": "."},
+      {"kind": "call_arg_literal", "function": "m11b.remote", "call_name": "m11a.merge", "arg_index": 1, "value": "."}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value (',' instead of '.')",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m11a.merge", "name": "suffix", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": ","}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param added with wrong type (i64)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m11a.merge", "name": "suffix", "type": "i64"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "0"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

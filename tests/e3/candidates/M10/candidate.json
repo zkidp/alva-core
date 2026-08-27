@@ -1,0 +1,44 @@
+{
+  "id": "M10",
+  "group": "matched",
+  "title": "add retries parameter to save (four callers)",
+  "task_statement": "Add a retries parameter of type i64 to save, and pass the value 1 at all four callers.",
+  "fixture": "fixture",
+  "functions": ["m10.save", "m10.run1", "m10.run2", "m10.run3", "m10.add"],
+  "structural": {"touched_functions": 4, "modules": 1, "call_depth": 1, "mutations": 6, "loc": 72},
+  "low_sequence": {
+    "inspect": [["m10.run1", "save"], ["m10.run2", "save"], ["m10.run3", "save"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m10.save", "name": "retries", "type": "i64"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "1"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m10.save", "m10.run1", "m10.run2", "m10.run3"],
+    "structural": [
+      {"kind": "has_param", "function": "m10.save", "param": "retries", "type": "(prim i64)"},
+      {"kind": "call_arg_count", "function": "m10.run1", "call_name": "save", "args": 2},
+      {"kind": "call_arg_count", "function": "m10.run2", "call_name": "save", "args": 2},
+      {"kind": "call_arg_count", "function": "m10.run3", "call_name": "save", "args": 2},
+      {"kind": "call_arg_literal", "function": "m10.run1", "call_name": "save", "arg_index": 1, "value": "1"},
+      {"kind": "call_arg_literal", "function": "m10.run2", "call_name": "save", "arg_index": 1, "value": "1"},
+      {"kind": "call_arg_literal", "function": "m10.run3", "call_name": "save", "arg_index": 1, "value": "1"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value (2 instead of 1)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m10.save", "name": "retries", "type": "i64"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "2"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param named differently (retries2)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m10.save", "name": "retries2", "type": "i64"}},
+       {"tool": "create_literal", "args": {"type": "i64", "value": "1"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

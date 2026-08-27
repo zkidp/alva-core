@@ -1,0 +1,40 @@
+{
+  "id": "M06",
+  "group": "matched",
+  "title": "add tag parameter to render (cross-module caller)",
+  "task_statement": "Add a tag parameter of type string to render, and pass '!' at its cross-module caller.",
+  "fixture": "fixture",
+  "functions": ["m06a.render", "m06b.caller_b"],
+  "structural": {"touched_functions": 2, "modules": 2, "call_depth": 0, "mutations": 3, "loc": 52},
+  "low_sequence": {
+    "inspect": [["m06b.caller_b", "m06a.render"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m06a.render", "name": "tag", "type": "string"}},
+      {"tool": "create_literal", "args": {"type": "string", "value": "!"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "build_test": false,
+    "allowed_touched": ["m06a.render", "m06b.caller_b"],
+    "structural": [
+      {"kind": "has_param", "function": "m06a.render", "param": "tag", "type": "(prim string)"},
+      {"kind": "call_arg_count", "function": "m06b.caller_b", "call_name": "m06a.render", "args": 2},
+      {"kind": "call_arg_literal", "function": "m06b.caller_b", "call_name": "m06a.render", "arg_index": 1, "value": "!"}
+    ]
+  },
+  "wrong_variants": [
+    {"id": "W1", "reason": "wrong literal value ('?' instead of '!')",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m06a.render", "name": "tag", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "?"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]},
+    {"id": "W2", "reason": "param named differently (tag2)",
+     "ops": [
+       {"tool": "add_param", "args": {"function": "m06a.render", "name": "tag2", "type": "string"}},
+       {"tool": "create_literal", "args": {"type": "string", "value": "!"}, "as": "arg"},
+       {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+     ]}
+  ]
+}

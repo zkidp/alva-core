@@ -1,0 +1,13 @@
+(module
+  (name "m09a")
+  (version "0.1.0")
+  (export fmt)
+
+  (fn fmt
+    (params
+      (param x (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (ref x)))
+)

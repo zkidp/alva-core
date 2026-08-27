@@ -1,0 +1,33 @@
+(module
+  (name "m03")
+  (version "0.1.0")
+  (export emit run)
+
+  (fn emit
+    (params
+      (param level (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref level)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call add
+        (call emit (int 1))
+        (call add
+          (call emit (int 2))
+          (call emit (int 3))))))
+
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref a)))
+)

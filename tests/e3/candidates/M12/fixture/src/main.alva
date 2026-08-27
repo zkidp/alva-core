@@ -1,0 +1,36 @@
+(module
+  (name "m12")
+  (version "0.1.0")
+  (export scan mid outer run)
+
+  (fn scan
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn mid
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn outer
+    (params
+      (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref x)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call outer (call mid (call scan (int 1))))))
+)
