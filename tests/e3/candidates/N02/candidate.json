@@ -1,0 +1,51 @@
+{
+  "id": "N02",
+  "group": "neutral",
+  "title": "raise two constants",
+  "task_statement": "Raise max_items from 100 to 200 and max_retries from 3 to 5.",
+  "fixture": "fixture",
+  "structural": {
+    "touched_functions": 2,
+    "modules": 1,
+    "call_depth": 0,
+    "mutations": 4,
+    "loc": 60
+  },
+  "low_sequence": {
+    "inspect_blocks": [{"fn": "n02.max_items"}, {"fn": "n02.max_retries"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "200"}, "as": "n1"},
+      {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{n1}}", "position": "step"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "5"}, "as": "n2"},
+      {"tool": "replace_expression", "args": {"parent": "{{block1}}", "child": "{{n2}}", "position": "step"}}
+    ]
+  },
+  "verifier": {
+    "project_check": true,
+    "build_test": false,
+    "structural": [
+      {"kind": "body_literal_value", "function": "n02.max_items", "value": "200"},
+      {"kind": "body_literal_value", "function": "n02.max_retries", "value": "5"}
+    ]
+  },
+  "wrong_variants": [
+    {
+      "id": "W1",
+      "reason": "only max_items changed (max_retries left at 3)",
+      "ops": [
+        {"tool": "create_literal", "args": {"type": "i64", "value": "200"}, "as": "n1"},
+        {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{n1}}", "position": "step"}}
+      ]
+    },
+    {
+      "id": "W2",
+      "reason": "wrong values (150 and 4)",
+      "ops": [
+        {"tool": "create_literal", "args": {"type": "i64", "value": "150"}, "as": "n1"},
+        {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{n1}}", "position": "step"}},
+        {"tool": "create_literal", "args": {"type": "i64", "value": "4"}, "as": "n2"},
+        {"tool": "replace_expression", "args": {"parent": "{{block1}}", "child": "{{n2}}", "position": "step"}}
+      ]
+    }
+  ]
+}

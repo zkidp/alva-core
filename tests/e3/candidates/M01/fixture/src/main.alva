@@ -1,0 +1,20 @@
+(module
+  (name "m01")
+  (version "0.1.0")
+  (export compute run)
+
+  (fn compute
+    (params
+      (param qty (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref qty)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call compute (int 5))))
+)

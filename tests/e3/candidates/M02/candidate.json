@@ -1,0 +1,53 @@
+{
+  "id": "M02",
+  "group": "matched",
+  "title": "add suffix parameter to render",
+  "task_statement": "Add a suffix parameter of type string to render, and pass '.' at both callers (greet and farewell).",
+  "fixture": "fixture",
+  "structural": {
+    "touched_functions": 3,
+    "modules": 1,
+    "call_depth": 0,
+    "mutations": 4,
+    "loc": 55
+  },
+  "low_sequence": {
+    "inspect": [["m02.greet", "render"], ["m02.farewell", "render"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m02.render", "name": "suffix", "type": "string"}},
+      {"tool": "create_literal", "args": {"type": "string", "value": "."}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "project_check": true,
+    "build_test": false,
+    "structural": [
+      {"kind": "has_param", "function": "m02.render", "param": "suffix", "type": "(prim string)"},
+      {"kind": "call_arg_count", "function": "m02.greet", "call_name": "render", "args": 2},
+      {"kind": "call_arg_count", "function": "m02.farewell", "call_name": "render", "args": 2},
+      {"kind": "call_arg_literal", "function": "m02.greet", "call_name": "render", "arg_index": 1, "value": "."},
+      {"kind": "call_arg_literal", "function": "m02.farewell", "call_name": "render", "arg_index": 1, "value": "."}
+    ]
+  },
+  "wrong_variants": [
+    {
+      "id": "W1",
+      "reason": "wrong literal value at both callers (',' instead of '.')",
+      "ops": [
+        {"tool": "add_param", "args": {"function": "m02.render", "name": "suffix", "type": "string"}},
+        {"tool": "create_literal", "args": {"type": "string", "value": ","}, "as": "arg"},
+        {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+      ]
+    },
+    {
+      "id": "W2",
+      "reason": "param named differently (suffix2 instead of suffix)",
+      "ops": [
+        {"tool": "add_param", "args": {"function": "m02.render", "name": "suffix2", "type": "string"}},
+        {"tool": "create_literal", "args": {"type": "string", "value": "."}, "as": "arg"},
+        {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+      ]
+    }
+  ]
+}

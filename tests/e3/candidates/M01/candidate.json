@@ -1,0 +1,51 @@
+{
+  "id": "M01",
+  "group": "matched",
+  "title": "add retries parameter to compute",
+  "task_statement": "Add a retries parameter of type i64 to compute, and pass the value 1 at its caller.",
+  "fixture": "fixture",
+  "structural": {
+    "touched_functions": 2,
+    "modules": 1,
+    "call_depth": 0,
+    "mutations": 3,
+    "loc": 40
+  },
+  "low_sequence": {
+    "inspect": [["m01.run", "compute"]],
+    "ops": [
+      {"tool": "add_param", "args": {"function": "m01.compute", "name": "retries", "type": "i64"}},
+      {"tool": "create_literal", "args": {"type": "i64", "value": "1"}, "as": "arg"},
+      {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+    ]
+  },
+  "verifier": {
+    "project_check": true,
+    "build_test": false,
+    "structural": [
+      {"kind": "has_param", "function": "m01.compute", "param": "retries", "type": "(prim i64)"},
+      {"kind": "call_arg_count", "function": "m01.run", "call_name": "compute", "args": 2},
+      {"kind": "call_arg_literal", "function": "m01.run", "call_name": "compute", "arg_index": 1, "value": "1"}
+    ]
+  },
+  "wrong_variants": [
+    {
+      "id": "W1",
+      "reason": "wrong literal value at caller (2 instead of 1)",
+      "ops": [
+        {"tool": "add_param", "args": {"function": "m01.compute", "name": "retries", "type": "i64"}},
+        {"tool": "create_literal", "args": {"type": "i64", "value": "2"}, "as": "arg"},
+        {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+      ]
+    },
+    {
+      "id": "W2",
+      "reason": "param added with wrong type (string)",
+      "ops": [
+        {"tool": "add_param", "args": {"function": "m01.compute", "name": "retries", "type": "string"}},
+        {"tool": "create_literal", "args": {"type": "string", "value": "x"}, "as": "arg"},
+        {"tool": "add_call_arg", "args": {"call": "{{caller}}", "arg": "{{arg}}"}, "callers": "all"}
+      ]
+    }
+  ]
+}

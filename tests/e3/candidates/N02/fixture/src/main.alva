@@ -1,0 +1,35 @@
+(module
+  (name "n02")
+  (version "0.1.0")
+  (export max_items max_retries run)
+
+  (fn max_items
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (int 100)))
+
+  (fn max_retries
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (int 3)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call add (call max_items) (call max_retries))))
+
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref a)))
+)

@@ -1,0 +1,27 @@
+(module
+  (name "m02")
+  (version "0.1.0")
+  (export render greet farewell)
+
+  (fn render
+    (params
+      (param name (prim string)))
+    (returns (prim string))
+    (pure)
+    (body
+      (ref name)))
+
+  (fn greet
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (call render (string "hello"))))
+
+  (fn farewell
+    (params)
+    (returns (prim string))
+    (pure)
+    (body
+      (call render (string "bye"))))
+)

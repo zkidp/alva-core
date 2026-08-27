@@ -1,0 +1,28 @@
+(module
+  (name "n01")
+  (version "0.1.0")
+  (export fee run)
+
+  (fn fee
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (int 10)))
+
+  (fn run
+    (params)
+    (returns (prim i64))
+    (pure)
+    (body
+      (call add (call fee) (int 0))))
+
+  (fn add
+    (params
+      (param a (prim i64))
+      (param b (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body
+      (ref a)))
+)

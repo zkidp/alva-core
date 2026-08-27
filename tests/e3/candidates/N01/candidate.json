@@ -1,0 +1,43 @@
+{
+  "id": "N01",
+  "group": "neutral",
+  "title": "raise fee constant from 10 to 20",
+  "task_statement": "Increase the fee returned by fee() from 10 to 20.",
+  "fixture": "fixture",
+  "structural": {
+    "touched_functions": 1,
+    "modules": 1,
+    "call_depth": 0,
+    "mutations": 2,
+    "loc": 45
+  },
+  "low_sequence": {
+    "inspect_blocks": [{"fn": "n01.fee"}],
+    "ops": [
+      {"tool": "create_literal", "args": {"type": "i64", "value": "20"}, "as": "newlit"},
+      {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{newlit}}", "position": "step"}}
+    ]
+  },
+  "verifier": {
+    "project_check": true,
+    "build_test": false,
+    "structural": [
+      {"kind": "body_literal_value", "function": "n01.fee", "value": "20"}
+    ]
+  },
+  "wrong_variants": [
+    {
+      "id": "W1",
+      "reason": "wrong value (30 instead of 20)",
+      "ops": [
+        {"tool": "create_literal", "args": {"type": "i64", "value": "30"}, "as": "newlit"},
+        {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{newlit}}", "position": "step"}}
+      ]
+    },
+    {
+      "id": "W2",
+      "reason": "no change at all",
+      "ops": []
+    }
+  ]
+}
