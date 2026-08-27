@@ -91,11 +91,12 @@ def assert_execution_freeze(args, m, alva):
     call (never 'record and continue')."""
     with open(args.execution_freeze, encoding="utf-8") as fh:
         freeze = json.load(fh)
-    if args.relay != "scripted":
+    if args.relay == "deepseek":
         for field in ("provider", "model_identifier",
                       "relay_protocol_version", "container_digest"):
             if freeze.get(field) == "REQUIRED_INPUT":
                 raise RuntimeError(f"FAIL_CLOSED: {field} not pinned")
+    if args.transport == "container":
         # container-only identity: image digest + in-container binary SHA
         image = freeze["container_digest"]
         insp = subprocess.run(
@@ -133,7 +134,7 @@ def assert_execution_freeze(args, m, alva):
     if anc.returncode != 0:
         raise RuntimeError("FAIL_CLOSED: checkout does not descend from "
                            "pinned alva source")
-    if args.relay == "scripted":
+    if args.transport == "host":
         if rc.sha256_file(alva).lower() != \
                 freeze.get("rehearsal_host_binary_sha256", "").lower():
             raise RuntimeError("FAIL_CLOSED: host (rehearsal) alva binary "
@@ -173,24 +174,26 @@ def run_one(args, m):
         m["fixture"], candidates_dir, freeze, args.out_dir)
     toml = os.path.join(ws, "alva.toml")
     gate_on = m["arm"] == "HIGH"
-    # P0-5: surface probe in a SEPARATE discarded session.
+    run_dir = os.path.join(args.out_dir, f"RUN-{m['task_id']}-"
+                                        f"{m.get('arm')}-r{m.get('rep')}")
+    os.makedirs(run_dir, exist_ok=True)
     cmd_prefix = None
     agent_project = toml
     verifier_alva = alva
-    if args.relay == "deepseek":
+    if args.transport == "container":
         cmd_prefix = rc.container_run_cmd(exfreeze["container_digest"], ws,
                                           gate_on=gate_on)
         agent_project = "/workspace/alva.toml"
         verifier_alva = rc.extract_binary(exfreeze["container_digest"],
                                           run_dir)
+    # formal measurement/provenance binary = the frozen execution binary
+    formal_alva = verifier_alva if args.transport == "container" else alva
+    # P0-5: surface probe in a SEPARATE discarded session.
     rc.surface_probe(alva, agent_project, gate_on, cmd_prefix=cmd_prefix)
     # FRESH experimental agent: empty call log, no active transaction.
     call_log = []
     agent = rc.RecordingAgent(alva, agent_project, gate_on=gate_on,
                               call_log=call_log, cmd_prefix=cmd_prefix)
-    run_dir = os.path.join(args.out_dir, f"RUN-{m['task_id']}-"
-                                        f"{m.get('arm')}-r{m.get('rep')}")
-    os.makedirs(run_dir, exist_ok=True)
     if args.relay == "scripted":
         relay = ScriptedRelay(args.script)
     else:
@@ -232,10 +235,13 @@ def run_one(args, m):
         churn_rc, churn_out = rc.derive_churn(call_log, [])
         ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         prov = rc.provenance_record(
-            m["task_id"], m.get("group"), m.get("arm"), m.get("rep"), alva,
+            m["task_id"], m.get("group"), m.get("arm"), m.get("rep"),
+            formal_alva,
             rc._git_head(), freeze[m["fixture"]][1], ws_hash,
             ("absent" if not gate_on else "1"), m.get("model", {}),
             started, ended, termination, args.out_dir)
+        if args.transport == "container":
+            prov["container_digest"] = exfreeze["container_digest"]
         return prov, rc.write_run_artifacts(
             args.out_dir, m["task_id"], m.get("arm"), m.get("rep"), prov,
             call_log, verifier, final_rec, reachable, churn_out)
@@ -248,10 +254,13 @@ def run_one(args, m):
         churn_rc, churn_out = rc.derive_churn(call_log, [])
         ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         prov = rc.provenance_record(
-            m["task_id"], m.get("group"), m.get("arm"), m.get("rep"), alva,
+            m["task_id"], m.get("group"), m.get("arm"), m.get("rep"),
+            formal_alva,
             rc._git_head(), freeze[m["fixture"]][1], ws_hash,
             ("absent" if not gate_on else "1"), m.get("model", {}),
             started, ended, termination, args.out_dir)
+        if args.transport == "container":
+            prov["container_digest"] = exfreeze["container_digest"]
         prov["infra_detail"] = str(e)
         return prov, rc.write_run_artifacts(
             args.out_dir, m["task_id"], m.get("arm"), m.get("rep"), prov,
@@ -271,8 +280,8 @@ def run_one(args, m):
             verifier_alva, ws, m["verifier_checkspec"], base)
         verifier = {"ok": passed, "output": out}
         try:
-            final_rec = rc.final_state(alva, toml)
-            reachable = rc.reachable_revisions(alva, toml)
+            final_rec = rc.final_state(formal_alva, toml)
+            reachable = rc.reachable_revisions(formal_alva, toml)
         except Exception as e:
             final_rec = {"modules": {}, "base_hash": None}
             reachable = []
@@ -282,10 +291,13 @@ def run_one(args, m):
     churn_rc, churn_out = rc.derive_churn(call_log, reachable)
     ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     prov = rc.provenance_record(
-        m["task_id"], m.get("group"), m.get("arm"), m.get("rep"), alva,
+        m["task_id"], m.get("group"), m.get("arm"), m.get("rep"),
+        formal_alva,
         rc._git_head(), freeze[m["fixture"]][1], ws_hash,
         ("absent" if not gate_on else "1"), m.get("model", {}),
         started, ended, termination, args.out_dir)
+    if args.transport == "container":
+        prov["container_digest"] = exfreeze["container_digest"]
     run_dir = rc.write_run_artifacts(
         args.out_dir, m["task_id"], m.get("arm"), m.get("rep"), prov,
         call_log, verifier, final_rec, reachable, churn_out)
@@ -298,6 +310,10 @@ def main():
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--relay", choices=["deepseek", "scripted"],
                     default="deepseek")
+    ap.add_argument("--transport", choices=["host", "container"],
+                    default="host",
+                    help="host = local binary (scripted/dev); container = "
+                         "exact formal branch via docker run")
     ap.add_argument("--script", default=None,
                     help="scripted relay plan (no-model rehearsal only)")
     ap.add_argument("--freeze-manifest",
