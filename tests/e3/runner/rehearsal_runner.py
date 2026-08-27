@@ -114,13 +114,22 @@ def run_slot(args, cid, group, arm, rep, manifest, freeze, out_dir, alva):
     toml = os.path.join(ws, "alva.toml")
     call_log = []
     gate_on = (arm == "HIGH")
+    cmd_prefix = None
+    agent_project = toml
+    verifier_alva = alva
+    if args.container:
+        cmd_prefix = rc.container_run_cmd(args.container, ws)
+        agent_project = "/workspace/alva.toml"
+        verifier_alva = rc.extract_binary(args.container, out_dir)
     # surface gate in a SEPARATE discarded session (never in trajectory)
-    rc.surface_probe(alva, toml, gate_on)
+    rc.surface_probe(alva, agent_project, gate_on, cmd_prefix=cmd_prefix)
     # baseline revisions for the arm-blind verifier
-    base = baseline_revisions(alva, toml, manifest.get("functions", []))
+    base = baseline_revisions(verifier_alva, toml,
+                              manifest.get("functions", []))
     # FRESH experimental agent: empty call log, own transaction
-    a = rc.RecordingAgent(alva, toml, gate_on=gate_on, call_log=call_log)
-    a.ok("begin_transaction", project=toml)
+    a = rc.RecordingAgent(alva, agent_project, gate_on=gate_on,
+                          call_log=call_log, cmd_prefix=cmd_prefix)
+    a.ok("begin_transaction", project=agent_project)
     # arm route
     if group == "matched" and arm == "HIGH":
         high = rc.extract_high_call(manifest)
@@ -138,7 +147,7 @@ def run_slot(args, cid, group, arm, rep, manifest, freeze, out_dir, alva):
         termination = "NO_COMMIT"
     else:
         passed, out = rc.run_verifier_arm_blind(
-            alva, ws, manifest["verifier"], base)
+            verifier_alva, ws, manifest["verifier"], base)
         termination = "OK" if passed else "BAD_SOLUTION"
     ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     reachable = rc.reachable_revisions(alva, toml) if termination in (
@@ -174,6 +183,9 @@ def main():
                              r"\alva-research-private\alva-paper\saner"
                              r"\e3-feasibility\C1-FREEZE-MANIFEST.md"))
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--container", default=None,
+                    help="image ref (ghcr.io/zkidp/alva-e3@sha256:...) to run "
+                         "the agent loop inside the E3 container")
     args = ap.parse_args()
     alva = os.environ.get("ALVA")
     if not alva:

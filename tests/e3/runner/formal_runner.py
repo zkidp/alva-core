@@ -85,27 +85,6 @@ def load_tool_defs(arm):
     return json.load(open(path, encoding="utf-8"))["tools"]
 
 
-def container_run_cmd(image, workspace_dir):
-    return ["docker", "run", "--rm", "-i", "--network", "e3-relay-only",
-            "-v", f"{workspace_dir}:/workspace", image]
-
-
-def extract_binary(image, work_dir):
-    """Extract the container's Linux alva binary to a host path (used by the
-    arm-blind verifier and identity checks)."""
-    import subprocess
-    out = subprocess.run(["docker", "create", image], capture_output=True,
-                         text=True, check=True)
-    cid = out.stdout.strip()
-    dest = os.path.join(work_dir, "alva-linux")
-    subprocess.run(["docker", "cp", f"{cid}:/usr/local/bin/alva", dest],
-                   capture_output=True, text=True, check=True)
-    subprocess.run(["docker", "rm", cid], capture_output=True, text=True)
-    if not os.name == "nt":
-        os.chmod(dest, 0o755)
-    return dest
-
-
 def assert_execution_freeze(args, m, alva):
     """Fail-closed identity checks against EXECUTION-FREEZE.json. Any
     mismatch or REQUIRED_INPUT placeholder stops the run before any model
@@ -198,9 +177,10 @@ def run_one(args, m):
     agent_project = toml
     verifier_alva = alva
     if args.relay == "deepseek":
-        cmd_prefix = container_run_cmd(exfreeze["container_digest"], ws)
+        cmd_prefix = rc.container_run_cmd(exfreeze["container_digest"], ws)
         agent_project = "/workspace/alva.toml"
-        verifier_alva = extract_binary(exfreeze["container_digest"], run_dir)
+        verifier_alva = rc.extract_binary(exfreeze["container_digest"],
+                                          run_dir)
     rc.surface_probe(alva, agent_project, gate_on, cmd_prefix=cmd_prefix)
     # FRESH experimental agent: empty call log, no active transaction.
     call_log = []

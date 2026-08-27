@@ -18,8 +18,10 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 QUALIFY_DIR = os.path.dirname(HERE) + os.sep + "qualify"
 VERIFIER = os.path.join(QUALIFY_DIR, "hidden_verifier.py")
-CHURN = (r"C:\Users\BEStaff\Desktop\alva-repos\alva-research-private"
-         r"\alva-paper\saner\e3-feasibility\scripts\churn_classifier.py")
+CHURN = os.environ.get(
+    "E3_CHURN_CLASSIFIER",
+    (r"C:\Users\BEStaff\Desktop\alva-repos\alva-research-private"
+     r"\alva-paper\saner\e3-feasibility\scripts\churn_classifier.py"))
 
 FORBIDDEN_SNIPPETS = [
     "candidate.json", "wrong_variants", "low_sequence", "hidden_verifier",
@@ -216,6 +218,26 @@ def surface_probe(alva, project_toml, gate_on, cmd_prefix=None):
             raise RuntimeError("surface gate: LOW arm exposed "
                                "migrate_signature")
     return True
+
+
+def container_run_cmd(image, workspace_dir):
+    return ["docker", "run", "--rm", "-i", "--network", "e3-relay-only",
+            "-v", f"{workspace_dir}:/workspace", image]
+
+
+def extract_binary(image, work_dir):
+    """Extract the container's Linux alva binary to a host path (used by the
+    arm-blind verifier and identity checks)."""
+    out = subprocess.run(["docker", "create", image], capture_output=True,
+                         text=True, check=True)
+    cid = out.stdout.strip()
+    dest = os.path.join(work_dir, "alva-linux")
+    subprocess.run(["docker", "cp", f"{cid}:/usr/local/bin/alva", dest],
+                   capture_output=True, text=True, check=True)
+    subprocess.run(["docker", "rm", cid], capture_output=True, text=True)
+    if not os.name == "nt":
+        os.chmod(dest, 0o755)
+    return dest
 
 
 def reachable_revisions(alva, project_toml):
