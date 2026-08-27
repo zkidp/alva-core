@@ -165,7 +165,7 @@ def run_slot(args, cid, group, arm, rep, manifest, freeze, out_dir, alva):
 def _head():
     try:
         p = subprocess.run(["git", "rev-parse", "HEAD"],
-                           capture_output=True, text=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
                            cwd=os.path.dirname(os.path.dirname(HERE)))
         return p.stdout.strip()
     except Exception:

@@ -146,7 +146,7 @@ class RecordingAgent:
         cmd = cmd_prefix if cmd_prefix is not None else [alva, "agent"]
         self.p = subprocess.Popen(
             cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            text=True, encoding="utf-8", env=env)
+            universal_newlines=True, encoding="utf-8", env=env)
         self.project = project_toml
         self.gate_on = gate_on
         self.call_log = call_log
@@ -228,13 +228,14 @@ def container_run_cmd(image, workspace_dir):
 def extract_binary(image, work_dir):
     """Extract the container's Linux alva binary to a host path (used by the
     arm-blind verifier and identity checks)."""
-    out = subprocess.run(["docker", "create", image], capture_output=True,
-                         text=True, check=True)
+    out = subprocess.run(["docker", "create", image],
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         universal_newlines=True, check=True)
     cid = out.stdout.strip()
     dest = os.path.join(work_dir, "alva-linux")
     subprocess.run(["docker", "cp", f"{cid}:/usr/local/bin/alva", dest],
-                   capture_output=True, text=True, check=True)
-    subprocess.run(["docker", "rm", cid], capture_output=True, text=True)
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=True)
+    subprocess.run(["docker", "rm", cid], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     if not os.name == "nt":
         os.chmod(dest, 0o755)
     return dest
@@ -243,7 +244,7 @@ def extract_binary(image, work_dir):
 def reachable_revisions(alva, project_toml):
     """Frozen final reachable revision set of the committed store."""
     p = subprocess.run([alva, "air", "reachable", project_toml],
-                       capture_output=True, text=True)
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     if p.returncode != 0:
         raise RuntimeError(f"reachable failed: {p.stderr[-300:]}")
     return [ln.strip() for ln in p.stdout.splitlines() if ln.strip()]
@@ -252,7 +253,7 @@ def reachable_revisions(alva, project_toml):
 def final_state(alva, project_toml):
     """module heads + semantic hash of the committed store."""
     p = subprocess.Popen([alva, "edit"], stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE, text=True,
+                         stdout=subprocess.PIPE, universal_newlines=True,
                          encoding="utf-8")
     p.stdin.write(json.dumps({"op": "begin", "project": project_toml}) + "\n")
     p.stdin.flush()
@@ -279,7 +280,7 @@ def run_verifier_arm_blind(alva, project_dir, checkspec, baseline):
             json.dump(baseline, fh)
     p = subprocess.run(
         [sys.executable, VERIFIER, project_dir, spec_dir],
-        env=dict(os.environ, ALVA=alva), capture_output=True, text=True)
+        env=dict(os.environ, ALVA=alva), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     return p.returncode == 0, (p.stdout + p.stderr)[-400:]
 
 
@@ -296,7 +297,7 @@ def derive_churn(call_log, final_reachable):
     with os.fdopen(fd, "w", encoding="utf-8") as fh:
         json.dump(traj, fh)
     p = subprocess.run([sys.executable, CHURN, path],
-                       capture_output=True, text=True)
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     os.unlink(path)
     return p.returncode, (p.stdout + p.stderr)
 
@@ -355,7 +356,7 @@ def provenance_record(cid, group, arm, rep, alva_bin, runner_head,
 def _git_head():
     try:
         p = subprocess.run(["git", "rev-parse", "HEAD"],
-                           capture_output=True, text=True, cwd=HERE)
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, cwd=HERE)
         return p.stdout.strip()
     except Exception:
         return "unknown"

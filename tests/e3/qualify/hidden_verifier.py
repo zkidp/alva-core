@@ -38,7 +38,7 @@ class Agent:
         env.setdefault("ALVA_AEP_ENABLE_EXPERIMENTAL_A1", "1")
         self.p = subprocess.Popen(
             [alva, "agent"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            text=True, encoding="utf-8", env=env,
+            universal_newlines=True, encoding="utf-8", env=env,
         )
         self.toml = os.path.join(project_dir, "alva.toml")
         self.i = 0
@@ -122,7 +122,7 @@ def run_checks(alva, project_dir, checkspec, baseline):
     toml = os.path.join(project_dir, "alva.toml")
     # 1. project check ALWAYS (E3 mandate).
     p = subprocess.run([alva, "project", "check", toml],
-                       capture_output=True, text=True)
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     if p.returncode != 0:
         fail(f"project check failed:\n{p.stdout[-800:]}\n{p.stderr[-800:]}")
     # 2. build/test when explicitly requested (frozen command).
@@ -130,7 +130,7 @@ def run_checks(alva, project_dir, checkspec, baseline):
         scratch = tempfile.mkdtemp(prefix="e3-build-")
         p = subprocess.run(
             [alva, "build", toml, "--out-dir", scratch, "--test"],
-            capture_output=True, text=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         if p.returncode != 0:
             fail(f"build --test failed:\n{p.stdout[-800:]}\n{p.stderr[-800:]}")
     # 3. structural checks.

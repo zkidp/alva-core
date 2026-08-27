@@ -22,3 +22,27 @@
 {"id": "N10", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
 {"id": "N11", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
 {"id": "N12", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M01", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M02", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M03", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M04", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M05", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M06", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M07", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M08", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M09", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M10", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M11", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M12", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N01", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2", "W3"]}
+{"id": "N02", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2", "W3"]}
+{"id": "N03", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N04", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N05", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N06", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N07", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N08", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N09", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N10", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N11", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N12", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}

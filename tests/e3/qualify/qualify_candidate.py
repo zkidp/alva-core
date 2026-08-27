@@ -43,7 +43,7 @@ class Agent:
         env.setdefault("ALVA_AEP_ENABLE_EXPERIMENTAL_A1", "1")
         self.p = subprocess.Popen(
             [alva, "agent"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            text=True, encoding="utf-8", env=env,
+            universal_newlines=True, encoding="utf-8", env=env,
         )
         self.project = project
         self.i = 0
@@ -182,7 +182,7 @@ def run_verifier(alva, project, checkspec, baseline):
             json.dump(baseline, fh)
     p = subprocess.run(
         [sys.executable, VERIFIER, project_dir, spec_dir],
-        env=dict(os.environ, ALVA=alva), capture_output=True, text=True,
+        env=dict(os.environ, ALVA=alva), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
     )
     return p.returncode == 0, (p.stdout + p.stderr)[-400:]
 
@@ -194,7 +194,7 @@ def qualify_one(alva, cand_dir, candidate):
     base = fresh_copy(fixture_dir)
     p = subprocess.run(
         [alva, "project", "check", base],
-        capture_output=True, text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
     )
     if p.returncode != 0:
         fail(f"{cid}: baseline project check failed:\n{p.stdout[-500:]}")

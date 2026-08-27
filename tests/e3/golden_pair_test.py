@@ -70,7 +70,7 @@ class Agent:
             env.pop("ALVA_AEP_ENABLE_E3_HIGH", None)
         self.p = subprocess.Popen(
             [alva, "agent"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            text=True, encoding="utf-8", env=env,
+            universal_newlines=True, encoding="utf-8", env=env,
         )
         self.project = project
         self.i = 0
@@ -109,7 +109,7 @@ def state_heads(alva, project):
     process and return (semantic_hash, sorted module heads)."""
     p = subprocess.Popen(
         [alva, "edit"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-        text=True, encoding="utf-8",
+        universal_newlines=True, encoding="utf-8",
     )
     p.stdin.write(json.dumps({"op": "begin", "project": project}) + "\n")
     p.stdin.flush()

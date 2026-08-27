@@ -100,19 +100,19 @@ def assert_execution_freeze(args, m, alva):
         image = freeze["container_digest"]
         insp = subprocess.run(
             ["docker", "image", "inspect", image, "--format",
-             "{{.Id}}"], capture_output=True, text=True)
+             "{{.Id}}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         if insp.returncode != 0:
             raise RuntimeError("FAIL_CLOSED: container image not present")
         sha = subprocess.run(
             ["docker", "run", "--rm", "--entrypoint", "sha256sum", image,
-             "/usr/local/bin/alva"], capture_output=True, text=True)
+             "/usr/local/bin/alva"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         got = sha.stdout.split()[0].lower() if sha.stdout.strip() else ""
         if got != freeze.get("alva_binary_sha256", "").lower():
             raise RuntimeError("FAIL_CLOSED: in-container alva binary SHA "
                                "mismatch")
         ver = subprocess.run(
             ["docker", "run", "--rm", "--entrypoint", "alva", image,
-             "--version"], capture_output=True, text=True)
+             "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         if ver.returncode != 0:
             raise RuntimeError("FAIL_CLOSED: in-container alva --version "
                                "failed")
@@ -122,13 +122,14 @@ def assert_execution_freeze(args, m, alva):
     freeze_commit = subprocess.run(
         ["git", "-C", HERE, "log", "-1", "--format=%H", "--",
          os.path.basename(args.execution_freeze)],
-        capture_output=True, text=True).stdout.strip()
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True).stdout.strip()
     if head != freeze_commit:
         raise RuntimeError(f"FAIL_CLOSED: checkout {head[:12]} != "
                            f"freeze-record commit {freeze_commit[:12]}")
     anc = subprocess.run(
         ["git", "-C", HERE, "merge-base", "--is-ancestor",
-         freeze["alva_source_sha"], head], capture_output=True)
+         freeze["alva_source_sha"], head],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if anc.returncode != 0:
         raise RuntimeError("FAIL_CLOSED: checkout does not descend from "
                            "pinned alva source")

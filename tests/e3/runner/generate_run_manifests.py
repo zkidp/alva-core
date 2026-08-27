@@ -36,7 +36,7 @@ def baseline_revisions(alva, fixture_dir, functions):
     env.pop("ALVA_AEP_ENABLE_E3_HIGH", None)
     env.setdefault("ALVA_AEP_ENABLE_EXPERIMENTAL_A1", "1")
     p = subprocess.Popen([alva, "agent"], stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE, text=True, encoding="utf-8",
+                         stdout=subprocess.PIPE, universal_newlines=True, encoding="utf-8",
                          env=env)
 
     def call(tool, **kw):
