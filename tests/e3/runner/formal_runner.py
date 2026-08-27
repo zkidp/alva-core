@@ -32,6 +32,7 @@ import argparse
 import hashlib
 import json
 import os
+import subprocess
 import sys
 import time
 
@@ -88,14 +89,28 @@ def assert_execution_freeze(args, m, alva):
             if freeze.get(field) == "REQUIRED_INPUT":
                 raise RuntimeError(f"FAIL_CLOSED: {field} not pinned")
     head = rc._git_head()
-    if head != freeze.get("alva_source_sha"):
-        raise RuntimeError(f"FAIL_CLOSED: alva source {head[:12]} != "
-                           f"frozen {freeze['alva_source_sha'][:12]}")
-    if head != freeze.get("runner_sha"):
-        raise RuntimeError(f"FAIL_CLOSED: runner {head[:12]} != frozen "
-                           f"{freeze['runner_sha'][:12]}")
-    if rc.sha256_file(alva) != freeze.get("alva_binary_sha256"):
+    # The checkout must be AT the commit that carries this freeze record,
+    # and that commit must descend from the pinned source commit.
+    freeze_commit = subprocess.run(
+        ["git", "-C", HERE, "log", "-1", "--format=%H", "--",
+         os.path.basename(args.execution_freeze)],
+        capture_output=True, text=True).stdout.strip()
+    if head != freeze_commit:
+        raise RuntimeError(f"FAIL_CLOSED: checkout {head[:12]} != "
+                           f"freeze-record commit {freeze_commit[:12]}")
+    anc = subprocess.run(
+        ["git", "-C", HERE, "merge-base", "--is-ancestor",
+         freeze["alva_source_sha"], head], capture_output=True)
+    if anc.returncode != 0:
+        raise RuntimeError("FAIL_CLOSED: checkout does not descend from "
+                           "pinned alva source")
+    if rc.sha256_file(alva).lower() != \
+            freeze.get("alva_binary_sha256", "").lower():
         raise RuntimeError("FAIL_CLOSED: alva binary SHA mismatch")
+    runner_hash = rc.sha256_file(os.path.join(HERE, "runner_core.py")) + \
+        rc.sha256_file(os.path.join(HERE, "formal_runner.py"))
+    if runner_hash.lower() != freeze.get("runner_files_sha256", "").lower():
+        raise RuntimeError("FAIL_CLOSED: runner file hash mismatch")
     # per-run manifest identity
     manifest_name = os.path.basename(args.run_manifest)
     index = json.load(open(os.path.join(os.path.dirname(args.run_manifest),
