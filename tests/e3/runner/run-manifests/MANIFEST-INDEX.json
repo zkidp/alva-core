@@ -7,7 +7,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M01-LOW-r1.json",
-      "sha256": "63e04a5e97e5c871b038cd20ec754cd2be7dc3969fc1d433ea3d2a41705522f3"
+      "sha256": "aff1332bea2f2bb0e9d36357e74ea6880633fed616e8827aa9ee4d01a63f43c7"
     },
     {
       "task_id": "M01",
@@ -15,7 +15,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M01-LOW-r2.json",
-      "sha256": "363ddaf7a177383ca7ad983f74e1934311d63a2e9f6a82768ec85eaf1486e648"
+      "sha256": "e78e13d64b47a1991bf4c5eb0e36472607494d4fa2c8c5eae9d19a1f7ec41202"
     },
     {
       "task_id": "M01",
@@ -23,7 +23,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M01-HIGH-r1.json",
-      "sha256": "7a97a21d807b658778848f8bb9983e39d4a9a3eca3b5c8e4bf3adb85d8ae60a1"
+      "sha256": "e021752b9bbacc68456ef8932e70059ca16fc330370557c6e1360ddee6fdc990"
     },
     {
       "task_id": "M01",
@@ -31,7 +31,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M01-HIGH-r2.json",
-      "sha256": "fab62a1e86bc278f15e8637d5081bae0ef36edfa0bccee9e4fd2f105dc0ed030"
+      "sha256": "48c92766bc64bc23b55eeca1c323b3e63467f301540a793443be9d7968c4683d"
     },
     {
       "task_id": "M02",
@@ -39,7 +39,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M02-LOW-r1.json",
-      "sha256": "ce48233f98cfa7a80dc0088d485b35065ade63455b4d2e566b51b40485da1145"
+      "sha256": "a45008b74c85377712fb4fd9ea0f43f3c640d4ab644802eb8c80d61cf7fb9f04"
     },
     {
       "task_id": "M02",
@@ -47,7 +47,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M02-LOW-r2.json",
-      "sha256": "9204bdddaa6f964922294245d06ea2cc298a4a4745a303444b09e4f89820ec81"
+      "sha256": "db97d1b9dfe41c84feb48e513387f3635e633cec5d7bb64ab7fc798e36f184ec"
     },
     {
       "task_id": "M02",
@@ -55,7 +55,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M02-HIGH-r1.json",
-      "sha256": "0d169e36cc426ea6b2b7fc257f8f4f3864d5f4daa864d5ab433295f4ee6fc3f4"
+      "sha256": "3d4f91a8812070da6f72e3cc72d22d04456be5d5180c83c8bc3f7e2e295334c0"
     },
     {
       "task_id": "M02",
@@ -63,7 +63,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M02-HIGH-r2.json",
-      "sha256": "e6a3a190b2c169b4ffd51ef1660f376fa78c4f294d426a479ae72013951aaed4"
+      "sha256": "52588b58122f702a949524a2c1a448de4d7aebe8254994cf8463a6f8c716ec95"
     },
     {
       "task_id": "M03",
@@ -71,7 +71,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M03-LOW-r1.json",
-      "sha256": "9aceeec1c40e183038deaa9a2fdad6c33df94e7046c21c839ae882c47409e4aa"
+      "sha256": "16ff23104a530670d199289818c58ddb7e15eacaffd3af6e9cadec56b4ad7272"
     },
     {
       "task_id": "M03",
@@ -79,7 +79,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M03-LOW-r2.json",
-      "sha256": "d2d68b878267d7fae22652c77d5b6e09181bc4239de97b7b5b6cebb0a6b7e367"
+      "sha256": "7561a25841d7d19db8915549f9a89c28e7a8b0364bf3e6a01311ca2a692fd103"
     },
     {
       "task_id": "M03",
@@ -87,7 +87,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M03-HIGH-r1.json",
-      "sha256": "44ff5930ba292359e5b230299188e220df4994394342ac2bd687704de2c12244"
+      "sha256": "914ad552a3fede3591a9378dfc1f751d0f8b7c50b81286fc5782c637ba2ec1f8"
     },
     {
       "task_id": "M03",
@@ -95,7 +95,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M03-HIGH-r2.json",
-      "sha256": "149289a4c925ca1e58c7fab1db3c9badc1ffa742b030c01a4b301f9ccede99a3"
+      "sha256": "f62b971b3c9f939a85dc0576df70d8dc0af201c644b128b11c1634f7a05429cc"
     },
     {
       "task_id": "M04",
@@ -103,7 +103,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M04-LOW-r1.json",
-      "sha256": "0a598dd93859af2a53970adb78a7590ec49324c6e63220e280b88265bea5deda"
+      "sha256": "0d056d6fa4995b2316f97d172a5119c8cd2c0918542d2be9c86704f81265b9f6"
     },
     {
       "task_id": "M04",
@@ -111,7 +111,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M04-LOW-r2.json",
-      "sha256": "7857d1d3785ffdf622f111d1b91f41f6ffa157ce4550576370f3e9e364b058a9"
+      "sha256": "5e863e6eb4e8f8f099f649b2938f9294a1cd0fd0856ba00d02c347cd3e610192"
     },
     {
       "task_id": "M04",
@@ -119,7 +119,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M04-HIGH-r1.json",
-      "sha256": "052d5862c7d9334bcf59718ce62a1ed5b48ec207e85ba5263a2b552e6f127141"
+      "sha256": "64feaaaedf5522426d4fee1b4a0f5809a9dcf7362bf3d40ca53cff149661df9c"
     },
     {
       "task_id": "M04",
@@ -127,7 +127,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M04-HIGH-r2.json",
-      "sha256": "b60f90ae9c673b816936a7eb2ad2f328c1373ba566de3452fe17ca68d1d76165"
+      "sha256": "ea51fa680119a86cc285e8f063c5f2574ae05c0ddce3b5f526f26c14854689b7"
     },
     {
       "task_id": "M05",
@@ -135,7 +135,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M05-LOW-r1.json",
-      "sha256": "36cc6e7a7c43a17ee9109f21d5b63bcfc1eae67848a27bafdf0465a5f954e332"
+      "sha256": "06793c285f9704bf452f1ce656d3b7d3d06e17fd6500999ee03e517269ef80c7"
     },
     {
       "task_id": "M05",
@@ -143,7 +143,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M05-LOW-r2.json",
-      "sha256": "837d54c04f480e1ec061aba6b2b8046f3b345682197ddcb18e3fab5c9a99088c"
+      "sha256": "5efe4374929f7cfc1d3e61b8d234b58cca80ceb461b9facac67a27a9e3fa1603"
     },
     {
       "task_id": "M05",
@@ -151,7 +151,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M05-HIGH-r1.json",
-      "sha256": "0d2ffd3339e726de34922b94d039cc1fae97949364b6edf8ed574e230069bb1c"
+      "sha256": "2c0dfca4d2639d3242a062f15f3c28ed3ebedbbf4d31ebcbb20a2c7eeb21d65d"
     },
     {
       "task_id": "M05",
@@ -159,7 +159,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M05-HIGH-r2.json",
-      "sha256": "0c676bea1873e14417e56a2af7b132454e79411a858194a31b78f79784a00a1f"
+      "sha256": "58f3ebb57da5f7a42d3efd45409223ae4f7f3cdd8d6972cb6aa7f292492bed8c"
     },
     {
       "task_id": "M06",
@@ -167,7 +167,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M06-LOW-r1.json",
-      "sha256": "15e99626199573937e57081c131bfec2acd6a066d5f43a9b0dd8ce223da0bb0c"
+      "sha256": "af8f18724319b59e18144dbfad59f0d6eeb4c8e0c6696f90793b3f24247cc58a"
     },
     {
       "task_id": "M06",
@@ -175,7 +175,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M06-LOW-r2.json",
-      "sha256": "a20cafe2b25421a8af4f4fef09410fb825f7ed4d6b4af48ce15e3efb672f3970"
+      "sha256": "ea016c2d3932d916dd05bd17ac88a4184dc2823818f9a1138e0b34d9ae6b57c5"
     },
     {
       "task_id": "M06",
@@ -183,7 +183,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M06-HIGH-r1.json",
-      "sha256": "2192e8f13cdfcbe36206718ce6817c961129283c44736e6650dc9f8860ac88ba"
+      "sha256": "e536c904f5f4803303dc16883b082106f0c4558a3be078d3ad286385b805f0aa"
     },
     {
       "task_id": "M06",
@@ -191,7 +191,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M06-HIGH-r2.json",
-      "sha256": "009ce985d243cc52722e6b3ca12aef55229161b82c04c5bbb3cd326d87005266"
+      "sha256": "0840ba2c51d9b70c9c00900ae12d583b2a95aed172bed72c65cc9ec416fc921d"
     },
     {
       "task_id": "M07",
@@ -199,7 +199,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M07-LOW-r1.json",
-      "sha256": "50a21dbf2aea09782445dcfc627e4d6c0e0df2905412391152e8ceacb47e9fb9"
+      "sha256": "2998333199d23ed7411436b6bfbc260c3e6c085fbc73e5b8c391eb9bb0e772b4"
     },
     {
       "task_id": "M07",
@@ -207,7 +207,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M07-LOW-r2.json",
-      "sha256": "f82722bf8a637f3b43423f5d73d2f4648bc6dcbe977e10c53d2fbfd5144681b1"
+      "sha256": "6b952aff64fcf89bc3bd4d36fe697a2ca9a4bf71e79e283a6a1d9a999b8e074c"
     },
     {
       "task_id": "M07",
@@ -215,7 +215,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M07-HIGH-r1.json",
-      "sha256": "83a52c290b90cce03ffed876ddd88ba8765083f08cad5b8bb6f2667aaa7531a2"
+      "sha256": "c72f84e6485bb1614afc4ec8f8ff1ffe4a94dc731af5c652f999877c208f6911"
     },
     {
       "task_id": "M07",
@@ -223,7 +223,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M07-HIGH-r2.json",
-      "sha256": "62b41728935c2936fe3245a57bb7a93554e2d66d81216d98e20cffa7b4d22b4d"
+      "sha256": "3d3e179ac809671c8aeb182df814790159045ad46f9df79d284cbb3aabe6f969"
     },
     {
       "task_id": "M08",
@@ -231,7 +231,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M08-LOW-r1.json",
-      "sha256": "ac3dc3659c07218235664a3835ab46e8744e783b107a576cc030346177b5d963"
+      "sha256": "2f64037be343efeb080081976b135abba0f0e8eb60af4fce83b992c80fbf180b"
     },
     {
       "task_id": "M08",
@@ -239,7 +239,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M08-LOW-r2.json",
-      "sha256": "c0003cb3cf22f9e57c1a482dca46a0ecf17cc5d9ba172a1d35b02996f4d520c3"
+      "sha256": "1719916ab44c89bdd4e4ff114ef24de01697d233d7ddfce2949ebb253f5f7d9b"
     },
     {
       "task_id": "M08",
@@ -247,7 +247,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M08-HIGH-r1.json",
-      "sha256": "c5a3754501258205d2efe3832d8d105ee5dffc5c387df41c0f1737bec27c6940"
+      "sha256": "b14f4dcb0f2381d4374e51312f207a4b785b09286f78560212e3ec8fe19ea3ed"
     },
     {
       "task_id": "M08",
@@ -255,7 +255,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M08-HIGH-r2.json",
-      "sha256": "e9165bdad602ead94a07134a3010ad780b5420bbff2c2f88e153f6ef11f49630"
+      "sha256": "c6bddb6c6b0eef1f8fe59f7d089767ca4b3ca79b62cfe8736be77df1983f9c0b"
     },
     {
       "task_id": "M09",
@@ -263,7 +263,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M09-LOW-r1.json",
-      "sha256": "edb093fc7a6a9ab388ccd8289e2299bb1dfa93d3ca856a569d0aa98ae4f7ebbf"
+      "sha256": "37ceabe809fd6522d8feff78c4b598198ddf301f7423fe15fa00775cab13c09a"
     },
     {
       "task_id": "M09",
@@ -271,7 +271,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M09-LOW-r2.json",
-      "sha256": "bddc0f64762b37865944b767a9c82c5d9f216921dde2069a6831ee8226fc5b47"
+      "sha256": "f5dd9e3410056151643d91a0851fde18e6e58ffc25bd99dd12c07b898e7807d8"
     },
     {
       "task_id": "M09",
@@ -279,7 +279,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M09-HIGH-r1.json",
-      "sha256": "989b4937aef606b046550b4e9c8add65def5447ba671cc49765634aeb5b54161"
+      "sha256": "b485401b2f88e3de2fab1f0ab9f2158ba1ec43e910603405d290f381a63ac6db"
     },
     {
       "task_id": "M09",
@@ -287,7 +287,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M09-HIGH-r2.json",
-      "sha256": "ae1ef0268d89b5de3d8d756450fe3bd047db930b68b29f84a2e0693f20644698"
+      "sha256": "9466be1540d009dcf303492035a44fede8a3f0b8a7bb73d0a6080f8a83e05235"
     },
     {
       "task_id": "M10",
@@ -295,7 +295,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M10-LOW-r1.json",
-      "sha256": "b39faaa46341866df688a44066d2c42e04af2ffb3f8302f56fc1155315df5732"
+      "sha256": "442c64ea6959c4ed662919435b7fdfbf8de9352e639d76c796bf13121d965f44"
     },
     {
       "task_id": "M10",
@@ -303,7 +303,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M10-LOW-r2.json",
-      "sha256": "aefd3ee9e89b6d8ba248c3960844e25ef3e592da8e724acc6d2eb5b1a6e0b826"
+      "sha256": "3dfb3dbb1b0fe68eef089af54f1cbd2cb3bcf59793d36601ca551496e5a13d85"
     },
     {
       "task_id": "M10",
@@ -311,7 +311,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M10-HIGH-r1.json",
-      "sha256": "e83364f9e31a97593b4b20dc82481af463b0914dcb3e00084c5de46f7505af09"
+      "sha256": "64fda5343f099af9363b4bb07be5f83da1684247fb3d0196a8d9d0937a13a9b9"
     },
     {
       "task_id": "M10",
@@ -319,7 +319,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M10-HIGH-r2.json",
-      "sha256": "e5bae7253e4f02e84b16ee196487ddbffc17e8edca0c1d1e5e219057d759aa69"
+      "sha256": "506ba4aee93e2c2c338e7cb7d8b854552b639be33fb953972ce18e9596c917c1"
     },
     {
       "task_id": "M11",
@@ -327,7 +327,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M11-LOW-r1.json",
-      "sha256": "935d784b9da47c2d6ffd7db63a09a67adee7c3ae28c079fe000af0ac4d49df1c"
+      "sha256": "f0f16bbf1702633641bda7904d88b11b7447fe96feb4c9f392820d67d503b172"
     },
     {
       "task_id": "M11",
@@ -335,7 +335,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M11-LOW-r2.json",
-      "sha256": "82414ed52029d1948750575952b203f9a04fbf76f135714a52614f0aad817790"
+      "sha256": "b515d32531d8cc6a5d22281ce3675b2222499bb9ff02379942b5f8f771adac20"
     },
     {
       "task_id": "M11",
@@ -343,7 +343,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M11-HIGH-r1.json",
-      "sha256": "c96932c05f116b16a80367798764ad5791abc996ae16e271abfcba2d4ac9fdc5"
+      "sha256": "e7e5d06d0e4ab0cc2568f1e30509f383400800cc0b9f62d23453367e19311361"
     },
     {
       "task_id": "M11",
@@ -351,7 +351,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M11-HIGH-r2.json",
-      "sha256": "9e0cd078f339e59aae5b2eee9a2332cf5b2639682466d7ebf00556f12d621db6"
+      "sha256": "3e8b7e5a082770089e418e1ac167d4148c37afdb47ab7426be9852202e3557b4"
     },
     {
       "task_id": "M12",
@@ -359,7 +359,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "M12-LOW-r1.json",
-      "sha256": "1912e50db0521eb200afbfdd4b600f719e7c6db125696c930003dca35c81a5d9"
+      "sha256": "78b10e48d4133874de27eb10d4132c6c8d2af5b9abed92cc1535fff3e3bc45f0"
     },
     {
       "task_id": "M12",
@@ -367,7 +367,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "M12-LOW-r2.json",
-      "sha256": "56bcadc7992648b80ce1d6ff5213d63986bda098ee59701c2f5e8a6f422b031c"
+      "sha256": "97b62aaeba4142ee2999908e039a4ecf15af5ab66a25a33cd9deb12bc67c93e1"
     },
     {
       "task_id": "M12",
@@ -375,7 +375,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "M12-HIGH-r1.json",
-      "sha256": "b757f0020f25fc1f2110e8db898d3674558c1e50a766a0de621d108992545e97"
+      "sha256": "e66ff7350ea42b1f269ac8eb552b4e804de0a9022bb90766d53c62367be7bf2b"
     },
     {
       "task_id": "M12",
@@ -383,7 +383,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "M12-HIGH-r2.json",
-      "sha256": "6552bce5e2897b1899b48d7587a04f96966774ef92978e745ab424d1651d2ead"
+      "sha256": "84123ab3a146195a59f92d7253bfc75b6b639ed60d6299895fa3bd07648a6f8e"
     },
     {
       "task_id": "N01",
@@ -391,7 +391,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N01-LOW-r1.json",
-      "sha256": "35e37cfcddd339ecf7005ea40dd87b6e826cba4a457382975722cfe63f8d8295"
+      "sha256": "3f8073b646b5b5e952fb0c91aca673dd02f9ced6c8460d982cd34c35be56421f"
     },
     {
       "task_id": "N01",
@@ -399,7 +399,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N01-LOW-r2.json",
-      "sha256": "4389daa5ab3d0d0d2c80686525e691eb44f6699bc3991e3efdfd7bcfeb2ef1db"
+      "sha256": "856c9702717a73cdd2ca7821902e7592de8b441b7a6adccff2e5632c634023e3"
     },
     {
       "task_id": "N01",
@@ -407,7 +407,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N01-HIGH-r1.json",
-      "sha256": "b533ce15648f5c50d71a0fc753ed70abc08bb025a0461db1c8508c52784af4d5"
+      "sha256": "52cc6dbb45e612312270d757315a150e18af46cb47cfd2533b6f778d4e505062"
     },
     {
       "task_id": "N01",
@@ -415,7 +415,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N01-HIGH-r2.json",
-      "sha256": "a0ac3985d198ca27d3f86186641b76ee84d65a3e2653b613c0151b0462918426"
+      "sha256": "39406197d7edb29e9f87276628709d012abe87ac3b85ed35a7c1fafd45d39e14"
     },
     {
       "task_id": "N02",
@@ -423,7 +423,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N02-LOW-r1.json",
-      "sha256": "50ca00a017c48463aa012d9e036aaf27fd70f8f3c3c7b6551f9149f31d2453fc"
+      "sha256": "9e212dc20e2625a70175198ae434d9d2e188068d9e1f97642d5e2e8c6da470a0"
     },
     {
       "task_id": "N02",
@@ -431,7 +431,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N02-LOW-r2.json",
-      "sha256": "228f924c4195bfbf021c1da4ed2d81ff7bf9795d11a39f012b15f8b8203d9917"
+      "sha256": "6ea738a5d8f96e6bd847ee376237c756906f0b9b0a99bbcee713e4874ec07199"
     },
     {
       "task_id": "N02",
@@ -439,7 +439,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N02-HIGH-r1.json",
-      "sha256": "06a21213461dc2dd56206049e9fe666ff5cf4a1c6a3bef120058d7056a1c2a81"
+      "sha256": "95003cb1bbe32172526a3e8456abb0ad2a629cb2761d2e357d661075fb57ec5b"
     },
     {
       "task_id": "N02",
@@ -447,7 +447,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N02-HIGH-r2.json",
-      "sha256": "fb0449798e85938fc4be432e019d13e71bf70780d6608900f922ebb1931eded5"
+      "sha256": "dd555d3e2a5eb40ba05b2c47f6606bef891d2da0d3456e4041e1615fcc9e039d"
     },
     {
       "task_id": "N03",
@@ -455,7 +455,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N03-LOW-r1.json",
-      "sha256": "7edab930e8411b96cc9146b38ade2fbdeafe6ba858be6c833dc64d9ffa6ff808"
+      "sha256": "c37f1645ea81e5ad263fa5f3a847677b8dd7b95dacef0f6e511b6f58cf68d08b"
     },
     {
       "task_id": "N03",
@@ -463,7 +463,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N03-LOW-r2.json",
-      "sha256": "27a88e68bd1e3a7f92c13da689f2f1bc5f37fa4a5e8d313b4e3b24acba1f3a14"
+      "sha256": "cffadc8cd74ba15e8040a65d5f4652a7d146abaedf729d2c55e0aea8650b834f"
     },
     {
       "task_id": "N03",
@@ -471,7 +471,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N03-HIGH-r1.json",
-      "sha256": "f57477cfb126fe02b70793d3473f5fd85fea3b46acd08c43998b1ccefd798f4e"
+      "sha256": "2324e5bc5253ccc7ec5ee40b21550c5c49128e4379a848eca66da946d38a7305"
     },
     {
       "task_id": "N03",
@@ -479,7 +479,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N03-HIGH-r2.json",
-      "sha256": "75ad85d0265b6c1088a8ac416d9f1e777ec4c4a888c5921cd392fbff19526ec9"
+      "sha256": "ad90b2b29a205ae258d4e226f6c364b177ffb2100db3826fb5820dfcbf5368c0"
     },
     {
       "task_id": "N04",
@@ -487,7 +487,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N04-LOW-r1.json",
-      "sha256": "e0a9113ecd570fc7e4cb60835a55bb4f23e7c97561c6175708403d3758eb8495"
+      "sha256": "dc0bf2f96e2fad73efe17b5d3a658523d26bb779a9c0ca634ea0a6bdcac87e33"
     },
     {
       "task_id": "N04",
@@ -495,7 +495,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N04-LOW-r2.json",
-      "sha256": "50f0662bfd9028fdfecd79c51ef9a8ef1d93ff88b707a812c6a3e32777c95fa8"
+      "sha256": "8cb8da463dee58a47d27d441661e1b40358169e3a95c97c497f3d3c048e4ecfa"
     },
     {
       "task_id": "N04",
@@ -503,7 +503,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N04-HIGH-r1.json",
-      "sha256": "953a421c83de40393801c99b71483f8b129bbefacf1220e150ac9f11e9b2e375"
+      "sha256": "8d6564d4034d9e3328af9efd55f952e300aa5b912177d4cc6b6286514dae9936"
     },
     {
       "task_id": "N04",
@@ -511,7 +511,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N04-HIGH-r2.json",
-      "sha256": "80bb3016d374f219ded0600aefb94bc92e7f627707cbe851629c92255db70b7e"
+      "sha256": "f83e66524c852fb286345341bbcececc78a1fdee34839975524701626a91b832"
     },
     {
       "task_id": "N05",
@@ -519,7 +519,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N05-LOW-r1.json",
-      "sha256": "c1eb5a6252448189c7815790252b3eb341ce37fc5ae86e4bca4e5bcefa18fa43"
+      "sha256": "f9b762b1ce51025413832ae918289b0de5226315412af0f3248a201f8712f961"
     },
     {
       "task_id": "N05",
@@ -527,7 +527,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N05-LOW-r2.json",
-      "sha256": "34c610344776f81cff7b5dabcc1952de27082c7811b4dec3623eeaf7895e82ff"
+      "sha256": "673d78a0c109687902058ac21aba216404ab633826d2d2abe170cdf40e49bb6d"
     },
     {
       "task_id": "N05",
@@ -535,7 +535,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N05-HIGH-r1.json",
-      "sha256": "2df4ea1c791e23404562a0ed53477bd6dbca6857953f821d5a600975e9182728"
+      "sha256": "3bca45407a4a369b523336a9277cfc03259586b6e9f106e57db655ef19606fe8"
     },
     {
       "task_id": "N05",
@@ -543,7 +543,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N05-HIGH-r2.json",
-      "sha256": "56f55c2db0517f58b635d0c571697967ba73522c7f43d321329557f0221ac664"
+      "sha256": "7201b3549e84d61d333d8a0fd9db958772d059f2f4615d2fb60a353d8660e7e5"
     },
     {
       "task_id": "N06",
@@ -551,7 +551,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N06-LOW-r1.json",
-      "sha256": "f84912419f8b82f2e08882b1257c1bd4e6f6f2ae601c5a61fbf788874ab75d05"
+      "sha256": "17b496008914b725ea39eb6a9c7f1989c45b29c44e4c752137f0860f8c49db24"
     },
     {
       "task_id": "N06",
@@ -559,7 +559,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N06-LOW-r2.json",
-      "sha256": "d16edfb428b78fba764a2137a6b762966d3a6d64076a6c421a56a4d0b4daf8be"
+      "sha256": "cf52a9897608379b9aa0a8f75816d02b2ccf77d2cdb8228e1073f0494f9f28a6"
     },
     {
       "task_id": "N06",
@@ -567,7 +567,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N06-HIGH-r1.json",
-      "sha256": "367613aaa68753d7bf407991788e0c7a013707d871c48dae69774f3e5a5aac52"
+      "sha256": "185859ee0b25b6042095f932a68e4e8b5a5124c3ecba975823f979cbd2a3e346"
     },
     {
       "task_id": "N06",
@@ -575,7 +575,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N06-HIGH-r2.json",
-      "sha256": "ffe79e583366111c38573794569983490bdadebb5e5dff4bd49d0b190f5d2038"
+      "sha256": "7bda364ad5252c61340de1b3da952e04da9ddaac033e9813ec3f540a149eac45"
     },
     {
       "task_id": "N07",
@@ -583,7 +583,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N07-LOW-r1.json",
-      "sha256": "add4a0cc3c6246151ab62f4a0e67131d017142ba82813ddd8580aa676745d11b"
+      "sha256": "4f9502c8bf9a0deca01f26dd7e5d5a4868b6f8c82446c9e01fc611299a6ecc06"
     },
     {
       "task_id": "N07",
@@ -591,7 +591,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N07-LOW-r2.json",
-      "sha256": "429c781410c23fb4e090894c3f934481b6039803f0f941cd13d4779e33f2385d"
+      "sha256": "7bb48ef2d7360f4d8f4925cec1bed126aede2bfa9f9508ee17e19b43aac6ea8b"
     },
     {
       "task_id": "N07",
@@ -599,7 +599,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N07-HIGH-r1.json",
-      "sha256": "00333a2925c7418fc2dfb8c51ecd773edcdf3dad8e7176668a7e24c88512b98c"
+      "sha256": "ccbcd5f1dc07bc0d23e6941a7ea72d59d41b9c3ca0b4d177d33bca4632dad2f5"
     },
     {
       "task_id": "N07",
@@ -607,7 +607,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N07-HIGH-r2.json",
-      "sha256": "a7ec490e7b8496010c66a4a8006e0e6c0f6b70c09c9aae93cb5a7c3e3d909e04"
+      "sha256": "5ffd38a62d990561681a834335b68066a29bd315204e24580847d5bd5c374932"
     },
     {
       "task_id": "N08",
@@ -615,7 +615,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N08-LOW-r1.json",
-      "sha256": "3c6e2aa429158dacc6623ce1206ef518ab5fa7c8082a86d6de2d598b0c6032f0"
+      "sha256": "817f2143a85a7c5477912d90b76c8d375f78b74c8b7f1995f60bdf53cfe22c56"
     },
     {
       "task_id": "N08",
@@ -623,7 +623,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N08-LOW-r2.json",
-      "sha256": "177a98099216b2cc91b709887a0037d1c250c93f8606093ed2e780ad32651751"
+      "sha256": "2ad9ba21eea9dd55d9a41cabb3324cb876d5b240dfffc31ca1a0fa24e050424f"
     },
     {
       "task_id": "N08",
@@ -631,7 +631,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N08-HIGH-r1.json",
-      "sha256": "b48057285b50042214255027172a5bddb8b7e49d8da61b9de4b76c2d85ab6e9c"
+      "sha256": "726a293ac1bfaed031a3ec91d19d0c530e4fb363ba86664e01d3b5518c376b1a"
     },
     {
       "task_id": "N08",
@@ -639,7 +639,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N08-HIGH-r2.json",
-      "sha256": "47f2ae5c8a53a9ad5ad1df2b9eb84c449b0070469094a79381a3e69097ccff71"
+      "sha256": "3e18149a55dde11a51b4da727357ec626116eb03740bb0360e42cecd0318d985"
     },
     {
       "task_id": "N09",
@@ -647,7 +647,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N09-LOW-r1.json",
-      "sha256": "8f39aabca9589ad16075777f8588410d0fc5ede465ec0219ac5b4ae96ab0cfd9"
+      "sha256": "7b241545907862522d4c112aad065c0ee686ab386d3affea60381581813735d2"
     },
     {
       "task_id": "N09",
@@ -655,7 +655,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N09-LOW-r2.json",
-      "sha256": "9e55d3a074752e1a0f272bb8e49aad5beab7a261a6061f23f85d688ac0bb992c"
+      "sha256": "3a490b5db1a52d64822b46f256db1637d22a56d9a74f211a8b13617c34e163ef"
     },
     {
       "task_id": "N09",
@@ -663,7 +663,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N09-HIGH-r1.json",
-      "sha256": "864dd7f8049bb386bc1152b9c64c71baa67ed7d94bcfa56fafe4441c5b403eb6"
+      "sha256": "f7ce9f0c04412fb5b02057b55e87ed2d0334f6c9dc28752e90b31c4e2e02ee22"
     },
     {
       "task_id": "N09",
@@ -671,7 +671,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N09-HIGH-r2.json",
-      "sha256": "6c5046d5dbb302a066e79fcd29c0e7563704683d85825df0eb268c0bea6cba8d"
+      "sha256": "11c57b2f5d31e7291cb8a786cc59d9d631e9d8461bd701734ac9bf40a6bd6609"
     },
     {
       "task_id": "N10",
@@ -679,7 +679,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N10-LOW-r1.json",
-      "sha256": "ca951f4d571f1843187a9e8cfc677af626303447b8eab45f87232cf9b938b9b2"
+      "sha256": "2b440800a0ade8c475783f96c7b6e1c19843f8157522da84e979dc4005fd796a"
     },
     {
       "task_id": "N10",
@@ -687,7 +687,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N10-LOW-r2.json",
-      "sha256": "72244006c1a598d77cd8d0547ef8891f461328876f4ccb80e059b7380a2a873a"
+      "sha256": "5aba67131a2d7369b759f4a68145c54ddbd74accb1b1c4102bce2264fb2e5c19"
     },
     {
       "task_id": "N10",
@@ -695,7 +695,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N10-HIGH-r1.json",
-      "sha256": "4c0b0f94bfb34ec5e5d137e0d504c8b30312c0406cf0b5ce54b988735e241a42"
+      "sha256": "1672ab307090311f0ea9b031d0f902ef2c74094f607708df6a490f3d65086c7d"
     },
     {
       "task_id": "N10",
@@ -703,7 +703,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N10-HIGH-r2.json",
-      "sha256": "1a955e503adbcb0a2cf77e47aa7c6e89dab6803550c0411b490c6cb398e30f96"
+      "sha256": "1798e46904dbc16aa07191921de7e0d78116b3bbb458a1893fa4e19407185dfd"
     },
     {
       "task_id": "N11",
@@ -711,7 +711,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N11-LOW-r1.json",
-      "sha256": "205a0251ff39ac139bee32f5c0fd9816301d61931db642ee0d0d3d614e4496fe"
+      "sha256": "ad51ae9cc59cec60abc8c00cdacf6233fd023d9f1a8a3f835e28bc5f9d3da028"
     },
     {
       "task_id": "N11",
@@ -719,7 +719,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N11-LOW-r2.json",
-      "sha256": "bf0bf545c1a32aa99a782959eaca45149d91a5011d5dad01d819ff91d8686da4"
+      "sha256": "b30021c642516a173018642d274fdfd7a292bf70a2726f6a5b401ed3ac07255c"
     },
     {
       "task_id": "N11",
@@ -727,7 +727,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N11-HIGH-r1.json",
-      "sha256": "b75bad81ef8694e99fd84aba4b25b08b86d99d099fee6107dfd69244c5c5e877"
+      "sha256": "17eec7c59a9842e71339d71eed5241369a1716b5de5c3ad5f2a30400b18395dc"
     },
     {
       "task_id": "N11",
@@ -735,7 +735,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N11-HIGH-r2.json",
-      "sha256": "4738d78ff258616348229722862ac137c777b672773ef1c4b24f2934d54b0fee"
+      "sha256": "265177b8c01e03ba6b4abb9f724211f54a4488c5170c5a334817c24bec86b150"
     },
     {
       "task_id": "N12",
@@ -743,7 +743,7 @@
       "arm": "LOW",
       "rep": 1,
       "manifest": "N12-LOW-r1.json",
-      "sha256": "950a44622b4584704aea8997ad4c5c524bc2af01b8b828b662e300c21c3a25de"
+      "sha256": "3e811cf8c679913d78f9c5c9e98d8c5ffb42d045bbff3b6334249f7231ed926d"
     },
     {
       "task_id": "N12",
@@ -751,7 +751,7 @@
       "arm": "LOW",
       "rep": 2,
       "manifest": "N12-LOW-r2.json",
-      "sha256": "68cb4ee8542aa86124b6018f0bd2fe9378e4c14d56fabf60e424a69f73e30f85"
+      "sha256": "2717f457dde20f01ea7b8c8cee5b07151414c811d0a2be383b39e2d2615ffdfe"
     },
     {
       "task_id": "N12",
@@ -759,7 +759,7 @@
       "arm": "HIGH",
       "rep": 1,
       "manifest": "N12-HIGH-r1.json",
-      "sha256": "93e3d7254bef43650b497e3cd09c48650cab7e61bf622565caff17a2ab5b28f3"
+      "sha256": "e580c1cd00107103ad155fd6dd43ad82e5ea3d4bf4ab98c4ea66c35f851c7d6b"
     },
     {
       "task_id": "N12",
@@ -767,7 +767,7 @@
       "arm": "HIGH",
       "rep": 2,
       "manifest": "N12-HIGH-r2.json",
-      "sha256": "43bb21551c8cea60320a0156486fcaf7f92daba569b4d09d14a94ac55885a7f1"
+      "sha256": "8f7fc1a8d4c957eac13a95d2f941925be7606695648678179c1991994bc9518d"
     }
   ]
 }
