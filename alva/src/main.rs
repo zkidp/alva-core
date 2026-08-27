@@ -2053,8 +2053,6 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 let params = req.get("params");
                 match (|| -> Result<String, String> {
                     let ret_id = type_expr_for(returns, &mut s.graph)?;
-                    let mut slots = BTreeMap::new();
-                    slots.insert("returns".to_string(), vec![ret_id]);
                     let mut param_ids = Vec::new();
                     if let Some(Json::Arr(items)) = params {
                         for it in items {
@@ -2072,18 +2070,17 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             param_ids.push(s.create_node("param", pf, ps)?);
                         }
                     }
-                    slots.insert("params".to_string(), param_ids);
                     let mut bs = BTreeMap::new();
                     bs.insert("steps".to_string(), Vec::new());
                     let body = s.create_node("block", BTreeMap::new(), bs)?;
-                    slots.insert("body".to_string(), vec![body]);
-                    slots.insert("pre".to_string(), Vec::new());
-                    slots.insert("post".to_string(), Vec::new());
-                    slots.insert("inv".to_string(), Vec::new());
-                    let mut f = BTreeMap::new();
-                    f.insert("name".to_string(), air::Value::Str(name.to_string()));
-                    f.insert("pure".to_string(), air::Value::Bool(true));
-                    let fn_id = s.create_node("function", f, slots)?;
+                    // CANONICALIZATION-FIX-01: use the shared canonical
+                    // function constructor so AEP-created functions hash
+                    // identically to parser-imported ones (pure + empty
+                    // eff, canonical empty pre/post/inv slots).
+                    let fn_id = s.add_canonical_function(
+                        &name, true, vec![], param_ids, ret_id, vec![], vec![],
+                        vec![], body,
+                    )?;
                     s.append_child(&format!("module:{module}"), "functions", &fn_id)?;
                     Ok(fn_id)
                 })() {

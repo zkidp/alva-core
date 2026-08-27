@@ -1449,54 +1449,73 @@ fn type_to_air(g: &mut AirGraph, module_entity: &str, t: &ast::TypeDef) -> Strin
     g.add("type", &entity, f, s)
 }
 
+/// CANONICALIZATION-FIX-01: single canonical constructor for function
+/// nodes. The text parser (`fn_to_air`) and the AEP `add_function` path
+/// must materialize identical nodes for the same logical function, so the
+/// whole-graph semantic hash is construction-path independent.
+///
+/// Canonical policy:
+///   fields = { name, pure, eff }
+///   slots  = { params, returns, pre, post, inv, body }
+/// Empty contract slots are materialized identically by both paths;
+/// NON-empty pre/post/inv are preserved verbatim (never normalized away);
+/// explicit effects are carried in `eff` with `pure` kept consistent.
+pub fn canonical_function_node(
+    g: &mut AirGraph,
+    entity: &str,
+    name: &str,
+    pure: bool,
+    eff: Vec<String>,
+    params: Vec<String>,
+    returns: String,
+    pre: Vec<String>,
+    post: Vec<String>,
+    inv: Vec<String>,
+    body: String,
+) -> String {
+    let mut fields = BTreeMap::new();
+    fields.insert("name".to_string(), Value::Str(name.to_string()));
+    fields.insert("pure".to_string(), Value::Bool(pure));
+    fields.insert("eff".to_string(), Value::Names(eff));
+    let mut slots = BTreeMap::new();
+    slots.insert("params".to_string(), params);
+    slots.insert("returns".to_string(), vec![returns]);
+    slots.insert("pre".to_string(), pre);
+    slots.insert("post".to_string(), post);
+    slots.insert("inv".to_string(), inv);
+    slots.insert("body".to_string(), vec![body]);
+    g.add("function", entity, fields, slots)
+}
+
 fn fn_to_air(g: &mut AirGraph, module_entity: &str, f: &ast::FnDef) -> String {
     let entity = format!("{module_entity}/fn:{}", f.name);
-    let mut fields = BTreeMap::new();
-    fields.insert("name".to_string(), Value::Str(f.name.clone()));
-    fields.insert("pure".to_string(), Value::Bool(f.pure));
-    fields.insert("eff".to_string(), Value::Names(f.eff.clone()));
-    let mut slots = BTreeMap::new();
-    slots.insert(
-        "params".to_string(),
-        f.params
-            .iter()
-            .map(|(n, te)| {
-                let mut pf = BTreeMap::new();
-                pf.insert("name".to_string(), Value::Str(n.clone()));
-                let mut ps = BTreeMap::new();
-                ps.insert("type".to_string(), vec![type_expr_to_air(g, te)]);
-                g.add("param", &format!("{entity}/param:{}", n), pf, ps)
-            })
-            .collect(),
-    );
-    slots.insert("returns".to_string(), vec![type_expr_to_air(g, &f.returns)]);
-    slots.insert(
-        "pre".to_string(),
-        f.pre.iter().map(|e| contract_to_air(g, "pre", e)).collect(),
-    );
-    slots.insert(
-        "post".to_string(),
-        f.post
-            .iter()
-            .map(|e| contract_to_air(g, "post", e))
-            .collect(),
-    );
-    slots.insert(
-        "inv".to_string(),
-        f.inv.iter().map(|e| contract_to_air(g, "inv", e)).collect(),
-    );
-    slots.insert(
-        "body".to_string(),
-        vec![{
-            let mut s = BTreeMap::new();
-            s.insert(
-                "steps".to_string(),
-                f.body.iter().map(|e| expr_to_air(g, e)).collect(),
-            );
-            g.add("block", "", BTreeMap::new(), s)
-        }],
-    );
-    g.add("function", &entity, fields, slots)
+    let params: Vec<String> = f
+        .params
+        .iter()
+        .map(|(n, te)| {
+            let mut pf = BTreeMap::new();
+            pf.insert("name".to_string(), Value::Str(n.clone()));
+            let mut ps = BTreeMap::new();
+            ps.insert("type".to_string(), vec![type_expr_to_air(g, te)]);
+            g.add("param", &format!("{entity}/param:{}", n), pf, ps)
+        })
+        .collect();
+    let returns = type_expr_to_air(g, &f.returns);
+    let pre: Vec<String> = f.pre.iter().map(|e| contract_to_air(g, "pre", e)).collect();
+    let post: Vec<String> = f.post.iter().map(|e| contract_to_air(g, "post", e)).collect();
+    let inv: Vec<String> = f.inv.iter().map(|e| contract_to_air(g, "inv", e)).collect();
+    let body = {
+        let mut s = BTreeMap::new();
+        s.insert(
+            "steps".to_string(),
+            f.body.iter().map(|e| expr_to_air(g, e)).collect(),
+        );
+        g.add("block", "", BTreeMap::new(), s)
+    };
+    canonical_function_node(
+        g, &entity, &f.name, f.pure, f.eff.clone(), params, returns, pre, post,
+        inv, body,
+    )
 }
 
 fn contract_to_air(g: &mut AirGraph, kind: &str, e: &ast::Expr) -> String {
@@ -3887,6 +3906,31 @@ impl EditSession {
         Ok(rev)
     }
 
+    /// AEP-side entry into the shared canonical function constructor
+    /// (CANONICALIZATION-FIX-01). Children (params, returns, body,
+    /// contracts) must already exist in the session graph; the function
+    /// node is added with the same canonical shape the text parser
+    /// produces, then the session is staged (validate + rebuild + swap).
+    pub fn add_canonical_function(
+        &mut self,
+        name: &str,
+        pure: bool,
+        eff: Vec<String>,
+        params: Vec<String>,
+        returns: String,
+        pre: Vec<String>,
+        post: Vec<String>,
+        inv: Vec<String>,
+        body: String,
+    ) -> Result<String, String> {
+        let rev = canonical_function_node(
+            &mut self.graph, "", name, pure, eff, params, returns, pre, post,
+            inv, body,
+        );
+        self.stage(|_| Ok(()))?;
+        Ok(rev)
+    }
+
     /// RFC-0006: atomic batch construction.
     ///
     /// `construct_expression` validates the ENTIRE request first, then
@@ -5219,5 +5263,154 @@ mod tests {
             resolve_canonical(&g, "no_such", &["function"]),
             CanonicalOutcome::NotFound
         ));
+    }
+
+    // ------------------------------------------------------------------
+    // CANONICALIZATION-FIX-01 regression tests (CANO-01/02/03)
+    // Parser (fn_to_air) and the shared canonical constructor must produce
+    // the same function node for the same logical function; non-empty
+    // contract metadata must never be normalized away.
+    // ------------------------------------------------------------------
+
+    fn parse_module(text: &str) -> AirGraph {
+        use crate::ast;
+        use crate::s_expr;
+        let limits = s_expr::Limits::default();
+        let tree = s_expr::parse_with_limits(text, &limits).expect("parse");
+        let module = ast::from_tree(&tree).expect("ast");
+        air_from_module(&module)
+    }
+
+    fn copy_node(g: &mut AirGraph, src: &AirGraph, rev: &str) -> String {
+        let n = src.get(rev).expect("src node");
+        let mut slots = BTreeMap::new();
+        for (k, children) in &n.slots {
+            slots.insert(
+                k.clone(),
+                children.iter().map(|c| copy_node(g, src, c)).collect(),
+            );
+        }
+        g.add(&n.kind, &n.entity, n.fields.clone(), slots)
+    }
+
+    fn function_rev(g: &AirGraph) -> String {
+        // the first function of the first module
+        let module_rev = g.module_entities[0].clone();
+        let mn = g.resolve(&module_rev).expect("module node");
+        let fn_rev = mn.slots.get("functions").expect("functions")[0].clone();
+        fn_rev
+    }
+
+    fn canonical_equivalent(src: &AirGraph, fn_rev: &str, pure: bool,
+                            eff: &[&str]) -> String {
+        // rebuild the SAME children into a fresh graph, then construct the
+        // function via the shared canonical constructor.
+        let mut g = AirGraph::new();
+        let n = src.get(fn_rev).expect("fn node");
+        let params: Vec<String> = n
+            .slots
+            .get("params")
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .map(|c| copy_node(&mut g, src, c))
+            .collect();
+        let returns = copy_node(&mut g, src, &n.slots["returns"][0]);
+        let pre = n
+            .slots
+            .get("pre")
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .map(|c| copy_node(&mut g, src, c))
+            .collect();
+        let post = n
+            .slots
+            .get("post")
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .map(|c| copy_node(&mut g, src, c))
+            .collect();
+        let inv = n
+            .slots
+            .get("inv")
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .map(|c| copy_node(&mut g, src, c))
+            .collect();
+        let body = copy_node(&mut g, src, &n.slots["body"][0]);
+        let fname = match &n.fields["name"] {
+            Value::Str(s) => s.clone(),
+            _ => String::new(),
+        };
+        canonical_function_node(
+            &mut g, "", &fname, pure, eff.iter().map(|s| s.to_string()).collect(),
+            params, returns, pre, post, inv, body,
+        )
+    }
+
+    #[test]
+    fn cano_01_pure_no_contracts_parser_eq_constructor() {
+        let text = r#"(module
+  (name "m")
+  (version "0.1.0")
+  (export f)
+  (fn f
+    (params (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (ref x))))
+"#;
+        let g = parse_module(text);
+        let fn_rev = function_rev(&g);
+        let canonical = canonical_equivalent(&g, &fn_rev, true, &[]);
+        assert_eq!(fn_rev, canonical, "CANO-01: parser != canonical constructor");
+    }
+
+    #[test]
+    fn cano_02_explicit_effect_parser_eq_constructor() {
+        let text = r#"(module
+  (name "m")
+  (version "0.1.0")
+  (cap io)
+  (export f)
+  (fn f
+    (params (param x (prim i64)))
+    (returns (prim i64))
+    (eff io)
+    (body (ref x))))
+"#;
+        let g = parse_module(text);
+        let fn_rev = function_rev(&g);
+        let canonical = canonical_equivalent(&g, &fn_rev, false, &["io"]);
+        assert_eq!(fn_rev, canonical, "CANO-02: parser != canonical constructor");
+    }
+
+    #[test]
+    fn cano_03_nonempty_contracts_preserved_and_parser_eq() {
+        let text = r#"(module
+  (name "m")
+  (version "0.1.0")
+  (export f)
+  (fn f
+    (params (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (>= (ref x) (int 0)))
+    (post (>= (ref x) (int 0)))
+    (body (ref x))))
+"#;
+        let g = parse_module(text);
+        let fn_rev = function_rev(&g);
+        let n = g.get(&fn_rev).expect("fn node");
+        // non-empty contract metadata must be present after parsing
+        assert!(!n.slots["pre"].is_empty(), "CANO-03: pre dropped");
+        assert!(!n.slots["post"].is_empty(), "CANO-03: post dropped");
+        // the canonical constructor given the same children reproduces the
+        // node exactly (non-empty metadata preserved, not normalized away)
+        let canonical = canonical_equivalent(&g, &fn_rev, true, &[]);
+        assert_eq!(fn_rev, canonical, "CANO-03: parser != canonical constructor");
     }
 }
