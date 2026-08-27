@@ -12,8 +12,12 @@
 
 FROM rockylinux:8 AS build
 RUN dnf install -y gcc ca-certificates curl \
-    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-       | sh -s -- -y --profile minimal
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup-init.sh \
+    && env RUSTUP_DIST_SERVER=https://rsproxy.cn \
+           RUSTUP_UPDATE_ROOT=https://rsproxy.cn/rustup \
+       sh /tmp/rustup-init.sh -y --profile minimal \
+    && printf '[source.crates-io]\nreplace-with = "rsproxy-sparse"\n[source.rsproxy-sparse]\nregistry = "sparse+https://rsproxy.cn/index/"\n' \
+       > /root/.cargo/config.toml
 ENV PATH="/root/.cargo/bin:${PATH}"
 WORKDIR /src
 COPY alva/Cargo.toml ./alva/Cargo.toml
