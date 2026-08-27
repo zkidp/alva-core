@@ -123,17 +123,36 @@ class DeepSeekRelay:
         resp = self._post(body)
         self._record_telemetry(resp)
         msg = resp["choices"][0]["message"]
-        if msg.get("tool_calls"):
-            tc = msg["tool_calls"][0]
+        calls = msg.get("tool_calls") or []
+        if calls:
+            tc = calls[0]
+            tc_id = tc.get("id")
+            if not tc_id:
+                raise RuntimeError("relay defect: tool_call missing id")
             try:
                 args = json.loads(tc["function"]["arguments"] or "{}")
             except json.JSONDecodeError as e:
                 raise RuntimeError(f"relay tool-args parse defect: {e}")
+            # RELAY-FIX-01: the frozen protocol is parallel_tool_calls=False,
+            # so a response with multiple tool_calls is serialized: only the
+            # first call is returned and the assistant message re-sent to the
+            # API carries exactly that one tool_call. Echoing the raw message
+            # (with all tool_calls) but appending only one tool response made
+            # the next request fail with HTTP 400 "insufficient tool messages
+            # following tool_calls message".
+            assistant = {
+                "role": "assistant",
+                "content": msg.get("content"),
+                "tool_calls": [tc],
+            }
+            if msg.get("reasoning_content") is not None:
+                assistant["reasoning_content"] = msg["reasoning_content"]
             return {
                 "type": "tool",
                 "tool": tc["function"]["name"],
                 "args": args,
-                "assistant": msg,
-                "tool_call_id": tc["id"],
+                "assistant": assistant,
+                "tool_call_id": tc_id,
+                "tool_calls_received": len(calls),
             }
         return {"type": "final", "text": msg.get("content") or ""}
