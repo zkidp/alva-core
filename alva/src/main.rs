@@ -3101,10 +3101,10 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         slots.insert("type".to_string(), vec![ty]);
                         let param_rev = s.create_node("param", f, slots)?;
                         s.append_child(&fn_rev, "params", &param_rev)?;
-                        // 3. migrate the module-scoped call sites.
-                        let arg_val = prim_value_for(type_name, value)?;
-                        let mut af = BTreeMap::new();
-                        af.insert("value".to_string(), arg_val);
+                        // 3. migrate the module-scoped call sites. The
+                        //    literal value is parsed ONLY when there are
+                        //    callers (a zero-caller parameter addition does
+                        //    not need a value).
                         let callers: Vec<String> = air::walk_expressions(&s.graph)
                             .into_iter()
                             .filter(|(rev, kind, fn_e, _)| {
@@ -3131,10 +3131,15 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             })
                             .map(|(rev, _, _, _)| rev.clone())
                             .collect();
-                        for call_rev in callers {
-                            let arg_rev =
-                                s.create_node("literal", af.clone(), BTreeMap::new())?;
-                            s.append_child(&call_rev, "args", &arg_rev)?;
+                        if !callers.is_empty() {
+                            let arg_val = prim_value_for(type_name, value)?;
+                            let mut af = BTreeMap::new();
+                            af.insert("value".to_string(), arg_val);
+                            for call_rev in callers {
+                                let arg_rev = s.create_node(
+                                    "literal", af.clone(), BTreeMap::new())?;
+                                s.append_child(&call_rev, "args", &arg_rev)?;
+                            }
                         }
                         Ok(fn_entity)
                     })() {
