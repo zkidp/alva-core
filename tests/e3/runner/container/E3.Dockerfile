@@ -27,9 +27,10 @@ RUN cargo build --release --bin alva
 
 FROM debian:bookworm-slim
 # No apt step: the CA bundle is copied from the build stage so image
-# assembly does not depend on external package mirrors (Alibaba/China hosts
-# observed very slow deb.debian.org access during the first build attempt).
-COPY --from=build /etc/ssl/certs/ca-certificates.crt \
+# assembly does not depend on external package mirrors. Rocky 8 stores the
+# bundle at the RHEL path; it is installed as the Debian-style path in the
+# slim runtime.
+COPY --from=build /etc/pki/tls/certs/ca-bundle.crt \
     /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /src/alva/target/release/alva /usr/local/bin/alva
 COPY tests/e3/runner/container/entrypoint.sh /entrypoint.sh
