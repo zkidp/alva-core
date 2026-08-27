@@ -221,8 +221,9 @@ def surface_probe(alva, project_toml, gate_on, cmd_prefix=None):
 
 
 def container_run_cmd(image, workspace_dir):
-    return ["docker", "run", "--rm", "-i", "--network", "e3-relay-only",
-            "-v", f"{workspace_dir}:/workspace", image]
+    return ["docker", "run", "--rm", "-i", "--read-only", "--tmpfs", "/tmp",
+            "--network", "e3-relay-only", "-v", f"{workspace_dir}:/workspace",
+            image]
 
 
 def extract_binary(image, work_dir):

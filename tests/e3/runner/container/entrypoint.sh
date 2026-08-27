@@ -6,17 +6,11 @@ set -eu
 #
 # 1. workspace writable
 [ -w /workspace ] || { echo "GATE: /workspace not writable" >&2; exit 1; }
-# 2. toolchain binary and dirs read-only (container's own root dotfiles are
-#    harmless; the meaningful isolation is the read-only toolchain and the
-#    workspace-only mount)
-[ -w /usr/local/bin/alva ] && {
-  echo "GATE: alva binary is writable" >&2
-  exit 1
-}
-if [ -d /opt/toolchain ] && find /opt/toolchain -type f -writable \
-    2>/dev/null | grep -q .; then
-  echo "GATE: writable file under /opt/toolchain" >&2
-  exit 1
+# 2. /opt/toolchain must be read-only IF present (mount-based check; plain
+#    file-writability checks are meaningless as root)
+if [ -d /opt/toolchain ]; then
+  ro=$(mount | awk -v p=/opt/toolchain '$3==p && $4 ~ /(^|,)ro(,|$)/ {print 1}')
+  [ "$ro" = "1" ] || { echo "GATE: /opt/toolchain not read-only" >&2; exit 1; }
 fi
 # 3. no repository mount
 [ ! -d /repo ] || { echo "GATE: /repo mount present" >&2; exit 1; }
