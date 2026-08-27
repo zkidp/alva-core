@@ -1,0 +1,43 @@
+{
+  "task_id": "M01",
+  "group": "matched",
+  "arm": "HIGH",
+  "rep": 2,
+  "task_statement": "Add a retries parameter of type i64 to compute, and pass the value 1 at its caller.",
+  "fixture": "M01",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "project_check": true,
+    "build_test": false,
+    "allowed_touched": [
+      "m01.compute",
+      "m01.run"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m01.compute",
+        "param": "retries",
+        "type": "(prim i64)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m01.run",
+        "call_name": "compute",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m01.run",
+        "call_name": "compute",
+        "arg_index": 1,
+        "value": "1"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m01.compute": "df587f2196d771e8d537a9de0e768b36c98d2c97040b2aa4535d562a0cd34a02",
+    "m01.run": "2d7f97f5336fa36607b17e74a8bcbb5d6b26ba00a6295c4a012ccea1f1bbda65"
+  },
+  "model": {}
+}

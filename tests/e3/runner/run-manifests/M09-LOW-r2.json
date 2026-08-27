@@ -1,0 +1,42 @@
+{
+  "task_id": "M09",
+  "group": "matched",
+  "arm": "LOW",
+  "rep": 2,
+  "task_statement": "Add a prefix parameter of type string to fmt, and pass '#' at its cross-module caller.",
+  "fixture": "M09",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m09a.fmt",
+      "m09b.caller_b"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m09a.fmt",
+        "param": "prefix",
+        "type": "(prim string)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m09b.caller_b",
+        "call_name": "m09a.fmt",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m09b.caller_b",
+        "call_name": "m09a.fmt",
+        "arg_index": 1,
+        "value": "#"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m09a.fmt": "a75bf14bc8b10a03aae6ef3322814b4521075d86cb952bdfd0935ba2e05d8978",
+    "m09b.caller_b": "76770faebd12ee184439a9b7b4fd84a710e9f0c0db85770904514dd40d56f8f8"
+  },
+  "model": {}
+}

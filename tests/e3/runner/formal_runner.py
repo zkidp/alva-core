@@ -29,6 +29,7 @@ formal-path rehearsal with a host-side script (deterministic model stub).
 """
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -75,6 +76,45 @@ class ProviderRelay:
         raise RuntimeError("HOLD_MODEL_RELAY_PROTOCOL_UNPINNED")
 
 
+def assert_execution_freeze(args, m, alva):
+    """Fail-closed identity checks against EXECUTION-FREEZE.json. Any
+    mismatch or REQUIRED_INPUT placeholder stops the run before any model
+    call (never 'record and continue')."""
+    with open(args.execution_freeze, encoding="utf-8") as fh:
+        freeze = json.load(fh)
+    if args.relay != "scripted":
+        for field in ("provider", "model_identifier",
+                      "relay_protocol_version", "container_digest"):
+            if freeze.get(field) == "REQUIRED_INPUT":
+                raise RuntimeError(f"FAIL_CLOSED: {field} not pinned")
+    head = rc._git_head()
+    if head != freeze.get("alva_source_sha"):
+        raise RuntimeError(f"FAIL_CLOSED: alva source {head[:12]} != "
+                           f"frozen {freeze['alva_source_sha'][:12]}")
+    if head != freeze.get("runner_sha"):
+        raise RuntimeError(f"FAIL_CLOSED: runner {head[:12]} != frozen "
+                           f"{freeze['runner_sha'][:12]}")
+    if rc.sha256_file(alva) != freeze.get("alva_binary_sha256"):
+        raise RuntimeError("FAIL_CLOSED: alva binary SHA mismatch")
+    # per-run manifest identity
+    manifest_name = os.path.basename(args.run_manifest)
+    index = json.load(open(os.path.join(os.path.dirname(args.run_manifest),
+                                        "MANIFEST-INDEX.json"),
+                           encoding="utf-8"))
+    entry = next((x for x in index["manifests"]
+                  if x["manifest"] == manifest_name), None)
+    if entry is None:
+        raise RuntimeError("FAIL_CLOSED: run manifest not in frozen index")
+    live = rc.sha256_file(args.run_manifest)
+    if live != entry["sha256"]:
+        raise RuntimeError("FAIL_CLOSED: run manifest SHA drifted")
+    if rc.sha256_file(os.path.join(os.path.dirname(args.run_manifest),
+                                   "MANIFEST-INDEX.json")) != \
+            freeze.get("task_manifest_set_hash"):
+        raise RuntimeError("FAIL_CLOSED: MANIFEST-INDEX hash drifted")
+    return freeze
+
+
 def run_one(args, m):
     started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     alva = os.environ["ALVA"]
@@ -95,20 +135,55 @@ def run_one(args, m):
     max_steps = m.get("max_tool_steps", 200)
     steps = 0
     final_text = None
-    while True:
-        step = relay.step(messages)
-        if step["type"] == "final":
-            final_text = step.get("text")
-            break
-        if steps >= max_steps:
-            final_text = "(max steps)"
-            break
-        steps += 1
-        call_args = {k: (v.replace("{{project}}", toml)
-                         if isinstance(v, str) else v)
-                     for k, v in step.get("args", {}).items()}
-        r = agent.call(step["tool"], **call_args)
-        messages.append({"role": "tool", "tool": step["tool"], "result": r})
+    try:
+        while True:
+            step = relay.step(messages)
+            if step["type"] == "final":
+                final_text = step.get("text")
+                break
+            if steps >= max_steps:
+                final_text = "(max steps)"
+                break
+            steps += 1
+            call_args = {k: (v.replace("{{project}}", toml)
+                             if isinstance(v, str) else v)
+                         for k, v in step.get("args", {}).items()}
+            r = agent.call(step["tool"], **call_args)
+            messages.append({"role": "tool", "tool": step["tool"],
+                             "result": r})
+    except rc.ApiUnreachableError:
+        agent.close()
+        termination = "API_UNREACHABLE"
+        verifier = {"ok": False, "reason": "api unreachable", "output": ""}
+        final_rec = {"modules": {}, "base_hash": None}
+        reachable = []
+        churn_rc, churn_out = rc.derive_churn(call_log, [])
+        ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        prov = rc.provenance_record(
+            m["task_id"], m.get("group"), m.get("arm"), m.get("rep"), alva,
+            rc._git_head(), freeze[m["fixture"]][1], ws_hash,
+            ("absent" if not gate_on else "1"), m.get("model", {}),
+            started, ended, termination, args.out_dir)
+        return prov, rc.write_run_artifacts(
+            args.out_dir, m["task_id"], m.get("arm"), m.get("rep"), prov,
+            call_log, verifier, final_rec, reachable, churn_out)
+    except rc.InfraFailureError as e:
+        agent.close()
+        termination = "INFRA_FAILURE"
+        verifier = {"ok": False, "reason": str(e), "output": ""}
+        final_rec = {"modules": {}, "base_hash": None}
+        reachable = []
+        churn_rc, churn_out = rc.derive_churn(call_log, [])
+        ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        prov = rc.provenance_record(
+            m["task_id"], m.get("group"), m.get("arm"), m.get("rep"), alva,
+            rc._git_head(), freeze[m["fixture"]][1], ws_hash,
+            ("absent" if not gate_on else "1"), m.get("model", {}),
+            started, ended, termination, args.out_dir)
+        prov["infra_detail"] = str(e)
+        return prov, rc.write_run_artifacts(
+            args.out_dir, m["task_id"], m.get("arm"), m.get("rep"), prov,
+            call_log, verifier, final_rec, reachable, churn_out)
     agent.close()
     # terminal detection + verifier + final state
     commits = [c for c in call_log if c["tool"] == "commit_transaction"]
@@ -157,6 +232,8 @@ def main():
                     default=(r"C:\Users\BEStaff\Desktop\alva-repos"
                              r"\alva-research-private\alva-paper\saner"
                              r"\e3-feasibility\C1-FREEZE-MANIFEST.md"))
+    ap.add_argument("--execution-freeze",
+                    default=os.path.join(HERE, "EXECUTION-FREEZE.json"))
     args = ap.parse_args()
     if os.environ.get(AUTH) != "1":
         sys.exit("FAIL_CLOSED: E3_EXECUTION_AUTHORIZED != 1")
@@ -164,6 +241,7 @@ def main():
         sys.exit("--relay scripted requires --script")
     with open(args.run_manifest, encoding="utf-8") as fh:
         m = json.load(fh)
+    freeze = assert_execution_freeze(args, m, os.environ["ALVA"])
     blob = json.dumps(m).lower()
     if any(f in blob for f in ("low_sequence", "wrong_variants",
                                "reference solution")):

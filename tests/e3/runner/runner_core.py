@@ -27,6 +27,14 @@ FORBIDDEN_SNIPPETS = [
 ]
 
 
+class ApiUnreachableError(Exception):
+    """Provider request never reached the API -> API_UNREACHABLE."""
+
+
+class InfraFailureError(Exception):
+    """Transient provider/infra failure -> INFRA_FAILURE (with code)."""
+
+
 def sha256_file(path):
     h = hashlib.sha256()
     with open(path, "rb") as fh:

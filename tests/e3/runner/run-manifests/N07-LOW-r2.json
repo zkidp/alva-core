@@ -1,0 +1,29 @@
+{
+  "task_id": "N07",
+  "group": "neutral",
+  "arm": "LOW",
+  "rep": 2,
+  "task_statement": "Change the argument passed to render at the call site from \"old\" to \"new\".",
+  "fixture": "N07",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n07.run"
+    ],
+    "structural": [
+      {
+        "kind": "call_arg_literal",
+        "function": "n07.run",
+        "call_name": "render",
+        "arg_index": 0,
+        "value": "new"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n07.render": "d4c78a048dbce6f43ebe1544c8d73d30bfb4aa3509107b728711fd31975d1b3d",
+    "n07.run": "6c9c297fa3a5389bd7133926ba200a5bc6310dd9f05cb58bc8894216d267fd55"
+  },
+  "model": {}
+}

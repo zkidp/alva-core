@@ -1,0 +1,73 @@
+{
+  "task_id": "M10",
+  "group": "matched",
+  "arm": "LOW",
+  "rep": 2,
+  "task_statement": "Add a retries parameter of type i64 to save, and pass the value 1 at all four callers.",
+  "fixture": "M10",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m10.save",
+      "m10.run1",
+      "m10.run2",
+      "m10.run3"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m10.save",
+        "param": "retries",
+        "type": "(prim i64)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m10.run1",
+        "call_name": "save",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m10.run2",
+        "call_name": "save",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m10.run3",
+        "call_name": "save",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m10.run1",
+        "call_name": "save",
+        "arg_index": 1,
+        "value": "1"
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m10.run2",
+        "call_name": "save",
+        "arg_index": 1,
+        "value": "1"
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m10.run3",
+        "call_name": "save",
+        "arg_index": 1,
+        "value": "1"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m10.save": "80dbffabfc2a6fea6c72b28162f2a4a4d7fe1c62d46d8471a63725e25421ead5",
+    "m10.run1": "4552a06fc34882725e3704e39e78d897033a2a82f6b2af8c58fc8d1f90b1eea6",
+    "m10.run2": "ac34a1de4322f9750bafe2d12fc89d44570fce566541fc786c848287cbffe5c9",
+    "m10.run3": "0472182861ed8242248a29c371dd952b7ce8243790fc6ee8cc2cd5a8d2d07c49",
+    "m10.add": "a374480d5612397c0b8d7accc5f4fc2f90fed1cddd1229e7de5d3c50cef1eb97"
+  },
+  "model": {}
+}

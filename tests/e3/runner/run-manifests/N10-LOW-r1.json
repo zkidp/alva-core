@@ -1,0 +1,38 @@
+{
+  "task_id": "N10",
+  "group": "neutral",
+  "arm": "LOW",
+  "rep": 1,
+  "task_statement": "Change the argument to one from 1 to 7 and the argument to two from 2 to 8.",
+  "fixture": "N10",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n10.run"
+    ],
+    "structural": [
+      {
+        "kind": "call_arg_literal",
+        "function": "n10.run",
+        "call_name": "one",
+        "arg_index": 0,
+        "value": "7"
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "n10.run",
+        "call_name": "two",
+        "arg_index": 0,
+        "value": "8"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n10.run": "d49ebe4ad6745c7c16b0413a505033e13b63b2513aeb0f35abfd3fe4515777d8",
+    "n10.one": "a4825ebe08d6109c1a70d18664faaa397d58e4acdf830ea317eb0a6d404670dd",
+    "n10.two": "378af2947d62360df92f43adb38bcd2bf6961ae080f7660a14d7aaa6caf8ef1b",
+    "n10.add": "a374480d5612397c0b8d7accc5f4fc2f90fed1cddd1229e7de5d3c50cef1eb97"
+  },
+  "model": {}
+}

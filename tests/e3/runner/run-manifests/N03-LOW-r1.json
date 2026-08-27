@@ -1,0 +1,37 @@
+{
+  "task_id": "N03",
+  "group": "neutral",
+  "arm": "LOW",
+  "rep": 1,
+  "task_statement": "Rename the helper function hlp to helper2 (its caller reference follows).",
+  "fixture": "N03",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n03.hlp",
+      "n03.run"
+    ],
+    "structural": [
+      {
+        "kind": "entity_exists",
+        "entity": "n03.helper2"
+      },
+      {
+        "kind": "entity_absent",
+        "entity": "n03.hlp"
+      },
+      {
+        "kind": "body_call_count",
+        "function": "n03.run",
+        "call_name": "helper2",
+        "count": 1
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n03.hlp": "398b47fa2e256f07c51e664083f71af2e66f59d78c18c78bfc0f7f6c60cb664e",
+    "n03.run": "92a351752b8939b80ec8afb75b20883cdee02954c75c10b1b52c7feb645f1967"
+  },
+  "model": {}
+}

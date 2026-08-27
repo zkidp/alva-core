@@ -1,0 +1,42 @@
+{
+  "task_id": "M06",
+  "group": "matched",
+  "arm": "LOW",
+  "rep": 1,
+  "task_statement": "Add a tag parameter of type string to render, and pass '!' at its cross-module caller.",
+  "fixture": "M06",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m06a.render",
+      "m06b.caller_b"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m06a.render",
+        "param": "tag",
+        "type": "(prim string)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m06b.caller_b",
+        "call_name": "m06a.render",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m06b.caller_b",
+        "call_name": "m06a.render",
+        "arg_index": 1,
+        "value": "!"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m06a.render": "9bab24305aaaacc3faec722045cb63bbd79935f227fb7a0d7ea10558087127de",
+    "m06b.caller_b": "822dbd64fa33ae6f0b581ae612430edefe990d1bb10e39faa73521980ff9ea4a"
+  },
+  "model": {}
+}

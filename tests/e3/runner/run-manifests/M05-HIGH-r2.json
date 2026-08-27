@@ -1,0 +1,43 @@
+{
+  "task_id": "M05",
+  "group": "matched",
+  "arm": "HIGH",
+  "rep": 2,
+  "task_statement": "Add a factor parameter of type i64 to apply, and pass the value 2 at its nested caller.",
+  "fixture": "M05",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m05.apply",
+      "m05.run"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m05.apply",
+        "param": "factor",
+        "type": "(prim i64)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m05.run",
+        "call_name": "apply",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m05.run",
+        "call_name": "apply",
+        "arg_index": 1,
+        "value": "2"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m05.apply": "bd3c251b2a9fa75482c0e66b87bf1cbda03db98fa6df896491c60e684b7f4bda",
+    "m05.outer": "7436090de74a14f4a37ab606eedb1430630db1654c3d32a694cae2f22595df85",
+    "m05.run": "637709df036709764ed020e74454d10c283ea82d20227d6ad36141f7701b6010"
+  },
+  "model": {}
+}

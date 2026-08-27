@@ -1,0 +1,57 @@
+{
+  "task_id": "M08",
+  "group": "matched",
+  "arm": "HIGH",
+  "rep": 1,
+  "task_statement": "Add a marker parameter of type bytes to pack, and pass the hex value 00ff at both callers.",
+  "fixture": "M08",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m08.pack",
+      "m08.greet",
+      "m08.farewell"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m08.pack",
+        "param": "marker",
+        "type": "(prim bytes)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m08.greet",
+        "call_name": "pack",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m08.farewell",
+        "call_name": "pack",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m08.greet",
+        "call_name": "pack",
+        "arg_index": 1,
+        "value": "00ff"
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m08.farewell",
+        "call_name": "pack",
+        "arg_index": 1,
+        "value": "00ff"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m08.pack": "023bad1b49072a6b0b45921df94349e6d83aaabbe953a0becf8f0f095014f3d3",
+    "m08.greet": "f492acff5a43bb66bbdfa91fe43988e5ab0785fc45fe7918451c736cf533555d",
+    "m08.farewell": "45e3a4717d35dfb4dac0ee73c1ddbb29a2986e402046f6a070b9c8cd0fc48d10"
+  },
+  "model": {}
+}

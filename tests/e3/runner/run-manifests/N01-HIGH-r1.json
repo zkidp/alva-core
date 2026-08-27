@@ -1,0 +1,29 @@
+{
+  "task_id": "N01",
+  "group": "neutral",
+  "arm": "HIGH",
+  "rep": 1,
+  "task_statement": "Increase the fee returned by fee() from 10 to 20.",
+  "fixture": "N01",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "project_check": true,
+    "build_test": false,
+    "allowed_touched": [
+      "n01.fee"
+    ],
+    "structural": [
+      {
+        "kind": "body_literal_value",
+        "function": "n01.fee",
+        "value": "20"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n01.fee": "6d832e92ff0d2482db0396ab7acf089ed1a38fc59df56812d7496f5c16af8803",
+    "n01.run": "76763a273cafa0d6f4794bcb52569643de1b8d91ad43683feb97b4c6868a6c64",
+    "n01.add": "a374480d5612397c0b8d7accc5f4fc2f90fed1cddd1229e7de5d3c50cef1eb97"
+  },
+  "model": {}
+}

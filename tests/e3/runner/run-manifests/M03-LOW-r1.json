@@ -1,0 +1,43 @@
+{
+  "task_id": "M03",
+  "group": "matched",
+  "arm": "LOW",
+  "rep": 1,
+  "task_statement": "Add a verbose parameter of type bool to emit, and pass the value true at all three callers.",
+  "fixture": "M03",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m03.emit",
+      "m03.run"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m03.emit",
+        "param": "verbose",
+        "type": "(prim bool)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m03.run",
+        "call_name": "emit",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m03.run",
+        "call_name": "emit",
+        "arg_index": 1,
+        "value": "true"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m03.emit": "bb84643a6d0ae3534297ea85c160f2c28e1fe0697377e6c04499726ee2d6545a",
+    "m03.run": "a5d7073619ecc9d8a0740588a96b2d559e0f52d57c81e5755a170f508cb885bc",
+    "m03.add": "a374480d5612397c0b8d7accc5f4fc2f90fed1cddd1229e7de5d3c50cef1eb97"
+  },
+  "model": {}
+}

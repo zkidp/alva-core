@@ -1,0 +1,36 @@
+{
+  "task_id": "N02",
+  "group": "neutral",
+  "arm": "LOW",
+  "rep": 1,
+  "task_statement": "Raise max_items from 100 to 200 and max_retries from 3 to 5.",
+  "fixture": "N02",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "project_check": true,
+    "build_test": false,
+    "allowed_touched": [
+      "n02.max_items",
+      "n02.max_retries"
+    ],
+    "structural": [
+      {
+        "kind": "body_literal_value",
+        "function": "n02.max_items",
+        "value": "200"
+      },
+      {
+        "kind": "body_literal_value",
+        "function": "n02.max_retries",
+        "value": "5"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n02.max_items": "9d3229cd745575da835fcfb51d324621b1ae6e268e478d5b71252d54ae71368d",
+    "n02.max_retries": "7262e88c04bb5aba29baa081dd45d14afed73b7ef863326a9fb269e5e3b977f5",
+    "n02.run": "e2c3aced4f032173493bff0c6ace34b7c41db93f0423cc7f51dfb49f88cfd65d",
+    "n02.add": "a374480d5612397c0b8d7accc5f4fc2f90fed1cddd1229e7de5d3c50cef1eb97"
+  },
+  "model": {}
+}

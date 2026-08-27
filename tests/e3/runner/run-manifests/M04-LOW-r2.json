@@ -1,0 +1,27 @@
+{
+  "task_id": "M04",
+  "group": "matched",
+  "arm": "LOW",
+  "rep": 2,
+  "task_statement": "Add a retries parameter of type i64 to noop (it has no callers).",
+  "fixture": "M04",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m04.noop"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m04.noop",
+        "param": "retries",
+        "type": "(prim i64)"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m04.noop": "983c8f1e88818b2ea27d50fcaebeb489545651bbbde79b336d75683b446be8b5"
+  },
+  "model": {}
+}

@@ -1,0 +1,42 @@
+{
+  "task_id": "M07",
+  "group": "matched",
+  "arm": "HIGH",
+  "rep": 2,
+  "task_statement": "Add a scale parameter of type i64 to compute, and pass the value 3 at its caller (which already passes two arguments).",
+  "fixture": "M07",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m07.compute",
+      "m07.run"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m07.compute",
+        "param": "scale",
+        "type": "(prim i64)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m07.run",
+        "call_name": "compute",
+        "args": 3
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m07.run",
+        "call_name": "compute",
+        "arg_index": 2,
+        "value": "3"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m07.compute": "ecd707f2fcf55a9db42fe2350c15beeb3678a4f86734da0bbce074dc81f747b5",
+    "m07.run": "53d18b254310cc932bc95f7248c26c24940cfb6b70f730e6eb8400cd2eef77e3"
+  },
+  "model": {}
+}

@@ -1,0 +1,57 @@
+{
+  "task_id": "M11",
+  "group": "matched",
+  "arm": "HIGH",
+  "rep": 1,
+  "task_statement": "Add a suffix parameter of type string to merge, and pass '.' at both callers (one unqualified, one qualified cross-module).",
+  "fixture": "M11",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m11a.merge",
+      "m11a.local",
+      "m11b.remote"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m11a.merge",
+        "param": "suffix",
+        "type": "(prim string)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m11a.local",
+        "call_name": "merge",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m11b.remote",
+        "call_name": "m11a.merge",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m11a.local",
+        "call_name": "merge",
+        "arg_index": 1,
+        "value": "."
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m11b.remote",
+        "call_name": "m11a.merge",
+        "arg_index": 1,
+        "value": "."
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m11a.merge": "59dffbae4dfe0331417b4a1dab600ad8e174c1d235d676532b52090c115b8958",
+    "m11a.local": "ca178d1c093402317c72ecdea8b9769506674ffc2f499e36e46a04713c7b93d5",
+    "m11b.remote": "18ea7296f965d38aba1be3e7bf3f59ce5ca9a785e5310a19227aee932b38d22e"
+  },
+  "model": {}
+}

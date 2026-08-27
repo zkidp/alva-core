@@ -1,0 +1,32 @@
+{
+  "task_id": "N08",
+  "group": "neutral",
+  "arm": "HIGH",
+  "rep": 1,
+  "task_statement": "In pair, swap the two call arguments so left receives 5 and right receives 3.",
+  "fixture": "N08",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n08.pair"
+    ],
+    "structural": [
+      {
+        "kind": "body_literal_values",
+        "function": "n08.pair",
+        "values": [
+          "5",
+          "3"
+        ]
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n08.pair": "c77e0a08eeb073689f95a4cda8877e5361338b185eeba6d4f57a41842da7bc6f",
+    "n08.left": "177de776554547084655025b2f1637f1c931916a03ec3a051a3b8bd4a6f837f0",
+    "n08.right": "838bc0f8661586f6ceb89431ad0cc8e9d2033cbe4e26c3dc85b40f342c0b6e36",
+    "n08.add": "a374480d5612397c0b8d7accc5f4fc2f90fed1cddd1229e7de5d3c50cef1eb97"
+  },
+  "model": {}
+}

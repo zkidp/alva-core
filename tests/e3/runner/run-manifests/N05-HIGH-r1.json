@@ -1,0 +1,37 @@
+{
+  "task_id": "N05",
+  "group": "neutral",
+  "arm": "HIGH",
+  "rep": 1,
+  "task_statement": "Add a pure helper function helper() returning 42, and make run call it.",
+  "fixture": "N05",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n05.run",
+      "n05.helper"
+    ],
+    "structural": [
+      {
+        "kind": "entity_exists",
+        "entity": "n05.helper"
+      },
+      {
+        "kind": "body_call_count",
+        "function": "n05.run",
+        "call_name": "helper",
+        "count": 1
+      },
+      {
+        "kind": "body_literal_value",
+        "function": "n05.helper",
+        "value": "42"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n05.run": "99faca63bf314260f3a10532ba03bc581428b0afdf375b544867dd2e229d31d7"
+  },
+  "model": {}
+}

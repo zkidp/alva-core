@@ -1,0 +1,31 @@
+{
+  "task_id": "N06",
+  "group": "neutral",
+  "arm": "HIGH",
+  "rep": 2,
+  "task_statement": "In fee, change the first id argument from 10 to 20 and the second from 5 to 6.",
+  "fixture": "N06",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n06.fee"
+    ],
+    "structural": [
+      {
+        "kind": "body_literal_values",
+        "function": "n06.fee",
+        "values": [
+          "20",
+          "6"
+        ]
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n06.fee": "3de68d1f4ded6c912429845724304e7ffcd26ba62817f2e3ba84172e5d38ab03",
+    "n06.id": "09c03c960c05b258eeeb80bfa0dfb3b3919f7e719edc12325044fc752a49c8c4",
+    "n06.add": "a374480d5612397c0b8d7accc5f4fc2f90fed1cddd1229e7de5d3c50cef1eb97"
+  },
+  "model": {}
+}

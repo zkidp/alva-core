@@ -1,0 +1,44 @@
+{
+  "task_id": "M12",
+  "group": "matched",
+  "arm": "LOW",
+  "rep": 2,
+  "task_statement": "Add a limit parameter of type i64 to scan, and pass the value 9 at its deeply nested caller.",
+  "fixture": "M12",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "m12.scan",
+      "m12.run"
+    ],
+    "structural": [
+      {
+        "kind": "has_param",
+        "function": "m12.scan",
+        "param": "limit",
+        "type": "(prim i64)"
+      },
+      {
+        "kind": "call_arg_count",
+        "function": "m12.run",
+        "call_name": "scan",
+        "args": 2
+      },
+      {
+        "kind": "call_arg_literal",
+        "function": "m12.run",
+        "call_name": "scan",
+        "arg_index": 1,
+        "value": "9"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "m12.scan": "dab396b7c496f66dd84ad0b131082b8b3f7559c56182606aa77eb8adb38993de",
+    "m12.mid": "fbf2c6cbdafc805af58f87283a332ef1978779257353ee4e0b1e1d96d840653f",
+    "m12.outer": "7436090de74a14f4a37ab606eedb1430630db1654c3d32a694cae2f22595df85",
+    "m12.run": "d37cd08b9fbaaf4688498929a41a9e51e5d29b9ae4d691ecd4a4cc2637911462"
+  },
+  "model": {}
+}

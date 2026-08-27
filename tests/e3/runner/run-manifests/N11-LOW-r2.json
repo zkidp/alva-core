@@ -1,0 +1,32 @@
+{
+  "task_id": "N11",
+  "group": "neutral",
+  "arm": "LOW",
+  "rep": 2,
+  "task_statement": "Append a trailing (int 0) step to the body of run.",
+  "fixture": "N11",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n11.run"
+    ],
+    "structural": [
+      {
+        "kind": "body_step_count",
+        "function": "n11.run",
+        "count": 2
+      },
+      {
+        "kind": "body_literal_at",
+        "function": "n11.run",
+        "index": 0,
+        "value": "0"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n11.run": "73436f3fb5990d7d71dc82d3ffa3d0ecaa320c32eaac5950565d532c82d30d06"
+  },
+  "model": {}
+}

@@ -1,0 +1,773 @@
+{
+  "count": 96,
+  "manifests": [
+    {
+      "task_id": "M01",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M01-LOW-r1.json",
+      "sha256": "63e04a5e97e5c871b038cd20ec754cd2be7dc3969fc1d433ea3d2a41705522f3"
+    },
+    {
+      "task_id": "M01",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M01-LOW-r2.json",
+      "sha256": "363ddaf7a177383ca7ad983f74e1934311d63a2e9f6a82768ec85eaf1486e648"
+    },
+    {
+      "task_id": "M01",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M01-HIGH-r1.json",
+      "sha256": "7a97a21d807b658778848f8bb9983e39d4a9a3eca3b5c8e4bf3adb85d8ae60a1"
+    },
+    {
+      "task_id": "M01",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M01-HIGH-r2.json",
+      "sha256": "fab62a1e86bc278f15e8637d5081bae0ef36edfa0bccee9e4fd2f105dc0ed030"
+    },
+    {
+      "task_id": "M02",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M02-LOW-r1.json",
+      "sha256": "ce48233f98cfa7a80dc0088d485b35065ade63455b4d2e566b51b40485da1145"
+    },
+    {
+      "task_id": "M02",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M02-LOW-r2.json",
+      "sha256": "9204bdddaa6f964922294245d06ea2cc298a4a4745a303444b09e4f89820ec81"
+    },
+    {
+      "task_id": "M02",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M02-HIGH-r1.json",
+      "sha256": "0d169e36cc426ea6b2b7fc257f8f4f3864d5f4daa864d5ab433295f4ee6fc3f4"
+    },
+    {
+      "task_id": "M02",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M02-HIGH-r2.json",
+      "sha256": "e6a3a190b2c169b4ffd51ef1660f376fa78c4f294d426a479ae72013951aaed4"
+    },
+    {
+      "task_id": "M03",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M03-LOW-r1.json",
+      "sha256": "9aceeec1c40e183038deaa9a2fdad6c33df94e7046c21c839ae882c47409e4aa"
+    },
+    {
+      "task_id": "M03",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M03-LOW-r2.json",
+      "sha256": "d2d68b878267d7fae22652c77d5b6e09181bc4239de97b7b5b6cebb0a6b7e367"
+    },
+    {
+      "task_id": "M03",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M03-HIGH-r1.json",
+      "sha256": "44ff5930ba292359e5b230299188e220df4994394342ac2bd687704de2c12244"
+    },
+    {
+      "task_id": "M03",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M03-HIGH-r2.json",
+      "sha256": "149289a4c925ca1e58c7fab1db3c9badc1ffa742b030c01a4b301f9ccede99a3"
+    },
+    {
+      "task_id": "M04",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M04-LOW-r1.json",
+      "sha256": "0a598dd93859af2a53970adb78a7590ec49324c6e63220e280b88265bea5deda"
+    },
+    {
+      "task_id": "M04",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M04-LOW-r2.json",
+      "sha256": "7857d1d3785ffdf622f111d1b91f41f6ffa157ce4550576370f3e9e364b058a9"
+    },
+    {
+      "task_id": "M04",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M04-HIGH-r1.json",
+      "sha256": "052d5862c7d9334bcf59718ce62a1ed5b48ec207e85ba5263a2b552e6f127141"
+    },
+    {
+      "task_id": "M04",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M04-HIGH-r2.json",
+      "sha256": "b60f90ae9c673b816936a7eb2ad2f328c1373ba566de3452fe17ca68d1d76165"
+    },
+    {
+      "task_id": "M05",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M05-LOW-r1.json",
+      "sha256": "36cc6e7a7c43a17ee9109f21d5b63bcfc1eae67848a27bafdf0465a5f954e332"
+    },
+    {
+      "task_id": "M05",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M05-LOW-r2.json",
+      "sha256": "837d54c04f480e1ec061aba6b2b8046f3b345682197ddcb18e3fab5c9a99088c"
+    },
+    {
+      "task_id": "M05",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M05-HIGH-r1.json",
+      "sha256": "0d2ffd3339e726de34922b94d039cc1fae97949364b6edf8ed574e230069bb1c"
+    },
+    {
+      "task_id": "M05",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M05-HIGH-r2.json",
+      "sha256": "0c676bea1873e14417e56a2af7b132454e79411a858194a31b78f79784a00a1f"
+    },
+    {
+      "task_id": "M06",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M06-LOW-r1.json",
+      "sha256": "15e99626199573937e57081c131bfec2acd6a066d5f43a9b0dd8ce223da0bb0c"
+    },
+    {
+      "task_id": "M06",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M06-LOW-r2.json",
+      "sha256": "a20cafe2b25421a8af4f4fef09410fb825f7ed4d6b4af48ce15e3efb672f3970"
+    },
+    {
+      "task_id": "M06",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M06-HIGH-r1.json",
+      "sha256": "2192e8f13cdfcbe36206718ce6817c961129283c44736e6650dc9f8860ac88ba"
+    },
+    {
+      "task_id": "M06",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M06-HIGH-r2.json",
+      "sha256": "009ce985d243cc52722e6b3ca12aef55229161b82c04c5bbb3cd326d87005266"
+    },
+    {
+      "task_id": "M07",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M07-LOW-r1.json",
+      "sha256": "50a21dbf2aea09782445dcfc627e4d6c0e0df2905412391152e8ceacb47e9fb9"
+    },
+    {
+      "task_id": "M07",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M07-LOW-r2.json",
+      "sha256": "f82722bf8a637f3b43423f5d73d2f4648bc6dcbe977e10c53d2fbfd5144681b1"
+    },
+    {
+      "task_id": "M07",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M07-HIGH-r1.json",
+      "sha256": "83a52c290b90cce03ffed876ddd88ba8765083f08cad5b8bb6f2667aaa7531a2"
+    },
+    {
+      "task_id": "M07",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M07-HIGH-r2.json",
+      "sha256": "62b41728935c2936fe3245a57bb7a93554e2d66d81216d98e20cffa7b4d22b4d"
+    },
+    {
+      "task_id": "M08",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M08-LOW-r1.json",
+      "sha256": "ac3dc3659c07218235664a3835ab46e8744e783b107a576cc030346177b5d963"
+    },
+    {
+      "task_id": "M08",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M08-LOW-r2.json",
+      "sha256": "c0003cb3cf22f9e57c1a482dca46a0ecf17cc5d9ba172a1d35b02996f4d520c3"
+    },
+    {
+      "task_id": "M08",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M08-HIGH-r1.json",
+      "sha256": "c5a3754501258205d2efe3832d8d105ee5dffc5c387df41c0f1737bec27c6940"
+    },
+    {
+      "task_id": "M08",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M08-HIGH-r2.json",
+      "sha256": "e9165bdad602ead94a07134a3010ad780b5420bbff2c2f88e153f6ef11f49630"
+    },
+    {
+      "task_id": "M09",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M09-LOW-r1.json",
+      "sha256": "edb093fc7a6a9ab388ccd8289e2299bb1dfa93d3ca856a569d0aa98ae4f7ebbf"
+    },
+    {
+      "task_id": "M09",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M09-LOW-r2.json",
+      "sha256": "bddc0f64762b37865944b767a9c82c5d9f216921dde2069a6831ee8226fc5b47"
+    },
+    {
+      "task_id": "M09",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M09-HIGH-r1.json",
+      "sha256": "989b4937aef606b046550b4e9c8add65def5447ba671cc49765634aeb5b54161"
+    },
+    {
+      "task_id": "M09",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M09-HIGH-r2.json",
+      "sha256": "ae1ef0268d89b5de3d8d756450fe3bd047db930b68b29f84a2e0693f20644698"
+    },
+    {
+      "task_id": "M10",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M10-LOW-r1.json",
+      "sha256": "b39faaa46341866df688a44066d2c42e04af2ffb3f8302f56fc1155315df5732"
+    },
+    {
+      "task_id": "M10",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M10-LOW-r2.json",
+      "sha256": "aefd3ee9e89b6d8ba248c3960844e25ef3e592da8e724acc6d2eb5b1a6e0b826"
+    },
+    {
+      "task_id": "M10",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M10-HIGH-r1.json",
+      "sha256": "e83364f9e31a97593b4b20dc82481af463b0914dcb3e00084c5de46f7505af09"
+    },
+    {
+      "task_id": "M10",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M10-HIGH-r2.json",
+      "sha256": "e5bae7253e4f02e84b16ee196487ddbffc17e8edca0c1d1e5e219057d759aa69"
+    },
+    {
+      "task_id": "M11",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M11-LOW-r1.json",
+      "sha256": "935d784b9da47c2d6ffd7db63a09a67adee7c3ae28c079fe000af0ac4d49df1c"
+    },
+    {
+      "task_id": "M11",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M11-LOW-r2.json",
+      "sha256": "82414ed52029d1948750575952b203f9a04fbf76f135714a52614f0aad817790"
+    },
+    {
+      "task_id": "M11",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M11-HIGH-r1.json",
+      "sha256": "c96932c05f116b16a80367798764ad5791abc996ae16e271abfcba2d4ac9fdc5"
+    },
+    {
+      "task_id": "M11",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M11-HIGH-r2.json",
+      "sha256": "9e0cd078f339e59aae5b2eee9a2332cf5b2639682466d7ebf00556f12d621db6"
+    },
+    {
+      "task_id": "M12",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "M12-LOW-r1.json",
+      "sha256": "1912e50db0521eb200afbfdd4b600f719e7c6db125696c930003dca35c81a5d9"
+    },
+    {
+      "task_id": "M12",
+      "group": "matched",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "M12-LOW-r2.json",
+      "sha256": "56bcadc7992648b80ce1d6ff5213d63986bda098ee59701c2f5e8a6f422b031c"
+    },
+    {
+      "task_id": "M12",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "M12-HIGH-r1.json",
+      "sha256": "b757f0020f25fc1f2110e8db898d3674558c1e50a766a0de621d108992545e97"
+    },
+    {
+      "task_id": "M12",
+      "group": "matched",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "M12-HIGH-r2.json",
+      "sha256": "6552bce5e2897b1899b48d7587a04f96966774ef92978e745ab424d1651d2ead"
+    },
+    {
+      "task_id": "N01",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N01-LOW-r1.json",
+      "sha256": "35e37cfcddd339ecf7005ea40dd87b6e826cba4a457382975722cfe63f8d8295"
+    },
+    {
+      "task_id": "N01",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N01-LOW-r2.json",
+      "sha256": "4389daa5ab3d0d0d2c80686525e691eb44f6699bc3991e3efdfd7bcfeb2ef1db"
+    },
+    {
+      "task_id": "N01",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N01-HIGH-r1.json",
+      "sha256": "b533ce15648f5c50d71a0fc753ed70abc08bb025a0461db1c8508c52784af4d5"
+    },
+    {
+      "task_id": "N01",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N01-HIGH-r2.json",
+      "sha256": "a0ac3985d198ca27d3f86186641b76ee84d65a3e2653b613c0151b0462918426"
+    },
+    {
+      "task_id": "N02",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N02-LOW-r1.json",
+      "sha256": "50ca00a017c48463aa012d9e036aaf27fd70f8f3c3c7b6551f9149f31d2453fc"
+    },
+    {
+      "task_id": "N02",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N02-LOW-r2.json",
+      "sha256": "228f924c4195bfbf021c1da4ed2d81ff7bf9795d11a39f012b15f8b8203d9917"
+    },
+    {
+      "task_id": "N02",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N02-HIGH-r1.json",
+      "sha256": "06a21213461dc2dd56206049e9fe666ff5cf4a1c6a3bef120058d7056a1c2a81"
+    },
+    {
+      "task_id": "N02",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N02-HIGH-r2.json",
+      "sha256": "fb0449798e85938fc4be432e019d13e71bf70780d6608900f922ebb1931eded5"
+    },
+    {
+      "task_id": "N03",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N03-LOW-r1.json",
+      "sha256": "7edab930e8411b96cc9146b38ade2fbdeafe6ba858be6c833dc64d9ffa6ff808"
+    },
+    {
+      "task_id": "N03",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N03-LOW-r2.json",
+      "sha256": "27a88e68bd1e3a7f92c13da689f2f1bc5f37fa4a5e8d313b4e3b24acba1f3a14"
+    },
+    {
+      "task_id": "N03",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N03-HIGH-r1.json",
+      "sha256": "f57477cfb126fe02b70793d3473f5fd85fea3b46acd08c43998b1ccefd798f4e"
+    },
+    {
+      "task_id": "N03",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N03-HIGH-r2.json",
+      "sha256": "75ad85d0265b6c1088a8ac416d9f1e777ec4c4a888c5921cd392fbff19526ec9"
+    },
+    {
+      "task_id": "N04",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N04-LOW-r1.json",
+      "sha256": "e0a9113ecd570fc7e4cb60835a55bb4f23e7c97561c6175708403d3758eb8495"
+    },
+    {
+      "task_id": "N04",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N04-LOW-r2.json",
+      "sha256": "50f0662bfd9028fdfecd79c51ef9a8ef1d93ff88b707a812c6a3e32777c95fa8"
+    },
+    {
+      "task_id": "N04",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N04-HIGH-r1.json",
+      "sha256": "953a421c83de40393801c99b71483f8b129bbefacf1220e150ac9f11e9b2e375"
+    },
+    {
+      "task_id": "N04",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N04-HIGH-r2.json",
+      "sha256": "80bb3016d374f219ded0600aefb94bc92e7f627707cbe851629c92255db70b7e"
+    },
+    {
+      "task_id": "N05",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N05-LOW-r1.json",
+      "sha256": "c1eb5a6252448189c7815790252b3eb341ce37fc5ae86e4bca4e5bcefa18fa43"
+    },
+    {
+      "task_id": "N05",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N05-LOW-r2.json",
+      "sha256": "34c610344776f81cff7b5dabcc1952de27082c7811b4dec3623eeaf7895e82ff"
+    },
+    {
+      "task_id": "N05",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N05-HIGH-r1.json",
+      "sha256": "2df4ea1c791e23404562a0ed53477bd6dbca6857953f821d5a600975e9182728"
+    },
+    {
+      "task_id": "N05",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N05-HIGH-r2.json",
+      "sha256": "56f55c2db0517f58b635d0c571697967ba73522c7f43d321329557f0221ac664"
+    },
+    {
+      "task_id": "N06",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N06-LOW-r1.json",
+      "sha256": "f84912419f8b82f2e08882b1257c1bd4e6f6f2ae601c5a61fbf788874ab75d05"
+    },
+    {
+      "task_id": "N06",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N06-LOW-r2.json",
+      "sha256": "d16edfb428b78fba764a2137a6b762966d3a6d64076a6c421a56a4d0b4daf8be"
+    },
+    {
+      "task_id": "N06",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N06-HIGH-r1.json",
+      "sha256": "367613aaa68753d7bf407991788e0c7a013707d871c48dae69774f3e5a5aac52"
+    },
+    {
+      "task_id": "N06",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N06-HIGH-r2.json",
+      "sha256": "ffe79e583366111c38573794569983490bdadebb5e5dff4bd49d0b190f5d2038"
+    },
+    {
+      "task_id": "N07",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N07-LOW-r1.json",
+      "sha256": "add4a0cc3c6246151ab62f4a0e67131d017142ba82813ddd8580aa676745d11b"
+    },
+    {
+      "task_id": "N07",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N07-LOW-r2.json",
+      "sha256": "429c781410c23fb4e090894c3f934481b6039803f0f941cd13d4779e33f2385d"
+    },
+    {
+      "task_id": "N07",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N07-HIGH-r1.json",
+      "sha256": "00333a2925c7418fc2dfb8c51ecd773edcdf3dad8e7176668a7e24c88512b98c"
+    },
+    {
+      "task_id": "N07",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N07-HIGH-r2.json",
+      "sha256": "a7ec490e7b8496010c66a4a8006e0e6c0f6b70c09c9aae93cb5a7c3e3d909e04"
+    },
+    {
+      "task_id": "N08",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N08-LOW-r1.json",
+      "sha256": "3c6e2aa429158dacc6623ce1206ef518ab5fa7c8082a86d6de2d598b0c6032f0"
+    },
+    {
+      "task_id": "N08",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N08-LOW-r2.json",
+      "sha256": "177a98099216b2cc91b709887a0037d1c250c93f8606093ed2e780ad32651751"
+    },
+    {
+      "task_id": "N08",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N08-HIGH-r1.json",
+      "sha256": "b48057285b50042214255027172a5bddb8b7e49d8da61b9de4b76c2d85ab6e9c"
+    },
+    {
+      "task_id": "N08",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N08-HIGH-r2.json",
+      "sha256": "47f2ae5c8a53a9ad5ad1df2b9eb84c449b0070469094a79381a3e69097ccff71"
+    },
+    {
+      "task_id": "N09",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N09-LOW-r1.json",
+      "sha256": "8f39aabca9589ad16075777f8588410d0fc5ede465ec0219ac5b4ae96ab0cfd9"
+    },
+    {
+      "task_id": "N09",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N09-LOW-r2.json",
+      "sha256": "9e55d3a074752e1a0f272bb8e49aad5beab7a261a6061f23f85d688ac0bb992c"
+    },
+    {
+      "task_id": "N09",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N09-HIGH-r1.json",
+      "sha256": "864dd7f8049bb386bc1152b9c64c71baa67ed7d94bcfa56fafe4441c5b403eb6"
+    },
+    {
+      "task_id": "N09",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N09-HIGH-r2.json",
+      "sha256": "6c5046d5dbb302a066e79fcd29c0e7563704683d85825df0eb268c0bea6cba8d"
+    },
+    {
+      "task_id": "N10",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N10-LOW-r1.json",
+      "sha256": "ca951f4d571f1843187a9e8cfc677af626303447b8eab45f87232cf9b938b9b2"
+    },
+    {
+      "task_id": "N10",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N10-LOW-r2.json",
+      "sha256": "72244006c1a598d77cd8d0547ef8891f461328876f4ccb80e059b7380a2a873a"
+    },
+    {
+      "task_id": "N10",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N10-HIGH-r1.json",
+      "sha256": "4c0b0f94bfb34ec5e5d137e0d504c8b30312c0406cf0b5ce54b988735e241a42"
+    },
+    {
+      "task_id": "N10",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N10-HIGH-r2.json",
+      "sha256": "1a955e503adbcb0a2cf77e47aa7c6e89dab6803550c0411b490c6cb398e30f96"
+    },
+    {
+      "task_id": "N11",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N11-LOW-r1.json",
+      "sha256": "205a0251ff39ac139bee32f5c0fd9816301d61931db642ee0d0d3d614e4496fe"
+    },
+    {
+      "task_id": "N11",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N11-LOW-r2.json",
+      "sha256": "bf0bf545c1a32aa99a782959eaca45149d91a5011d5dad01d819ff91d8686da4"
+    },
+    {
+      "task_id": "N11",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N11-HIGH-r1.json",
+      "sha256": "b75bad81ef8694e99fd84aba4b25b08b86d99d099fee6107dfd69244c5c5e877"
+    },
+    {
+      "task_id": "N11",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N11-HIGH-r2.json",
+      "sha256": "4738d78ff258616348229722862ac137c777b672773ef1c4b24f2934d54b0fee"
+    },
+    {
+      "task_id": "N12",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 1,
+      "manifest": "N12-LOW-r1.json",
+      "sha256": "950a44622b4584704aea8997ad4c5c524bc2af01b8b828b662e300c21c3a25de"
+    },
+    {
+      "task_id": "N12",
+      "group": "neutral",
+      "arm": "LOW",
+      "rep": 2,
+      "manifest": "N12-LOW-r2.json",
+      "sha256": "68cb4ee8542aa86124b6018f0bd2fe9378e4c14d56fabf60e424a69f73e30f85"
+    },
+    {
+      "task_id": "N12",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 1,
+      "manifest": "N12-HIGH-r1.json",
+      "sha256": "93e3d7254bef43650b497e3cd09c48650cab7e61bf622565caff17a2ab5b28f3"
+    },
+    {
+      "task_id": "N12",
+      "group": "neutral",
+      "arm": "HIGH",
+      "rep": 2,
+      "manifest": "N12-HIGH-r2.json",
+      "sha256": "43bb21551c8cea60320a0156486fcaf7f92daba569b4d09d14a94ac55885a7f1"
+    }
+  ]
+}

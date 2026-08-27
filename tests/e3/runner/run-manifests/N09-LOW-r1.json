@@ -1,0 +1,26 @@
+{
+  "task_id": "N09",
+  "group": "neutral",
+  "arm": "LOW",
+  "rep": 1,
+  "task_statement": "Make choose return 0 when a constant flag is true, and 1 otherwise (add an if node as its body).",
+  "fixture": "N09",
+  "max_tool_steps": 200,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": [
+      "n09.choose"
+    ],
+    "structural": [
+      {
+        "kind": "body_contains_kind",
+        "function": "n09.choose",
+        "node_kind": "if"
+      }
+    ]
+  },
+  "baseline_revisions": {
+    "n09.choose": "0a23411682e59a03234104d1c32a77e891d5dfb3c9a2474d9dd190b44aa6ae7c"
+  },
+  "model": {}
+}
