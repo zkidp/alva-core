@@ -178,7 +178,8 @@ def run_one(args, m):
     agent_project = toml
     verifier_alva = alva
     if args.relay == "deepseek":
-        cmd_prefix = rc.container_run_cmd(exfreeze["container_digest"], ws)
+        cmd_prefix = rc.container_run_cmd(exfreeze["container_digest"], ws,
+                                          gate_on=gate_on)
         agent_project = "/workspace/alva.toml"
         verifier_alva = rc.extract_binary(exfreeze["container_digest"],
                                           run_dir)

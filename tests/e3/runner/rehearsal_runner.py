@@ -118,7 +118,7 @@ def run_slot(args, cid, group, arm, rep, manifest, freeze, out_dir, alva):
     agent_project = toml
     verifier_alva = alva
     if args.container:
-        cmd_prefix = rc.container_run_cmd(args.container, ws)
+        cmd_prefix = rc.container_run_cmd(args.container, ws, gate_on=gate_on)
         agent_project = "/workspace/alva.toml"
         verifier_alva = rc.extract_binary(args.container, out_dir)
     # surface gate in a SEPARATE discarded session (never in trajectory)

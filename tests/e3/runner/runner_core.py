@@ -220,10 +220,14 @@ def surface_probe(alva, project_toml, gate_on, cmd_prefix=None):
     return True
 
 
-def container_run_cmd(image, workspace_dir):
-    return ["docker", "run", "--rm", "-i", "--read-only", "--tmpfs", "/tmp",
-            "--network", "e3-relay-only", "-v", f"{workspace_dir}:/workspace",
-            image]
+def container_run_cmd(image, workspace_dir, gate_on=False):
+    cmd = ["docker", "run", "--rm", "-i", "--read-only", "--tmpfs", "/tmp",
+           "--network", "e3-relay-only",
+           "-e", "ALVA_AEP_ENABLE_EXPERIMENTAL_A1=1"]
+    if gate_on:
+        cmd += ["-e", "ALVA_AEP_ENABLE_E3_HIGH=1"]
+    cmd += ["-v", f"{workspace_dir}:/workspace", image]
+    return cmd
 
 
 def extract_binary(image, work_dir):
