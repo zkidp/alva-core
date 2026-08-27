@@ -215,7 +215,7 @@ def run_one(args, m):
                 final_text = "(max steps)"
                 break
             steps += 1
-            call_args = {k: (v.replace("{{project}}", toml)
+            call_args = {k: (v.replace("{{project}}", agent_project)
                              if isinstance(v, str) else v)
                          for k, v in step.get("args", {}).items()}
             if step.get("assistant"):
