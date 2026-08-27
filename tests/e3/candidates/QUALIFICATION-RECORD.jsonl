@@ -1,0 +1,4 @@
+{"id": "M01", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "M02", "group": "matched", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2"]}
+{"id": "N01", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2", "W3"]}
+{"id": "N02", "group": "neutral", "status": "QUALIFIED", "date": "2026-08-27", "wrong_variants_rejected": ["W1", "W2", "W3"]}

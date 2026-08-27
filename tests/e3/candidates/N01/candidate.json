@@ -4,6 +4,7 @@
   "title": "raise fee constant from 10 to 20",
   "task_statement": "Increase the fee returned by fee() from 10 to 20.",
   "fixture": "fixture",
+  "functions": ["n01.fee", "n01.run", "n01.add"],
   "structural": {
     "touched_functions": 1,
     "modules": 1,
@@ -21,6 +22,7 @@
   "verifier": {
     "project_check": true,
     "build_test": false,
+    "allowed_touched": ["n01.fee"],
     "structural": [
       {"kind": "body_literal_value", "function": "n01.fee", "value": "20"}
     ]
@@ -38,6 +40,15 @@
       "id": "W2",
       "reason": "no change at all",
       "ops": []
+    },
+    {
+      "id": "W3",
+      "reason": "correct fee change PLUS unrelated modification of untouched run",
+      "ops": [
+        {"tool": "create_literal", "args": {"type": "i64", "value": "20"}, "as": "newlit"},
+        {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{newlit}}", "position": "step"}},
+        {"tool": "add_param", "args": {"function": "n01.run", "name": "x", "type": "i64"}}
+      ]
     }
   ]
 }

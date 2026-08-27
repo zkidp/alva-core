@@ -4,6 +4,7 @@
   "title": "add retries parameter to compute",
   "task_statement": "Add a retries parameter of type i64 to compute, and pass the value 1 at its caller.",
   "fixture": "fixture",
+  "functions": ["m01.compute", "m01.run"],
   "structural": {
     "touched_functions": 2,
     "modules": 1,
@@ -22,6 +23,7 @@
   "verifier": {
     "project_check": true,
     "build_test": false,
+    "allowed_touched": ["m01.compute", "m01.run"],
     "structural": [
       {"kind": "has_param", "function": "m01.compute", "param": "retries", "type": "(prim i64)"},
       {"kind": "call_arg_count", "function": "m01.run", "call_name": "compute", "args": 2},

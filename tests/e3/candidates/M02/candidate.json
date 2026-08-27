@@ -4,6 +4,7 @@
   "title": "add suffix parameter to render",
   "task_statement": "Add a suffix parameter of type string to render, and pass '.' at both callers (greet and farewell).",
   "fixture": "fixture",
+  "functions": ["m02.render", "m02.greet", "m02.farewell"],
   "structural": {
     "touched_functions": 3,
     "modules": 1,
@@ -22,6 +23,7 @@
   "verifier": {
     "project_check": true,
     "build_test": false,
+    "allowed_touched": ["m02.render", "m02.greet", "m02.farewell"],
     "structural": [
       {"kind": "has_param", "function": "m02.render", "param": "suffix", "type": "(prim string)"},
       {"kind": "call_arg_count", "function": "m02.greet", "call_name": "render", "args": 2},

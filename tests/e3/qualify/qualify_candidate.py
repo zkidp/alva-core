@@ -39,6 +39,7 @@ def log(msg):
 class Agent:
     def __init__(self, alva, project):
         env = dict(os.environ)
+        env.pop("ALVA_AEP_ENABLE_E3_HIGH", None)  # LOW surface only
         env.setdefault("ALVA_AEP_ENABLE_EXPERIMENTAL_A1", "1")
         self.p = subprocess.Popen(
             [alva, "agent"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -144,13 +145,29 @@ def apply_ops(alva, project, manifest, ops):
     return True, ""
 
 
-def run_verifier(alva, project, checkspec):
+def baseline_revisions(alva, project, functions):
+    out = {}
+    a = Agent(alva, project)
+    a.ok("begin_transaction", project=project)
+    for fn in functions:
+        insp = a.ok("inspect_function", name=fn)
+        out[fn] = insp["result"]["revision"]
+    a.close()
+    return out
+
+
+def run_verifier(alva, project, checkspec, baseline):
     project_dir = os.path.dirname(project)
-    spec_path = os.path.join(project_dir, "_checkspec.json")
-    with open(spec_path, "w", encoding="utf-8") as fh:
+    spec_dir = tempfile.mkdtemp(prefix="verify-")
+    with open(os.path.join(spec_dir, "checkspec.json"), "w",
+              encoding="utf-8") as fh:
         json.dump(checkspec, fh)
+    if baseline is not None:
+        with open(os.path.join(spec_dir, "baseline.json"), "w",
+                  encoding="utf-8") as fh:
+            json.dump(baseline, fh)
     p = subprocess.run(
-        [sys.executable, VERIFIER, project_dir, spec_path],
+        [sys.executable, VERIFIER, project_dir, spec_dir],
         env=dict(os.environ, ALVA=alva), capture_output=True, text=True,
     )
     return p.returncode == 0, (p.stdout + p.stderr)[-400:]
@@ -167,13 +184,15 @@ def qualify_one(alva, cand_dir, candidate):
     )
     if p.returncode != 0:
         fail(f"{cid}: baseline project check failed:\n{p.stdout[-500:]}")
+    # baseline revisions of ALL functions (for the untouched check).
+    base_revs = baseline_revisions(alva, base, candidate.get("functions", []))
     # 2. reference LOW canonical sequence -> commit -> verifier PASS.
     ref = fresh_copy(fixture_dir)
     ok, msg = apply_ops(alva, ref, candidate["low_sequence"],
                         candidate["low_sequence"]["ops"])
     if not ok:
         fail(f"{cid}: reference LOW sequence did not commit: {msg}")
-    passed, out = run_verifier(alva, ref, candidate["verifier"])
+    passed, out = run_verifier(alva, ref, candidate["verifier"], base_revs)
     if not passed:
         fail(f"{cid}: reference solution rejected by verifier:\n{out}")
     # 3. wrong variants must be rejected.
@@ -183,10 +202,23 @@ def qualify_one(alva, cand_dir, candidate):
         if not wok:
             fail(f"{cid}/{wv['id']}: variant did not commit "
                  f"(expected commit then verifier rejection): {wmsg}")
-        wpassed, wout = run_verifier(alva, wrong, candidate["verifier"])
+        wpassed, wout = run_verifier(alva, wrong, candidate["verifier"],
+                                     base_revs)
         if wpassed:
             fail(f"{cid}/{wv['id']} ({wv['reason']}): verifier ACCEPTED a "
                  f"wrong solution")
+    record = {
+        "id": cid,
+        "group": candidate.get("group"),
+        "status": "QUALIFIED",
+        "date": "2026-08-27",
+        "wrong_variants_rejected": [w["id"] for w in
+                                    candidate.get("wrong_variants", [])],
+    }
+    record_path = os.path.join(os.path.dirname(HERE), "candidates",
+                               "QUALIFICATION-RECORD.jsonl")
+    with open(record_path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record) + "\n")
     log(f"{cid} [{candidate['group']}]: QUALIFIED "
         f"({len(candidate.get('wrong_variants', []))} wrong variants "
         f"rejected)")

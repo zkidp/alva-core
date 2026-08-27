@@ -4,6 +4,7 @@
   "title": "raise two constants",
   "task_statement": "Raise max_items from 100 to 200 and max_retries from 3 to 5.",
   "fixture": "fixture",
+  "functions": ["n02.max_items", "n02.max_retries", "n02.run", "n02.add"],
   "structural": {
     "touched_functions": 2,
     "modules": 1,
@@ -23,6 +24,7 @@
   "verifier": {
     "project_check": true,
     "build_test": false,
+    "allowed_touched": ["n02.max_items", "n02.max_retries"],
     "structural": [
       {"kind": "body_literal_value", "function": "n02.max_items", "value": "200"},
       {"kind": "body_literal_value", "function": "n02.max_retries", "value": "5"}
@@ -45,6 +47,17 @@
         {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{n1}}", "position": "step"}},
         {"tool": "create_literal", "args": {"type": "i64", "value": "4"}, "as": "n2"},
         {"tool": "replace_expression", "args": {"parent": "{{block1}}", "child": "{{n2}}", "position": "step"}}
+      ]
+    },
+    {
+      "id": "W3",
+      "reason": "correct changes PLUS unrelated modification of untouched run",
+      "ops": [
+        {"tool": "create_literal", "args": {"type": "i64", "value": "200"}, "as": "n1"},
+        {"tool": "replace_expression", "args": {"parent": "{{block0}}", "child": "{{n1}}", "position": "step"}},
+        {"tool": "create_literal", "args": {"type": "i64", "value": "5"}, "as": "n2"},
+        {"tool": "replace_expression", "args": {"parent": "{{block1}}", "child": "{{n2}}", "position": "step"}},
+        {"tool": "add_param", "args": {"function": "n02.run", "name": "x", "type": "i64"}}
       ]
     }
   ]
