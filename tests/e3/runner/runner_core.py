@@ -21,6 +21,11 @@ VERIFIER = os.path.join(QUALIFY_DIR, "hidden_verifier.py")
 CHURN = (r"C:\Users\BEStaff\Desktop\alva-repos\alva-research-private"
          r"\alva-paper\saner\e3-feasibility\scripts\churn_classifier.py")
 
+FORBIDDEN_SNIPPETS = [
+    "candidate.json", "wrong_variants", "low_sequence", "hidden_verifier",
+    "reference solution", "migrate_signature solution",
+]
+
 
 def sha256_file(path):
     h = hashlib.sha256()
@@ -65,15 +70,24 @@ def make_workspace(cid, candidates_dir, freeze_manifest, out_root):
     run_root = tempfile.mkdtemp(prefix=f"e3-{cid}-")
     ws = os.path.join(run_root, "workspace")
     shutil.copytree(fixture_dir, ws)
-    # workspace allowlist: fixture files only
-    leaked = []
+    # workspace allowlist: fixture files only + content-level no-leak scan
+    leaked_names, leaked_content = [], []
     for root, _, files in os.walk(ws):
         for fn in files:
             if fn in ("candidate.json", "hidden_verifier.py",
                       "QUALIFICATION-RECORD.jsonl") or fn.endswith(".json"):
-                leaked.append(os.path.join(root, fn))
-    if leaked:
-        raise RuntimeError(f"workspace leak in {cid}: {leaked}")
+                leaked_names.append(os.path.join(root, fn))
+            fp = os.path.join(root, fn)
+            try:
+                data = open(fp, "rb").read().lower()
+            except OSError:
+                continue
+            for s in FORBIDDEN_SNIPPETS:
+                if s.encode() in data:
+                    leaked_content.append((fp, s))
+    if leaked_names or leaked_content:
+        raise RuntimeError(f"workspace leak in {cid}: names={leaked_names} "
+                           f"content={leaked_content}")
     return run_root, ws, fixture_tree_sha256(ws)
 
 
@@ -134,11 +148,11 @@ class RecordingAgent:
         if not line.strip():
             raise RuntimeError("agent process closed")
         r = json.loads(line)
-        output_rev = None
+        output_rev = output_entity = None
         res = r.get("result")
         if isinstance(res, dict):
-            output_rev = (res.get("revision") or res.get("new_revision")
-                          or res.get("entity"))
+            output_rev = res.get("revision") or res.get("new_revision")
+            output_entity = res.get("entity")
         self.call_log.append({
             "ordinal": self.ordinal,
             "tool": tool,
@@ -148,6 +162,7 @@ class RecordingAgent:
             "message": r.get("message"),
             "result": res,
             "output_revision": output_rev,
+            "output_entity": output_entity,
             "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
                                            time.gmtime()),
             "elapsed_s": elapsed,
@@ -166,14 +181,18 @@ class RecordingAgent:
         self.p.wait()
 
 
-def surface_probe(a, project_toml):
-    """Per-run runtime surface assertion: with the E3 gate OFF the compound
-    op must be invisible/inert; with the gate ON it must be dispatched
-    (reaching entity resolution). Also verifies a transaction exists."""
+def surface_probe(alva, project_toml, gate_on):
+    """Per-run runtime surface assertion in a SEPARATE, DISCARDED session so
+    the experimental agent starts from a pristine, transaction-free state
+    and the probe never appears in the formal trajectory."""
+    probe_log = []
+    a = RecordingAgent(alva, project_toml, gate_on=gate_on,
+                       call_log=probe_log)
     a.ok("begin_transaction", project=project_toml)
     r = a.call("migrate_signature", function="__e3_probe__", param="x",
                type="i64", value="1")
-    if a.gate_on:
+    a.close()
+    if gate_on:
         if r.get("ok") or r.get("error_code") == "E_AEP_UNKNOWN_TOOL":
             raise RuntimeError("surface gate: HIGH arm did not expose "
                                "migrate_signature")
@@ -182,6 +201,31 @@ def surface_probe(a, project_toml):
             raise RuntimeError("surface gate: LOW arm exposed "
                                "migrate_signature")
     return True
+
+
+def reachable_revisions(alva, project_toml):
+    """Frozen final reachable revision set of the committed store."""
+    p = subprocess.run([alva, "air", "reachable", project_toml],
+                       capture_output=True, text=True)
+    if p.returncode != 0:
+        raise RuntimeError(f"reachable failed: {p.stderr[-300:]}")
+    return [ln.strip() for ln in p.stdout.splitlines() if ln.strip()]
+
+
+def final_state(alva, project_toml):
+    """module heads + semantic hash of the committed store."""
+    p = subprocess.Popen([alva, "edit"], stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, text=True,
+                         encoding="utf-8")
+    p.stdin.write(json.dumps({"op": "begin", "project": project_toml}) + "\n")
+    p.stdin.flush()
+    line = p.stdout.readline()
+    p.stdin.close()
+    p.wait()
+    r = json.loads(line)
+    if not r.get("ok"):
+        raise RuntimeError(f"final-state begin failed: {r}")
+    return r["result"]
 
 
 def run_verifier_arm_blind(alva, project_dir, checkspec, baseline):
@@ -220,9 +264,35 @@ def derive_churn(call_log, final_reachable):
     return p.returncode, (p.stdout + p.stderr)
 
 
+def write_run_artifacts(out_dir, cid, arm, rep, provenance, call_log,
+                        verifier, final_state_rec, reachable, churn_out):
+    run_dir = os.path.join(out_dir, f"RUN-{cid}-{arm}-r{rep}")
+    os.makedirs(run_dir, exist_ok=True)
+    with open(os.path.join(run_dir, "provenance.json"), "w",
+              encoding="utf-8") as fh:
+        json.dump(provenance, fh, indent=2)
+    with open(os.path.join(run_dir, "trajectory.jsonl"), "w",
+              encoding="utf-8") as fh:
+        for c in call_log:
+            fh.write(json.dumps(c) + "\n")
+    with open(os.path.join(run_dir, "verifier.json"), "w",
+              encoding="utf-8") as fh:
+        json.dump(verifier, fh, indent=2)
+    with open(os.path.join(run_dir, "final-state.json"), "w",
+              encoding="utf-8") as fh:
+        json.dump({"heads": final_state_rec.get("modules"),
+                   "semantic_hash": final_state_rec.get("base_hash"),
+                   "reachable_revisions": reachable}, fh, indent=2)
+    with open(os.path.join(run_dir, "churn-derived.json"), "w",
+              encoding="utf-8") as fh:
+        fh.write(churn_out)
+    return run_dir
+
+
 def provenance_record(cid, group, arm, rep, alva_bin, runner_head,
                       fixture_hash, workspace_hash, gate_env, model, start,
                       end, termination, out_dir):
+    model = model or {}
     rec = {
         "task_id": cid,
         "group": group,

@@ -1,0 +1,6 @@
+[
+  {"tool": "begin_transaction", "args": {"project": "{{project}}", "base_hash": ""}},
+  {"tool": "migrate_signature", "args": {"function": "m04.noop", "param": "retries", "type": "i64"}},
+  {"tool": "check_transaction", "args": {}},
+  {"tool": "commit_transaction", "args": {}}
+]

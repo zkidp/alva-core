@@ -1,0 +1,21 @@
+{
+  "task_id": "N04",
+  "group": "neutral",
+  "arm": "LOW",
+  "rep": 1,
+  "task_statement": "Mark the function save as effectful (io).",
+  "fixture": "N04",
+  "max_tool_steps": 50,
+  "verifier_checkspec": {
+    "build_test": false,
+    "allowed_touched": ["n04.save"],
+    "structural": [
+      {"kind": "function_effect", "function": "n04.save", "effect": "io"}
+    ]
+  },
+  "baseline_revisions": {
+    "n04.save": "80dbffabfc2a6fea6c72b28162f2a4a4d7fe1c62d46d8471a63725e25421ead5",
+    "n04.run": "21d88f12e9c8f0f62a4e0b0f4ff4c0dc561f1bc51cc5eaeed6718b3a848bb8a0"
+  },
+  "model": null
+}

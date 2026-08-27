@@ -695,6 +695,29 @@ fn cmd_air(rest: &[String]) -> i32 {
                 }
             }
         }
+        "reachable" => {
+            // E3 runner support: load the committed authoritative store and
+            // print every reachable revision (module heads + descendants).
+            // Used by the frozen churn classifier's SUPERSEDED category.
+            let file = rest.get(1).map(|s| s.as_str()).unwrap_or("");
+            if file.is_empty() {
+                eprintln!("usage: alva air reachable <project.toml>");
+                return 2;
+            }
+            let project_dir = Path::new(file).parent().unwrap_or(Path::new("."));
+            match air::load_authoritative(project_dir) {
+                Ok(g) => {
+                    for rev in g.reachable() {
+                        println!("{rev}");
+                    }
+                    0
+                }
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    1
+                }
+            }
+        }
         "import" => {
             let file = rest.get(1).map(|s| s.as_str()).unwrap_or("");
             if file.is_empty() {

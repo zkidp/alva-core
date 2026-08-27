@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""E3 FORMAL run runner.
+"""E3 FORMAL run runner (execution closure).
 
 PHYSICALLY SEPARATED from rehearsal: this module's execution path never
 loads candidate.json, low_sequence, wrong variants, or reference solutions.
@@ -11,12 +11,21 @@ It reads ONLY a host-produced run_manifest.json:
     "verifier_checkspec",        # host-side, passed arm-blind
     "baseline_revisions",        # host-side, for the untouched gate
     "fixture": "M01",
-    "model": {...}               # provider/identifier/settings (env or file)
+    "model": {...}               # provider/identifier/settings
   }
 
-Fails closed unless E3_EXECUTION_AUTHORIZED=1. Model relay must be
-configured (E3_MODEL_RELAY_URL etc.); otherwise the run is a controlled
-HOLD (HOLD_MODEL_NOT_CONFIGURED), never a silent local run.
+Execution path per run:
+  1. surface probe in a SEPARATE discarded session (never in trajectory)
+  2. FRESH experimental agent (empty call log, no transaction)
+  3. model <-> tool relay loop through RecordingAgent
+  4. terminal detection -> commit? -> arm-blind hidden verifier
+  5. final-state (heads + semantic hash) + reachable revision set
+  6. raw artifacts: provenance.json, trajectory.jsonl, verifier.json,
+     final-state.json, churn-derived.json
+
+Fails closed unless E3_EXECUTION_AUTHORIZED=1. Without a pinned provider
+relay the run is a controlled HOLD; --relay scripted supports the no-model
+formal-path rehearsal with a host-side script (deterministic model stub).
 """
 
 import argparse
@@ -32,8 +41,29 @@ import runner_core as rc  # noqa: E402
 AUTH = "E3_EXECUTION_AUTHORIZED"
 
 
-class ModelRelay:
-    """Formal-mode model connector. Rehearsal never constructs this."""
+class ScriptedRelay:
+    """Deterministic model stub for the no-model formal-path rehearsal.
+    Reads a host-side script: [{"tool": ..., "args": {...}}, {"final": ...}]."""
+
+    def __init__(self, path):
+        with open(path, encoding="utf-8") as fh:
+            self.steps = json.load(fh)
+        self.i = 0
+
+    def step(self, messages):
+        if self.i >= len(self.steps):
+            return {"type": "final", "text": "(script exhausted)"}
+        item = self.steps[self.i]
+        self.i += 1
+        if "tool" in item:
+            return {"type": "tool", "tool": item["tool"],
+                    "args": item.get("args", {})}
+        return {"type": "final", "text": item.get("final", "")}
+
+
+class ProviderRelay:
+    """Real model relay. The wire protocol is pinned at final readiness;
+    until then this raises a controlled HOLD and no model call occurs."""
 
     def __init__(self, model):
         self.url = os.environ.get("E3_MODEL_RELAY_URL")
@@ -41,71 +71,127 @@ class ModelRelay:
         if not self.url:
             raise RuntimeError("HOLD_MODEL_NOT_CONFIGURED")
 
-    def complete(self, messages):
-        # The actual relay protocol is pinned at final readiness review;
-        # until then this raises so no formal run can silently proceed.
+    def step(self, messages):
         raise RuntimeError("HOLD_MODEL_RELAY_PROTOCOL_UNPINNED")
+
+
+def run_one(args, m):
+    started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    alva = os.environ["ALVA"]
+    freeze = rc.load_freeze_manifest(args.freeze_manifest)
+    candidates_dir = os.path.join(os.path.dirname(HERE), "candidates")
+    run_root, ws, ws_hash = rc.make_workspace(
+        m["fixture"], candidates_dir, freeze, args.out_dir)
+    toml = os.path.join(ws, "alva.toml")
+    gate_on = m["arm"] == "HIGH"
+    # P0-5: surface probe in a SEPARATE discarded session.
+    rc.surface_probe(alva, toml, gate_on)
+    # FRESH experimental agent: empty call log, no active transaction.
+    call_log = []
+    agent = rc.RecordingAgent(alva, toml, gate_on=gate_on, call_log=call_log)
+    relay = (ScriptedRelay(args.script) if args.relay == "scripted"
+             else ProviderRelay(m.get("model", {})))
+    messages = [{"role": "user", "content": m["task_statement"]}]
+    max_steps = m.get("max_tool_steps", 200)
+    steps = 0
+    final_text = None
+    while True:
+        step = relay.step(messages)
+        if step["type"] == "final":
+            final_text = step.get("text")
+            break
+        if steps >= max_steps:
+            final_text = "(max steps)"
+            break
+        steps += 1
+        call_args = {k: (v.replace("{{project}}", toml)
+                         if isinstance(v, str) else v)
+                     for k, v in step.get("args", {}).items()}
+        r = agent.call(step["tool"], **call_args)
+        messages.append({"role": "tool", "tool": step["tool"], "result": r})
+    agent.close()
+    # terminal detection + verifier + final state
+    commits = [c for c in call_log if c["tool"] == "commit_transaction"]
+    if not commits or not commits[-1]["ok"]:
+        termination = "NO_COMMIT"
+        verifier = {"ok": False, "reason": "no committed store",
+                    "output": ""}
+        final_rec = {"modules": {}, "base_hash": None}
+        reachable = []
+    else:
+        base = m.get("baseline_revisions")
+        passed, out = rc.run_verifier_arm_blind(
+            alva, ws, m["verifier_checkspec"], base)
+        verifier = {"ok": passed, "output": out}
+        try:
+            final_rec = rc.final_state(alva, toml)
+            reachable = rc.reachable_revisions(alva, toml)
+        except Exception as e:
+            final_rec = {"modules": {}, "base_hash": None}
+            reachable = []
+            verifier = {"ok": False, "output": f"{verifier['output']}\n"
+                        f"final-state error: {e}"}
+        termination = "OK" if passed else "BAD_SOLUTION"
+    churn_rc, churn_out = rc.derive_churn(call_log, reachable)
+    ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    prov = rc.provenance_record(
+        m["task_id"], m.get("group"), m.get("arm"), m.get("rep"), alva,
+        rc._git_head(), freeze[m["fixture"]][1], ws_hash,
+        ("absent" if not gate_on else "1"), m.get("model", {}),
+        started, ended, termination, args.out_dir)
+    run_dir = rc.write_run_artifacts(
+        args.out_dir, m["task_id"], m.get("arm"), m.get("rep"), prov,
+        call_log, verifier, final_rec, reachable, churn_out)
+    return prov, run_dir
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-manifest", required=True)
     ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--relay", choices=["provider", "scripted"],
+                    default="provider")
+    ap.add_argument("--script", default=None,
+                    help="scripted relay plan (no-model rehearsal only)")
     ap.add_argument("--freeze-manifest",
                     default=(r"C:\Users\BEStaff\Desktop\alva-repos"
                              r"\alva-research-private\alva-paper\saner"
                              r"\e3-feasibility\C1-FREEZE-MANIFEST.md"))
     args = ap.parse_args()
-    alva = os.environ.get("ALVA")
-    if not alva:
-        sys.exit("set ALVA to the alva executable")
     if os.environ.get(AUTH) != "1":
         sys.exit("FAIL_CLOSED: E3_EXECUTION_AUTHORIZED != 1")
+    if args.relay == "scripted" and not args.script:
+        sys.exit("--relay scripted requires --script")
     with open(args.run_manifest, encoding="utf-8") as fh:
         m = json.load(fh)
-    # structural guard: formal execution path must not touch solutions
-    forbidden = ("low_sequence", "wrong_variants", "reference", "solution")
     blob = json.dumps(m).lower()
-    if any(f in blob for f in forbidden):
+    if any(f in blob for f in ("low_sequence", "wrong_variants",
+                               "reference solution")):
         sys.exit("FAIL_CLOSED: run manifest contains forbidden solution "
                  "material")
-    freeze = rc.load_freeze_manifest(args.freeze_manifest)
-    candidates_dir = os.path.join(os.path.dirname(HERE), "candidates")
     started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    ws_hash = None
     try:
-        run_root, ws, ws_hash = rc.make_workspace(
-            m["fixture"], candidates_dir, freeze, args.out_dir)
-        toml = os.path.join(ws, "alva.toml")
-        gate_on = m["arm"] == "HIGH"
-        call_log = []
-        a = rc.RecordingAgent(alva, toml, gate_on=gate_on,
-                              call_log=call_log)
-        rc.surface_probe(a, toml)
-        relay = ModelRelay(m.get("model", {}))
-        # Prompt: task_statement only; workspace is allowlist-only.
-        prompt = [{"role": "user",
-                   "content": m["task_statement"]}]
-        response = relay.complete(prompt)
-        # The agent session consumes the model trajectory; per-call facts
-        # are recorded by RecordingAgent. Response pinned into provenance.
-        termination = "OK"
-    except RuntimeError as e:
-        termination = str(e)
-        run_root = ws = None
-    ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    rec = rc.provenance_record(
-        m.get("task_id"), m.get("group"), m.get("arm"), m.get("rep"), alva,
-        rc._git_head(), freeze[m["fixture"]][1],
-        ws_hash, ("absent" if not gate_on else "1"),
-        m.get("model", {}), started, ended, termination, args.out_dir)
-    os.makedirs(args.out_dir, exist_ok=True)
-    with open(os.path.join(args.out_dir, f"RUN-{m['task_id']}-"
-                                         f"{m['arm']}-r{m['rep']}.json"),
-              "w", encoding="utf-8") as fh:
-        json.dump(rec, fh, indent=2)
-    print(json.dumps(rec, indent=2))
-    return 0 if termination == "OK" else 2
+        prov, run_dir = run_one(args, m)
+    except BaseException as e:  # P1-2: every slot gets exactly one reason
+        ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        prov = rc.provenance_record(
+            m.get("task_id"), m.get("group"), m.get("arm"), m.get("rep"),
+            os.environ.get("ALVA", ""), rc._git_head(),
+            "unknown", None, ("absent" if m.get("arm") != "HIGH" else "1"),
+            m.get("model", {}), started, ended, "RUNNER_CRASH",
+            args.out_dir)
+        prov["crash_detail"] = f"{type(e).__name__}: {e}"
+        os.makedirs(args.out_dir, exist_ok=True)
+        with open(os.path.join(args.out_dir, f"RUN-{m.get('task_id')}-"
+                                             f"{m.get('arm')}-r"
+                                             f"{m.get('rep')}.json"),
+                  "w", encoding="utf-8") as fh:
+            json.dump(prov, fh, indent=2)
+        print(json.dumps(prov, indent=2))
+        return 2
+    print(json.dumps(prov, indent=2))
+    print("artifacts:", run_dir)
+    return 0 if prov["termination"] == "OK" else 2
 
 
 if __name__ == "__main__":

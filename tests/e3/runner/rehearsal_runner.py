@@ -114,11 +114,13 @@ def run_slot(args, cid, group, arm, rep, manifest, freeze, out_dir, alva):
     toml = os.path.join(ws, "alva.toml")
     call_log = []
     gate_on = (arm == "HIGH")
-    a = rc.RecordingAgent(alva, toml, gate_on=gate_on, call_log=call_log)
-    # surface gate (per-run, env-specific)
-    rc.surface_probe(a, toml)
+    # surface gate in a SEPARATE discarded session (never in trajectory)
+    rc.surface_probe(alva, toml, gate_on)
     # baseline revisions for the arm-blind verifier
     base = baseline_revisions(alva, toml, manifest.get("functions", []))
+    # FRESH experimental agent: empty call log, own transaction
+    a = rc.RecordingAgent(alva, toml, gate_on=gate_on, call_log=call_log)
+    a.ok("begin_transaction", project=toml)
     # arm route
     if group == "matched" and arm == "HIGH":
         high = rc.extract_high_call(manifest)
@@ -139,7 +141,9 @@ def run_slot(args, cid, group, arm, rep, manifest, freeze, out_dir, alva):
             alva, ws, manifest["verifier"], base)
         termination = "OK" if passed else "BAD_SOLUTION"
     ended = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    churn_rc, churn_out = rc.derive_churn(call_log, [])
+    reachable = rc.reachable_revisions(alva, toml) if termination in (
+        "OK", "BAD_SOLUTION") else []
+    churn_rc, churn_out = rc.derive_churn(call_log, reachable)
     rec = rc.provenance_record(
         cid, group, arm, rep, alva, _head(), freeze[cid][1], ws_hash,
         ("absent" if not gate_on else "1"),
