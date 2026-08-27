@@ -126,17 +126,24 @@ def extract_high_call(manifest):
 
 class RecordingAgent:
     """Agent protocol driver that records every call for the frozen churn
-    classifier (raw facts only; churn is derived later, never online)."""
+    classifier (raw facts only; churn is derived later, never online).
 
-    def __init__(self, alva, project_toml, gate_on, call_log):
+    Transport: by default spawns `<alva> agent` on the host (rehearsal /
+    scripted); formal container mode passes `cmd_prefix` = a full docker
+    run command so the model tool loop executes the CONTAINER binary.
+    """
+
+    def __init__(self, alva, project_toml, gate_on, call_log,
+                 cmd_prefix=None):
         env = dict(os.environ)
         if gate_on:
             env["ALVA_AEP_ENABLE_E3_HIGH"] = "1"
         else:
             env.pop("ALVA_AEP_ENABLE_E3_HIGH", None)
         env.setdefault("ALVA_AEP_ENABLE_EXPERIMENTAL_A1", "1")
+        cmd = cmd_prefix if cmd_prefix is not None else [alva, "agent"]
         self.p = subprocess.Popen(
-            [alva, "agent"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             text=True, encoding="utf-8", env=env)
         self.project = project_toml
         self.gate_on = gate_on
@@ -189,13 +196,13 @@ class RecordingAgent:
         self.p.wait()
 
 
-def surface_probe(alva, project_toml, gate_on):
+def surface_probe(alva, project_toml, gate_on, cmd_prefix=None):
     """Per-run runtime surface assertion in a SEPARATE, DISCARDED session so
     the experimental agent starts from a pristine, transaction-free state
     and the probe never appears in the formal trajectory."""
     probe_log = []
     a = RecordingAgent(alva, project_toml, gate_on=gate_on,
-                       call_log=probe_log)
+                       call_log=probe_log, cmd_prefix=cmd_prefix)
     a.ok("begin_transaction", project=project_toml)
     r = a.call("migrate_signature", function="__e3_probe__", param="x",
                type="i64", value="1")

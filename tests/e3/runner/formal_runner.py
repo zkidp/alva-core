@@ -85,6 +85,27 @@ def load_tool_defs(arm):
     return json.load(open(path, encoding="utf-8"))["tools"]
 
 
+def container_run_cmd(image, workspace_dir):
+    return ["docker", "run", "--rm", "-i", "--network", "e3-relay-only",
+            "-v", f"{workspace_dir}:/workspace", image]
+
+
+def extract_binary(image, work_dir):
+    """Extract the container's Linux alva binary to a host path (used by the
+    arm-blind verifier and identity checks)."""
+    import subprocess
+    out = subprocess.run(["docker", "create", image], capture_output=True,
+                         text=True, check=True)
+    cid = out.stdout.strip()
+    dest = os.path.join(work_dir, "alva-linux")
+    subprocess.run(["docker", "cp", f"{cid}:/usr/local/bin/alva", dest],
+                   capture_output=True, text=True, check=True)
+    subprocess.run(["docker", "rm", cid], capture_output=True, text=True)
+    if not os.name == "nt":
+        os.chmod(dest, 0o755)
+    return dest
+
+
 def assert_execution_freeze(args, m, alva):
     """Fail-closed identity checks against EXECUTION-FREEZE.json. Any
     mismatch or REQUIRED_INPUT placeholder stops the run before any model
@@ -96,6 +117,26 @@ def assert_execution_freeze(args, m, alva):
                       "relay_protocol_version", "container_digest"):
             if freeze.get(field) == "REQUIRED_INPUT":
                 raise RuntimeError(f"FAIL_CLOSED: {field} not pinned")
+        # container-only identity: image digest + in-container binary SHA
+        image = freeze["container_digest"]
+        insp = subprocess.run(
+            ["docker", "image", "inspect", image, "--format",
+             "{{.Id}}"], capture_output=True, text=True)
+        if insp.returncode != 0:
+            raise RuntimeError("FAIL_CLOSED: container image not present")
+        sha = subprocess.run(
+            ["docker", "run", "--rm", "--entrypoint", "sha256sum", image,
+             "/usr/local/bin/alva"], capture_output=True, text=True)
+        got = sha.stdout.split()[0].lower() if sha.stdout.strip() else ""
+        if got != freeze.get("alva_binary_sha256", "").lower():
+            raise RuntimeError("FAIL_CLOSED: in-container alva binary SHA "
+                               "mismatch")
+        ver = subprocess.run(
+            ["docker", "run", "--rm", "--entrypoint", "alva", image,
+             "--version"], capture_output=True, text=True)
+        if ver.returncode != 0:
+            raise RuntimeError("FAIL_CLOSED: in-container alva --version "
+                               "failed")
     head = rc._git_head()
     # The checkout must be AT the commit that carries this freeze record,
     # and that commit must descend from the pinned source commit.
@@ -112,9 +153,11 @@ def assert_execution_freeze(args, m, alva):
     if anc.returncode != 0:
         raise RuntimeError("FAIL_CLOSED: checkout does not descend from "
                            "pinned alva source")
-    if rc.sha256_file(alva).lower() != \
-            freeze.get("alva_binary_sha256", "").lower():
-        raise RuntimeError("FAIL_CLOSED: alva binary SHA mismatch")
+    if args.relay == "scripted":
+        if rc.sha256_file(alva).lower() != \
+                freeze.get("rehearsal_host_binary_sha256", "").lower():
+            raise RuntimeError("FAIL_CLOSED: host (rehearsal) alva binary "
+                               "SHA mismatch")
     runner_hash = (rc.sha256_file(os.path.join(HERE, "runner_core.py")) +
                    rc.sha256_file(os.path.join(HERE, "formal_runner.py")) +
                    rc.sha256_file(os.path.join(HERE, "deepseek_relay.py")))
@@ -143,16 +186,26 @@ def run_one(args, m):
     started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     alva = os.environ["ALVA"]
     freeze = rc.load_freeze_manifest(args.freeze_manifest)
+    with open(args.execution_freeze, encoding="utf-8") as fh:
+        exfreeze = json.load(fh)
     candidates_dir = os.path.join(os.path.dirname(HERE), "candidates")
     run_root, ws, ws_hash = rc.make_workspace(
         m["fixture"], candidates_dir, freeze, args.out_dir)
     toml = os.path.join(ws, "alva.toml")
     gate_on = m["arm"] == "HIGH"
     # P0-5: surface probe in a SEPARATE discarded session.
-    rc.surface_probe(alva, toml, gate_on)
+    cmd_prefix = None
+    agent_project = toml
+    verifier_alva = alva
+    if args.relay == "deepseek":
+        cmd_prefix = container_run_cmd(exfreeze["container_digest"], ws)
+        agent_project = "/workspace/alva.toml"
+        verifier_alva = extract_binary(exfreeze["container_digest"], run_dir)
+    rc.surface_probe(alva, agent_project, gate_on, cmd_prefix=cmd_prefix)
     # FRESH experimental agent: empty call log, no active transaction.
     call_log = []
-    agent = rc.RecordingAgent(alva, toml, gate_on=gate_on, call_log=call_log)
+    agent = rc.RecordingAgent(alva, agent_project, gate_on=gate_on,
+                              call_log=call_log, cmd_prefix=cmd_prefix)
     run_dir = os.path.join(args.out_dir, f"RUN-{m['task_id']}-"
                                         f"{m.get('arm')}-r{m.get('rep')}")
     os.makedirs(run_dir, exist_ok=True)
@@ -233,7 +286,7 @@ def run_one(args, m):
     else:
         base = m.get("baseline_revisions")
         passed, out = rc.run_verifier_arm_blind(
-            alva, ws, m["verifier_checkspec"], base)
+            verifier_alva, ws, m["verifier_checkspec"], base)
         verifier = {"ok": passed, "output": out}
         try:
             final_rec = rc.final_state(alva, toml)
