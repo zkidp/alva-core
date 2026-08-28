@@ -37,6 +37,11 @@ def frozen_input_hash(workspace, source_files):
     return digest.hexdigest()
 
 
+def read_exact_utf8(path):
+    """Decode UTF-8 without universal-newline translation."""
+    return Path(path).read_bytes().decode("utf-8")
+
+
 def baseline_revisions(alva, workspace, functions):
     compiler = CompilerBridge(alva, workspace)
     checked = compiler.check_project()
@@ -112,7 +117,7 @@ def run(tasks_root, alva, output):
                 task_hashes.append(before)
                 script = script_for(
                     arm, source_files,
-                    (workspace / source_files[0]).read_text(encoding="utf-8"))
+                    read_exact_utf8(workspace / source_files[0]))
                 names = load_tool_names(runner_dir, arm)
                 if any(item["tool"] not in names for item in script if "tool" in item):
                     raise RuntimeError(f"{task}/{arm}: script exceeds schema")
