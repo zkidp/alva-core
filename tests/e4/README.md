@@ -14,6 +14,7 @@ Implemented development surface:
 - one arm-blind hidden-verifier bridge;
 - OpenAI Responses API function relay pinned to `gpt-5.6-luna`;
 - deterministic scripted relay and 12 x 4 no-model dry rehearsal.
+- binary-backed 12 x 4 control-path integration rehearsal runner.
 
 Current evidence:
 
@@ -39,6 +40,10 @@ python -m unittest -v test_formal_runner.py test_full_runtime.py \
 
 python rehearsal_runner.py --tasks <private-authoring-task-root> \
   --output rehearsal/E4-REHEARSAL-12x4.json
+
+python binary_rehearsal_runner.py --tasks <minimal-task-input-root> \
+  --alva <exact-eeb8d437-binary> \
+  --output rehearsal/E4-BINARY-REHEARSAL-12x4.json
 ```
 
 Credentials are environment-only. `luna_relay.py` reads `OPENAI_API_KEY`;
