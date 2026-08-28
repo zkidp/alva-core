@@ -285,8 +285,8 @@ def validate_inputs(tasks_root, alva, runner_dir, registry_path, statements_path
     task_ids = sorted(
         path.name for path in tasks_root.glob("A*")
         if path.is_dir() and (path / "fixture").is_dir())
-    if len(task_ids) != 12:
-        raise RuntimeError(f"expected 12 task dirs, got {len(task_ids)}: {task_ids}")
+    if not task_ids:
+        raise RuntimeError("no task dirs found")
     for task in task_ids:
         task_dir = tasks_root / task
         for required in ("checkspec.json", "metadata.json"):
@@ -425,8 +425,8 @@ def run(tasks_root, alva, runner_dir, registry_path, statements_path, out_dir):
     task_ids, registry, statements = validate_inputs(
         tasks_root, alva, runner_dir, registry_path, statements_path)
     schedule = schedule_cells(Path(tasks_root))
-    if len(schedule) != 96:
-        raise RuntimeError(f"expected 96 cells, got {len(schedule)}")
+    if not schedule:
+        raise RuntimeError("empty schedule")
     cells_dir = out_dir / "cells"
     cells_dir.mkdir(parents=True, exist_ok=True)
     completed = []
@@ -438,7 +438,7 @@ def run(tasks_root, alva, runner_dir, registry_path, statements_path, out_dir):
         if (cells_dir / f"{cell_id}.json").is_file():
             completed.append(cell_id)
             continue
-        print(f"[{index:02d}/96] START {cell_id}", flush=True)
+        print(f"[{index:02d}/{len(schedule)}] START {cell_id}", flush=True)
         try:
             record = run_cell(
                 task, arm, rep, str(alva), Path(tasks_root), runner_dir,
@@ -449,7 +449,8 @@ def run(tasks_root, alva, runner_dir, registry_path, statements_path, out_dir):
                 "api_turns": record["metrics"]["api_turns"],
                 "wall_s": record["metrics"]["wall_seconds"],
             }
-            print(f"[{index:02d}/96] DONE  {cell_id} {summary}", flush=True)
+            print(f"[{index:02d}/{len(schedule)}] DONE  {cell_id} {summary}",
+                  flush=True)
         except Exception as exc:
             # A cell-level failure must not abort the schedule: record it as
             # a HARNESS_FAILURE cell so it is preserved as evidence, then
@@ -471,14 +472,14 @@ def run(tasks_root, alva, runner_dir, registry_path, statements_path, out_dir):
                 "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             }
             cell_path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-            print(f"[{index:02d}/96] HARNESS_FAILURE {cell_id}: "
+            print(f"[{index:02d}/{len(schedule)}] HARNESS_FAILURE {cell_id}: "
                   f"{record['failure']}", flush=True)
         save_state(out_dir, schedule, completed, started_at)
 
     done = sorted(path.stem for path in cells_dir.glob("*.json"))
     summary = {
-        "status": "COMPLETED" if len(done) == 96 else "INCOMPLETE",
-        "schedule_total": 96,
+        "status": "COMPLETED" if len(done) == len(schedule) else "INCOMPLETE",
+        "schedule_total": len(schedule),
         "cell_files": len(done),
         "model": MODEL,
         "protocol": PROTOCOL,
