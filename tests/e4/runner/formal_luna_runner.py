@@ -131,6 +131,18 @@ def load_schema_manifest(runner_dir):
     return payload
 
 
+def load_statements(path):
+    """Load task statements, accepting the wrapped document format."""
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(payload, dict) and "statements" in payload:
+        statements = payload["statements"]
+    else:
+        statements = payload
+    if not isinstance(statements, dict):
+        raise RuntimeError("task statements file must contain a dict")
+    return statements
+
+
 def render_telemetry(path):
     if not Path(path).is_file():
         return []
@@ -297,7 +309,7 @@ def validate_inputs(tasks_root, alva, runner_dir, registry_path, statements_path
             declared_manifest = manifest_value
         if declared_manifest and actual.lower() != str(declared_manifest).lower():
             raise RuntimeError(f"{arm}: schema hash mismatch vs SCHEMA-MANIFEST")
-    statements = json.loads(Path(statements_path).read_text(encoding="utf-8"))
+    statements = load_statements(statements_path)
     if set(statements) != set(task_ids):
         raise RuntimeError("task statements do not cover the 12 frozen tasks")
     for task in task_ids:

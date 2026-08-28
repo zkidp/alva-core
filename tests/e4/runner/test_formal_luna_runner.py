@@ -11,6 +11,7 @@ from formal_luna_runner import (
     REPS,
     classify_failure,
     derive_metrics,
+    load_statements,
     save_state,
     schedule_cells,
     sha256_bytes,
@@ -150,6 +151,24 @@ class HashTests(unittest.TestCase):
         self.assertEqual(
             sha256_bytes(b"abc"),
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+
+
+class StatementTests(unittest.TestCase):
+    def test_wrapped_and_flat_formats(self):
+        with _tempdir() as tmp:
+            root = Path(tmp)
+            wrapped = root / "wrapped.json"
+            wrapped.write_text(json.dumps({
+                "schema_version": "e4-task-statements-v1",
+                "statements": {"A01": "one", "A02": "two"},
+            }), encoding="utf-8")
+            flat = root / "flat.json"
+            flat.write_text(json.dumps({"A01": "one", "A02": "two"}),
+                            encoding="utf-8")
+            self.assertEqual(load_statements(wrapped),
+                             {"A01": "one", "A02": "two"})
+            self.assertEqual(load_statements(flat),
+                             {"A01": "one", "A02": "two"})
 
 
 if __name__ == "__main__":
