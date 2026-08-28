@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import configparser
 import json
 import subprocess
 import tempfile
 import time
-import tomllib
 from pathlib import Path
 from typing import Protocol
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 runner compatibility
+    tomllib = None
 
 from text_workspace import TextWorkspace, dispatch as dispatch_text
 
@@ -54,13 +59,34 @@ class CompilerBridge:
         self.manifest = self.workspace / "alva.toml"
         if not self.manifest.is_file():
             raise ValueError("workspace has no alva.toml")
-        with self.manifest.open("rb") as stream:
-            raw = tomllib.load(stream)
-        modules = raw.get("modules")
+        modules = self._read_modules(self.manifest)
         if not isinstance(modules, dict) or not modules:
             raise ValueError("manifest has no modules")
         self.module_paths = {str(name): str(path).replace("\\", "/")
                              for name, path in modules.items()}
+
+    @staticmethod
+    def _read_modules(manifest: Path) -> dict:
+        if tomllib is not None:
+            with manifest.open("rb") as stream:
+                raw = tomllib.load(stream)
+            return raw.get("modules")
+        parser = configparser.ConfigParser(interpolation=None)
+        parser.optionxform = str
+        try:
+            with manifest.open("r", encoding="utf-8") as stream:
+                parser.read_file(stream)
+            items = parser.items("modules", raw=True)
+        except (OSError, configparser.Error, KeyError) as exc:
+            raise ValueError("manifest cannot be parsed") from exc
+        modules = {}
+        for raw_name, raw_path in items:
+            name = raw_name.strip().strip('"')
+            path = raw_path.strip().strip('"')
+            if not name or not path:
+                raise ValueError("manifest has invalid modules")
+            modules[name] = path
+        return modules
 
     def _run(self, arguments: list[str]) -> subprocess.CompletedProcess:
         return subprocess.run(

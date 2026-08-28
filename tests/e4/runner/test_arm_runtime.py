@@ -3,8 +3,10 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from arm_runtime import E4Runtime, HYBRID, TEXT, TEXT_VERIFY
+import arm_runtime
+from arm_runtime import CompilerBridge, E4Runtime, HYBRID, TEXT, TEXT_VERIFY
 
 
 class FakeCompiler:
@@ -117,6 +119,11 @@ class ArmRuntimeTests(unittest.TestCase):
                          "E_RUNTIME_POISONED")
         self.assertEqual(runtime.prepare_final_verifier()["error_code"],
                          "E_RUNTIME_POISONED")
+
+    def test_python310_manifest_fallback(self):
+        with mock.patch.object(arm_runtime, "tomllib", None):
+            modules = CompilerBridge._read_modules(self.root / "alva.toml")
+        self.assertEqual(modules, {"x": "src/main.alva"})
 
 
 if __name__ == "__main__":
