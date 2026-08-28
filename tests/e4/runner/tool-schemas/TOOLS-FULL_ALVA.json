@@ -1,0 +1,962 @@
+{
+  "arm": "FULL_ALVA",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "resolve_entity",
+        "description": "resolve_entity name=Job kind=record",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string"
+            },
+            "kind": {
+              "type": "string",
+              "description": "string(module|function|type|record|enum)"
+            },
+            "module": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "applicable_operations",
+        "description": "applicable_operations entity=Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "describe_operation",
+        "description": "describe_operation name=update_record_fields",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "describe_construction",
+        "description": "describe_construction kind=fold",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)"
+            },
+            "include_candidates": {
+              "type": "string",
+              "description": "bool"
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "construct_expression",
+        "description": "type string",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)"
+            },
+            "expected_type": {
+              "type": "string",
+              "description": "type string"
+            },
+            "...children": {
+              "type": "string",
+              "description": "revision | type string | json array"
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "describe_capability",
+        "description": "describe_capability name=sort",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_capabilities",
+        "description": "list_capabilities category=operator",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "string(builtin|operator|all)"
+            }
+          },
+          "required": [
+            "category"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_project",
+        "description": "inspect_project operation",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_module",
+        "description": "inspect_module name=queue.model",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_function",
+        "description": "inspect_function name=queue.engine.claim",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string(qualified module.fn)"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_entity",
+        "description": "inspect_entity entity=Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            },
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_body",
+        "description": "inspect_body function=queue.engine.claim",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "entity-id|qualified fn"
+            }
+          },
+          "required": [
+            "function"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_test",
+        "description": "inspect_test module=queue.main name=test_x",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "string"
+            },
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "module",
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_candidates",
+        "description": "list_candidates hole=<rev>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "hole": {
+              "type": "string",
+              "description": "hole-id"
+            }
+          },
+          "required": [
+            "hole"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "preview_semantic_diff",
+        "description": "preview_semantic_diff operation",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "begin_transaction",
+        "description": "path to alva.toml",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "project": {
+              "type": "string",
+              "description": "path to alva.toml"
+            }
+          },
+          "required": [
+            "project"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "check_transaction",
+        "description": "check_transaction operation",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "commit_transaction",
+        "description": "commit_transaction operation",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "abort_transaction",
+        "description": "abort_transaction operation",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_literal",
+        "description": "create_literal type=i64 value=42",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "string|i64|bool|bytes|nil"
+            },
+            "value": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_reference",
+        "description": "create_reference name=root",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "symbol"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_call",
+        "description": "qualified fn or builtin",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "qualified fn or builtin"
+            },
+            "args": {
+              "type": "string",
+              "description": "revisions (repeatable)"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_binding",
+        "description": "create_binding name=x type_name=i64 value=<rev>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "symbol"
+            },
+            "type_name": {
+              "type": "string",
+              "description": "type"
+            },
+            "value": {
+              "type": "string",
+              "description": "revision"
+            }
+          },
+          "required": [
+            "name",
+            "type_name",
+            "value"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_block",
+        "description": "revisions (repeatable)",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "steps": {
+              "type": "string",
+              "description": "revisions (repeatable)"
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_if",
+        "description": "create_if cond=<rev> then=<rev> else=<rev>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "cond": {
+              "type": "string",
+              "description": "revision"
+            },
+            "then": {
+              "type": "string",
+              "description": "revision"
+            },
+            "else": {
+              "type": "string",
+              "description": "revision"
+            }
+          },
+          "required": [
+            "cond",
+            "then",
+            "else"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_binary",
+        "description": "create_binary op== left=<rev> right=<rev>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "description": "==|+|..."
+            },
+            "left": {
+              "type": "string",
+              "description": "revision"
+            },
+            "right": {
+              "type": "string",
+              "description": "revision"
+            }
+          },
+          "required": [
+            "op",
+            "left",
+            "right"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_query",
+        "description": "create_query kind=contains collection=<rev> target=<rev>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "description": "contains|any|all|find"
+            },
+            "collection": {
+              "type": "string",
+              "description": "revision"
+            },
+            "target": {
+              "type": "string",
+              "description": "revision"
+            },
+            "elem_var": {
+              "type": "string",
+              "description": "symbol"
+            },
+            "predicate": {
+              "type": "string",
+              "description": "revision"
+            }
+          },
+          "required": [
+            "kind",
+            "collection"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "append_step",
+        "description": "module fn",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "module fn"
+            },
+            "step": {
+              "type": "string",
+              "description": "revision"
+            }
+          },
+          "required": [
+            "function",
+            "step"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "replace_expression",
+        "description": "replace_expression parent=<rev> child=<rev> position=step",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "parent": {
+              "type": "string",
+              "description": "revision"
+            },
+            "child": {
+              "type": "string",
+              "description": "revision"
+            },
+            "position": {
+              "type": "string",
+              "description": "kind-dependent slot position (see describe_operation expected_positions)"
+            }
+          },
+          "required": [
+            "parent",
+            "child",
+            "position"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_function",
+        "description": "module name",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "module name"
+            },
+            "name": {
+              "type": "string",
+              "description": "symbol"
+            },
+            "returns": {
+              "type": "string",
+              "description": "type"
+            },
+            "params": {
+              "type": "string",
+              "description": "param specs"
+            }
+          },
+          "required": [
+            "module",
+            "name",
+            "returns"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "change_field",
+        "description": "change_field entity=<rev> field=pure value=true",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "revision"
+            },
+            "field": {
+              "type": "string",
+              "description": "field"
+            },
+            "value": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "entity",
+            "field"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "rename_entity",
+        "description": "rename_entity entity=queue.model.Job new_name=Task",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            },
+            "new_name": {
+              "type": "string",
+              "description": "target"
+            }
+          },
+          "required": [
+            "entity",
+            "new_name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_field",
+        "description": "type name",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "type name"
+            },
+            "name": {
+              "type": "string",
+              "description": "field name"
+            },
+            "type_name": {
+              "type": "string",
+              "description": "type"
+            }
+          },
+          "required": [
+            "type",
+            "name",
+            "type_name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_record_field",
+        "description": "field name",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "type": "string",
+              "description": "record-construction revision"
+            },
+            "name": {
+              "type": "string",
+              "description": "field name"
+            },
+            "value": {
+              "type": "string",
+              "description": "revision"
+            }
+          },
+          "required": [
+            "record",
+            "name",
+            "value"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_param",
+        "description": "module fn",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "module fn"
+            },
+            "name": {
+              "type": "string",
+              "description": "symbol"
+            },
+            "type": {
+              "type": "string",
+              "description": "type"
+            }
+          },
+          "required": [
+            "function",
+            "name",
+            "type"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_call_arg",
+        "description": "add_call_arg call=<rev> arg=<rev>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "call": {
+              "type": "string",
+              "description": "revision"
+            },
+            "arg": {
+              "type": "string",
+              "description": "revision"
+            }
+          },
+          "required": [
+            "call",
+            "arg"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "set_effect",
+        "description": "module fn",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "module fn"
+            },
+            "effect": {
+              "type": "string",
+              "description": "string(pure|io)"
+            }
+          },
+          "required": [
+            "function",
+            "effect"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_cap",
+        "description": "module name",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "module name"
+            },
+            "cap": {
+              "type": "string",
+              "description": "io|clock|unsafe-ffi"
+            }
+          },
+          "required": [
+            "module",
+            "cap"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "update_record_fields",
+        "description": "record type name",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "record type name"
+            },
+            "base": {
+              "type": "string",
+              "description": "revision"
+            },
+            "updates": {
+              "type": "string",
+              "description": "field=value pairs"
+            }
+          },
+          "required": [
+            "type",
+            "base",
+            "updates"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_change_impact",
+        "description": "inspect_change_impact entity=queue.model.Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_schema_gaps",
+        "description": "inspect_schema_gaps entity=queue.model.Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "migrate_signature",
+        "description": "module fn",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "module fn"
+            },
+            "param": {
+              "type": "string",
+              "description": "symbol"
+            },
+            "type": {
+              "type": "string",
+              "description": "type"
+            },
+            "value": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "function",
+            "param"
+          ]
+        }
+      }
+    }
+  ]
+}

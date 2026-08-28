@@ -1,0 +1,451 @@
+{
+  "arm": "HYBRID",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "description": "Read one pre-registered ALVA source file.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "pre-registered src/**/*.alva path"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_files",
+        "description": "List only pre-registered ALVA source files.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "pre-registered src/**/*.alva path"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "write_file",
+        "description": "Atomically replace one pre-registered ALVA source file.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "pre-registered src/**/*.alva path"
+            },
+            "content": {
+              "type": "string",
+              "description": "complete UTF-8 file content"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "apply_patch",
+        "description": "Atomically apply a strict unified diff to pre-registered source files.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "diff": {
+              "type": "string",
+              "description": "unified diff with a/ and b/ paths"
+            }
+          },
+          "required": [
+            "diff"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "check_project",
+        "description": "Import the current text and run ALVA compiler/type/effect checks.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "resolve_entity",
+        "description": "resolve_entity name=Job kind=record",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string"
+            },
+            "kind": {
+              "type": "string",
+              "description": "string(module|function|type|record|enum)"
+            },
+            "module": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_project",
+        "description": "inspect_project operation",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_module",
+        "description": "inspect_module name=queue.model",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_function",
+        "description": "inspect_function name=queue.engine.claim",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string(qualified module.fn)"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_entity",
+        "description": "inspect_entity entity=Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            },
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_body",
+        "description": "inspect_body function=queue.engine.claim",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "entity-id|qualified fn"
+            }
+          },
+          "required": [
+            "function"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_test",
+        "description": "inspect_test module=queue.main name=test_x",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "string"
+            },
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "module",
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_change_impact",
+        "description": "inspect_change_impact entity=queue.model.Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "inspect_schema_gaps",
+        "description": "inspect_schema_gaps entity=queue.model.Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "preview_semantic_diff",
+        "description": "preview_semantic_diff operation",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "begin_patch_session",
+        "description": "Begin a rollback-capable text and semantic patch session.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "commit_patch",
+        "description": "Check and commit the current patch session.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "discard_patch",
+        "description": "Discard the session and restore its original text state.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "applicable_operations",
+        "description": "applicable_operations entity=Job",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            }
+          },
+          "required": [
+            "entity"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "describe_operation",
+        "description": "describe_operation name=update_record_fields",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "migrate_signature",
+        "description": "module fn",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "module fn"
+            },
+            "param": {
+              "type": "string",
+              "description": "symbol"
+            },
+            "type": {
+              "type": "string",
+              "description": "type"
+            },
+            "value": {
+              "type": "string",
+              "description": "string"
+            }
+          },
+          "required": [
+            "function",
+            "param"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "rename_entity",
+        "description": "rename_entity entity=queue.model.Job new_name=Task",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "entity": {
+              "type": "string",
+              "description": "entity-id|name"
+            },
+            "new_name": {
+              "type": "string",
+              "description": "target"
+            }
+          },
+          "required": [
+            "entity",
+            "new_name"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "set_effect",
+        "description": "module fn",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "module fn"
+            },
+            "effect": {
+              "type": "string",
+              "description": "string(pure|io)"
+            }
+          },
+          "required": [
+            "function",
+            "effect"
+          ]
+        }
+      }
+    }
+  ]
+}

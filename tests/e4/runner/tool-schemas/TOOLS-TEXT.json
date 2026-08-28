@@ -1,0 +1,101 @@
+{
+  "arm": "TEXT",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "description": "Read one pre-registered ALVA source file.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "pre-registered src/**/*.alva path"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_files",
+        "description": "List only pre-registered ALVA source files.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "pre-registered src/**/*.alva path"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "write_file",
+        "description": "Atomically replace one pre-registered ALVA source file.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "pre-registered src/**/*.alva path"
+            },
+            "content": {
+              "type": "string",
+              "description": "complete UTF-8 file content"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "apply_patch",
+        "description": "Atomically apply a strict unified diff to pre-registered source files.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "diff": {
+              "type": "string",
+              "description": "unified diff with a/ and b/ paths"
+            }
+          },
+          "required": [
+            "diff"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "check_project",
+        "description": "Import the current text and run ALVA compiler/type/effect checks.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}
