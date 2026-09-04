@@ -2454,6 +2454,40 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
             Ok(()) => resp!(true, "{\"problems\":[]}", "check ok"),
             Err(error) => resp!(false, "null", &error),
         },
+        "inspect_transaction_work" => match runtime.inspect_transaction_work() {
+            Ok(work) => {
+                let changed_modules = work
+                    .changed_modules
+                    .iter()
+                    .map(|module| json_str(module))
+                    .collect::<Vec<_>>()
+                    .join(",");
+                resp!(
+                    true,
+                    &format!(
+                        "{{\"stored_nodes\":{},\"reachable_nodes\":{},\"base_reachable_nodes\":{},\"reused_reachable_nodes\":{},\"added_reachable_nodes\":{},\"removed_reachable_nodes\":{},\"changed_module_count\":{},\"changed_modules\":[{}],\"changed_modules_truncated\":{},\"last_revision_rebuild\":{{\"root_modules\":{},\"node_visits\":{},\"unique_nodes_visited\":{},\"rewritten_nodes\":{}}},\"full_check_runs\":{},\"graph_construction_scope\":{},\"semantic_check_scope\":{}}}",
+                        work.stored_nodes,
+                        work.reachable_nodes,
+                        work.base_reachable_nodes,
+                        work.reused_reachable_nodes,
+                        work.added_reachable_nodes,
+                        work.removed_reachable_nodes,
+                        work.changed_module_count,
+                        changed_modules,
+                        work.changed_modules_truncated,
+                        work.rebuild_root_modules,
+                        work.rebuild_node_visits,
+                        work.rebuild_unique_nodes_visited,
+                        work.rebuild_rewritten_nodes,
+                        work.full_check_runs,
+                        json_str(work.graph_construction_scope),
+                        json_str(work.semantic_check_scope)
+                    ),
+                    "transaction work measured"
+                )
+            }
+            Err(error) => resp!(false, "null", &error),
+        },
         "stage_text_patch" => {
             let path = req.get("path").and_then(Json::as_str).unwrap_or("");
             let expected_sha256 = req

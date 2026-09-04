@@ -42,6 +42,26 @@ pub(crate) struct SourceProjectionResult {
     pub(crate) all_sources_converged: bool,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct TransactionWorkReport {
+    pub(crate) stored_nodes: usize,
+    pub(crate) reachable_nodes: usize,
+    pub(crate) base_reachable_nodes: usize,
+    pub(crate) reused_reachable_nodes: usize,
+    pub(crate) added_reachable_nodes: usize,
+    pub(crate) removed_reachable_nodes: usize,
+    pub(crate) changed_module_count: usize,
+    pub(crate) changed_modules: Vec<String>,
+    pub(crate) changed_modules_truncated: bool,
+    pub(crate) rebuild_root_modules: usize,
+    pub(crate) rebuild_node_visits: usize,
+    pub(crate) rebuild_unique_nodes_visited: usize,
+    pub(crate) rebuild_rewritten_nodes: usize,
+    pub(crate) full_check_runs: u64,
+    pub(crate) graph_construction_scope: &'static str,
+    pub(crate) semantic_check_scope: &'static str,
+}
+
 struct SourceDocument {
     module_name: String,
     path: PathBuf,
@@ -144,6 +164,63 @@ impl AgentRuntime {
             .as_mut()
             .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
         Ok(session.diff_vs_base(base).summary.trim().to_string())
+    }
+
+    /// Report actual transaction work and revision reuse. This intentionally
+    /// identifies the current full-project paths so later incremental changes
+    /// can be compared against a stable, model-free baseline.
+    pub(crate) fn inspect_transaction_work(&self) -> Result<TransactionWorkReport, String> {
+        let session = self
+            .session
+            .as_ref()
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        let base = self
+            .base_graph
+            .as_ref()
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        let reachable = session.graph.reachable();
+        let base_reachable = base.reachable();
+        let reused_reachable_nodes = reachable.intersection(&base_reachable).count();
+        let added_reachable_nodes = reachable.difference(&base_reachable).count();
+        let removed_reachable_nodes = base_reachable.difference(&reachable).count();
+        let mut all_changed_modules = session
+            .graph
+            .module_entities
+            .iter()
+            .chain(base.module_entities.iter())
+            .filter(|module| session.graph.heads.get(*module) != base.heads.get(*module))
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect::<Vec<_>>();
+        let changed_module_count = all_changed_modules.len();
+        let changed_modules_truncated = changed_module_count > 32;
+        all_changed_modules.truncate(32);
+        let rebuild = session.last_rebuild_stats.clone().unwrap_or_default();
+        Ok(TransactionWorkReport {
+            stored_nodes: session.graph.nodes.len(),
+            reachable_nodes: reachable.len(),
+            base_reachable_nodes: base_reachable.len(),
+            reused_reachable_nodes,
+            added_reachable_nodes,
+            removed_reachable_nodes,
+            changed_module_count,
+            changed_modules: all_changed_modules,
+            changed_modules_truncated,
+            rebuild_root_modules: rebuild.root_modules,
+            rebuild_node_visits: rebuild.node_visits,
+            rebuild_unique_nodes_visited: rebuild.unique_nodes_visited,
+            rebuild_rewritten_nodes: rebuild.rewritten_nodes,
+            full_check_runs: session.full_check_runs,
+            graph_construction_scope: if self.text_input_staged {
+                "full_project_source_reparse"
+            } else if session.last_rebuild_stats.is_some() {
+                "all_module_roots_revision_rebuild"
+            } else {
+                "none_since_begin"
+            },
+            semantic_check_scope: "full_project_when_check_runs",
+        })
     }
 
     pub(crate) fn commit(&mut self) -> Result<CommitResult, String> {

@@ -1,0 +1,52 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "60f3861ed61acb69769edee7fb42d4dfed65ea2b",
+  "measurement_boundary": "Deterministic AIR execution counters on tests/project; no wall-time, model-quality, token, or incremental-execution claim",
+  "capability": "transaction revision-reuse and execution-work observability",
+  "fixture": "tests/project/alva.toml",
+  "mutation": "change demo.app.run literal value from a to work-baseline",
+  "before_mutation": {
+    "reachable_nodes": 48,
+    "reused_reachable_nodes": 48,
+    "changed_module_count": 0,
+    "rebuild_node_visits": 0,
+    "full_check_runs": 0
+  },
+  "after_mutation_before_check": {
+    "stored_nodes": 55,
+    "reachable_nodes": 48,
+    "base_reachable_nodes": 48,
+    "reused_reachable_nodes": 41,
+    "added_reachable_nodes": 7,
+    "removed_reachable_nodes": 7,
+    "changed_modules": [
+      "module:demo.app"
+    ],
+    "last_revision_rebuild": {
+      "root_modules": 2,
+      "node_visits": 62,
+      "unique_nodes_visited": 48,
+      "rewritten_nodes": 7
+    },
+    "full_check_runs": 0,
+    "graph_construction_scope": "all_module_roots_revision_rebuild",
+    "semantic_check_scope": "full_project_when_check_runs"
+  },
+  "after_one_check": {
+    "full_check_runs": 1,
+    "rebuild_counters_unchanged": true
+  },
+  "interpretation": {
+    "merkle_revision_reuse": "41 of 48 reachable revisions remain identical",
+    "actual_revision_rebuild_work": "the implementation still visits all 2 module roots and all 48 unique reachable nodes, with 62 visits due to shared traversal",
+    "actual_semantic_check_work": "check_transaction still reconstructs and checks the full project",
+    "incremental_execution_claim": false
+  },
+  "modern_mcp_tool_surface": {
+    "tool_count": 16,
+    "tools_list_wire_bytes": 6859,
+    "increment_vs_wave_06_bytes": 0,
+    "tool_surface_hash": "16a2ba4bc93721af4a2ed3ae727d76783468bd17ee8cbfc6bd5625f39e711783"
+  },
+  "disposition": "FULL_REBUILD_AND_FULL_CHECK_BASELINE_MEASURED_AFFECTED_SUBGRAPH_OPTIMIZATION_NOT_YET_CLAIMED"
+}

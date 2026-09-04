@@ -91,6 +91,16 @@ pub struct AirGraph {
     pub module_entities: Vec<String>,
 }
 
+/// Direct work performed by the current full-root revision rebuild. These
+/// counters are execution measurements, not a claim of incremental behavior.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct RebuildStats {
+    pub root_modules: usize,
+    pub node_visits: usize,
+    pub unique_nodes_visited: usize,
+    pub rewritten_nodes: usize,
+}
+
 impl AirGraph {
     pub fn new() -> Self {
         AirGraph::default()
@@ -229,27 +239,47 @@ impl AirGraph {
     /// after any structural edit. Content addressing keeps unchanged subtrees
     /// at identical revisions; only the edited node and its ancestors receive
     /// new revisions. Heads are updated for every named entity along the way.
+    #[allow(dead_code)] // compatibility helper used by graph-level regressions
     pub fn rebuild_revisions(&mut self) {
+        let _ = self.rebuild_revisions_with_stats();
+    }
+
+    /// Current measured implementation: walk every module root and recursively
+    /// rebuild its reachable descendants. The returned counters make this
+    /// baseline explicit before affected-subgraph optimization is attempted.
+    pub fn rebuild_revisions_with_stats(&mut self) -> RebuildStats {
+        let mut stats = RebuildStats::default();
+        let mut unique = std::collections::BTreeSet::new();
         if !detect_cycles(self).is_empty() {
-            return; // never recurse on a cyclic graph
+            return stats; // never recurse on a cyclic graph
         }
         let modules: Vec<String> = self.module_entities.clone();
         for m in modules {
             if let Some(head) = self.heads.get(&m).cloned() {
-                let new_rev = self.recompute_revision(&head);
+                stats.root_modules += 1;
+                let new_rev = self.recompute_revision_measured(&head, &mut stats, &mut unique);
                 self.heads.insert(m, new_rev);
             }
         }
+        stats.unique_nodes_visited = unique.len();
+        stats
     }
 
-    fn recompute_revision(&mut self, rev: &str) -> String {
+    fn recompute_revision_measured(
+        &mut self,
+        rev: &str,
+        stats: &mut RebuildStats,
+        unique: &mut std::collections::BTreeSet<String>,
+    ) -> String {
+        stats.node_visits += 1;
+        unique.insert(rev.to_string());
         let Some(node) = self.nodes.get(rev).cloned() else {
             return rev.to_string();
         };
         let mut slots = node.slots.clone();
         for children in slots.values_mut() {
             for c in children.iter_mut() {
-                let new_c = self.recompute_revision(c);
+                let new_c = self.recompute_revision_measured(c, stats, unique);
                 if &new_c != c {
                     *c = new_c;
                 }
@@ -259,6 +289,9 @@ impl AirGraph {
         let mut n = node;
         n.revision = new_rev.clone();
         n.slots = slots;
+        if new_rev != rev {
+            stats.rewritten_nodes += 1;
+        }
         self.nodes.insert(new_rev.clone(), n);
         // content addressing: one revision may be shared by several entities
         // (e.g. identical params in different functions); move ALL heads that
@@ -3801,6 +3834,8 @@ pub struct EditSession {
     pub base_hash: String,
     pub bindings: BTreeMap<String, BTreeMap<String, (String, String)>>, // scope -> (name -> (type, node))
     pub errors: Vec<String>,
+    pub last_rebuild_stats: Option<RebuildStats>,
+    pub full_check_runs: u64,
 }
 
 impl EditSession {
@@ -3810,6 +3845,8 @@ impl EditSession {
             base_hash,
             bindings: BTreeMap::new(),
             errors: Vec::new(),
+            last_rebuild_stats: None,
+            full_check_runs: 0,
         }
     }
 
@@ -3828,13 +3865,14 @@ impl EditSession {
             self.errors = vec![format!("E_AIR_CYCLE: {}", cycles[0])];
             return Err(format!("E_AIR_CYCLE: {}", cycles[0]));
         }
-        candidate.rebuild_revisions();
+        let rebuild_stats = candidate.rebuild_revisions_with_stats();
         let problems = validate_graph(&candidate);
         if !problems.is_empty() {
             self.errors = problems.clone();
             return Err(format!("E_AIR_INVARIANT: {}", problems.join("; ")));
         }
         self.graph = candidate;
+        self.last_rebuild_stats = Some(rebuild_stats);
         Ok(())
     }
 
@@ -4200,6 +4238,7 @@ impl EditSession {
     }
 
     pub fn check(&mut self) -> Vec<String> {
+        self.full_check_runs += 1;
         let mut all = validate_graph(&self.graph);
         all.extend(
             detect_cycles(&self.graph)

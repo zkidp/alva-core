@@ -85,6 +85,13 @@ commits are not merged wholesale into the public product line.
   holding the authoritative-store lock. It refuses uncommitted semantic state
   and reports whether all source modules have converged. This projection write
   is intentionally not described as atomic with the earlier AIR commit.
+- `inspect_transaction_work` establishes the pre-incremental execution
+  baseline. It reports current/base reachable revisions, exact revision reuse,
+  changed module heads, actual module-root/node visits from the most recent
+  rebuild, rewritten nodes, and full semantic-check invocations. The report
+  labels today's rebuild and semantic check as full-scope; unchanged Merkle
+  revisions are evidence of structural reuse, not evidence that work was
+  skipped.
 
 ## Planned service boundaries
 
