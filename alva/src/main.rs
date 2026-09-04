@@ -3014,7 +3014,7 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
         }
         "construct_expression" => {
             let s = need_session!();
-            match handle_construct_expression(s, &req) {
+            match handle_construct_expression(s, req) {
                 Ok((result, msg)) => resp!(true, &result, &msg),
                 Err((result, msg)) => resp!(false, &result, &msg),
             }
