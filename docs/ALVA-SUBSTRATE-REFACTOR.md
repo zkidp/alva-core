@@ -106,6 +106,14 @@ commits are not merged wholesale into the public product line.
   regression and development runs. Production rebuild no longer performs the
   full dirty-hash scan; affected-root selection and all correctness gates are
   still conservative.
+- Transaction semantic checking now establishes one full-project baseline,
+  then checks changed modules plus their transitive reverse-dependency closure
+  on later checks in the same transaction. Module materialization, dependency
+  cycle detection, AIR invariants, and commit-time checking remain full-scope.
+  `ALVA_VERIFY_INCREMENTAL_CHECK=1` runs the full checker beside the narrowed
+  checker and fails closed unless success/failure and rendered diagnostics are
+  identical. This makes repeated prepare/stage/check cycles cheaper without
+  weakening the authoritative commit gate.
 
 ## Planned service boundaries
 

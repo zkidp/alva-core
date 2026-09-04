@@ -3933,6 +3933,10 @@ pub struct EditSession {
     pub errors: Vec<String>,
     pub last_rebuild_stats: Option<RebuildStats>,
     pub full_check_runs: u64,
+    pub affected_check_runs: u64,
+    pub last_semantic_total_modules: usize,
+    pub last_semantic_checked_modules: usize,
+    pub last_semantic_check_scope: &'static str,
 }
 
 impl EditSession {
@@ -3944,6 +3948,10 @@ impl EditSession {
             errors: Vec::new(),
             last_rebuild_stats: None,
             full_check_runs: 0,
+            affected_check_runs: 0,
+            last_semantic_total_modules: 0,
+            last_semantic_checked_modules: 0,
+            last_semantic_check_scope: "none_since_begin",
         }
     }
 
@@ -4379,6 +4387,9 @@ impl EditSession {
 
     pub fn check(&mut self) -> Vec<String> {
         self.full_check_runs += 1;
+        self.last_semantic_total_modules = self.graph.module_entities.len();
+        self.last_semantic_checked_modules = self.graph.module_entities.len();
+        self.last_semantic_check_scope = "full_project";
         let mut all = validate_graph(&self.graph);
         all.extend(
             detect_cycles(&self.graph)
@@ -4391,6 +4402,56 @@ impl EditSession {
             match crate::project::check_graph_semantic(&self.graph) {
                 Ok(()) => {}
                 Err(ds) => all.extend(ds),
+            }
+        }
+        self.errors = all.clone();
+        all
+    }
+
+    pub fn check_affected(&mut self, base: &AirGraph) -> Vec<String> {
+        self.affected_check_runs += 1;
+        let mut all = validate_graph(&self.graph);
+        all.extend(
+            detect_cycles(&self.graph)
+                .into_iter()
+                .map(|cycle| format!("E_AIR_CYCLE: {cycle}")),
+        );
+        if all.is_empty() {
+            let changed = self
+                .graph
+                .module_entities
+                .iter()
+                .chain(base.module_entities.iter())
+                .filter(|module| self.graph.heads.get(*module) != base.heads.get(*module))
+                .cloned()
+                .collect::<std::collections::BTreeSet<_>>();
+            let incremental = crate::project::check_graph_semantic_affected(&self.graph, &changed);
+            match &incremental {
+                Ok(report) => {
+                    self.last_semantic_total_modules = report.total_modules;
+                    self.last_semantic_checked_modules = report.checked_modules.len();
+                }
+                Err(_) => {
+                    self.last_semantic_total_modules = self.graph.module_entities.len();
+                    self.last_semantic_checked_modules = changed.len();
+                }
+            }
+            self.last_semantic_check_scope = "changed_modules_plus_transitive_dependents";
+            if std::env::var("ALVA_VERIFY_INCREMENTAL_CHECK").as_deref() == Ok("1") {
+                let full = crate::project::check_graph_semantic(&self.graph);
+                let equivalent = match (&incremental, &full) {
+                    (Ok(_), Ok(())) => true,
+                    (Err(incremental), Err(full)) => incremental == full,
+                    _ => false,
+                };
+                if !equivalent {
+                    all.push(format!(
+                        "E_AIR_INCREMENTAL_CHECK_MISMATCH: incremental={incremental:?} full={full:?}"
+                    ));
+                }
+            }
+            if let Err(diagnostics) = incremental {
+                all.extend(diagnostics);
             }
         }
         self.errors = all.clone();

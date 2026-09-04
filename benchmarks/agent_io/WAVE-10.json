@@ -1,0 +1,43 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "479290507b7be25d22ec96e10ffef655bb7db7d5",
+  "measurement_boundary": "Deterministic module-check invocation counts and full-check oracle equivalence on tests/project; no wall-time, model-quality, or full incremental-compiler claim",
+  "capability": "changed-module plus transitive-dependent semantic checking",
+  "policy": {
+    "first_check_in_transaction": "full_project",
+    "later_checks": "changed_modules_plus_transitive_dependents",
+    "commit_check": "full_project",
+    "module_materialization": "full_project",
+    "dependency_cycle_check": "full_project",
+    "air_invariant_check": "full_project"
+  },
+  "fixture_results": {
+    "change_leaf_module_demo_app": {
+      "total_modules": 2,
+      "semantic_modules_checked": 1,
+      "full_oracle_equivalent": true
+    },
+    "change_dependency_module_demo_model": {
+      "total_modules": 2,
+      "semantic_modules_checked": 2,
+      "reason": "demo.app transitively depends on demo.model",
+      "full_oracle_equivalent": true
+    },
+    "invalid_demo_app_call": {
+      "incremental_diagnostic": "E_CALL_002",
+      "full_oracle_exact_rendered_diagnostic_match": true
+    }
+  },
+  "oracle": {
+    "environment_variable": "ALVA_VERIFY_INCREMENTAL_CHECK=1",
+    "mismatch_terminal": "E_AIR_INCREMENTAL_CHECK_MISMATCH",
+    "comparison": "exact success/failure and rendered diagnostic vector"
+  },
+  "modern_mcp_tool_surface": {
+    "tool_count": 16,
+    "tools_list_wire_bytes": 6859,
+    "increment_vs_wave_09_bytes": 0,
+    "tool_surface_hash": "16a2ba4bc93721af4a2ed3ae727d76783468bd17ee8cbfc6bd5625f39e711783"
+  },
+  "disposition": "REPEATED_TRANSACTION_CHECK_NARROWING_CONFIRMED_FULL_COMMIT_GATE_RETAINED"
+}

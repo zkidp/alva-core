@@ -2,7 +2,7 @@ use crate::ast;
 use crate::check::{self, ExtFn, ExtType};
 use crate::codegen;
 use crate::diag::Diag;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::path::{Component, Path, PathBuf};
 
 #[derive(Debug)]
@@ -357,6 +357,60 @@ pub fn check_project_loaded(modules: Vec<LoadedModule>) -> Result<Vec<LoadedModu
 /// symbols) over all modules reconstructed from an AIR graph. Returns
 /// rendered diagnostic strings on failure.
 pub fn check_graph_semantic(g: &crate::air::AirGraph) -> Result<(), Vec<String>> {
+    let modules = modules_from_graph(g)?;
+    match check_project_loaded(modules) {
+        Ok(_) => Ok(()),
+        Err(ds) => Err(ds.iter().map(|d| d.render()).collect()),
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SemanticCheckReport {
+    pub total_modules: usize,
+    pub checked_modules: Vec<String>,
+}
+
+/// Conservatively check changed modules plus every transitive dependent. All
+/// modules are still materialized and the global dependency graph is still
+/// cycle-checked; only per-module semantic checker invocations are narrowed.
+pub fn check_graph_semantic_affected(
+    g: &crate::air::AirGraph,
+    changed_module_entities: &BTreeSet<String>,
+) -> Result<SemanticCheckReport, Vec<String>> {
+    let modules = modules_from_graph(g)?;
+    if let Err(error) = detect_cycles(&modules) {
+        return Err(vec![Diag::error(error).with_code("E_MODULE_005").render()]);
+    }
+    let changed_names = changed_module_entities
+        .iter()
+        .map(|entity| entity.trim_start_matches("module:").to_string())
+        .collect::<BTreeSet<_>>();
+    let affected = dependent_closure(&modules, &changed_names);
+    let checked_modules = modules
+        .iter()
+        .filter(|module| affected.contains(&module.name))
+        .map(|module| module.name.clone())
+        .collect::<Vec<_>>();
+    for module in modules
+        .iter()
+        .filter(|module| affected.contains(&module.name))
+    {
+        let (functions, types) = externals_of_deps(module, &modules);
+        let diagnostics = check::check_with_external(&module.module, functions, types);
+        if diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.severity == "error")
+        {
+            return Err(diagnostics.iter().map(Diag::render).collect());
+        }
+    }
+    Ok(SemanticCheckReport {
+        total_modules: modules.len(),
+        checked_modules,
+    })
+}
+
+fn modules_from_graph(g: &crate::air::AirGraph) -> Result<Vec<LoadedModule>, Vec<String>> {
     let mut modules = Vec::new();
     for entity in &g.module_entities {
         match crate::air::air_to_module(g, entity) {
@@ -367,10 +421,29 @@ pub fn check_graph_semantic(g: &crate::air::AirGraph) -> Result<(), Vec<String>>
             Err(e) => return Err(vec![e]),
         }
     }
-    match check_project_loaded(modules) {
-        Ok(_) => Ok(()),
-        Err(ds) => Err(ds.iter().map(|d| d.render()).collect()),
+    Ok(modules)
+}
+
+fn dependent_closure(modules: &[LoadedModule], changed: &BTreeSet<String>) -> BTreeSet<String> {
+    let mut reverse: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    for module in modules {
+        for (dependency, _) in &module.module.deps {
+            reverse
+                .entry(dependency.clone())
+                .or_default()
+                .insert(module.name.clone());
+        }
     }
+    let mut affected = changed.clone();
+    let mut queue = changed.iter().cloned().collect::<VecDeque<_>>();
+    while let Some(module) = queue.pop_front() {
+        for dependent in reverse.get(&module).into_iter().flatten() {
+            if affected.insert(dependent.clone()) {
+                queue.push_back(dependent.clone());
+            }
+        }
+    }
+    affected
 }
 
 /// Load modules from the authoritative AIR store (project_dir/alva-air/CURRENT).

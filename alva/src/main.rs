@@ -2465,7 +2465,7 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
                 resp!(
                     true,
                     &format!(
-                        "{{\"stored_nodes\":{},\"reachable_nodes\":{},\"base_reachable_nodes\":{},\"reused_reachable_nodes\":{},\"added_reachable_nodes\":{},\"removed_reachable_nodes\":{},\"changed_module_count\":{},\"changed_modules\":[{}],\"changed_modules_truncated\":{},\"last_revision_rebuild\":{{\"candidate_root_modules\":{},\"root_modules\":{},\"dirty_seed_count\":{},\"dirty_detection_node_scans\":{},\"affected_root_selection_visits\":{},\"node_visits\":{},\"unique_nodes_visited\":{},\"rewritten_nodes\":{}}},\"full_check_runs\":{},\"graph_construction_scope\":{},\"semantic_check_scope\":{}}}",
+                        "{{\"stored_nodes\":{},\"reachable_nodes\":{},\"base_reachable_nodes\":{},\"reused_reachable_nodes\":{},\"added_reachable_nodes\":{},\"removed_reachable_nodes\":{},\"changed_module_count\":{},\"changed_modules\":[{}],\"changed_modules_truncated\":{},\"last_revision_rebuild\":{{\"candidate_root_modules\":{},\"root_modules\":{},\"dirty_seed_count\":{},\"dirty_detection_node_scans\":{},\"affected_root_selection_visits\":{},\"node_visits\":{},\"unique_nodes_visited\":{},\"rewritten_nodes\":{}}},\"full_check_runs\":{},\"affected_check_runs\":{},\"last_semantic_total_modules\":{},\"last_semantic_checked_modules\":{},\"graph_construction_scope\":{},\"semantic_check_scope\":{}}}",
                         work.stored_nodes,
                         work.reachable_nodes,
                         work.base_reachable_nodes,
@@ -2484,6 +2484,9 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
                         work.rebuild_unique_nodes_visited,
                         work.rebuild_rewritten_nodes,
                         work.full_check_runs,
+                        work.affected_check_runs,
+                        work.last_semantic_total_modules,
+                        work.last_semantic_checked_modules,
                         json_str(work.graph_construction_scope),
                         json_str(work.semantic_check_scope)
                     ),

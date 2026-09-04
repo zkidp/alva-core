@@ -62,6 +62,9 @@ pub(crate) struct TransactionWorkReport {
     pub(crate) rebuild_unique_nodes_visited: usize,
     pub(crate) rebuild_rewritten_nodes: usize,
     pub(crate) full_check_runs: u64,
+    pub(crate) affected_check_runs: u64,
+    pub(crate) last_semantic_total_modules: usize,
+    pub(crate) last_semantic_checked_modules: usize,
     pub(crate) graph_construction_scope: &'static str,
     pub(crate) semantic_check_scope: &'static str,
 }
@@ -83,6 +86,7 @@ pub(crate) struct AgentRuntime {
     source_order: Vec<PathBuf>,
     source_projection_revision: Option<String>,
     text_input_staged: bool,
+    semantic_baseline_validated: bool,
 }
 
 impl AgentRuntime {
@@ -144,6 +148,7 @@ impl AgentRuntime {
         self.source_order = source_order;
         self.source_projection_revision = source_projection_revision;
         self.text_input_staged = false;
+        self.semantic_baseline_validated = false;
         Ok(revision)
     }
 
@@ -157,7 +162,20 @@ impl AgentRuntime {
     }
 
     pub(crate) fn check_problems(&mut self) -> Result<Vec<String>, String> {
-        Ok(self.session_mut()?.check())
+        let use_affected = self.semantic_baseline_validated;
+        let base = self
+            .base_graph
+            .clone()
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        let problems = if use_affected {
+            self.session_mut()?.check_affected(&base)
+        } else {
+            self.session_mut()?.check()
+        };
+        if problems.is_empty() {
+            self.semantic_baseline_validated = true;
+        }
+        Ok(problems)
     }
 
     pub(crate) fn preview_semantic_diff(&mut self) -> Result<String, String> {
@@ -220,6 +238,9 @@ impl AgentRuntime {
             rebuild_unique_nodes_visited: rebuild.unique_nodes_visited,
             rebuild_rewritten_nodes: rebuild.rewritten_nodes,
             full_check_runs: session.full_check_runs,
+            affected_check_runs: session.affected_check_runs,
+            last_semantic_total_modules: session.last_semantic_total_modules,
+            last_semantic_checked_modules: session.last_semantic_checked_modules,
             graph_construction_scope: if self.text_input_staged {
                 "full_project_source_reparse"
             } else if session.last_rebuild_stats.is_some() {
@@ -227,7 +248,7 @@ impl AgentRuntime {
             } else {
                 "none_since_begin"
             },
-            semantic_check_scope: "full_project_when_check_runs",
+            semantic_check_scope: session.last_semantic_check_scope,
         })
     }
 
@@ -256,6 +277,7 @@ impl AgentRuntime {
 
     pub(crate) fn abort(&mut self) {
         self.session = None;
+        self.semantic_baseline_validated = false;
     }
 
     pub(crate) fn stage_text_patch(
