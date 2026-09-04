@@ -1,0 +1,43 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "6625ab53f64a3d580af6f27b47a63c194b3ff40f",
+  "measurement_boundary": "UTF-8 JSON response wire bytes and protocol round trips only; no tokenizer, prompt-cache, reasoning, billed-token, or model-quality claim",
+  "fixture": "tests/project/alva.toml",
+  "mutation": "change_field on the demo.app.run string literal",
+  "modern": {
+    "separate_mutation_diff_check": {
+      "round_trips": 3,
+      "wire_bytes": 883
+    },
+    "stage_and_check": {
+      "round_trips": 1,
+      "wire_bytes": 489
+    },
+    "per_use_reduction": {
+      "round_trips": 2,
+      "wire_bytes": 394,
+      "wire_bytes_percent": 44.6
+    },
+    "tool_list_before_bytes": 6351,
+    "tool_list_after_bytes": 6807,
+    "tool_list_increment_bytes": 456,
+    "first_use_net_wire_change_including_surface": 62,
+    "second_use_cumulative_net_wire_reduction": 332,
+    "tool_surface_hash": "899eebce33668ef46e5ab22130b0a70f36a97106fc1d4beb409e22d5c3191f28"
+  },
+  "legacy": {
+    "separate_mutation_diff_check_wire_bytes": 565,
+    "stage_and_check_wire_bytes": 599,
+    "per_use_wire_change": 34,
+    "round_trip_reduction": 2
+  },
+  "safety_contract": {
+    "nested_lifecycle_or_inspection": "REJECTED",
+    "recursive_stage_and_check": "REJECTED",
+    "mcp_unexposed_mutation": "REJECTED",
+    "mutation_failure": "PROPAGATED_WITHOUT_CHECK",
+    "check_failure": "STAGED_FOR_REPAIR_AND_REPORTED_STRUCTURALLY",
+    "commit": "RECHECKS_AUTHORITATIVELY"
+  },
+  "disposition": "MODERN_REUSED_SESSION_IMPROVEMENT_CONFIRMED_FIRST_USE_NOT_A_BYTE_SAVING_NO_MODEL_CLAIM"
+}

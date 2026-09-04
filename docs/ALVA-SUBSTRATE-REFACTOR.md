@@ -60,8 +60,15 @@ commits are not merged wholesale into the public product line.
 - AEP parsing, compatibility normalization, registry argument validation, and
   response envelopes now have a dedicated protocol module.
 - Agent transaction state and `begin/check/diff/commit/abort` lifecycle now
-  have one transport-neutral runtime owner. Operation dispatch extraction is
-  the remaining prerequisite for compound mutations.
+  have one transport-neutral runtime owner.
+- Stdio parsing now delegates each decoded request to a reusable operation
+  execution entry point. `stage_and_check` uses that entry point to stage one
+  registered mutation and return its result, a bounded semantic diff, and a
+  bounded structured check result in one call. Failed checks leave the staged
+  transaction available for repair; commit always checks again.
+- MCP rejects lifecycle, inspection, recursive, gated, and non-exposed nested
+  operations before forwarding `stage_and_check`, so the compound tool cannot
+  bypass the curated MCP capability surface.
 
 ## Planned service boundaries
 

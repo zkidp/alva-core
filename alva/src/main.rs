@@ -1432,165 +1432,160 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             }
         };
         op_index += 1;
-        let request_id = req
-            .get("request_id")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string();
-        let tool = req
-            .get("tool")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string();
-        macro_rules! resp {
-            ($ok:expr, $result:expr, $msg:expr) => {
-                agent_resp(Some(&request_id), op_index, $ok, $result, $msg, Vec::new())
-            };
+        println!("{}", execute_agent_request(&mut runtime, &req, op_index));
+    }
+    0
+}
+
+fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize) -> String {
+    let request_id = req
+        .get("request_id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let tool = req
+        .get("tool")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    macro_rules! resp {
+        ($ok:expr, $result:expr, $msg:expr) => {
+            agent_resp(Some(&request_id), op_index, $ok, $result, $msg, Vec::new())
+        };
+    }
+    macro_rules! need_session {
+        () => {
+            match runtime.session_mut() {
+                Ok(s) => s,
+                Err(_) => {
+                    return resp!(false, "null", "E_AEP_NO_TRANSACTION");
+                }
+            }
+        };
+    }
+    // RFC-0005: registry is the single source of truth — canonicalize
+    // aliases before dispatch so introspection and execution agree.
+    let operation = aep::lookup(&tool);
+    let canonical_tool: &str = operation.map(|s| s.name).unwrap_or(tool.as_str());
+    if let Some(spec) = operation.filter(|spec| spec.gate.map(aep::gate_enabled).unwrap_or(true)) {
+        if let Err(error) = validate_agent_arguments(req, spec) {
+            return resp!(false, "null", &error);
         }
-        macro_rules! need_session {
-            () => {
-                match runtime.session_mut() {
-                    Ok(s) => s,
-                    Err(_) => {
-                        let out = resp!(false, "null", "E_AEP_NO_TRANSACTION");
-                        println!("{out}");
-                        continue;
+    }
+    let out = match canonical_tool {
+        "inspect_project" => {
+            let s = need_session!();
+            let mods: Vec<String> = s
+                .graph
+                .module_entities
+                .iter()
+                .map(|m| {
+                    let head = s.graph.heads.get(m).cloned().unwrap_or_default();
+                    format!("{}:{}", json_str(m), json_str(&head))
+                })
+                .collect();
+            resp!(
+                true,
+                &format!(
+                    "{{\"project_revision\":{},\"modules\":{{{}}}}}",
+                    json_str(&s.graph.semantic_hash()),
+                    mods.join(",")
+                ),
+                "ok"
+            )
+        }
+        "inspect_module" => {
+            let s = need_session!();
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            match canonical_entity_rev(&s.graph, "inspect_module", "name", name, &["module"]) {
+                Err(Some((r, msg))) => resp!(false, &r, &msg),
+                Err(None) => resp!(false, "null", &not_found(&s.graph, name)),
+                Ok(entity) => match s.graph.resolve(&entity) {
+                    Some(n) => {
+                        let view = air::view_module(&s.graph, &n.revision, None);
+                        resp!(
+                            true,
+                            &format!(
+                                "{{\"module\":{},\"view\":{}}}",
+                                json_str(&n.revision),
+                                json_str(&view)
+                            ),
+                            "ok"
+                        )
                     }
-                }
-            };
-        }
-        // RFC-0005: registry is the single source of truth — canonicalize
-        // aliases before dispatch so introspection and execution agree.
-        let operation = aep::lookup(&tool);
-        let canonical_tool: &str = operation.map(|s| s.name).unwrap_or(tool.as_str());
-        if let Some(spec) =
-            operation.filter(|spec| spec.gate.map(aep::gate_enabled).unwrap_or(true))
-        {
-            if let Err(error) = validate_agent_arguments(&req, spec) {
-                println!("{}", resp!(false, "null", &error));
-                continue;
+                    None => resp!(false, "null", &not_found(&s.graph, name)),
+                },
             }
         }
-        let out = match canonical_tool {
-            "inspect_project" => {
-                let s = need_session!();
-                let mods: Vec<String> = s
-                    .graph
-                    .module_entities
-                    .iter()
-                    .map(|m| {
-                        let head = s.graph.heads.get(m).cloned().unwrap_or_default();
-                        format!("{}:{}", json_str(m), json_str(&head))
-                    })
-                    .collect();
-                resp!(
-                    true,
-                    &format!(
-                        "{{\"project_revision\":{},\"modules\":{{{}}}}}",
-                        json_str(&s.graph.semantic_hash()),
-                        mods.join(",")
-                    ),
-                    "ok"
-                )
+        "inspect_function" => {
+            let s = need_session!();
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            match canonical_entity_rev(&s.graph, "inspect_function", "name", name, &["function"]) {
+                Err(Some((r, msg))) => resp!(false, &r, &msg),
+                Err(None) => resp!(false, "null", &not_found(&s.graph, name)),
+                Ok(entity) => match s.graph.resolve(&entity) {
+                    Some(n) => {
+                        let rev = n.revision.clone();
+                        let view = air::view_function(&s.graph, &rev);
+                        let mut budget = 0usize;
+                        let body = s
+                            .graph
+                            .get(&rev)
+                            .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned())
+                            .map(|b| body_tree(&s.graph, &b, 0, &mut budget))
+                            .unwrap_or_default();
+                        let eff = s
+                            .graph
+                            .get(&rev)
+                            .and_then(|n| match n.fields.get("eff") {
+                                Some(air::Value::Names(ns)) => Some(ns.join(",")),
+                                _ => None,
+                            })
+                            .unwrap_or_default();
+                        resp!(
+                            true,
+                            &format!(
+                                "{{\"revision\":{},\"eff\":{},\"view\":{},\"body\":{}}}",
+                                json_str(&rev),
+                                json_str(&eff),
+                                json_str(&view),
+                                json_str(&body)
+                            ),
+                            "ok"
+                        )
+                    }
+                    None => resp!(false, "null", &not_found(&s.graph, name)),
+                },
             }
-            "inspect_module" => {
-                let s = need_session!();
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                match canonical_entity_rev(&s.graph, "inspect_module", "name", name, &["module"]) {
-                    Err(Some((r, msg))) => resp!(false, &r, &msg),
-                    Err(None) => resp!(false, "null", &not_found(&s.graph, name)),
-                    Ok(entity) => match s.graph.resolve(&entity) {
-                        Some(n) => {
-                            let view = air::view_module(&s.graph, &n.revision, None);
-                            resp!(
-                                true,
-                                &format!(
-                                    "{{\"module\":{},\"view\":{}}}",
-                                    json_str(&n.revision),
-                                    json_str(&view)
-                                ),
-                                "ok"
-                            )
+        }
+        "inspect_entity" => {
+            let s = need_session!();
+            let id = req
+                .get("entity")
+                .or_else(|| req.get("name"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
+            match canonical_entity_rev(&s.graph, "inspect_entity", "entity", id, &["any"]) {
+                Err(Some((r, msg))) => resp!(false, &r, &msg),
+                Err(None) => resp!(false, "null", &not_found(&s.graph, id)),
+                Ok(entity) => match s.graph.resolve(&entity).cloned() {
+                    Some(n) => {
+                        let mut fields = Vec::new();
+                        for (k, v) in &n.fields {
+                            fields.push(format!("{}:{}", json_str(k), value_json(v)));
                         }
-                        None => resp!(false, "null", &not_found(&s.graph, name)),
-                    },
-                }
-            }
-            "inspect_function" => {
-                let s = need_session!();
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                match canonical_entity_rev(
-                    &s.graph,
-                    "inspect_function",
-                    "name",
-                    name,
-                    &["function"],
-                ) {
-                    Err(Some((r, msg))) => resp!(false, &r, &msg),
-                    Err(None) => resp!(false, "null", &not_found(&s.graph, name)),
-                    Ok(entity) => match s.graph.resolve(&entity) {
-                        Some(n) => {
-                            let rev = n.revision.clone();
-                            let view = air::view_function(&s.graph, &rev);
-                            let mut budget = 0usize;
-                            let body = s
-                                .graph
-                                .get(&rev)
-                                .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned())
-                                .map(|b| body_tree(&s.graph, &b, 0, &mut budget))
-                                .unwrap_or_default();
-                            let eff = s
-                                .graph
-                                .get(&rev)
-                                .and_then(|n| match n.fields.get("eff") {
-                                    Some(air::Value::Names(ns)) => Some(ns.join(",")),
-                                    _ => None,
-                                })
-                                .unwrap_or_default();
-                            resp!(
-                                true,
-                                &format!(
-                                    "{{\"revision\":{},\"eff\":{},\"view\":{},\"body\":{}}}",
-                                    json_str(&rev),
-                                    json_str(&eff),
-                                    json_str(&view),
-                                    json_str(&body)
-                                ),
-                                "ok"
-                            )
+                        let mut slots = Vec::new();
+                        for (k, kids) in &n.slots {
+                            slots.push(format!(
+                                "{}:[{}]",
+                                json_str(k),
+                                kids.iter()
+                                    .map(|c| json_str(c))
+                                    .collect::<Vec<_>>()
+                                    .join(",")
+                            ));
                         }
-                        None => resp!(false, "null", &not_found(&s.graph, name)),
-                    },
-                }
-            }
-            "inspect_entity" => {
-                let s = need_session!();
-                let id = req
-                    .get("entity")
-                    .or_else(|| req.get("name"))
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("");
-                match canonical_entity_rev(&s.graph, "inspect_entity", "entity", id, &["any"]) {
-                    Err(Some((r, msg))) => resp!(false, &r, &msg),
-                    Err(None) => resp!(false, "null", &not_found(&s.graph, id)),
-                    Ok(entity) => match s.graph.resolve(&entity).cloned() {
-                        Some(n) => {
-                            let mut fields = Vec::new();
-                            for (k, v) in &n.fields {
-                                fields.push(format!("{}:{}", json_str(k), value_json(v)));
-                            }
-                            let mut slots = Vec::new();
-                            for (k, kids) in &n.slots {
-                                slots.push(format!(
-                                    "{}:[{}]",
-                                    json_str(k),
-                                    kids.iter()
-                                        .map(|c| json_str(c))
-                                        .collect::<Vec<_>>()
-                                        .join(",")
-                                ));
-                            }
-                            resp!(
+                        resp!(
                             true,
                             &format!(
                                 "{{\"entity\":{},\"revision\":{},\"kind\":{},\"fields\":{{{}}},\"slots\":{{{}}}}}",
@@ -1602,194 +1597,194 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             ),
                             "ok"
                         )
-                        }
-                        None => resp!(false, "null", &not_found(&s.graph, id)),
-                    },
-                }
-            }
-            "list_candidates" => {
-                let s = need_session!();
-                let hole = req.get("hole").and_then(|v| v.as_str()).unwrap_or("");
-                match resolve_hole(&s.graph, hole) {
-                    Some(h) => {
-                        let cands = air::hole_candidates(&s.graph, &h);
-                        resp!(
-                            true,
-                            &format!(
-                                "{{\"candidates\":[{}]}}",
-                                cands
-                                    .iter()
-                                    .map(|c| json_str(c))
-                                    .collect::<Vec<_>>()
-                                    .join(",")
-                            ),
-                            "ok"
-                        )
                     }
-                    None => resp!(false, "null", "hole not found"),
-                }
+                    None => resp!(false, "null", &not_found(&s.graph, id)),
+                },
             }
-            "begin_transaction" => {
-                match runtime.begin(req.get("project").and_then(|v| v.as_str()).unwrap_or("")) {
-                    Ok(rev) => resp!(
+        }
+        "list_candidates" => {
+            let s = need_session!();
+            let hole = req.get("hole").and_then(|v| v.as_str()).unwrap_or("");
+            match resolve_hole(&s.graph, hole) {
+                Some(h) => {
+                    let cands = air::hole_candidates(&s.graph, &h);
+                    resp!(
                         true,
-                        &format!("{{\"project_revision\":{}}}", json_str(&rev)),
+                        &format!(
+                            "{{\"candidates\":[{}]}}",
+                            cands
+                                .iter()
+                                .map(|c| json_str(c))
+                                .collect::<Vec<_>>()
+                                .join(",")
+                        ),
                         "ok"
-                    ),
-                    Err(e) => resp!(false, "null", &e),
+                    )
                 }
+                None => resp!(false, "null", "hole not found"),
             }
-            "create_literal" => {
-                let s = need_session!();
-                let ty = req.get("type").and_then(|v| v.as_str()).unwrap_or("string");
-                let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let v = prim_value_for(ty, value)?;
-                    let mut f = BTreeMap::new();
-                    f.insert("value".to_string(), v);
-                    s.create_node("literal", f, BTreeMap::new())
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
+        }
+        "begin_transaction" => {
+            match runtime.begin(req.get("project").and_then(|v| v.as_str()).unwrap_or("")) {
+                Ok(rev) => resp!(
+                    true,
+                    &format!("{{\"project_revision\":{}}}", json_str(&rev)),
+                    "ok"
+                ),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "create_literal" => {
+            let s = need_session!();
+            let ty = req.get("type").and_then(|v| v.as_str()).unwrap_or("string");
+            let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let v = prim_value_for(ty, value)?;
+                let mut f = BTreeMap::new();
+                f.insert("value".to_string(), v);
+                s.create_node("literal", f, BTreeMap::new())
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "create_reference" => {
+            let s = need_session!();
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let mut f = BTreeMap::new();
+            f.insert("name".to_string(), air::Value::Str(name.to_string()));
+            match s.create_node("ref", f, BTreeMap::new()) {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "create_call" => {
+            let s = need_session!();
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let args: Vec<String> = req
+                .get("args")
+                .map(|a| match a {
+                    Json::Arr(items) => items
+                        .iter()
+                        .filter_map(|x| x.as_str().map(|s| s.to_string()))
+                        .collect(),
+                    _ => Vec::new(),
+                })
+                .unwrap_or_default();
+            let mut f = BTreeMap::new();
+            f.insert("name".to_string(), air::Value::Str(name.to_string()));
+            let mut slots = BTreeMap::new();
+            slots.insert("args".to_string(), args);
+            match s.create_node("call", f, slots) {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "create_binding" => {
+            let s = need_session!();
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let ty = req.get("type_name").and_then(|v| v.as_str());
+            let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let ty_id = match ty {
+                    Some(t) => Some(type_expr_for(t, &mut s.graph)?),
+                    None => None,
+                };
+                let mut slots = BTreeMap::new();
+                if let Some(t) = ty_id {
+                    slots.insert("type".to_string(), vec![t]);
                 }
-            }
-            "create_reference" => {
-                let s = need_session!();
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+                slots.insert("value".to_string(), vec![value.to_string()]);
                 let mut f = BTreeMap::new();
                 f.insert("name".to_string(), air::Value::Str(name.to_string()));
-                match s.create_node("ref", f, BTreeMap::new()) {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
+                s.create_node("binding", f, slots)
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
             }
-            "create_call" => {
-                let s = need_session!();
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let args: Vec<String> = req
-                    .get("args")
-                    .map(|a| match a {
-                        Json::Arr(items) => items
-                            .iter()
-                            .filter_map(|x| x.as_str().map(|s| s.to_string()))
-                            .collect(),
-                        _ => Vec::new(),
-                    })
-                    .unwrap_or_default();
-                let mut f = BTreeMap::new();
-                f.insert("name".to_string(), air::Value::Str(name.to_string()));
-                let mut slots = BTreeMap::new();
-                slots.insert("args".to_string(), args);
-                match s.create_node("call", f, slots) {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
+        }
+        "create_block" => {
+            let s = need_session!();
+            let steps: Vec<String> = req
+                .get("steps")
+                .map(|a| match a {
+                    Json::Arr(items) => items
+                        .iter()
+                        .filter_map(|x| x.as_str().map(|s| s.to_string()))
+                        .collect(),
+                    _ => Vec::new(),
+                })
+                .unwrap_or_default();
+            let mut slots = BTreeMap::new();
+            slots.insert("steps".to_string(), steps);
+            match s.create_node("block", BTreeMap::new(), slots) {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
             }
-            "create_binding" => {
-                let s = need_session!();
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let ty = req.get("type_name").and_then(|v| v.as_str());
-                let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let ty_id = match ty {
-                        Some(t) => Some(type_expr_for(t, &mut s.graph)?),
-                        None => None,
-                    };
-                    let mut slots = BTreeMap::new();
-                    if let Some(t) = ty_id {
-                        slots.insert("type".to_string(), vec![t]);
-                    }
-                    slots.insert("value".to_string(), vec![value.to_string()]);
-                    let mut f = BTreeMap::new();
-                    f.insert("name".to_string(), air::Value::Str(name.to_string()));
-                    s.create_node("binding", f, slots)
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
+        }
+        "append_step" => {
+            let s = need_session!();
+            let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+            let step = req.get("step").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let fn_rev = match canonical_entity_rev(
+                    &s.graph,
+                    "append_step",
+                    "function",
+                    function,
+                    &["function"],
+                ) {
+                    Ok(e) => s
+                        .graph
+                        .resolve(&e)
+                        .map(|n| n.revision.clone())
+                        .ok_or_else(|| "function not found".to_string())?,
+                    Err(_) => return Err("function not found".to_string()),
+                };
+                let n = s.graph.get(&fn_rev).ok_or("function not found")?;
+                let body = n
+                    .slots
+                    .get("body")
+                    .and_then(|b| b.first())
+                    .cloned()
+                    .ok_or("function has no body block")?;
+                s.append_child(&body, "steps", step)
+            })() {
+                Ok(rev) => resp!(
+                    true,
+                    &format!("{{\"new_revision\":{}}}", json_str(&rev)),
+                    "ok"
+                ),
+                Err(e) => resp!(false, "null", &e),
             }
-            "create_block" => {
-                let s = need_session!();
-                let steps: Vec<String> = req
-                    .get("steps")
-                    .map(|a| match a {
-                        Json::Arr(items) => items
-                            .iter()
-                            .filter_map(|x| x.as_str().map(|s| s.to_string()))
-                            .collect(),
-                        _ => Vec::new(),
-                    })
-                    .unwrap_or_default();
-                let mut slots = BTreeMap::new();
-                slots.insert("steps".to_string(), steps);
-                match s.create_node("block", BTreeMap::new(), slots) {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "append_step" => {
-                let s = need_session!();
-                let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
-                let step = req.get("step").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let fn_rev = match canonical_entity_rev(
-                        &s.graph,
-                        "append_step",
-                        "function",
-                        function,
-                        &["function"],
-                    ) {
-                        Ok(e) => s
-                            .graph
-                            .resolve(&e)
-                            .map(|n| n.revision.clone())
-                            .ok_or_else(|| "function not found".to_string())?,
-                        Err(_) => return Err("function not found".to_string()),
-                    };
-                    let n = s.graph.get(&fn_rev).ok_or("function not found")?;
-                    let body = n
-                        .slots
-                        .get("body")
-                        .and_then(|b| b.first())
-                        .cloned()
-                        .ok_or("function has no body block")?;
-                    s.append_child(&body, "steps", step)
-                })() {
-                    Ok(rev) => resp!(
-                        true,
-                        &format!("{{\"new_revision\":{}}}", json_str(&rev)),
-                        "ok"
-                    ),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "replace_expression" => {
-                let s = need_session!();
-                let position = req
-                    .get("position")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("value");
-                // RFC-0007: parent/child operands resolve through the strict
-                // operand resolver (bare revision OR semantic handle); a stale
-                // or missing operand returns structured recovery instead of a
-                // bare error, breaking the D02-style repeated-retry loop.
-                let parent_res = req
-                    .get("parent")
-                    .map(|v| resolve_operand_strict(s, "replace_expression", "parent", v))
-                    .unwrap_or_else(|| {
-                        let r = construction_type_mismatch_json(
-                            "replace_expression",
-                            "parent",
-                            "revision | semantic handle",
-                            "missing",
-                        );
-                        Err((r, "E_AEP_OPERAND_NOT_FOUND: parent missing".to_string()))
-                    });
-                match parent_res {
-                    Err((r, msg)) => resp!(false, &r, &msg),
-                    Ok(pr) => {
-                        let kind = s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
-                        match friendly_slot(&kind, position) {
+        }
+        "replace_expression" => {
+            let s = need_session!();
+            let position = req
+                .get("position")
+                .and_then(|v| v.as_str())
+                .unwrap_or("value");
+            // RFC-0007: parent/child operands resolve through the strict
+            // operand resolver (bare revision OR semantic handle); a stale
+            // or missing operand returns structured recovery instead of a
+            // bare error, breaking the D02-style repeated-retry loop.
+            let parent_res = req
+                .get("parent")
+                .map(|v| resolve_operand_strict(s, "replace_expression", "parent", v))
+                .unwrap_or_else(|| {
+                    let r = construction_type_mismatch_json(
+                        "replace_expression",
+                        "parent",
+                        "revision | semantic handle",
+                        "missing",
+                    );
+                    Err((r, "E_AEP_OPERAND_NOT_FOUND: parent missing".to_string()))
+                });
+            match parent_res {
+                Err((r, msg)) => resp!(false, &r, &msg),
+                Ok(pr) => {
+                    let kind = s.graph.get(&pr).map(|n| n.kind.clone()).unwrap_or_default();
+                    match friendly_slot(&kind, position) {
                             None => resp!(
                                 false,
                                 &format!(
@@ -1832,759 +1827,855 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                 }
                             }
                         }
+                }
+            }
+        }
+        "add_function" => {
+            let s = need_session!();
+            let module = req.get("module").and_then(|v| v.as_str()).unwrap_or("");
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let returns = req
+                .get("returns")
+                .and_then(|v| v.as_str())
+                .unwrap_or("string");
+            let params = req.get("params");
+            match (|| -> Result<String, String> {
+                let ret_id = type_expr_for(returns, &mut s.graph)?;
+                let mut slots = BTreeMap::new();
+                slots.insert("returns".to_string(), vec![ret_id]);
+                let mut param_ids = Vec::new();
+                if let Some(Json::Arr(items)) = params {
+                    for it in items {
+                        let pname = it
+                            .get("name")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("p")
+                            .to_string();
+                        let ptype = it.get("type").and_then(|v| v.as_str()).unwrap_or("string");
+                        let ty_id = type_expr_for(ptype, &mut s.graph)?;
+                        let mut pf = BTreeMap::new();
+                        pf.insert("name".to_string(), air::Value::Str(pname));
+                        let mut ps = BTreeMap::new();
+                        ps.insert("type".to_string(), vec![ty_id]);
+                        param_ids.push(s.create_node("param", pf, ps)?);
                     }
                 }
+                slots.insert("params".to_string(), param_ids);
+                let mut bs = BTreeMap::new();
+                bs.insert("steps".to_string(), Vec::new());
+                let body = s.create_node("block", BTreeMap::new(), bs)?;
+                slots.insert("body".to_string(), vec![body]);
+                slots.insert("pre".to_string(), Vec::new());
+                slots.insert("post".to_string(), Vec::new());
+                slots.insert("inv".to_string(), Vec::new());
+                let mut f = BTreeMap::new();
+                f.insert("name".to_string(), air::Value::Str(name.to_string()));
+                f.insert("pure".to_string(), air::Value::Bool(true));
+                let fn_id = s.create_node("function", f, slots)?;
+                s.append_child(&format!("module:{module}"), "functions", &fn_id)?;
+                Ok(fn_id)
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
             }
-            "add_function" => {
-                let s = need_session!();
-                let module = req.get("module").and_then(|v| v.as_str()).unwrap_or("");
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let returns = req
-                    .get("returns")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("string");
-                let params = req.get("params");
-                match (|| -> Result<String, String> {
-                    let ret_id = type_expr_for(returns, &mut s.graph)?;
-                    let mut slots = BTreeMap::new();
-                    slots.insert("returns".to_string(), vec![ret_id]);
-                    let mut param_ids = Vec::new();
-                    if let Some(Json::Arr(items)) = params {
-                        for it in items {
-                            let pname = it
-                                .get("name")
-                                .and_then(|v| v.as_str())
-                                .unwrap_or("p")
-                                .to_string();
-                            let ptype = it.get("type").and_then(|v| v.as_str()).unwrap_or("string");
-                            let ty_id = type_expr_for(ptype, &mut s.graph)?;
-                            let mut pf = BTreeMap::new();
-                            pf.insert("name".to_string(), air::Value::Str(pname));
-                            let mut ps = BTreeMap::new();
-                            ps.insert("type".to_string(), vec![ty_id]);
-                            param_ids.push(s.create_node("param", pf, ps)?);
-                        }
-                    }
-                    slots.insert("params".to_string(), param_ids);
-                    let mut bs = BTreeMap::new();
-                    bs.insert("steps".to_string(), Vec::new());
-                    let body = s.create_node("block", BTreeMap::new(), bs)?;
-                    slots.insert("body".to_string(), vec![body]);
-                    slots.insert("pre".to_string(), Vec::new());
-                    slots.insert("post".to_string(), Vec::new());
-                    slots.insert("inv".to_string(), Vec::new());
-                    let mut f = BTreeMap::new();
-                    f.insert("name".to_string(), air::Value::Str(name.to_string()));
-                    f.insert("pure".to_string(), air::Value::Bool(true));
-                    let fn_id = s.create_node("function", f, slots)?;
-                    s.append_child(&format!("module:{module}"), "functions", &fn_id)?;
-                    Ok(fn_id)
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
+        }
+        "change_field" => {
+            let s = need_session!();
+            let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
+            let field = req.get("field").and_then(|v| v.as_str()).unwrap_or("");
+            let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
+            match s.set_field(entity, field, air::Value::Str(value.to_string())) {
+                Ok(rev) => resp!(
+                    true,
+                    &format!("{{\"new_revision\":{}}}", json_str(&rev)),
+                    "ok"
+                ),
+                Err(e) => resp!(false, "null", &e),
             }
-            "change_field" => {
-                let s = need_session!();
-                let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
-                let field = req.get("field").and_then(|v| v.as_str()).unwrap_or("");
-                let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
-                match s.set_field(entity, field, air::Value::Str(value.to_string())) {
-                    Ok(rev) => resp!(
-                        true,
-                        &format!("{{\"new_revision\":{}}}", json_str(&rev)),
-                        "ok"
-                    ),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "rename_entity" => {
-                let s = need_session!();
-                let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
-                let new_name = req.get("new_name").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<(), String> {
-                    let rev = resolve_entity_in_graph(&s.graph, entity)
-                        .ok_or_else(|| format!("entity not found: {entity}"))?;
-                    let old = s
-                        .graph
-                        .get(&rev)
-                        .and_then(|n| match n.fields.get("name") {
-                            Some(air::Value::Str(s)) => Some(s.clone()),
-                            _ => None,
-                        })
-                        .ok_or("entity has no name field")?;
-                    s.set_field(&rev, "name", air::Value::Str(new_name.to_string()))?;
-                    s.rename_symbol(&old, new_name)?;
-                    // 跨模块调用方使用限定名 module.old，需要一并重命名；
-                    // 同时更新所属模块的 exports 列表。
-                    for me in s.graph.module_entities.clone() {
-                        let module_name = me.trim_start_matches("module:").to_string();
-                        if let Some(mn) = s.graph.resolve(&me) {
-                            let exports = match mn.fields.get("exports") {
-                                Some(air::Value::Names(ns)) => ns.clone(),
-                                _ => Vec::new(),
-                            };
-                            if exports.contains(&old) {
-                                let updated: Vec<String> = exports
-                                    .iter()
-                                    .map(|e| {
-                                        if e == &old {
-                                            new_name.to_string()
-                                        } else {
-                                            e.clone()
-                                        }
-                                    })
-                                    .collect();
-                                s.set_field(&me, "exports", air::Value::Names(updated))?;
-                            }
-                            if exports.contains(&old) {
-                                s.rename_symbol(
-                                    &format!("{module_name}.{old}"),
-                                    &format!("{module_name}.{new_name}"),
-                                )?;
-                            }
-                        }
-                    }
-                    Ok(())
-                })() {
-                    Ok(()) => resp!(true, "{\"renamed\":true}", "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "inspect_body" => {
-                let s = need_session!();
-                let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
-                match canonical_entity_rev(
-                    &s.graph,
-                    "inspect_body",
-                    "function",
-                    function,
-                    &["function"],
-                ) {
-                    Err(Some((r, msg))) => resp!(false, &r, &msg),
-                    Err(None) => resp!(false, "null", &not_found(&s.graph, function)),
-                    Ok(entity) => match s.graph.resolve(&entity) {
-                        Some(n) => {
-                            let fn_rev = n.revision.clone();
-                            let eff = s
-                                .graph
-                                .get(&fn_rev)
-                                .and_then(|n| match n.fields.get("eff") {
-                                    Some(air::Value::Names(ns)) => Some(ns.join(",")),
-                                    _ => None,
-                                })
-                                .unwrap_or_default();
-                            let pure =
-                                s.graph
-                                    .get(&fn_rev)
-                                    .and_then(|n| match n.fields.get("pure") {
-                                        Some(air::Value::Bool(b)) => Some(*b),
-                                        _ => None,
-                                    });
-                            let body = s
-                                .graph
-                                .get(&fn_rev)
-                                .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned());
-                            match body {
-                                Some(body_rev) => {
-                                    let mut budget = 0usize;
-                                    let tree = body_tree(&s.graph, &body_rev, 0, &mut budget);
-                                    resp!(
-                                        true,
-                                        &format!(
-                                            "{{\"eff\":{},\"pure\":{},\"body\":{}}}",
-                                            json_str(&eff),
-                                            json_str(
-                                                &pure.map(|b| b.to_string()).unwrap_or_default()
-                                            ),
-                                            json_str(&tree)
-                                        ),
-                                        "ok"
-                                    )
-                                }
-                                None => resp!(false, "null", "function has no body block"),
-                            }
-                        }
-                        None => resp!(false, "null", &not_found(&s.graph, function)),
-                    },
-                }
-            }
-            "inspect_test" => {
-                let s = need_session!();
-                let module = req.get("module").and_then(|v| v.as_str()).unwrap_or("");
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let mut found = None;
-                let mod_res =
-                    canonical_entity_rev(&s.graph, "inspect_test", "module", module, &["module"]);
-                match mod_res {
-                    Err(Some((r, msg))) => resp!(false, &r, &msg),
-                    Err(None) => resp!(false, "null", &not_found(&s.graph, module)),
-                    Ok(m) => {
-                        if let Some(mn) = s.graph.resolve(&m) {
-                            for id in mn.slots.get("tests").cloned().unwrap_or_default() {
-                                if let Some(t) = s.graph.get(&id) {
-                                    if t.fields
-                                        .get("name")
-                                        .map(|v| v == &air::Value::Str(name.to_string()))
-                                        .unwrap_or(false)
-                                    {
-                                        found = Some(id);
-                                        break;
+        }
+        "rename_entity" => {
+            let s = need_session!();
+            let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
+            let new_name = req.get("new_name").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<(), String> {
+                let rev = resolve_entity_in_graph(&s.graph, entity)
+                    .ok_or_else(|| format!("entity not found: {entity}"))?;
+                let old = s
+                    .graph
+                    .get(&rev)
+                    .and_then(|n| match n.fields.get("name") {
+                        Some(air::Value::Str(s)) => Some(s.clone()),
+                        _ => None,
+                    })
+                    .ok_or("entity has no name field")?;
+                s.set_field(&rev, "name", air::Value::Str(new_name.to_string()))?;
+                s.rename_symbol(&old, new_name)?;
+                // 跨模块调用方使用限定名 module.old，需要一并重命名；
+                // 同时更新所属模块的 exports 列表。
+                for me in s.graph.module_entities.clone() {
+                    let module_name = me.trim_start_matches("module:").to_string();
+                    if let Some(mn) = s.graph.resolve(&me) {
+                        let exports = match mn.fields.get("exports") {
+                            Some(air::Value::Names(ns)) => ns.clone(),
+                            _ => Vec::new(),
+                        };
+                        if exports.contains(&old) {
+                            let updated: Vec<String> = exports
+                                .iter()
+                                .map(|e| {
+                                    if e == &old {
+                                        new_name.to_string()
+                                    } else {
+                                        e.clone()
                                     }
-                                }
-                            }
+                                })
+                                .collect();
+                            s.set_field(&me, "exports", air::Value::Names(updated))?;
                         }
-                        match found {
-                            Some(rev) => {
+                        if exports.contains(&old) {
+                            s.rename_symbol(
+                                &format!("{module_name}.{old}"),
+                                &format!("{module_name}.{new_name}"),
+                            )?;
+                        }
+                    }
+                }
+                Ok(())
+            })() {
+                Ok(()) => resp!(true, "{\"renamed\":true}", "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "inspect_body" => {
+            let s = need_session!();
+            let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+            match canonical_entity_rev(
+                &s.graph,
+                "inspect_body",
+                "function",
+                function,
+                &["function"],
+            ) {
+                Err(Some((r, msg))) => resp!(false, &r, &msg),
+                Err(None) => resp!(false, "null", &not_found(&s.graph, function)),
+                Ok(entity) => match s.graph.resolve(&entity) {
+                    Some(n) => {
+                        let fn_rev = n.revision.clone();
+                        let eff = s
+                            .graph
+                            .get(&fn_rev)
+                            .and_then(|n| match n.fields.get("eff") {
+                                Some(air::Value::Names(ns)) => Some(ns.join(",")),
+                                _ => None,
+                            })
+                            .unwrap_or_default();
+                        let pure = s
+                            .graph
+                            .get(&fn_rev)
+                            .and_then(|n| match n.fields.get("pure") {
+                                Some(air::Value::Bool(b)) => Some(*b),
+                                _ => None,
+                            });
+                        let body = s
+                            .graph
+                            .get(&fn_rev)
+                            .and_then(|n| n.slots.get("body").and_then(|b| b.first()).cloned());
+                        match body {
+                            Some(body_rev) => {
                                 let mut budget = 0usize;
-                                let tree = body_tree(&s.graph, &rev, 0, &mut budget);
+                                let tree = body_tree(&s.graph, &body_rev, 0, &mut budget);
                                 resp!(
                                     true,
                                     &format!(
-                                        "{{\"revision\":{},\"body\":{}}}",
-                                        json_str(&rev),
+                                        "{{\"eff\":{},\"pure\":{},\"body\":{}}}",
+                                        json_str(&eff),
+                                        json_str(&pure.map(|b| b.to_string()).unwrap_or_default()),
                                         json_str(&tree)
                                     ),
                                     "ok"
                                 )
                             }
-                            None => resp!(false, "null", &not_found(&s.graph, name)),
+                            None => resp!(false, "null", "function has no body block"),
                         }
+                    }
+                    None => resp!(false, "null", &not_found(&s.graph, function)),
+                },
+            }
+        }
+        "inspect_test" => {
+            let s = need_session!();
+            let module = req.get("module").and_then(|v| v.as_str()).unwrap_or("");
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let mut found = None;
+            let mod_res =
+                canonical_entity_rev(&s.graph, "inspect_test", "module", module, &["module"]);
+            match mod_res {
+                Err(Some((r, msg))) => resp!(false, &r, &msg),
+                Err(None) => resp!(false, "null", &not_found(&s.graph, module)),
+                Ok(m) => {
+                    if let Some(mn) = s.graph.resolve(&m) {
+                        for id in mn.slots.get("tests").cloned().unwrap_or_default() {
+                            if let Some(t) = s.graph.get(&id) {
+                                if t.fields
+                                    .get("name")
+                                    .map(|v| v == &air::Value::Str(name.to_string()))
+                                    .unwrap_or(false)
+                                {
+                                    found = Some(id);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    match found {
+                        Some(rev) => {
+                            let mut budget = 0usize;
+                            let tree = body_tree(&s.graph, &rev, 0, &mut budget);
+                            resp!(
+                                true,
+                                &format!(
+                                    "{{\"revision\":{},\"body\":{}}}",
+                                    json_str(&rev),
+                                    json_str(&tree)
+                                ),
+                                "ok"
+                            )
+                        }
+                        None => resp!(false, "null", &not_found(&s.graph, name)),
                     }
                 }
             }
-            // RFC-0002/AEP-0001: change-impact query（只读，结构化引用）
-            "inspect_change_impact" => {
-                // RFC-0002 是 DRAFT：默认不可调用（opt-in），避免未接受的
-                // 实验工具默认暴露给 agent。
-                if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
-                    resp!(
+        }
+        // RFC-0002/AEP-0001: change-impact query（只读，结构化引用）
+        "inspect_change_impact" => {
+            // RFC-0002 是 DRAFT：默认不可调用（opt-in），避免未接受的
+            // 实验工具默认暴露给 agent。
+            if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
+                resp!(
                         false,
                         "null",
                         "E_AEP_UNKNOWN_TOOL: inspect_change_impact (experimental; set ALVA_AEP_ENABLE_EXPERIMENTAL_A1=1)"
                     )
-                } else {
-                    let s = need_session!();
-                    let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
-                    match change_impact(&s.graph, entity) {
-                        Ok(json) => resp!(true, &json, "ok"),
-                        Err(e) => resp!(false, "null", &e),
-                    }
+            } else {
+                let s = need_session!();
+                let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
+                match change_impact(&s.graph, entity) {
+                    Ok(json) => resp!(true, &json, "ok"),
+                    Err(e) => resp!(false, "null", &e),
                 }
             }
-            // RFC-0002/AEP-0001: 批量 schema 缺口诊断
-            // （E_RECORD_SCHEMA_INCOMPLETE：一次列出所有缺字段的构造点）
-            "inspect_schema_gaps" => {
-                if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
-                    resp!(
+        }
+        // RFC-0002/AEP-0001: 批量 schema 缺口诊断
+        // （E_RECORD_SCHEMA_INCOMPLETE：一次列出所有缺字段的构造点）
+        "inspect_schema_gaps" => {
+            if std::env::var("ALVA_AEP_ENABLE_EXPERIMENTAL_A1").is_err() {
+                resp!(
                         false,
                         "null",
                         "E_AEP_UNKNOWN_TOOL: inspect_schema_gaps (experimental; set ALVA_AEP_ENABLE_EXPERIMENTAL_A1=1)"
                     )
-                } else {
-                    let s = need_session!();
-                    let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
-                    match schema_gaps(&s.graph, entity) {
-                        Ok(json) => resp!(true, &json, "ok"),
+            } else {
+                let s = need_session!();
+                let entity = req.get("entity").and_then(|v| v.as_str()).unwrap_or("");
+                match schema_gaps(&s.graph, entity) {
+                    Ok(json) => resp!(true, &json, "ok"),
+                    Err(e) => resp!(false, "null", &e),
+                }
+            }
+        }
+        "add_field" => {
+            let s = need_session!();
+            let type_name = req.get("type").and_then(|v| v.as_str()).unwrap_or("");
+            let field = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let type_name2 = req
+                .get("type_name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("string");
+            match resolve_type_in_graph(&s.graph, type_name) {
+                Some(type_rev) => {
+                    match (|| -> Result<String, String> {
+                        let ty = type_expr_for(type_name2, &mut s.graph)?;
+                        let mut f = BTreeMap::new();
+                        f.insert("name".to_string(), air::Value::Str(field.to_string()));
+                        let mut slots = BTreeMap::new();
+                        slots.insert("type".to_string(), vec![ty]);
+                        let field_rev = s.create_node("type_field", f, slots)?;
+                        s.append_child(&type_rev, "fields", &field_rev)?;
+                        Ok(field_rev)
+                    })() {
+                        Ok(rev) => {
+                            resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
+                        }
                         Err(e) => resp!(false, "null", &e),
                     }
                 }
+                None => resp!(false, "null", &not_found(&s.graph, type_name)),
             }
-            "add_field" => {
-                let s = need_session!();
-                let type_name = req.get("type").and_then(|v| v.as_str()).unwrap_or("");
-                let field = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let type_name2 = req
-                    .get("type_name")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("string");
-                match resolve_type_in_graph(&s.graph, type_name) {
-                    Some(type_rev) => {
-                        match (|| -> Result<String, String> {
-                            let ty = type_expr_for(type_name2, &mut s.graph)?;
-                            let mut f = BTreeMap::new();
-                            f.insert("name".to_string(), air::Value::Str(field.to_string()));
-                            let mut slots = BTreeMap::new();
-                            slots.insert("type".to_string(), vec![ty]);
-                            let field_rev = s.create_node("type_field", f, slots)?;
-                            s.append_child(&type_rev, "fields", &field_rev)?;
-                            Ok(field_rev)
-                        })() {
-                            Ok(rev) => {
-                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
-                            }
-                            Err(e) => resp!(false, "null", &e),
+        }
+        "add_record_field" => {
+            let s = need_session!();
+            let record = req.get("record").and_then(|v| v.as_str()).unwrap_or("");
+            let field = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let record_rev = s.graph.resolve_rev(record).ok_or("record not found")?;
+                let value_rev = s.graph.resolve_rev(value).ok_or("value node not found")?;
+                let mut f = BTreeMap::new();
+                f.insert("name".to_string(), air::Value::Str(field.to_string()));
+                let mut slots = BTreeMap::new();
+                slots.insert("value".to_string(), vec![value_rev]);
+                let field_rev = s.create_node("record_field", f, slots)?;
+                s.append_child(&record_rev, "fields", &field_rev)?;
+                Ok(field_rev)
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "add_param" => {
+            let s = need_session!();
+            let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+            let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let type_name = req.get("type").and_then(|v| v.as_str()).unwrap_or("string");
+            match resolve_entity_in_graph(&s.graph, function) {
+                Some(fn_rev) => {
+                    match (|| -> Result<String, String> {
+                        let ty = type_expr_for(type_name, &mut s.graph)?;
+                        let mut f = BTreeMap::new();
+                        f.insert("name".to_string(), air::Value::Str(name.to_string()));
+                        let mut slots = BTreeMap::new();
+                        slots.insert("type".to_string(), vec![ty]);
+                        let param_rev = s.create_node("param", f, slots)?;
+                        s.append_child(&fn_rev, "params", &param_rev)?;
+                        Ok(param_rev)
+                    })() {
+                        Ok(rev) => {
+                            resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
                         }
+                        Err(e) => resp!(false, "null", &e),
                     }
-                    None => resp!(false, "null", &not_found(&s.graph, type_name)),
                 }
+                None => resp!(false, "null", &not_found(&s.graph, function)),
             }
-            "add_record_field" => {
-                let s = need_session!();
-                let record = req.get("record").and_then(|v| v.as_str()).unwrap_or("");
-                let field = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let record_rev = s.graph.resolve_rev(record).ok_or("record not found")?;
-                    let value_rev = s.graph.resolve_rev(value).ok_or("value node not found")?;
-                    let mut f = BTreeMap::new();
-                    f.insert("name".to_string(), air::Value::Str(field.to_string()));
-                    let mut slots = BTreeMap::new();
-                    slots.insert("value".to_string(), vec![value_rev]);
-                    let field_rev = s.create_node("record_field", f, slots)?;
-                    s.append_child(&record_rev, "fields", &field_rev)?;
-                    Ok(field_rev)
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
+        }
+        "add_call_arg" => {
+            let s = need_session!();
+            let call = req.get("call").and_then(|v| v.as_str()).unwrap_or("");
+            let arg = req.get("arg").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let call_rev = s.graph.resolve_rev(call).ok_or("call node not found")?;
+                let arg_rev = s.graph.resolve_rev(arg).ok_or("arg node not found")?;
+                s.append_child(&call_rev, "args", &arg_rev)?;
+                Ok(call_rev)
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
             }
-            "add_param" => {
-                let s = need_session!();
-                let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
-                let name = req.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let type_name = req.get("type").and_then(|v| v.as_str()).unwrap_or("string");
-                match resolve_entity_in_graph(&s.graph, function) {
-                    Some(fn_rev) => {
-                        match (|| -> Result<String, String> {
-                            let ty = type_expr_for(type_name, &mut s.graph)?;
-                            let mut f = BTreeMap::new();
-                            f.insert("name".to_string(), air::Value::Str(name.to_string()));
-                            let mut slots = BTreeMap::new();
-                            slots.insert("type".to_string(), vec![ty]);
-                            let param_rev = s.create_node("param", f, slots)?;
-                            s.append_child(&fn_rev, "params", &param_rev)?;
-                            Ok(param_rev)
-                        })() {
-                            Ok(rev) => {
-                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
-                            }
-                            Err(e) => resp!(false, "null", &e),
-                        }
-                    }
-                    None => resp!(false, "null", &not_found(&s.graph, function)),
-                }
-            }
-            "add_call_arg" => {
-                let s = need_session!();
-                let call = req.get("call").and_then(|v| v.as_str()).unwrap_or("");
-                let arg = req.get("arg").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let call_rev = s.graph.resolve_rev(call).ok_or("call node not found")?;
-                    let arg_rev = s.graph.resolve_rev(arg).ok_or("arg node not found")?;
-                    s.append_child(&call_rev, "args", &arg_rev)?;
-                    Ok(call_rev)
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "set_effect" => {
-                let s = need_session!();
-                let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
-                let effect = req.get("effect").and_then(|v| v.as_str()).unwrap_or("");
-                match resolve_entity_in_graph(&s.graph, function) {
-                    Some(fn_rev) => {
-                        let r = match effect {
-                            "pure" => {
-                                match s.set_field(&fn_rev, "pure", air::Value::Bool(true)) {
-                                    Ok(_) => {
-                                        // 第一次 set_field 会改变函数节点 revision，
-                                        // 必须重新解析实体再更新 eff 字段。
-                                        let rev2 = resolve_entity_in_graph(&s.graph, function)
-                                            .unwrap_or_else(|| fn_rev.clone());
-                                        s.set_field(&rev2, "eff", air::Value::Names(vec![]))
-                                    }
-                                    Err(e) => Err(e),
-                                }
-                            }
-                            "io" => match s.set_field(&fn_rev, "pure", air::Value::Bool(false)) {
+        }
+        "set_effect" => {
+            let s = need_session!();
+            let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+            let effect = req.get("effect").and_then(|v| v.as_str()).unwrap_or("");
+            match resolve_entity_in_graph(&s.graph, function) {
+                Some(fn_rev) => {
+                    let r = match effect {
+                        "pure" => {
+                            match s.set_field(&fn_rev, "pure", air::Value::Bool(true)) {
                                 Ok(_) => {
+                                    // 第一次 set_field 会改变函数节点 revision，
+                                    // 必须重新解析实体再更新 eff 字段。
                                     let rev2 = resolve_entity_in_graph(&s.graph, function)
                                         .unwrap_or_else(|| fn_rev.clone());
-                                    s.set_field(
-                                        &rev2,
-                                        "eff",
-                                        air::Value::Names(vec!["io".to_string()]),
-                                    )
+                                    s.set_field(&rev2, "eff", air::Value::Names(vec![]))
                                 }
                                 Err(e) => Err(e),
-                            },
-                            other => Err(format!("unknown effect '{other}'")),
-                        };
-                        match r {
-                            Ok(rev) => {
-                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
                             }
-                            Err(e) => resp!(false, "null", &e),
                         }
-                    }
-                    None => resp!(false, "null", &not_found(&s.graph, function)),
-                }
-            }
-            "add_cap" => {
-                let s = need_session!();
-                let module = req.get("module").and_then(|v| v.as_str()).unwrap_or("");
-                let cap = req.get("cap").and_then(|v| v.as_str()).unwrap_or("");
-                match resolve_entity_in_graph(&s.graph, module) {
-                    Some(m) => {
-                        let mut caps = s
-                            .graph
-                            .get(&m)
-                            .and_then(|n| match n.fields.get("caps") {
-                                Some(air::Value::Names(ns)) => Some(ns.clone()),
-                                _ => None,
-                            })
-                            .unwrap_or_default();
-                        if !caps.contains(&cap.to_string()) {
-                            caps.push(cap.to_string());
-                        }
-                        match s.set_field(&m, "caps", air::Value::Names(caps)) {
-                            Ok(rev) => {
-                                resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
+                        "io" => match s.set_field(&fn_rev, "pure", air::Value::Bool(false)) {
+                            Ok(_) => {
+                                let rev2 = resolve_entity_in_graph(&s.graph, function)
+                                    .unwrap_or_else(|| fn_rev.clone());
+                                s.set_field(&rev2, "eff", air::Value::Names(vec!["io".to_string()]))
                             }
-                            Err(e) => resp!(false, "null", &e),
+                            Err(e) => Err(e),
+                        },
+                        other => Err(format!("unknown effect '{other}'")),
+                    };
+                    match r {
+                        Ok(rev) => {
+                            resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
                         }
+                        Err(e) => resp!(false, "null", &e),
                     }
-                    None => resp!(false, "null", &not_found(&s.graph, module)),
                 }
+                None => resp!(false, "null", &not_found(&s.graph, function)),
             }
-            "create_if" => {
-                let s = need_session!();
-                let cond = req.get("cond").and_then(|v| v.as_str()).unwrap_or("");
-                let then = req.get("then").and_then(|v| v.as_str()).unwrap_or("");
-                let els = req.get("else").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let cond_rev = s.graph.resolve_rev(cond).ok_or("cond node not found")?;
-                    let then_rev = s.graph.resolve_rev(then).ok_or("then node not found")?;
-                    let else_rev = s.graph.resolve_rev(els).ok_or("else node not found")?;
-                    let mut slots = BTreeMap::new();
-                    slots.insert("cond".to_string(), vec![cond_rev]);
-                    slots.insert("then".to_string(), vec![then_rev]);
-                    slots.insert("else".to_string(), vec![else_rev]);
-                    s.create_node("if", BTreeMap::new(), slots)
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "create_binary" => {
-                let s = need_session!();
-                let op = req.get("op").and_then(|v| v.as_str()).unwrap_or("");
-                let left = req.get("left").and_then(|v| v.as_str()).unwrap_or("");
-                let right = req.get("right").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let left_rev = s.graph.resolve_rev(left).ok_or("left node not found")?;
-                    let right_rev = s.graph.resolve_rev(right).ok_or("right node not found")?;
-                    let mut f = BTreeMap::new();
-                    f.insert("op".to_string(), air::Value::Str(op.to_string()));
-                    let mut slots = BTreeMap::new();
-                    slots.insert("left".to_string(), vec![left_rev]);
-                    slots.insert("right".to_string(), vec![right_rev]);
-                    s.create_node("binary", f, slots)
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "create_query" => {
-                // RFC-0003: 创建查询表达式节点。
-                //   contains: kind=contains collection=<rev> target=<rev>
-                //   any/all/find: kind=<any|all|find> collection=<rev>
-                //                 elem_var=<name> predicate=<rev>
-                // 用 resolve_current（AEP 0.7）解析句柄，避免 stale revision
-                // grounding 失败；结构错误即时拒绝。
-                let s = need_session!();
-                let kind = req.get("kind").and_then(|v| v.as_str()).unwrap_or("");
-                let collection = req.get("collection").and_then(|v| v.as_str()).unwrap_or("");
-                let target = req.get("target").and_then(|v| v.as_str()).unwrap_or("");
-                let elem_var = req.get("elem_var").and_then(|v| v.as_str()).unwrap_or("");
-                let predicate = req.get("predicate").and_then(|v| v.as_str()).unwrap_or("");
-                match (|| -> Result<String, String> {
-                    let coll_rev = s.resolve_current(collection)?;
-                    if kind == "contains" {
-                        if target.is_empty() {
-                            return Err(
-                                "E_QUERY_TARGET_MISSING: contains requires target".to_string()
-                            );
+        }
+        "add_cap" => {
+            let s = need_session!();
+            let module = req.get("module").and_then(|v| v.as_str()).unwrap_or("");
+            let cap = req.get("cap").and_then(|v| v.as_str()).unwrap_or("");
+            match resolve_entity_in_graph(&s.graph, module) {
+                Some(m) => {
+                    let mut caps = s
+                        .graph
+                        .get(&m)
+                        .and_then(|n| match n.fields.get("caps") {
+                            Some(air::Value::Names(ns)) => Some(ns.clone()),
+                            _ => None,
+                        })
+                        .unwrap_or_default();
+                    if !caps.contains(&cap.to_string()) {
+                        caps.push(cap.to_string());
+                    }
+                    match s.set_field(&m, "caps", air::Value::Names(caps)) {
+                        Ok(rev) => {
+                            resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok")
                         }
-                        let tgt_rev = s.resolve_current(target)?;
-                        let mut slots = BTreeMap::new();
-                        slots.insert("left".to_string(), vec![coll_rev]);
-                        slots.insert("right".to_string(), vec![tgt_rev]);
-                        s.create_node("veccontains", BTreeMap::new(), slots)
-                    } else if kind == "any" || kind == "all" || kind == "find" {
-                        if elem_var.is_empty() {
-                            return Err(format!(
-                                "E_QUERY_ELEM_VAR_MISSING: {kind} requires elem_var"
-                            ));
-                        }
-                        if !check::valid_ident(elem_var) {
-                            return Err(format!(
+                        Err(e) => resp!(false, "null", &e),
+                    }
+                }
+                None => resp!(false, "null", &not_found(&s.graph, module)),
+            }
+        }
+        "create_if" => {
+            let s = need_session!();
+            let cond = req.get("cond").and_then(|v| v.as_str()).unwrap_or("");
+            let then = req.get("then").and_then(|v| v.as_str()).unwrap_or("");
+            let els = req.get("else").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let cond_rev = s.graph.resolve_rev(cond).ok_or("cond node not found")?;
+                let then_rev = s.graph.resolve_rev(then).ok_or("then node not found")?;
+                let else_rev = s.graph.resolve_rev(els).ok_or("else node not found")?;
+                let mut slots = BTreeMap::new();
+                slots.insert("cond".to_string(), vec![cond_rev]);
+                slots.insert("then".to_string(), vec![then_rev]);
+                slots.insert("else".to_string(), vec![else_rev]);
+                s.create_node("if", BTreeMap::new(), slots)
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "create_binary" => {
+            let s = need_session!();
+            let op = req.get("op").and_then(|v| v.as_str()).unwrap_or("");
+            let left = req.get("left").and_then(|v| v.as_str()).unwrap_or("");
+            let right = req.get("right").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let left_rev = s.graph.resolve_rev(left).ok_or("left node not found")?;
+                let right_rev = s.graph.resolve_rev(right).ok_or("right node not found")?;
+                let mut f = BTreeMap::new();
+                f.insert("op".to_string(), air::Value::Str(op.to_string()));
+                let mut slots = BTreeMap::new();
+                slots.insert("left".to_string(), vec![left_rev]);
+                slots.insert("right".to_string(), vec![right_rev]);
+                s.create_node("binary", f, slots)
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "create_query" => {
+            // RFC-0003: 创建查询表达式节点。
+            //   contains: kind=contains collection=<rev> target=<rev>
+            //   any/all/find: kind=<any|all|find> collection=<rev>
+            //                 elem_var=<name> predicate=<rev>
+            // 用 resolve_current（AEP 0.7）解析句柄，避免 stale revision
+            // grounding 失败；结构错误即时拒绝。
+            let s = need_session!();
+            let kind = req.get("kind").and_then(|v| v.as_str()).unwrap_or("");
+            let collection = req.get("collection").and_then(|v| v.as_str()).unwrap_or("");
+            let target = req.get("target").and_then(|v| v.as_str()).unwrap_or("");
+            let elem_var = req.get("elem_var").and_then(|v| v.as_str()).unwrap_or("");
+            let predicate = req.get("predicate").and_then(|v| v.as_str()).unwrap_or("");
+            match (|| -> Result<String, String> {
+                let coll_rev = s.resolve_current(collection)?;
+                if kind == "contains" {
+                    if target.is_empty() {
+                        return Err("E_QUERY_TARGET_MISSING: contains requires target".to_string());
+                    }
+                    let tgt_rev = s.resolve_current(target)?;
+                    let mut slots = BTreeMap::new();
+                    slots.insert("left".to_string(), vec![coll_rev]);
+                    slots.insert("right".to_string(), vec![tgt_rev]);
+                    s.create_node("veccontains", BTreeMap::new(), slots)
+                } else if kind == "any" || kind == "all" || kind == "find" {
+                    if elem_var.is_empty() {
+                        return Err(format!(
+                            "E_QUERY_ELEM_VAR_MISSING: {kind} requires elem_var"
+                        ));
+                    }
+                    if !check::valid_ident(elem_var) {
+                        return Err(format!(
                                 "E_QUERY_ELEM_VAR_INVALID: {kind} elem_var '{elem_var}' is not a valid identifier (no Rust keyword, no __ prefix)"
                             ));
-                        }
-                        if predicate.is_empty() {
-                            return Err(format!(
-                                "E_QUERY_PREDICATE_MISSING: {kind} requires predicate"
-                            ));
-                        }
-                        let pred_rev = s.resolve_current(predicate)?;
-                        let mut f = BTreeMap::new();
-                        f.insert(
-                            "elem_var".to_string(),
-                            air::Value::Str(elem_var.to_string()),
-                        );
-                        let mut slots = BTreeMap::new();
-                        slots.insert("collection".to_string(), vec![coll_rev]);
-                        slots.insert("predicate".to_string(), vec![pred_rev]);
-                        s.create_node(kind, f, slots)
-                    } else {
-                        Err(format!("E_QUERY_UNKNOWN_KIND: unknown query kind '{kind}'"))
                     }
-                })() {
-                    Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
-                    Err(e) => resp!(false, "null", &e),
+                    if predicate.is_empty() {
+                        return Err(format!(
+                            "E_QUERY_PREDICATE_MISSING: {kind} requires predicate"
+                        ));
+                    }
+                    let pred_rev = s.resolve_current(predicate)?;
+                    let mut f = BTreeMap::new();
+                    f.insert(
+                        "elem_var".to_string(),
+                        air::Value::Str(elem_var.to_string()),
+                    );
+                    let mut slots = BTreeMap::new();
+                    slots.insert("collection".to_string(), vec![coll_rev]);
+                    slots.insert("predicate".to_string(), vec![pred_rev]);
+                    s.create_node(kind, f, slots)
+                } else {
+                    Err(format!("E_QUERY_UNKNOWN_KIND: unknown query kind '{kind}'"))
+                }
+            })() {
+                Ok(rev) => resp!(true, &format!("{{\"revision\":{}}}", json_str(&rev)), "ok"),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "update_record_fields" => {
+            // RFC-0001: 创建 record_update 表达式节点。
+            // 入参：type（record 类型名）、base（表达式 entity）、
+            // updates（{field: value_entity}）。未指定字段语义上保留。
+            // 结构性错误（空/重复）即时拒绝；字段存在性/类型兼容通过把
+            // 节点临时挂载到 base 所在函数体做完整语义校验，失败回滚。
+            let s = need_session!();
+            let ty = req.get("type").and_then(|v| v.as_str()).unwrap_or("");
+            let base = req.get("base").and_then(|v| v.as_str()).unwrap_or("");
+            let mut updates: Vec<(String, String)> = Vec::new();
+            if let Some(Json::Obj(map)) = req.get("updates") {
+                for (k, v) in map {
+                    if let Some(id) = v.as_str() {
+                        updates.push((k.clone(), id.to_string()));
+                    }
                 }
             }
-            "update_record_fields" => {
-                // RFC-0001: 创建 record_update 表达式节点。
-                // 入参：type（record 类型名）、base（表达式 entity）、
-                // updates（{field: value_entity}）。未指定字段语义上保留。
-                // 结构性错误（空/重复）即时拒绝；字段存在性/类型兼容通过把
-                // 节点临时挂载到 base 所在函数体做完整语义校验，失败回滚。
-                let s = need_session!();
-                let ty = req.get("type").and_then(|v| v.as_str()).unwrap_or("");
-                let base = req.get("base").and_then(|v| v.as_str()).unwrap_or("");
-                let mut updates: Vec<(String, String)> = Vec::new();
-                if let Some(Json::Obj(map)) = req.get("updates") {
-                    for (k, v) in map {
-                        if let Some(id) = v.as_str() {
-                            updates.push((k.clone(), id.to_string()));
-                        }
+            match (|| -> Result<(String, Vec<String>), String> {
+                if ty.is_empty() {
+                    return Err(
+                        "E_RECORD_UPDATE_TYPE_MISSING: record-update requires a record type"
+                            .to_string(),
+                    );
+                }
+                if base.is_empty() {
+                    return Err("E_AEP_BAD_REQUEST: update_record_fields requires base".to_string());
+                }
+                if updates.is_empty() {
+                    return Err(
+                        "E_RECORD_UPDATE_EMPTY: record-update must update at least one field"
+                            .to_string(),
+                    );
+                }
+                let mut seen = std::collections::HashSet::new();
+                for (f, _) in &updates {
+                    if !seen.insert(f.clone()) {
+                        return Err(format!(
+                            "E_RECORD_UPDATE_DUPLICATE_FIELD: duplicate update field '{f}'"
+                        ));
                     }
                 }
-                match (|| -> Result<(String, Vec<String>), String> {
-                    if ty.is_empty() {
-                        return Err(
-                            "E_RECORD_UPDATE_TYPE_MISSING: record-update requires a record type"
-                                .to_string(),
-                        );
-                    }
-                    if base.is_empty() {
-                        return Err(
-                            "E_AEP_BAD_REQUEST: update_record_fields requires base".to_string()
-                        );
-                    }
-                    if updates.is_empty() {
-                        return Err(
-                            "E_RECORD_UPDATE_EMPTY: record-update must update at least one field"
-                                .to_string(),
-                        );
-                    }
-                    let mut seen = std::collections::HashSet::new();
-                    for (f, _) in &updates {
-                        if !seen.insert(f.clone()) {
-                            return Err(format!(
-                                "E_RECORD_UPDATE_DUPLICATE_FIELD: duplicate update field '{f}'"
-                            ));
+                let base_rev = s.resolve_current(base)?;
+                let mut value_revs = Vec::new();
+                for (_, vid) in &updates {
+                    value_revs.push(s.resolve_current(vid)?);
+                }
+                let saved = s.graph.clone();
+                let make_nodes =
+                    |s: &mut air::EditSession| -> Result<(String, Vec<String>), String> {
+                        let mut update_ids = Vec::new();
+                        for ((f, _), vrev) in updates.iter().zip(value_revs.iter()) {
+                            let mut ff = BTreeMap::new();
+                            ff.insert("name".to_string(), air::Value::Str(f.clone()));
+                            let mut fs = BTreeMap::new();
+                            fs.insert("value".to_string(), vec![vrev.clone()]);
+                            let id = s.create_node("update_field", ff, fs)?;
+                            update_ids.push(id);
                         }
-                    }
-                    let base_rev = s.resolve_current(base)?;
-                    let mut value_revs = Vec::new();
-                    for (_, vid) in &updates {
-                        value_revs.push(s.resolve_current(vid)?);
-                    }
-                    let saved = s.graph.clone();
-                    let make_nodes =
-                        |s: &mut air::EditSession| -> Result<(String, Vec<String>), String> {
-                            let mut update_ids = Vec::new();
-                            for ((f, _), vrev) in updates.iter().zip(value_revs.iter()) {
-                                let mut ff = BTreeMap::new();
-                                ff.insert("name".to_string(), air::Value::Str(f.clone()));
-                                let mut fs = BTreeMap::new();
-                                fs.insert("value".to_string(), vec![vrev.clone()]);
-                                let id = s.create_node("update_field", ff, fs)?;
-                                update_ids.push(id);
-                            }
-                            let mut f = BTreeMap::new();
-                            f.insert("type".to_string(), air::Value::Str(ty.to_string()));
-                            let mut slots = BTreeMap::new();
-                            slots.insert("base".to_string(), vec![base_rev.clone()]);
-                            slots.insert("updates".to_string(), update_ids.clone());
-                            let rev = s.create_node("record_update", f, slots)?;
-                            Ok((rev, update_ids))
-                        };
-                    let (rev, _) = make_nodes(s)?;
-                    // 找 base 所属函数的 body block（向上走 parent 链）
-                    let parents = air::parent_index(&s.graph);
-                    let mut cur = base_rev.clone();
-                    let mut block_rev: Option<String> = None;
-                    let mut guard = 0;
-                    while guard < 100_000 {
-                        guard += 1;
-                        match parents.get(&cur).and_then(|p| p.first()) {
-                            Some((pref, _)) => {
-                                if let Some(pn) = s.graph.get(pref) {
-                                    if pn.kind == "function" {
-                                        block_rev =
-                                            pn.slots.get("body").and_then(|b| b.first()).cloned();
-                                        break;
-                                    }
-                                }
-                                cur = pref.clone();
-                            }
-                            None => break,
-                        }
-                    }
-                    let temp_checked = if let Some(block) = block_rev {
-                        // 插到 steps 开头，避免改变函数返回类型判定
-                        s.insert_child(&block, "steps", &rev, 0).is_ok()
-                    } else {
-                        false
+                        let mut f = BTreeMap::new();
+                        f.insert("type".to_string(), air::Value::Str(ty.to_string()));
+                        let mut slots = BTreeMap::new();
+                        slots.insert("base".to_string(), vec![base_rev.clone()]);
+                        slots.insert("updates".to_string(), update_ids.clone());
+                        let rev = s.create_node("record_update", f, slots)?;
+                        Ok((rev, update_ids))
                     };
-                    let errs = if temp_checked { s.check() } else { Vec::new() };
-                    s.graph = saved;
-                    s.errors = Vec::new();
-                    if !errs.is_empty() {
-                        return Err(errs.join("; "));
+                let (rev, _) = make_nodes(s)?;
+                // 找 base 所属函数的 body block（向上走 parent 链）
+                let parents = air::parent_index(&s.graph);
+                let mut cur = base_rev.clone();
+                let mut block_rev: Option<String> = None;
+                let mut guard = 0;
+                while guard < 100_000 {
+                    guard += 1;
+                    match parents.get(&cur).and_then(|p| p.first()) {
+                        Some((pref, _)) => {
+                            if let Some(pn) = s.graph.get(pref) {
+                                if pn.kind == "function" {
+                                    block_rev =
+                                        pn.slots.get("body").and_then(|b| b.first()).cloned();
+                                    break;
+                                }
+                            }
+                            cur = pref.clone();
+                        }
+                        None => break,
                     }
-                    // 校验通过：重建节点（未挂载），交 agent 挂载
-                    let (rev, update_ids) = make_nodes(s)?;
-                    Ok((rev, update_ids))
-                })() {
-                    Ok((rev, update_ids)) => resp!(
+                }
+                let temp_checked = if let Some(block) = block_rev {
+                    // 插到 steps 开头，避免改变函数返回类型判定
+                    s.insert_child(&block, "steps", &rev, 0).is_ok()
+                } else {
+                    false
+                };
+                let errs = if temp_checked { s.check() } else { Vec::new() };
+                s.graph = saved;
+                s.errors = Vec::new();
+                if !errs.is_empty() {
+                    return Err(errs.join("; "));
+                }
+                // 校验通过：重建节点（未挂载），交 agent 挂载
+                let (rev, update_ids) = make_nodes(s)?;
+                Ok((rev, update_ids))
+            })() {
+                Ok((rev, update_ids)) => resp!(
+                    true,
+                    &format!(
+                        "{{\"revision\":{},\"updates\":{}}}",
+                        json_str(&rev),
+                        json_str(&update_ids.join(","))
+                    ),
+                    "ok"
+                ),
+                Err(e) => resp!(false, "null", &e),
+            }
+        }
+        "check_transaction" => match runtime.check() {
+            Ok(()) => resp!(true, "{\"problems\":[]}", "check ok"),
+            Err(error) => resp!(false, "null", &error),
+        },
+        "stage_and_check" => {
+            let operation_name = req.get("operation").and_then(Json::as_str).unwrap_or("");
+            let nested_spec = aep::lookup(operation_name);
+            let nested_spec = match nested_spec {
+                Some(spec)
+                    if spec.effects == "mutation"
+                        && spec.name != "stage_and_check"
+                        && spec.gate.map(aep::gate_enabled).unwrap_or(true) =>
+                {
+                    spec
+                }
+                _ => {
+                    return resp!(
+                    false,
+                    "null",
+                    "E_AEP_STAGE_OPERATION_FORBIDDEN: nested operation must be an enabled mutation"
+                )
+                }
+            };
+            let arguments = match req.get("arguments") {
+                Some(Json::Obj(arguments)) => arguments,
+                _ => {
+                    return resp!(
+                        false,
+                        "null",
+                        "E_AEP_STAGE_BAD_ARGUMENTS: arguments must be an object"
+                    )
+                }
+            };
+            if arguments.contains_key("tool") || arguments.contains_key("request_id") {
+                return resp!(
+                    false,
+                    "null",
+                    "E_AEP_STAGE_BAD_ARGUMENTS: nested arguments cannot contain protocol envelope fields"
+                );
+            }
+            let mut nested_fields = arguments.clone();
+            nested_fields.insert(
+                "request_id".to_string(),
+                Json::Str(format!("{request_id}:mutation")),
+            );
+            nested_fields.insert("tool".to_string(), Json::Str(nested_spec.name.to_string()));
+            let nested_request = Json::Obj(nested_fields);
+            let nested_wire = execute_agent_request(runtime, &nested_request, op_index);
+            let nested_response: serde_json::Value = match serde_json::from_str(&nested_wire) {
+                Ok(response) => response,
+                Err(error) => {
+                    return resp!(
+                        false,
+                        "null",
+                        &format!("E_AEP_STAGE_INTERNAL: invalid nested response: {error}")
+                    )
+                }
+            };
+            if nested_response
+                .get("ok")
+                .and_then(serde_json::Value::as_bool)
+                != Some(true)
+            {
+                let nested_result = nested_response
+                    .get("result")
+                    .cloned()
+                    .unwrap_or(serde_json::Value::Null)
+                    .to_string();
+                let nested_message = nested_response
+                    .get("message")
+                    .and_then(serde_json::Value::as_str)
+                    .unwrap_or("E_AEP_STAGE_MUTATION_FAILED")
+                    .to_string();
+                return resp!(false, &nested_result, &nested_message);
+            }
+            let mutation = nested_response
+                .get("result")
+                .cloned()
+                .unwrap_or(serde_json::Value::Null)
+                .to_string();
+            let diff = match runtime.preview_semantic_diff() {
+                Ok(diff) => bounded_text(&diff, 4096),
+                Err(error) => return resp!(false, "null", &error),
+            };
+            let problems = match runtime.check_problems() {
+                Ok(problems) => problems,
+                Err(error) => return resp!(false, "null", &error),
+            };
+            const MAX_PROBLEMS: usize = 20;
+            let truncated = problems.len() > MAX_PROBLEMS;
+            let shown = problems
+                .iter()
+                .take(MAX_PROBLEMS)
+                .map(|problem| json_str(problem))
+                .collect::<Vec<_>>()
+                .join(",");
+            resp!(
+                    true,
+                    &format!(
+                        "{{\"operation\":{},\"mutation\":{},\"diff\":{},\"check\":{{\"ok\":{},\"problems\":[{}],\"count\":{},\"truncated\":{}}}}}",
+                        json_str(nested_spec.name),
+                        mutation,
+                        json_str(&diff),
+                        problems.is_empty(),
+                        shown,
+                        problems.len(),
+                        truncated
+                    ),
+                    if problems.is_empty() {
+                        "staged; check ok"
+                    } else {
+                        "staged; check requires repair"
+                    }
+                )
+        }
+        "preview_semantic_diff" => match runtime.preview_semantic_diff() {
+            Ok(diff) => resp!(true, &format!("{{\"diff\":{}}}", json_str(&diff)), "ok"),
+            Err(error) => resp!(false, "null", &error),
+        },
+        "commit_transaction" => match runtime.commit() {
+            Ok(committed) => resp!(
+                true,
+                &format!(
+                    "{{\"generation\":{},\"revision\":{}}}",
+                    committed.generation,
+                    json_str(&committed.revision)
+                ),
+                "committed"
+            ),
+            Err(error) => resp!(false, "null", &error),
+        },
+        "abort_transaction" => {
+            runtime.abort();
+            resp!(true, "{\"aborted\":true}", "aborted")
+        }
+        // RFC-0005 / AEP-0002: Intent -> Applicable Semantic Operations.
+        "resolve_entity" => {
+            let s = need_session!();
+            let name = req
+                .get("name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            // Layer A: normalize quotes / prefixes / path suffixes before
+            // the existing exact resolution (representation hygiene only).
+            let name = air::normalize_handle(&name);
+            let kind_f = req
+                .get("kind")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+            let module_f = req
+                .get("module")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+            if name.is_empty() {
+                resp!(
+                    false,
+                    "null",
+                    "E_AEP_BAD_REQUEST: resolve_entity requires 'name'"
+                )
+            } else {
+                match resolve_entity_full(&s.graph, &name, kind_f.as_deref(), module_f.as_deref()) {
+                    ResolveOutcome::Exact {
+                        id,
+                        kind,
+                        module,
+                        display,
+                    } => resp!(
                         true,
                         &format!(
-                            "{{\"revision\":{},\"updates\":{}}}",
-                            json_str(&rev),
-                            json_str(&update_ids.join(","))
+                            "{{\"entity\":{},\"kind\":{},\"module\":{},\"display\":{}}}",
+                            json_str(&id),
+                            json_str(&kind),
+                            json_str(&module),
+                            json_str(&display)
                         ),
                         "ok"
                     ),
-                    Err(e) => resp!(false, "null", &e),
-                }
-            }
-            "check_transaction" => match runtime.check() {
-                Ok(()) => resp!(true, "{\"problems\":[]}", "check ok"),
-                Err(error) => resp!(false, "null", &error),
-            },
-            "preview_semantic_diff" => match runtime.preview_semantic_diff() {
-                Ok(diff) => resp!(true, &format!("{{\"diff\":{}}}", json_str(&diff)), "ok"),
-                Err(error) => resp!(false, "null", &error),
-            },
-            "commit_transaction" => match runtime.commit() {
-                Ok(committed) => resp!(
-                    true,
-                    &format!(
-                        "{{\"generation\":{},\"revision\":{}}}",
-                        committed.generation,
-                        json_str(&committed.revision)
-                    ),
-                    "committed"
-                ),
-                Err(error) => resp!(false, "null", &error),
-            },
-            "abort_transaction" => {
-                runtime.abort();
-                resp!(true, "{\"aborted\":true}", "aborted")
-            }
-            // RFC-0005 / AEP-0002: Intent -> Applicable Semantic Operations.
-            "resolve_entity" => {
-                let s = need_session!();
-                let name = req
-                    .get("name")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                // Layer A: normalize quotes / prefixes / path suffixes before
-                // the existing exact resolution (representation hygiene only).
-                let name = air::normalize_handle(&name);
-                let kind_f = req
-                    .get("kind")
-                    .and_then(|v| v.as_str())
-                    .map(|s| s.to_string());
-                let module_f = req
-                    .get("module")
-                    .and_then(|v| v.as_str())
-                    .map(|s| s.to_string());
-                if name.is_empty() {
-                    resp!(
-                        false,
-                        "null",
-                        "E_AEP_BAD_REQUEST: resolve_entity requires 'name'"
-                    )
-                } else {
-                    match resolve_entity_full(
-                        &s.graph,
-                        &name,
-                        kind_f.as_deref(),
-                        module_f.as_deref(),
-                    ) {
-                        ResolveOutcome::Exact {
-                            id,
-                            kind,
-                            module,
-                            display,
-                        } => resp!(
-                            true,
-                            &format!(
-                                "{{\"entity\":{},\"kind\":{},\"module\":{},\"display\":{}}}",
-                                json_str(&id),
-                                json_str(&kind),
-                                json_str(&module),
-                                json_str(&display)
-                            ),
-                            "ok"
-                        ),
-                        out => {
-                            let (code, msg) = match &out {
-                                ResolveOutcome::Ambiguous { .. } => {
-                                    ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
-                                }
-                                _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
-                            };
-                            resp!(
-                                false,
-                                &resolve_result_json(&out, &name),
-                                &format!("{code}: {msg}")
-                            )
-                        }
+                    out => {
+                        let (code, msg) = match &out {
+                            ResolveOutcome::Ambiguous { .. } => {
+                                ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                            }
+                            _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                        };
+                        resp!(
+                            false,
+                            &resolve_result_json(&out, &name),
+                            &format!("{code}: {msg}")
+                        )
                     }
                 }
             }
-            "applicable_operations" => {
-                let s = need_session!();
-                let entity = req
-                    .get("entity")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                if entity.is_empty() {
-                    resp!(
-                        false,
-                        "null",
-                        "E_AEP_BAD_REQUEST: applicable_operations requires 'entity'"
-                    )
-                } else {
-                    match resolve_entity_full(&s.graph, &entity, None, None) {
-                        ResolveOutcome::Exact { id, kind, .. } => {
-                            let ops = aep::for_entity(&kind);
-                            let inspection: Vec<String> = ops
-                                .iter()
-                                .filter(|o| o.effects == "inspection")
-                                .map(|o| json_str(o.name))
-                                .collect();
-                            let mutation: Vec<String> = ops
-                                .iter()
-                                .filter(|o| o.effects == "mutation")
-                                .map(|o| json_str(o.name))
-                                .collect();
-                            let context: Vec<String> = aep::context_ops()
-                                .iter()
-                                .map(|o| json_str(o.name))
-                                .collect();
-                            resp!(
+        }
+        "applicable_operations" => {
+            let s = need_session!();
+            let entity = req
+                .get("entity")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            if entity.is_empty() {
+                resp!(
+                    false,
+                    "null",
+                    "E_AEP_BAD_REQUEST: applicable_operations requires 'entity'"
+                )
+            } else {
+                match resolve_entity_full(&s.graph, &entity, None, None) {
+                    ResolveOutcome::Exact { id, kind, .. } => {
+                        let ops = aep::for_entity(&kind);
+                        let inspection: Vec<String> = ops
+                            .iter()
+                            .filter(|o| o.effects == "inspection")
+                            .map(|o| json_str(o.name))
+                            .collect();
+                        let mutation: Vec<String> = ops
+                            .iter()
+                            .filter(|o| o.effects == "mutation")
+                            .map(|o| json_str(o.name))
+                            .collect();
+                        let context: Vec<String> = aep::context_ops()
+                            .iter()
+                            .map(|o| json_str(o.name))
+                            .collect();
+                        resp!(
                                 true,
                                 &format!(
                                     "{{\"entity\":{},\"kind\":{},\"inspection\":[{}],\"mutation\":[{}],\"context_operations\":[{}]}}",
@@ -2596,94 +2687,91 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                 ),
                                 "ok"
                             )
-                        }
-                        out => {
-                            let (code, msg) = match &out {
-                                ResolveOutcome::Ambiguous { .. } => {
-                                    ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
-                                }
-                                _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
-                            };
-                            resp!(
-                                false,
-                                &resolve_result_json(&out, &entity),
-                                &format!("{code}: {msg}")
-                            )
-                        }
+                    }
+                    out => {
+                        let (code, msg) = match &out {
+                            ResolveOutcome::Ambiguous { .. } => {
+                                ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                            }
+                            _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                        };
+                        resp!(
+                            false,
+                            &resolve_result_json(&out, &entity),
+                            &format!("{code}: {msg}")
+                        )
                     }
                 }
             }
-            "prepare_edit" => {
-                let s = need_session!();
-                let entity = req
-                    .get("entity")
-                    .and_then(|v| v.as_str())
-                    .map(air::normalize_handle)
-                    .unwrap_or_default();
-                let kind_filter = req.get("kind").and_then(|v| v.as_str());
-                let module_filter = req.get("module").and_then(|v| v.as_str());
-                match resolve_entity_full(&s.graph, &entity, kind_filter, module_filter) {
-                    ResolveOutcome::Exact {
-                        id,
-                        kind,
-                        module,
-                        display,
-                    } => match s.graph.resolve(&id).cloned() {
-                        Some(node) => {
-                            let fields = node
-                                .fields
-                                .iter()
-                                .map(|(name, value)| {
-                                    format!("{}:{}", json_str(name), value_json(value))
-                                })
-                                .collect::<Vec<_>>()
-                                .join(",");
-                            let slot_counts = node
-                                .slots
-                                .iter()
-                                .map(|(name, values)| {
-                                    format!("{}:{}", json_str(name), values.len())
-                                })
-                                .collect::<Vec<_>>()
-                                .join(",");
-                            let applicable = aep::for_entity(&kind);
-                            let operation_names = applicable
-                                .iter()
-                                .map(|operation| json_str(operation.name))
-                                .collect::<Vec<_>>()
-                                .join(",");
-                            let selected_name =
-                                req.get("operation").and_then(|value| value.as_str());
-                            let selected_operation = selected_name
-                                .and_then(|selected| {
-                                    applicable
-                                        .iter()
-                                        .copied()
-                                        .find(|operation| operation.name == selected)
-                                })
-                                .map(|operation| {
-                                    let arguments = operation
-                                        .arguments
-                                        .iter()
-                                        .map(|argument| {
-                                            format!(
-                                                "{{\"name\":{},\"shape\":{},\"required\":{}}}",
-                                                json_str(argument.name),
-                                                json_str(argument.schema.shape()),
-                                                argument.required
-                                            )
-                                        })
-                                        .collect::<Vec<_>>()
-                                        .join(",");
-                                    format!(
-                                        "{{\"name\":{},\"effects\":{},\"arguments\":[{}]}}",
-                                        json_str(operation.name),
-                                        json_str(operation.effects),
-                                        arguments
-                                    )
-                                });
-                            if selected_name.is_some() && selected_operation.is_none() {
-                                resp!(
+        }
+        "prepare_edit" => {
+            let s = need_session!();
+            let entity = req
+                .get("entity")
+                .and_then(|v| v.as_str())
+                .map(air::normalize_handle)
+                .unwrap_or_default();
+            let kind_filter = req.get("kind").and_then(|v| v.as_str());
+            let module_filter = req.get("module").and_then(|v| v.as_str());
+            match resolve_entity_full(&s.graph, &entity, kind_filter, module_filter) {
+                ResolveOutcome::Exact {
+                    id,
+                    kind,
+                    module,
+                    display,
+                } => match s.graph.resolve(&id).cloned() {
+                    Some(node) => {
+                        let fields = node
+                            .fields
+                            .iter()
+                            .map(|(name, value)| {
+                                format!("{}:{}", json_str(name), value_json(value))
+                            })
+                            .collect::<Vec<_>>()
+                            .join(",");
+                        let slot_counts = node
+                            .slots
+                            .iter()
+                            .map(|(name, values)| format!("{}:{}", json_str(name), values.len()))
+                            .collect::<Vec<_>>()
+                            .join(",");
+                        let applicable = aep::for_entity(&kind);
+                        let operation_names = applicable
+                            .iter()
+                            .map(|operation| json_str(operation.name))
+                            .collect::<Vec<_>>()
+                            .join(",");
+                        let selected_name = req.get("operation").and_then(|value| value.as_str());
+                        let selected_operation = selected_name
+                            .and_then(|selected| {
+                                applicable
+                                    .iter()
+                                    .copied()
+                                    .find(|operation| operation.name == selected)
+                            })
+                            .map(|operation| {
+                                let arguments = operation
+                                    .arguments
+                                    .iter()
+                                    .map(|argument| {
+                                        format!(
+                                            "{{\"name\":{},\"shape\":{},\"required\":{}}}",
+                                            json_str(argument.name),
+                                            json_str(argument.schema.shape()),
+                                            argument.required
+                                        )
+                                    })
+                                    .collect::<Vec<_>>()
+                                    .join(",");
+                                format!(
+                                    "{{\"name\":{},\"effects\":{},\"arguments\":[{}]}}",
+                                    json_str(operation.name),
+                                    json_str(operation.effects),
+                                    arguments
+                                )
+                            });
+                        if selected_name.is_some() && selected_operation.is_none() {
+                            resp!(
                                     false,
                                     &format!(
                                         "{{\"applicable_operations\":[{}]}}",
@@ -2691,8 +2779,8 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                     ),
                                     "E_AEP_OPERATION_NOT_APPLICABLE: requested operation is not applicable to target"
                                 )
-                            } else {
-                                resp!(
+                        } else {
+                            resp!(
                                     true,
                                     &format!(
                                         "{{\"entity\":{},\"revision\":{},\"kind\":{},\"module\":{},\"display\":{},\"fields\":{{{}}},\"slot_counts\":{{{}}},\"applicable_operations\":[{}],\"selected_operation\":{}}}",
@@ -2708,125 +2796,125 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                     ),
                                     "prepared"
                                 )
-                            }
                         }
-                        None => resp!(false, "null", &not_found(&s.graph, &entity)),
-                    },
-                    outcome => {
-                        let (code, message) = match &outcome {
-                            ResolveOutcome::Ambiguous { .. } => {
-                                ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
-                            }
-                            _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
-                        };
-                        resp!(
-                            false,
-                            &resolve_result_json(&outcome, &entity),
-                            &format!("{code}: {message}")
-                        )
                     }
+                    None => resp!(false, "null", &not_found(&s.graph, &entity)),
+                },
+                outcome => {
+                    let (code, message) = match &outcome {
+                        ResolveOutcome::Ambiguous { .. } => {
+                            ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                        }
+                        _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                    };
+                    resp!(
+                        false,
+                        &resolve_result_json(&outcome, &entity),
+                        &format!("{code}: {message}")
+                    )
                 }
             }
-            "describe_operation" => {
-                let name = req
-                    .get("name")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                match aep::lookup(&name) {
-                    Some(op) => {
-                        if let Some(gate) = op.gate {
-                            if !aep::gate_enabled(gate) {
-                                let cands = aep::closest(&name, 6);
-                                resp!(
-                                    false,
-                                    &unknown_tool_json(&name, &cands),
-                                    "E_AEP_UNKNOWN_TOOL: unknown operation"
-                                )
-                            } else {
-                                resp!(true, &describe_json(op), "ok")
-                            }
+        }
+        "describe_operation" => {
+            let name = req
+                .get("name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            match aep::lookup(&name) {
+                Some(op) => {
+                    if let Some(gate) = op.gate {
+                        if !aep::gate_enabled(gate) {
+                            let cands = aep::closest(&name, 6);
+                            resp!(
+                                false,
+                                &unknown_tool_json(&name, &cands),
+                                "E_AEP_UNKNOWN_TOOL: unknown operation"
+                            )
                         } else {
                             resp!(true, &describe_json(op), "ok")
                         }
-                    }
-                    None => {
-                        let cands = aep::closest(&name, 6);
-                        resp!(
-                            false,
-                            &unknown_tool_json(&name, &cands),
-                            "E_AEP_UNKNOWN_TOOL: unknown operation"
-                        )
+                    } else {
+                        resp!(true, &describe_json(op), "ok")
                     }
                 }
+                None => {
+                    let cands = aep::closest(&name, 6);
+                    resp!(
+                        false,
+                        &unknown_tool_json(&name, &cands),
+                        "E_AEP_UNKNOWN_TOOL: unknown operation"
+                    )
+                }
             }
-            "describe_construction" => {
-                let s = need_session!();
-                let kind = req
-                    .get("kind")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                let include_candidates = req
-                    .get("include_candidates")
-                    .and_then(|v| match v {
-                        Json::Bool(b) => Some(*b),
-                        // the aep.py CLI forwards key=value as strings, so the
-                        // agent's `include_candidates=true` arrives as
-                        // Json::Str("true"); parse it or the semantic-handle
-                        // affordance is unreachable in the real environment.
-                        Json::Str(s) => match s.as_str() {
-                            "true" | "1" => Some(true),
-                            "false" | "0" => Some(false),
-                            _ => None,
-                        },
+        }
+        "describe_construction" => {
+            let s = need_session!();
+            let kind = req
+                .get("kind")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let include_candidates = req
+                .get("include_candidates")
+                .and_then(|v| match v {
+                    Json::Bool(b) => Some(*b),
+                    // the aep.py CLI forwards key=value as strings, so the
+                    // agent's `include_candidates=true` arrives as
+                    // Json::Str("true"); parse it or the semantic-handle
+                    // affordance is unreachable in the real environment.
+                    Json::Str(s) => match s.as_str() {
+                        "true" | "1" => Some(true),
+                        "false" | "0" => Some(false),
                         _ => None,
-                    })
-                    .unwrap_or(false);
-                match construction::construction_spec(&kind) {
-                    Some(spec) => resp!(
-                        true,
-                        &construction_describe_json(spec, &s.graph, include_candidates),
-                        "ok"
-                    ),
-                    None => {
-                        let cands = construction::closest_kind(&kind, 6);
-                        resp!(
-                            false,
-                            &construction_unknown_kind_json(&kind, &cands),
-                            "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
-                        )
-                    }
+                    },
+                    _ => None,
+                })
+                .unwrap_or(false);
+            match construction::construction_spec(&kind) {
+                Some(spec) => resp!(
+                    true,
+                    &construction_describe_json(spec, &s.graph, include_candidates),
+                    "ok"
+                ),
+                None => {
+                    let cands = construction::closest_kind(&kind, 6);
+                    resp!(
+                        false,
+                        &construction_unknown_kind_json(&kind, &cands),
+                        "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+                    )
                 }
             }
-            "construct_expression" => {
-                let s = need_session!();
-                match handle_construct_expression(s, &req) {
-                    Ok((result, msg)) => resp!(true, &result, &msg),
-                    Err((result, msg)) => resp!(false, &result, &msg),
-                }
+        }
+        "construct_expression" => {
+            let s = need_session!();
+            match handle_construct_expression(s, &req) {
+                Ok((result, msg)) => resp!(true, &result, &msg),
+                Err((result, msg)) => resp!(false, &result, &msg),
             }
-            "describe_capability" => {
-                let _s = need_session!();
-                let name = req
-                    .get("name")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                match capability::resolve_capability(&name) {
-                    capability::CapabilityOutcome::Supported { cap: c, mapping } => {
-                        let mapping_kind = match mapping {
-                            capability::MappingKind::Canonical => "canonical",
-                            capability::MappingKind::Alias => "alias",
-                        };
-                        let aliases: Vec<String> =
-                            c.aliases.iter().map(|a| format!("\"{a}\"")).collect();
-                        let synonyms: Vec<String> = capability::SYNONYMS
-                            .iter()
-                            .filter(|(_, canon)| *canon == c.canonical)
-                            .map(|(s, _)| format!("\"{s}\""))
-                            .collect();
-                        resp!(
+        }
+        "describe_capability" => {
+            let _s = need_session!();
+            let name = req
+                .get("name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            match capability::resolve_capability(&name) {
+                capability::CapabilityOutcome::Supported { cap: c, mapping } => {
+                    let mapping_kind = match mapping {
+                        capability::MappingKind::Canonical => "canonical",
+                        capability::MappingKind::Alias => "alias",
+                    };
+                    let aliases: Vec<String> =
+                        c.aliases.iter().map(|a| format!("\"{a}\"")).collect();
+                    let synonyms: Vec<String> = capability::SYNONYMS
+                        .iter()
+                        .filter(|(_, canon)| *canon == c.canonical)
+                        .map(|(s, _)| format!("\"{s}\""))
+                        .collect();
+                    resp!(
                             true,
                             &format!(
                                 "{{\"supported\":true,\"canonical_name\":{},\"category\":{},\"aliases\":[{}],\"declared_synonyms\":[{}],\"arity\":{},\"mapping_kind\":{}}}",
@@ -2839,16 +2927,16 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             ),
                             "ok"
                         )
-                    }
-                    capability::CapabilityOutcome::Unsupported {
-                        canonical_alternative,
-                        supported_alternatives,
-                    } => {
-                        let alts: Vec<String> = supported_alternatives
-                            .iter()
-                            .map(|a| format!("\"{a}\""))
-                            .collect();
-                        match canonical_alternative {
+                }
+                capability::CapabilityOutcome::Unsupported {
+                    canonical_alternative,
+                    supported_alternatives,
+                } => {
+                    let alts: Vec<String> = supported_alternatives
+                        .iter()
+                        .map(|a| format!("\"{a}\""))
+                        .collect();
+                    match canonical_alternative {
                             Some(canonical) => resp!(
                                 true,
                                 &format!(
@@ -2869,43 +2957,42 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                                 "ok"
                             ),
                         }
-                    }
                 }
             }
-            "list_capabilities" => {
-                let _s = need_session!();
-                let category = req
-                    .get("category")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("all")
-                    .to_string();
-                let cat_res: Result<Option<capability::CapCategory>, String> =
-                    match category.as_str() {
-                        "builtin" => Ok(Some(capability::CapCategory::Builtin)),
-                        "operator" => Ok(Some(capability::CapCategory::Operator)),
-                        "all" | "" => Ok(None),
-                        other => Err(other.to_string()),
-                    };
-                match cat_res {
-                    Err(other) => {
-                        let r = format!(
+        }
+        "list_capabilities" => {
+            let _s = need_session!();
+            let category = req
+                .get("category")
+                .and_then(|v| v.as_str())
+                .unwrap_or("all")
+                .to_string();
+            let cat_res: Result<Option<capability::CapCategory>, String> = match category.as_str() {
+                "builtin" => Ok(Some(capability::CapCategory::Builtin)),
+                "operator" => Ok(Some(capability::CapCategory::Operator)),
+                "all" | "" => Ok(None),
+                other => Err(other.to_string()),
+            };
+            match cat_res {
+                Err(other) => {
+                    let r = format!(
                             "{{\"requested_category\":{},\"allowed\":[\"builtin\",\"operator\",\"all\"]}}",
                             json_str(&other)
                         );
-                        resp!(false, &r, "E_AEP_BAD_REQUEST: unknown capability category")
-                    }
-                    Ok(cat) => {
-                        let caps = capability::list_capabilities(cat);
-                        let total = caps.len();
-                        const MAX_LIST: usize = 40;
-                        let truncated = total > MAX_LIST;
-                        let shown = caps
-                            .iter()
-                            .take(MAX_LIST)
-                            .map(|c| format!("\"{}\"", c.canonical))
-                            .collect::<Vec<_>>()
-                            .join(",");
-                        resp!(
+                    resp!(false, &r, "E_AEP_BAD_REQUEST: unknown capability category")
+                }
+                Ok(cat) => {
+                    let caps = capability::list_capabilities(cat);
+                    let total = caps.len();
+                    const MAX_LIST: usize = 40;
+                    let truncated = total > MAX_LIST;
+                    let shown = caps
+                        .iter()
+                        .take(MAX_LIST)
+                        .map(|c| format!("\"{}\"", c.canonical))
+                        .collect::<Vec<_>>()
+                        .join(",");
+                    resp!(
                             true,
                             &format!(
                                 "{{\"category\":{},\"capabilities\":[{}],\"count\":{},\"truncated\":{}}}",
@@ -2916,21 +3003,28 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             ),
                             "ok"
                         )
-                    }
                 }
             }
-            other => {
-                let cands = aep::closest(other, 6);
-                resp!(
-                    false,
-                    &unknown_tool_json(other, &cands),
-                    "E_AEP_UNKNOWN_TOOL: unknown operation"
-                )
-            }
-        };
-        println!("{out}");
+        }
+        other => {
+            let cands = aep::closest(other, 6);
+            resp!(
+                false,
+                &unknown_tool_json(other, &cands),
+                "E_AEP_UNKNOWN_TOOL: unknown operation"
+            )
+        }
+    };
+    out
+}
+
+fn bounded_text(value: &str, max_chars: usize) -> String {
+    let mut chars = value.chars();
+    let mut bounded: String = chars.by_ref().take(max_chars).collect();
+    if chars.next().is_some() {
+        bounded.push_str("\n…[truncated]");
     }
-    0
+    bounded
 }
 
 fn value_json(v: &air::Value) -> String {

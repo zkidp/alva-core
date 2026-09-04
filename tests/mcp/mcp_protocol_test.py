@@ -135,7 +135,7 @@ def modern_fixture(binary: Path) -> None:
     assert listed["ttlMs"] == 3_600_000 and listed["cacheScope"] == "private"
     assert listed["schemaProfile"] == "compact-v1"
     assert re.fullmatch(r"[0-9a-f]{64}", listed["toolSurfaceHash"])
-    assert len(json.dumps(listed, separators=(",", ":"))) < 6500
+    assert len(json.dumps(listed, separators=(",", ":"))) < 7000
     unknown_tool = mcp.tool(3, "not_a_tool", {}, modern=True)
     assert unknown_tool["isError"] is True
     assert "E_MCP_UNKNOWN_TOOL" in modern_structured(unknown_tool)["error"]
@@ -164,6 +164,20 @@ def errors_fixture(binary: Path) -> None:
     )
     assert unknown_field["isError"] is True
     assert "unknown field 'unexpected_field'" in structured(unknown_field)["error"]
+    hidden_nested = mcp.tool(
+        8,
+        "stage_and_check",
+        {"operation": "rename_entity", "arguments": {"entity": "x", "new_name": "y"}},
+    )
+    assert hidden_nested["isError"] is True
+    assert "not an exposed MCP mutation" in structured(hidden_nested)["error"]
+    recursive_nested = mcp.tool(
+        9,
+        "stage_and_check",
+        {"operation": "stage_and_check", "arguments": {}},
+    )
+    assert recursive_nested["isError"] is True
+    assert "not an exposed MCP mutation" in structured(recursive_nested)["error"]
     mcp.close()
 
     missing_version_mcp = Mcp(binary)
@@ -276,19 +290,26 @@ def semantic_fixture(binary: Path, repo: Path, commit: bool) -> None:
         )["body"]
         literal = re.search(r"literal value=a rev=([0-9a-f]{64})", body)
         assert literal, body
-        changed = mcp.tool(
+        staged = mcp.tool(
             15,
-            "change_field",
+            "stage_and_check",
             {
                 "transaction_id": transaction,
-                "entity": literal.group(1),
-                "field": "value",
-                "value": "hello from MCP",
+                "operation": "change_field",
+                "arguments": {
+                    "entity": literal.group(1),
+                    "field": "value",
+                    "value": "hello from MCP",
+                },
             },
         )
-        assert changed["isError"] is False, changed
-        changed_result = structured(changed)
-        assert changed_result["new_revision"] != literal.group(1), changed_result
+        assert staged["isError"] is False, staged
+        staged_result = structured(staged)
+        assert staged_result["operation"] == "change_field", staged_result
+        assert staged_result["mutation"]["new_revision"] != literal.group(1), staged_result
+        assert staged_result["diff"], staged_result
+        assert staged_result["check"]["ok"] is True, staged_result
+        assert staged_result["check"]["problems"] == [], staged_result
 
         if not commit:
             mcp.close()

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -198,13 +199,104 @@ def census(binary: Path, project: Path, modern: bool) -> dict[str, Any]:
             modern,
         )
     )["result"]
-    mcp.request(
+    inspected_body = mcp.request(
         envelope(
             10,
             "tools/call",
             {
+                "name": "inspect_body",
+                "arguments": {
+                    "transaction_id": transaction_id,
+                    "function": "demo.app.run",
+                },
+            },
+            modern,
+        )
+    )["result"]
+    body = inspected_body["structuredContent"]["body"]
+    literal = re.search(r"literal value=a rev=([0-9a-f]{64})", body)
+    if not literal:
+        raise RuntimeError("measurement fixture literal not found")
+    mutation_arguments = {
+        "entity": literal.group(1),
+        "field": "value",
+        "value": "agent-io-census",
+    }
+    separate_mutation = mcp.request(
+        envelope(
+            11,
+            "tools/call",
+            {
+                "name": "change_field",
+                "arguments": {"transaction_id": transaction_id, **mutation_arguments},
+            },
+            modern,
+        )
+    )["result"]
+    separate_diff = mcp.request(
+        envelope(
+            12,
+            "tools/call",
+            {
+                "name": "preview_semantic_diff",
+                "arguments": {"transaction_id": transaction_id},
+            },
+            modern,
+        )
+    )["result"]
+    separate_check = mcp.request(
+        envelope(
+            13,
+            "tools/call",
+            {
+                "name": "check_transaction",
+                "arguments": {"transaction_id": transaction_id},
+            },
+            modern,
+        )
+    )["result"]
+    mcp.request(
+        envelope(
+            14,
+            "tools/call",
+            {
                 "name": "abort_transaction",
                 "arguments": {"transaction_id": transaction_id},
+            },
+            modern,
+        )
+    )
+    second_begin = mcp.request(
+        envelope(
+            15,
+            "tools/call",
+            {"name": "begin_transaction", "arguments": {"project": str(project)}},
+            modern,
+        )
+    )["result"]
+    second_transaction = second_begin["structuredContent"]["transaction_id"]
+    staged = mcp.request(
+        envelope(
+            16,
+            "tools/call",
+            {
+                "name": "stage_and_check",
+                "arguments": {
+                    "transaction_id": second_transaction,
+                    "operation": "change_field",
+                    "arguments": mutation_arguments,
+                },
+            },
+            modern,
+        )
+    )["result"]
+    mcp.request(
+        envelope(
+            17,
+            "tools/call",
+            {
+                "name": "abort_transaction",
+                "arguments": {"transaction_id": second_transaction},
             },
             modern,
         )
@@ -242,7 +334,20 @@ def census(binary: Path, project: Path, modern: bool) -> dict[str, Any]:
                 "wire_bytes": result_payload_metrics(prepared)["wire_bytes"],
             },
         },
-        "round_trips_measured": 10,
+        "stage_and_check_comparison": {
+            "separate_calls": {
+                "round_trips": 3,
+                "wire_bytes": sum(
+                    result_payload_metrics(result)["wire_bytes"]
+                    for result in (separate_mutation, separate_diff, separate_check)
+                ),
+            },
+            "stage_and_check": {
+                "round_trips": 1,
+                "wire_bytes": result_payload_metrics(staged)["wire_bytes"],
+            },
+        },
+        "round_trips_measured": 17,
     }
 
 

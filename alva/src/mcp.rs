@@ -25,6 +25,7 @@ const MCP_TOOLS: &[&str] = &[
     "describe_construction",
     "construct_expression",
     "change_field",
+    "stage_and_check",
     "preview_semantic_diff",
     "check_transaction",
     "commit_transaction",
@@ -117,6 +118,24 @@ impl Gateway {
         };
         aep::validate_json_arguments(spec, args, envelope_fields)
             .map_err(|error| error.replacen("E_AEP_", "E_MCP_", 1))?;
+        if name == "stage_and_check" {
+            let nested = args
+                .get("operation")
+                .and_then(Value::as_str)
+                .ok_or("E_MCP_STAGE_BAD_OPERATION: operation must be a string")?;
+            let nested_spec = aep::lookup(nested).ok_or_else(|| {
+                format!("E_MCP_STAGE_OPERATION_FORBIDDEN: unknown nested operation '{nested}'")
+            })?;
+            if nested_spec.effects != "mutation"
+                || nested_spec.name == "stage_and_check"
+                || !MCP_TOOLS.contains(&nested_spec.name)
+            {
+                return Err(format!(
+                    "E_MCP_STAGE_OPERATION_FORBIDDEN: '{}' is not an exposed MCP mutation",
+                    nested_spec.name
+                ));
+            }
+        }
 
         if name == "begin_transaction" {
             if self.active.is_some() {
@@ -596,7 +615,7 @@ mod tests {
         let digest = format!("{:x}", Sha256::digest(encoded));
         assert_eq!(
             digest,
-            "f6d8d4eb2ab87c0b3b2851b87c0cc9b1cf4cddd4de25be87f27e99244951f71e"
+            "decbefaa78bcf44e13d72292196c9085607f1f1e21eb6d82a3d10d53ff1b455f"
         );
     }
 

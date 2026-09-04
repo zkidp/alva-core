@@ -442,6 +442,20 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             None,
         ),
         spec(
+            "stage_and_check",
+            vec![],
+            vec!["any"],
+            vec![
+                arg("operation", "string", true),
+                arg("arguments", "field=value pairs", true),
+            ],
+            vec!["transaction", "nested operation must be a mutation"],
+            "mutation",
+            "transaction",
+            "stage_and_check operation=change_field arguments={<mutation arguments>}",
+            None,
+        ),
+        spec(
             "commit_transaction",
             vec![],
             vec!["any"],

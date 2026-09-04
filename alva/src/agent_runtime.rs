@@ -48,12 +48,16 @@ impl AgentRuntime {
     }
 
     pub(crate) fn check(&mut self) -> Result<(), String> {
-        let errors = self.session_mut()?.check();
+        let errors = self.check_problems()?;
         if errors.is_empty() {
             Ok(())
         } else {
             Err(format!("check failed: {}", errors.join("; ")))
         }
+    }
+
+    pub(crate) fn check_problems(&mut self) -> Result<Vec<String>, String> {
+        Ok(self.session_mut()?.check())
     }
 
     pub(crate) fn preview_semantic_diff(&mut self) -> Result<String, String> {
