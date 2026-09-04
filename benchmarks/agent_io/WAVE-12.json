@@ -1,0 +1,45 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "validated_commit": "6c83421a48c19e7b7942d0c308d30237239d3342",
+  "measurement_boundary": "Deterministic Linux validation of the substrate-v1 implementation with dirty-tracking and incremental-check full oracles enabled; no model-quality, provider-token, or wall-time claim",
+  "environment": {
+    "host_class": "isolated Linux Docker execution",
+    "container": "rust:1.89-bullseye",
+    "rust_toolchain": "1.89",
+    "dirty_tracking_oracle": true,
+    "incremental_check_oracle": true
+  },
+  "validation": {
+    "cargo_fmt_check": "PASS",
+    "cargo_clippy_all_targets_all_features_deny_warnings": "PASS",
+    "cargo_unit_tests": {
+      "status": "PASS",
+      "passed": 39,
+      "failed": 0
+    },
+    "cargo_build_all_targets_all_features": "PASS",
+    "mcp_protocol": "PASS",
+    "codex_plugin": "PASS",
+    "claude_code_plugin": "PASS",
+    "transaction_work": "PASS",
+    "source_projection": "PASS",
+    "repository_conformance": "PASS"
+  },
+  "linux_debug_binary_sha256": "e0931db560ca35305af206d2d299e6f69a1312e423e97482a92edbb618491408",
+  "closed_work_packages": [
+    "agent-facing wire compaction and bounded observations",
+    "protocol and transaction-runtime ownership",
+    "compound semantic and transactional text staging",
+    "source projection reconciliation",
+    "transaction graph-work instrumentation",
+    "affected-root rebuild",
+    "mutation-local dirty tracking with full oracle",
+    "changed-module plus reverse-dependent semantic checks with full oracle",
+    "authoritative-store orphan-generation recovery and atomic replace"
+  ],
+  "remaining_non_blocking_work": [
+    "split the remaining large operation, graph, and store implementation files where an isolated-test or ownership benefit is demonstrated",
+    "run native Windows CI for the cfg(windows) MoveFileExW path; Linux executable validation does not compile that branch"
+  ],
+  "disposition": "SUBSTRATE_V1_IMPLEMENTATION_AND_LINUX_VALIDATION_COMPLETE"
+}
