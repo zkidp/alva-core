@@ -1,5 +1,6 @@
 mod aep;
 mod agent_protocol;
+mod agent_runtime;
 mod air;
 mod ast;
 mod capability;
@@ -20,6 +21,7 @@ use agent_protocol::{
     json_str, parse_json, render_json, response as agent_resp,
     validate_arguments as validate_agent_arguments, Json,
 };
+use agent_runtime::AgentRuntime;
 
 struct CliArgs {
     file: Option<String>,
@@ -386,29 +388,6 @@ fn cmd_impact(rest: &[String]) -> i32 {
 // AIR commands
 // ---------------------------------------------------------------------------
 
-fn project_to_air(
-    project: &project::Project,
-) -> Result<(air::AirGraph, BTreeMap<String, PathBuf>), String> {
-    let modules = project::load_modules(project).map_err(|ds| {
-        format!(
-            "{} module error(s) while loading project",
-            ds.iter().filter(|d| d.severity == "error").count()
-        )
-    })?;
-    let mut g = air::AirGraph::new();
-    let mut paths = BTreeMap::new();
-    for lm in &modules {
-        let mg = air::air_from_module(&lm.module);
-        g.nodes.extend(mg.nodes);
-        g.heads.extend(mg.heads);
-        g.module_entities.extend(mg.module_entities);
-        if let Some((_, p)) = project.modules.iter().find(|(n, _)| n == &lm.name) {
-            paths.insert(lm.name.clone(), p.clone());
-        }
-    }
-    Ok((g, paths))
-}
-
 fn write_air_file(path: &Path, g: &air::AirGraph) -> Result<(), String> {
     std::fs::write(path, air::graph_to_bytes(g)).map_err(|e| e.to_string())
 }
@@ -462,7 +441,7 @@ fn cmd_air(rest: &[String]) -> i32 {
                     return 1;
                 }
             };
-            let (g, paths) = match project_to_air(&proj) {
+            let (g, paths) = match project::to_air(&proj) {
                 Ok(x) => x,
                 Err(e) => {
                     eprintln!("error: {e}");
@@ -677,7 +656,7 @@ fn cmd_edit(_rest: &[String]) -> i32 {
                         }
                     }
                 } else {
-                    match project_to_air(&proj) {
+                    match project::to_air(&proj) {
                         Ok(x) => x,
                         Err(e) => {
                             println!("{}", json_resp(false, "null", &e));
@@ -1422,9 +1401,7 @@ fn type_expr_for(name: &str, g: &mut air::AirGraph) -> Result<String, String> {
 }
 
 fn cmd_agent(_rest: &[String]) -> i32 {
-    let mut session: Option<air::EditSession> = None;
-    let mut base_graph: Option<air::AirGraph> = None;
-    let mut real_dir = PathBuf::new();
+    let mut runtime = AgentRuntime::default();
     let mut op_index = 0usize;
     use std::io::BufRead;
     let stdin = std::io::stdin();
@@ -1472,9 +1449,9 @@ fn cmd_agent(_rest: &[String]) -> i32 {
         }
         macro_rules! need_session {
             () => {
-                match session.as_mut() {
-                    Some(s) => s,
-                    None => {
+                match runtime.session_mut() {
+                    Ok(s) => s,
+                    Err(_) => {
                         let out = resp!(false, "null", "E_AEP_NO_TRANSACTION");
                         println!("{out}");
                         continue;
@@ -1652,19 +1629,16 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     None => resp!(false, "null", "hole not found"),
                 }
             }
-            "begin_transaction" => match begin_agent_session(
-                req.get("project").and_then(|v| v.as_str()).unwrap_or(""),
-                &mut session,
-                &mut base_graph,
-                &mut real_dir,
-            ) {
-                Ok(rev) => resp!(
-                    true,
-                    &format!("{{\"project_revision\":{}}}", json_str(&rev)),
-                    "ok"
-                ),
-                Err(e) => resp!(false, "null", &e),
-            },
+            "begin_transaction" => {
+                match runtime.begin(req.get("project").and_then(|v| v.as_str()).unwrap_or("")) {
+                    Ok(rev) => resp!(
+                        true,
+                        &format!("{{\"project_revision\":{}}}", json_str(&rev)),
+                        "ok"
+                    ),
+                    Err(e) => resp!(false, "null", &e),
+                }
+            }
             "create_literal" => {
                 let s = need_session!();
                 let ty = req.get("type").and_then(|v| v.as_str()).unwrap_or("string");
@@ -2491,53 +2465,28 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err(e) => resp!(false, "null", &e),
                 }
             }
-            "check_transaction" => {
-                let s = need_session!();
-                let errs = s.check();
-                if errs.is_empty() {
-                    resp!(true, "{\"problems\":[]}", "check ok")
-                } else {
-                    resp!(false, "null", &format!("check failed: {}", errs.join("; ")))
-                }
-            }
-            "preview_semantic_diff" => {
-                let s = need_session!();
-                let report = s.diff_vs_base(base_graph.as_ref().unwrap_or(&air::AirGraph::new()));
-                resp!(
+            "check_transaction" => match runtime.check() {
+                Ok(()) => resp!(true, "{\"problems\":[]}", "check ok"),
+                Err(error) => resp!(false, "null", &error),
+            },
+            "preview_semantic_diff" => match runtime.preview_semantic_diff() {
+                Ok(diff) => resp!(true, &format!("{{\"diff\":{}}}", json_str(&diff)), "ok"),
+                Err(error) => resp!(false, "null", &error),
+            },
+            "commit_transaction" => match runtime.commit() {
+                Ok(committed) => resp!(
                     true,
-                    &format!("{{\"diff\":{}}}", json_str(report.summary.trim())),
-                    "ok"
-                )
-            }
-            "commit_transaction" => match session.take() {
-                Some(mut s) => {
-                    let errs = s.check();
-                    if !errs.is_empty() {
-                        session = Some(s);
-                        resp!(false, "null", &format!("check failed: {}", errs.join("; ")))
-                    } else {
-                        let base = s.base_hash.clone();
-                        match air::write_authoritative(&real_dir, &s.graph, Some(&base)) {
-                            Ok(gen) => resp!(
-                                true,
-                                &format!(
-                                    "{{\"generation\":{},\"revision\":{}}}",
-                                    gen,
-                                    json_str(&s.graph.semantic_hash())
-                                ),
-                                "committed"
-                            ),
-                            Err(e) => {
-                                session = Some(s);
-                                resp!(false, "null", &e)
-                            }
-                        }
-                    }
-                }
-                None => resp!(false, "null", "E_AEP_NO_TRANSACTION"),
+                    &format!(
+                        "{{\"generation\":{},\"revision\":{}}}",
+                        committed.generation,
+                        json_str(&committed.revision)
+                    ),
+                    "committed"
+                ),
+                Err(error) => resp!(false, "null", &error),
             },
             "abort_transaction" => {
-                session = None;
+                runtime.abort();
                 resp!(true, "{\"aborted\":true}", "aborted")
             }
             // RFC-0005 / AEP-0002: Intent -> Applicable Semantic Operations.
@@ -4801,33 +4750,6 @@ fn schema_gaps(g: &air::AirGraph, entity: &str) -> Result<String, String> {
         ),
     ]));
     Ok(render_json(&out))
-}
-
-fn begin_agent_session(
-    file: &str,
-    session: &mut Option<air::EditSession>,
-    base_graph: &mut Option<air::AirGraph>,
-    real_dir: &mut PathBuf,
-) -> Result<String, String> {
-    if file.is_empty() {
-        return Err("begin_transaction requires 'project'".to_string());
-    }
-    let proj = project::load_project(Path::new(file))?;
-    let project_dir = Path::new(file).parent().unwrap_or(Path::new("."));
-    let has_authoritative = project_dir
-        .join(air::AIR_STORE_DIR)
-        .join("current")
-        .exists();
-    let g = if has_authoritative {
-        air::load_authoritative(project_dir)?
-    } else {
-        project_to_air(&proj)?.0
-    };
-    let actual = g.semantic_hash();
-    *real_dir = project_dir.to_path_buf();
-    *base_graph = Some(g.clone());
-    *session = Some(air::EditSession::begin(g, actual.clone()));
-    Ok(actual)
 }
 
 fn flag_value(rest: &[String], flag: &str) -> Option<String> {

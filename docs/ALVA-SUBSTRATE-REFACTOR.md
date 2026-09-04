@@ -57,6 +57,11 @@ commits are not merged wholesale into the public product line.
   applicability, and one caller-selected operation schema. The selected-only
   design is intentional: returning every applicable schema reduced round trips
   but did not reduce information volume.
+- AEP parsing, compatibility normalization, registry argument validation, and
+  response envelopes now have a dedicated protocol module.
+- Agent transaction state and `begin/check/diff/commit/abort` lifecycle now
+  have one transport-neutral runtime owner. Operation dispatch extraction is
+  the remaining prerequisite for compound mutations.
 
 ## Planned service boundaries
 

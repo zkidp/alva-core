@@ -2,7 +2,7 @@ use crate::ast;
 use crate::check::{self, ExtFn, ExtType};
 use crate::codegen;
 use crate::diag::Diag;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Component, Path, PathBuf};
 
 #[derive(Debug)]
@@ -10,6 +10,38 @@ pub struct Project {
     pub name: String,
     root: PathBuf,
     pub modules: Vec<(String, PathBuf)>,
+}
+
+/// Build the initial AIR graph and module-path index for a source-backed
+/// project. Authoritative AIR loading remains a separate caller decision.
+pub fn to_air(
+    project: &Project,
+) -> Result<(crate::air::AirGraph, BTreeMap<String, PathBuf>), String> {
+    let modules = load_modules(project).map_err(|diagnostics| {
+        format!(
+            "{} module error(s) while loading project",
+            diagnostics
+                .iter()
+                .filter(|diagnostic| diagnostic.severity == "error")
+                .count()
+        )
+    })?;
+    let mut graph = crate::air::AirGraph::new();
+    let mut paths = BTreeMap::new();
+    for loaded in &modules {
+        let module_graph = crate::air::air_from_module(&loaded.module);
+        graph.nodes.extend(module_graph.nodes);
+        graph.heads.extend(module_graph.heads);
+        graph.module_entities.extend(module_graph.module_entities);
+        if let Some((_, path)) = project
+            .modules
+            .iter()
+            .find(|(name, _)| name == &loaded.name)
+        {
+            paths.insert(loaded.name.clone(), path.clone());
+        }
+    }
+    Ok((graph, paths))
 }
 
 fn confined_module_path(base: &Path, configured: &str) -> Result<PathBuf, String> {
