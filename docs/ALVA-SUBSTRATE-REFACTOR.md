@@ -82,6 +82,29 @@ File splitting is an enabling task, not a success metric. Each boundary must
 reduce duplicated logic, permit isolated testing, or unlock measurement and
 incremental execution.
 
+## Compound-operation placement decision
+
+`stage_and_check` and the later transactional text-patch operation belong in a
+transport-neutral execution service, not in the MCP gateway. The gateway is a
+wire adapter and transaction-ID owner; composing mutations there would make
+MCP behavior differ from direct AEP behavior and would create a second source
+of transaction semantics.
+
+The enabling sequence is therefore:
+
+1. Extract AEP JSON decoding, compatibility normalization, registry argument
+   validation, rendering, and response envelopes from the CLI entry point.
+2. Extract the stateful operation dispatcher and transaction lifecycle behind
+   one execution-service interface used by direct AEP and MCP.
+3. Implement `stage_and_check` in that service as one mutation plus a bounded
+   diff/check observation. Commit continues to re-run authoritative checks.
+4. Add transactional text patching through the same service, path policy,
+   stale-write rules, check path, and atomic commit boundary.
+
+The first extraction is intentionally behavior-preserving. Its value is the
+single protocol boundary it creates; no token or correctness improvement is
+claimed from moving code between files.
+
 ## Non-goals for the first wave
 
 - no AIR storage-format change;

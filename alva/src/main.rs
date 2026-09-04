@@ -1,4 +1,5 @@
 mod aep;
+mod agent_protocol;
 mod air;
 mod ast;
 mod capability;
@@ -14,6 +15,11 @@ mod s_expr;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+
+use agent_protocol::{
+    json_str, parse_json, render_json, response as agent_resp,
+    validate_arguments as validate_agent_arguments, Json,
+};
 
 struct CliArgs {
     file: Option<String>,
@@ -372,190 +378,6 @@ fn cmd_impact(rest: &[String]) -> i32 {
         _ => {
             eprintln!("usage: alva impact --base <dir> --head <dir>");
             2
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// JSON compatibility tree used by the AEP edit command.
-//
-// Parsing is delegated to serde_json so the CLI and MCP protocol surfaces
-// agree on standard JSON escaping, Unicode, number, and trailing-input rules.
-// ---------------------------------------------------------------------------
-
-#[derive(Clone, Debug)]
-enum Json {
-    Null,
-    Bool(bool),
-    Num(f64),
-    Str(String),
-    Arr(Vec<Json>),
-    Obj(BTreeMap<String, Json>),
-}
-
-impl Json {
-    fn get(&self, key: &str) -> Option<&Json> {
-        match self {
-            Json::Obj(m) => m.get(key),
-            _ => None,
-        }
-    }
-    fn as_str(&self) -> Option<&str> {
-        match self {
-            Json::Str(s) => Some(s),
-            _ => None,
-        }
-    }
-}
-
-fn parse_json(input: &str) -> Result<Json, String> {
-    fn convert(value: serde_json::Value) -> Result<Json, String> {
-        match value {
-            serde_json::Value::Null => Ok(Json::Null),
-            serde_json::Value::Bool(value) => Ok(Json::Bool(value)),
-            serde_json::Value::Number(value) => value
-                .as_f64()
-                .map(Json::Num)
-                .ok_or_else(|| "number is outside the supported range".to_string()),
-            serde_json::Value::String(value) => Ok(Json::Str(value)),
-            serde_json::Value::Array(values) => values
-                .into_iter()
-                .map(convert)
-                .collect::<Result<Vec<_>, _>>()
-                .map(Json::Arr),
-            serde_json::Value::Object(values) => values
-                .into_iter()
-                .map(|(key, value)| convert(value).map(|value| (key, value)))
-                .collect::<Result<BTreeMap<_, _>, _>>()
-                .map(Json::Obj),
-        }
-    }
-
-    serde_json::from_str(input)
-        .map_err(|error| error.to_string())
-        .and_then(convert)
-}
-
-fn json_to_serde(value: &Json) -> serde_json::Value {
-    match value {
-        Json::Null => serde_json::Value::Null,
-        Json::Bool(value) => serde_json::Value::Bool(*value),
-        Json::Num(value) => serde_json::Number::from_f64(*value)
-            .map(serde_json::Value::Number)
-            .unwrap_or(serde_json::Value::Null),
-        Json::Str(value) => serde_json::Value::String(value.clone()),
-        Json::Arr(values) => serde_json::Value::Array(values.iter().map(json_to_serde).collect()),
-        Json::Obj(values) => serde_json::Value::Object(
-            values
-                .iter()
-                .map(|(key, value)| (key.clone(), json_to_serde(value)))
-                .collect(),
-        ),
-    }
-}
-
-fn validate_agent_arguments(req: &Json, spec: &aep::OperationSpec) -> Result<(), String> {
-    let Json::Obj(fields) = req else {
-        return Err("E_AEP_INVALID_ARGUMENTS: request must be an object".to_string());
-    };
-    let mut arguments: serde_json::Map<String, serde_json::Value> = fields
-        .iter()
-        .filter(|(name, _)| name.as_str() != "request_id" && name.as_str() != "tool")
-        .map(|(name, value)| (name.clone(), json_to_serde(value)))
-        .collect();
-
-    // The historical aep.py key=value bridge encoded booleans as strings.
-    // Normalize that one documented compatibility form before applying the
-    // canonical registry contract. MCP remains strictly typed.
-    for argument in &spec.arguments {
-        if matches!(argument.schema, aep::ArgSchema::Bool(_)) {
-            if let Some(serde_json::Value::String(value)) = arguments.get(argument.name) {
-                let normalized = match value.as_str() {
-                    "true" | "1" => Some(true),
-                    "false" | "0" => Some(false),
-                    _ => None,
-                };
-                if let Some(normalized) = normalized {
-                    arguments.insert(
-                        argument.name.to_string(),
-                        serde_json::Value::Bool(normalized),
-                    );
-                }
-            }
-        }
-    }
-    aep::validate_json_arguments(spec, &arguments, &[])
-}
-
-#[cfg(test)]
-mod json_protocol_tests {
-    use super::{parse_json, validate_agent_arguments, Json};
-
-    #[test]
-    fn parses_standard_unicode_escapes() {
-        let parsed = parse_json(r#"{"project":"Documents/\u65e5\u5e38/alva.toml"}"#).unwrap();
-        assert_eq!(
-            parsed.get("project").and_then(Json::as_str),
-            Some("Documents/日常/alva.toml")
-        );
-    }
-
-    #[test]
-    fn parses_surrogate_pairs() {
-        let parsed = parse_json(r#"{"symbol":"\ud83e\udd16"}"#).unwrap();
-        assert_eq!(parsed.get("symbol").and_then(Json::as_str), Some("🤖"));
-    }
-
-    #[test]
-    fn rejects_invalid_escape_and_trailing_input() {
-        assert!(parse_json(r#"{"bad":"\q"}"#).is_err());
-        assert!(parse_json(r#"{"ok":true} trailing"#).is_err());
-    }
-
-    #[test]
-    fn direct_agent_rejects_unknown_fields() {
-        let request = parse_json(
-            r#"{"tool":"set_effect","function":"demo.run","effect":"io","surprise":true}"#,
-        )
-        .unwrap();
-        let spec = crate::aep::lookup("set_effect").unwrap();
-        assert!(validate_agent_arguments(&request, spec)
-            .unwrap_err()
-            .contains("unknown field 'surprise'"));
-    }
-
-    #[test]
-    fn direct_agent_preserves_documented_boolean_string_compatibility() {
-        let request = parse_json(
-            r#"{"tool":"describe_construction","kind":"fold","include_candidates":"true"}"#,
-        )
-        .unwrap();
-        let spec = crate::aep::lookup("describe_construction").unwrap();
-        validate_agent_arguments(&request, spec).unwrap();
-    }
-}
-
-fn json_str(s: &str) -> String {
-    format!("\"{}\"", diag::json_escape(s))
-}
-
-/// 把内部 Json 树序列化为 JSON 字符串（响应体用）。
-fn render_json(v: &Json) -> String {
-    match v {
-        Json::Null => "null".to_string(),
-        Json::Bool(b) => b.to_string(),
-        Json::Num(n) => format!("{n}"),
-        Json::Str(s) => json_str(s),
-        Json::Arr(items) => {
-            let parts: Vec<String> = items.iter().map(render_json).collect();
-            format!("[{}]", parts.join(","))
-        }
-        Json::Obj(m) => {
-            let parts: Vec<String> = m
-                .iter()
-                .map(|(k, v)| format!("{}:{}", json_str(k), render_json(v)))
-                .collect();
-            format!("{{{}}}", parts.join(","))
         }
     }
 }
@@ -3160,34 +2982,6 @@ fn cmd_agent(_rest: &[String]) -> i32 {
         println!("{out}");
     }
     0
-}
-
-fn agent_resp(
-    request_id: Option<&str>,
-    op_index: usize,
-    ok: bool,
-    result: &str,
-    message: &str,
-    diagnostics: Vec<String>,
-) -> String {
-    let error_code = if ok {
-        "ok"
-    } else {
-        match message.split(':').next() {
-            Some(t) if t.trim().starts_with("E_") => t.trim(),
-            _ => "E_AEP_OP",
-        }
-    };
-    format!(
-        "{{\"protocol_version\":\"0.7-replication\",\"request_id\":{},\"op_index\":{},\"ok\":{},\"error_code\":{},\"result\":{},\"diagnostics\":[{}],\"message\":{}}}",
-        request_id.map(json_str).unwrap_or_else(|| "null".to_string()),
-        op_index,
-        ok,
-        json_str(error_code),
-        result,
-        diagnostics.iter().map(|d| json_str(d)).collect::<Vec<_>>().join(","),
-        json_str(message)
-    )
 }
 
 fn value_json(v: &air::Value) -> String {
