@@ -1,0 +1,26 @@
+{
+  "schema_version": "alva-linux-compatibility-validation-v1",
+  "source_commit": "63bce5e19837b1145b59154b241fa3f5926b7273",
+  "build_environment": {
+    "container": "rust:1.89-bullseye",
+    "container_digest": "sha256:8f72d971a31b278cebdb2eb64a44c3900ff27c716a4ef6f4db05946d10c9ae4e",
+    "rustc": "rustc 1.89.0 (29483883e 2025-08-04)",
+    "cargo": "cargo 1.89.0 (c24e10642 2025-06-23)"
+  },
+  "execution_environment": {
+    "architecture": "x86_64-linux-gnu",
+    "glibc": "2.35"
+  },
+  "binary": {
+    "sha256": "9d6bc32de345580f57c496a050be22c4f518a4d0f107d6e52276f5e66ed7f22c",
+    "version": "alva 0.14.1-preview.2",
+    "host_execution": "PASS"
+  },
+  "validation": {
+    "rust_unit_tests": "37/37 PASS",
+    "agent_io_census": "PASS",
+    "modern_tool_surface_hash": "2aea00bf0237b7a0ff4215d9750d84e79073967e2720fa4b6790b23334f37976",
+    "host_doctor": "ALVA compiler PASS; host Rust/Cargo unavailable for generated native build/run"
+  },
+  "disposition": "LINUX_BINARY_AND_PROTOCOL_VALIDATED"
+}
