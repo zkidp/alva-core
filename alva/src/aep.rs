@@ -992,6 +992,45 @@ fn validate_json_value(
     }
 }
 
+/// Deterministic closest-operation candidates for recovery hints.
+pub fn closest(name: &str, limit: usize) -> Vec<&'static OperationSpec> {
+    let mut out: Vec<&'static OperationSpec> = Vec::new();
+    for s in visible() {
+        let n = s.name;
+        if n == name {
+            continue;
+        }
+        let hit = n.starts_with(name)
+            || n.contains(name)
+            || name.len() >= 3 && n.contains(&name[..3.min(name.len())])
+            || name.len() >= 3 && name.starts_with(&n[..n.len().min(3)]);
+        if hit {
+            out.push(s);
+        }
+    }
+    out.sort_by_key(|s| s.name);
+    out.truncate(limit);
+    out
+}
+
+/// Entity-targeted operations applicable to an entity kind (scope=entity),
+/// respecting feature gates. Expression/construction/transaction-scope
+/// operations are NOT "operations on this entity".
+pub fn for_entity(kind: &str) -> Vec<&'static OperationSpec> {
+    let mut out: Vec<&'static OperationSpec> = visible()
+        .filter(|s| s.scope == "entity" && s.target_kinds.iter().any(|k| *k == "any" || *k == kind))
+        .collect();
+    out.sort_by_key(|s| s.name);
+    out
+}
+
+/// Context / global operations (construction + transaction scope).
+pub fn context_ops() -> Vec<&'static OperationSpec> {
+    let mut out: Vec<&'static OperationSpec> = visible().filter(|s| s.scope != "entity").collect();
+    out.sort_by_key(|s| s.name);
+    out
+}
+
 #[cfg(test)]
 mod argument_validation_tests {
     use super::*;
@@ -1031,43 +1070,4 @@ mod argument_validation_tests {
         let bad_bool = json!({"kind":"fold","include_candidates":"true"});
         assert!(validate_json_arguments(describe, bad_bool.as_object().unwrap(), &[]).is_err());
     }
-}
-
-/// Deterministic closest-operation candidates for recovery hints.
-pub fn closest(name: &str, limit: usize) -> Vec<&'static OperationSpec> {
-    let mut out: Vec<&'static OperationSpec> = Vec::new();
-    for s in visible() {
-        let n = s.name;
-        if n == name {
-            continue;
-        }
-        let hit = n.starts_with(name)
-            || n.contains(name)
-            || name.len() >= 3 && n.contains(&name[..3.min(name.len())])
-            || name.len() >= 3 && name.starts_with(&n[..n.len().min(3)]);
-        if hit {
-            out.push(s);
-        }
-    }
-    out.sort_by_key(|s| s.name);
-    out.truncate(limit);
-    out
-}
-
-/// Entity-targeted operations applicable to an entity kind (scope=entity),
-/// respecting feature gates. Expression/construction/transaction-scope
-/// operations are NOT "operations on this entity".
-pub fn for_entity(kind: &str) -> Vec<&'static OperationSpec> {
-    let mut out: Vec<&'static OperationSpec> = visible()
-        .filter(|s| s.scope == "entity" && s.target_kinds.iter().any(|k| *k == "any" || *k == kind))
-        .collect();
-    out.sort_by_key(|s| s.name);
-    out
-}
-
-/// Context / global operations (construction + transaction scope).
-pub fn context_ops() -> Vec<&'static OperationSpec> {
-    let mut out: Vec<&'static OperationSpec> = visible().filter(|s| s.scope != "entity").collect();
-    out.sort_by_key(|s| s.name);
-    out
 }
