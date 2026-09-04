@@ -659,7 +659,8 @@ fn atomic_replace_source(path: &Path, bytes: &[u8]) -> Result<(), String> {
             .map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
         file.sync_all()
             .map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
-        std::fs::rename(&tmp, path).map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
+        air::atomic_replace_path(&tmp, path)
+            .map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
         Ok(())
     })();
     if write_result.is_err() {

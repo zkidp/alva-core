@@ -1,0 +1,34 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "1019bcab82daaadb9bd564deef40e665208f0231",
+  "measurement_boundary": "Deterministic store crash-state regression; no filesystem durability claim beyond the implemented fsync and platform replace primitives",
+  "capability": "authoritative generation retry and cross-platform replace hardening",
+  "simulated_crash_state": {
+    "current_generation": 1,
+    "durable_orphan_generation": 2,
+    "stale_generation_temp": "gen-99.air.tmp",
+    "stale_current_temp": "current.tmp"
+  },
+  "verified_retry": {
+    "allocated_generation": 3,
+    "orphan_generation_preserved": true,
+    "orphan_generation_overwritten": false,
+    "stale_generation_temp_removed_under_lock": true,
+    "stale_current_temp_removed_under_lock": true,
+    "loaded_revision_matches_committed_graph": true,
+    "next_replace_existing_commit_generation": 4
+  },
+  "platform_replace": {
+    "posix": "rename within the same directory",
+    "windows": "MoveFileExW(MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)",
+    "delete_then_rename_fallback": false,
+    "shared_by_air_current_and_source_projection": true
+  },
+  "retained_boundaries": {
+    "cross_process_store_lock": true,
+    "expected_base_revision_cas": true,
+    "generation_file_fsync_before_current": true,
+    "directory_fsync_on_posix_and_windows": true
+  },
+  "disposition": "ORPHAN_GENERATION_RETRY_AND_REPLACE_EXISTING_SEMANTICS_CONFIRMED"
+}

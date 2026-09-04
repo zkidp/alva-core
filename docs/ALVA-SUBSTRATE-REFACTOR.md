@@ -114,6 +114,12 @@ commits are not merged wholesale into the public product line.
   checker and fails closed unless success/failure and rendered diagnostics are
   identical. This makes repeated prepare/stage/check cycles cheaper without
   weakening the authoritative commit gate.
+- Authoritative-store generation allocation now advances beyond both CURRENT
+  and every durable `gen-N.air` file, so a crash after generation fsync but
+  before CURRENT advancement cannot collide with or overwrite the orphan on
+  retry. Store-scoped stale temp files are removed under the commit lock.
+  Replace-existing uses atomic rename on POSIX and `MoveFileExW` with replace
+  and write-through flags on Windows; source projection uses the same primitive.
 
 ## Planned service boundaries
 

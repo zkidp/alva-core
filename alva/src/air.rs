@@ -1005,6 +1005,62 @@ fn fsync_dir(path: &Path) -> Result<(), String> {
     }
 }
 
+/// Atomically replace `destination` with an already-fsynced file from the same
+/// directory. Windows `std::fs::rename` does not replace an existing file, so
+/// use the platform replace primitive there rather than delete-then-rename.
+pub fn atomic_replace_path(source: &Path, destination: &Path) -> Result<(), String> {
+    #[cfg(windows)]
+    {
+        use std::os::windows::ffi::OsStrExt;
+        const MOVEFILE_REPLACE_EXISTING: u32 = 0x1;
+        const MOVEFILE_WRITE_THROUGH: u32 = 0x8;
+        #[link(name = "kernel32")]
+        extern "system" {
+            fn MoveFileExW(
+                existing_file_name: *const u16,
+                new_file_name: *const u16,
+                flags: u32,
+            ) -> i32;
+        }
+        let source_wide = source
+            .as_os_str()
+            .encode_wide()
+            .chain(std::iter::once(0))
+            .collect::<Vec<_>>();
+        let destination_wide = destination
+            .as_os_str()
+            .encode_wide()
+            .chain(std::iter::once(0))
+            .collect::<Vec<_>>();
+        let ok = unsafe {
+            MoveFileExW(
+                source_wide.as_ptr(),
+                destination_wide.as_ptr(),
+                MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
+            )
+        };
+        if ok == 0 {
+            return Err(format!(
+                "replace {} with {}: {}",
+                destination.display(),
+                source.display(),
+                std::io::Error::last_os_error()
+            ));
+        }
+        Ok(())
+    }
+    #[cfg(not(windows))]
+    {
+        std::fs::rename(source, destination).map_err(|error| {
+            format!(
+                "replace {} with {}: {error}",
+                destination.display(),
+                source.display()
+            )
+        })
+    }
+}
+
 /// Write the graph as a new generation and atomically advance the CURRENT
 /// pointer, under the cross-process store lock. Returns the new generation.
 pub fn write_authoritative(
@@ -1015,6 +1071,7 @@ pub fn write_authoritative(
     let store = project_dir.join(AIR_STORE_DIR);
     std::fs::create_dir_all(&store).map_err(|e| e.to_string())?;
     let _lock = acquire_store_lock(&store)?;
+    cleanup_store_temps(&store)?;
     // inside the lock: re-read CURRENT, verify the base revision, then allocate
     // the generation (no TOCTOU between concurrent committers)
     let current_path = store.join("current");
@@ -1030,7 +1087,10 @@ pub fn write_authoritative(
             }
         }
     }
-    let gen = read_generation(&current_path).unwrap_or(0) + 1;
+    // A crash may leave a durable generation file before CURRENT advances.
+    // Never overwrite or reuse that generation number; allocate above both
+    // CURRENT and every preserved generation artifact.
+    let gen = next_generation(&store, &current_path)?;
     let data = graph_to_bytes(g);
     let gen_path = store.join(format!("gen-{gen}.air"));
     let tmp = store.join(format!("gen-{gen}.air.tmp"));
@@ -1040,7 +1100,7 @@ pub fn write_authoritative(
         f.write_all(&data).map_err(|e| e.to_string())?;
         f.sync_all().map_err(|e| e.to_string())?;
     }
-    std::fs::rename(&tmp, &gen_path).map_err(|e| e.to_string())?;
+    atomic_replace_path(&tmp, &gen_path)?;
     fsync_dir(&store).map_err(|e| e.to_string())?;
     let rev = g.semantic_hash();
     let current_tmp = store.join("current.tmp");
@@ -1051,7 +1111,7 @@ pub fn write_authoritative(
             .map_err(|e| e.to_string())?;
         f.sync_all().map_err(|e| e.to_string())?;
     }
-    std::fs::rename(&current_tmp, &current_path).map_err(|e| e.to_string())?;
+    atomic_replace_path(&current_tmp, &current_path)?;
     fsync_dir(&store).map_err(|e| e.to_string())?;
     Ok(gen)
 }
@@ -1059,6 +1119,43 @@ pub fn write_authoritative(
 fn read_generation(current_path: &Path) -> Option<u64> {
     let text = std::fs::read_to_string(current_path).ok()?;
     text.lines().next()?.trim().parse().ok()
+}
+
+fn next_generation(store: &Path, current_path: &Path) -> Result<u64, String> {
+    let mut maximum = read_generation(current_path).unwrap_or(0);
+    for entry in std::fs::read_dir(store).map_err(|error| error.to_string())? {
+        let entry = entry.map_err(|error| error.to_string())?;
+        let name = entry.file_name();
+        let Some(name) = name.to_str() else { continue };
+        let Some(number) = name
+            .strip_prefix("gen-")
+            .and_then(|name| name.strip_suffix(".air"))
+            .and_then(|number| number.parse::<u64>().ok())
+        else {
+            continue;
+        };
+        maximum = maximum.max(number);
+    }
+    maximum
+        .checked_add(1)
+        .ok_or_else(|| "E_AEP_GENERATION_OVERFLOW".to_string())
+}
+
+fn cleanup_store_temps(store: &Path) -> Result<(), String> {
+    for entry in std::fs::read_dir(store).map_err(|error| error.to_string())? {
+        let entry = entry.map_err(|error| error.to_string())?;
+        let path = entry.path();
+        let is_temp = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .map(|name| name == "current.tmp" || name.ends_with(".air.tmp"))
+            .unwrap_or(false);
+        if is_temp && path.is_file() {
+            std::fs::remove_file(&path)
+                .map_err(|error| format!("remove stale temp {}: {error}", path.display()))?;
+        }
+    }
+    Ok(())
 }
 
 /// Load the authoritative graph: read CURRENT -> load the generation file.
@@ -5317,6 +5414,49 @@ mod tests {
         let g2 = graph_from_bytes(&bytes).unwrap();
         assert_eq!(bytes, graph_to_bytes(&g2));
         assert!(g2.verify().is_empty());
+    }
+
+    #[test]
+    fn authoritative_store_skips_orphan_generation_and_cleans_temps() {
+        let root = std::env::temp_dir().join(format!(
+            "alva-store-recovery-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&root).unwrap();
+        let mut graph = AirGraph::new();
+        let module = graph.add(
+            "module",
+            "module:m",
+            BTreeMap::from([("name".to_string(), Value::Str("m".to_string()))]),
+            BTreeMap::new(),
+        );
+        graph.module_entities.push("module:m".to_string());
+        graph.heads.insert("module:m".to_string(), module);
+        let revision = graph.semantic_hash();
+        assert_eq!(write_authoritative(&root, &graph, None).unwrap(), 1);
+        let store = root.join(AIR_STORE_DIR);
+        let orphan = store.join("gen-2.air");
+        std::fs::write(&orphan, graph_to_bytes(&graph)).unwrap();
+        std::fs::write(store.join("gen-99.air.tmp"), b"partial").unwrap();
+        std::fs::write(store.join("current.tmp"), b"partial").unwrap();
+
+        assert_eq!(
+            write_authoritative(&root, &graph, Some(&revision)).unwrap(),
+            3
+        );
+        assert!(orphan.is_file());
+        assert!(!store.join("gen-99.air.tmp").exists());
+        assert!(!store.join("current.tmp").exists());
+        assert_eq!(load_authoritative(&root).unwrap().semantic_hash(), revision);
+        assert_eq!(
+            write_authoritative(&root, &graph, Some(&revision)).unwrap(),
+            4
+        );
+        std::fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
