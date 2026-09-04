@@ -98,6 +98,14 @@ commits are not merged wholesale into the public product line.
   affected-root selection visits, and actual rebuild visits. Graph invariants,
   cycle detection, and semantic checking remain full-project gates, so this is
   an affected-root optimization rather than a full incremental-checking claim.
+- Semantic mutation implementations now pass explicit dirty revision seeds to
+  the transaction stage. Field/slot edits seed their target, multi-reference
+  operations seed every changed parent or symbol node, and direct head changes
+  are still detected independently. `ALVA_VERIFY_DIRTY_TRACKING=1` enables a
+  full-scan oracle that fails closed on any undeclared changed revision for
+  regression and development runs. Production rebuild no longer performs the
+  full dirty-hash scan; affected-root selection and all correctness gates are
+  still conservative.
 
 ## Planned service boundaries
 

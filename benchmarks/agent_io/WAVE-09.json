@@ -1,0 +1,47 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "eae4553f542645fba4a9e45d029048ac4b87d73a",
+  "measurement_boundary": "Deterministic AIR execution counters on the identical Wave-07/08 fixture and mutation; development oracle enabled separately; no wall-time or full incremental-checking claim",
+  "capability": "mutation-local dirty revision tracking",
+  "fixture": "tests/project/alva.toml",
+  "mutation": "change demo.app.run literal value from a to work-baseline",
+  "production_path": {
+    "dirty_seed_count": 1,
+    "dirty_detection_node_scans": 0,
+    "candidate_root_modules": 2,
+    "affected_root_modules_rebuilt": 1,
+    "affected_root_selection_visits": 49,
+    "rebuild_node_visits": 14,
+    "rebuild_unique_nodes_visited": 14,
+    "rewritten_nodes": 7
+  },
+  "comparison_to_wave_08": {
+    "dirty_detection_node_scans_before": 48,
+    "dirty_detection_node_scans_after": 0,
+    "semantic_hash_unchanged": true,
+    "reachable_revision_reuse_unchanged": true,
+    "affected_root_and_rebuild_counts_unchanged": true
+  },
+  "tracking_contract": {
+    "set_field": "target revision",
+    "replace_or_append_or_insert_slot": "parent revision",
+    "replace_node": "every parent whose child reference changes; direct heads compared independently",
+    "rename_symbol": "every matching ref/call revision",
+    "delete_entity": "every parent whose child reference is removed; direct heads compared independently",
+    "unattached_node_construction": "no dirty reachable revision",
+    "development_oracle": "ALVA_VERIFY_DIRTY_TRACKING=1 performs a full scan and rejects undeclared dirty revisions"
+  },
+  "retained_full_scope_work": {
+    "cycle_detection": true,
+    "affected_root_selection": true,
+    "graph_invariant_validation": true,
+    "semantic_check": true
+  },
+  "modern_mcp_tool_surface": {
+    "tool_count": 16,
+    "tools_list_wire_bytes": 6859,
+    "increment_vs_wave_08_bytes": 0,
+    "tool_surface_hash": "16a2ba4bc93721af4a2ed3ae727d76783468bd17ee8cbfc6bd5625f39e711783"
+  },
+  "disposition": "MUTATION_LOCAL_DIRTY_TRACKING_CONFIRMED_WITH_FAIL_CLOSED_DEVELOPMENT_ORACLE"
+}

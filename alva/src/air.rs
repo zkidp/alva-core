@@ -97,6 +97,7 @@ pub struct AirGraph {
 pub struct RebuildStats {
     pub candidate_root_modules: usize,
     pub root_modules: usize,
+    pub dirty_seed_count: usize,
     pub dirty_detection_node_scans: usize,
     pub affected_root_selection_visits: usize,
     pub node_visits: usize,
@@ -274,9 +275,9 @@ impl AirGraph {
     /// changed directly. Dirty discovery and root selection remain full-graph
     /// scans and are reported separately; this method claims only affected-root
     /// rebuild, not fully incremental validation.
+    #[allow(dead_code)] // full-scan reference path retained for equivalence tests
     pub fn rebuild_affected_revisions_with_stats(&mut self, previous: &AirGraph) -> RebuildStats {
         let mut stats = RebuildStats::default();
-        let mut unique = std::collections::BTreeSet::new();
         if !detect_cycles(self).is_empty() {
             return stats;
         }
@@ -292,6 +293,35 @@ impl AirGraph {
             .cloned()
             .collect::<std::collections::BTreeSet<_>>();
         stats.dirty_detection_node_scans = reachable.len();
+        stats.dirty_seed_count = dirty.len();
+        self.rebuild_affected_from_dirty(previous, dirty, stats)
+    }
+
+    /// Mutation-local variant. Callers provide every revision whose fields or
+    /// slots were changed in place; direct module-head changes are detected by
+    /// comparison with `previous`.
+    pub fn rebuild_from_dirty_seeds_with_stats(
+        &mut self,
+        previous: &AirGraph,
+        dirty: std::collections::BTreeSet<String>,
+    ) -> RebuildStats {
+        let stats = RebuildStats {
+            dirty_seed_count: dirty.len(),
+            ..RebuildStats::default()
+        };
+        if !detect_cycles(self).is_empty() {
+            return stats;
+        }
+        self.rebuild_affected_from_dirty(previous, dirty, stats)
+    }
+
+    fn rebuild_affected_from_dirty(
+        &mut self,
+        previous: &AirGraph,
+        dirty: std::collections::BTreeSet<String>,
+        mut stats: RebuildStats,
+    ) -> RebuildStats {
+        let mut unique = std::collections::BTreeSet::new();
         let modules = self.module_entities.clone();
         stats.candidate_root_modules = modules.len();
         let mut affected = Vec::new();
@@ -3923,6 +3953,7 @@ impl EditSession {
     /// graph untouched.
     fn stage(
         &mut self,
+        dirty_revisions: Vec<String>,
         apply: impl FnOnce(&mut AirGraph) -> Result<(), String>,
     ) -> Result<(), String> {
         let mut candidate = self.graph.clone();
@@ -3932,7 +3963,31 @@ impl EditSession {
             self.errors = vec![format!("E_AIR_CYCLE: {}", cycles[0])];
             return Err(format!("E_AIR_CYCLE: {}", cycles[0]));
         }
-        let rebuild_stats = candidate.rebuild_affected_revisions_with_stats(&self.graph);
+        let dirty = dirty_revisions
+            .into_iter()
+            .collect::<std::collections::BTreeSet<_>>();
+        if std::env::var("ALVA_VERIFY_DIRTY_TRACKING").as_deref() == Ok("1") {
+            let actual = candidate
+                .reachable()
+                .into_iter()
+                .filter(|revision| {
+                    let Some(node) = candidate.nodes.get(revision) else {
+                        return false;
+                    };
+                    candidate.compute_revision(&node.kind, &node.fields, &node.slots) != *revision
+                })
+                .collect::<std::collections::BTreeSet<_>>();
+            let missing = actual.difference(&dirty).cloned().collect::<Vec<_>>();
+            if !missing.is_empty() {
+                self.errors = vec![format!(
+                    "E_AIR_DIRTY_TRACKING: {} changed revision(s) were not declared: {}",
+                    missing.len(),
+                    missing.join(",")
+                )];
+                return Err(self.errors[0].clone());
+            }
+        }
+        let rebuild_stats = candidate.rebuild_from_dirty_seeds_with_stats(&self.graph, dirty);
         let problems = validate_graph(&candidate);
         if !problems.is_empty() {
             self.errors = problems.clone();
@@ -3988,7 +4043,7 @@ impl EditSession {
             }
         }
         let rev = self.graph.add(kind, "", fields, slots);
-        self.stage(|_| Ok(()))?;
+        self.stage(Vec::new(), |_| Ok(()))?;
         Ok(rev)
     }
 
@@ -4027,7 +4082,7 @@ impl EditSession {
             .last()
             .cloned()
             .ok_or_else(|| "E_AEP_CONSTRUCTION_EMPTY_BATCH".to_string())?;
-        self.stage(|g| {
+        self.stage(Vec::new(), |g| {
             for (kind, fields, slots) in &nodes {
                 g.add(kind, "", fields.clone(), slots.clone());
             }
@@ -4052,7 +4107,7 @@ impl EditSession {
         );
         f.insert("allowed_effects".to_string(), Value::Names(allowed_effects));
         let rev = self.graph.add("hole", "", f, BTreeMap::new());
-        self.stage(|_| Ok(()))?;
+        self.stage(Vec::new(), |_| Ok(()))?;
         Ok(rev)
     }
 
@@ -4066,7 +4121,14 @@ impl EditSession {
             .map_err(|e| format!("replace_node: {e}"))?;
         let tr = target_rev.clone();
         let rr = replacement_rev.clone();
-        self.stage(|g| {
+        let dirty = self
+            .graph
+            .nodes
+            .values()
+            .filter(|node| node.slots.values().flatten().any(|child| child == &tr))
+            .map(|node| node.revision.clone())
+            .collect();
+        self.stage(dirty, |g| {
             for n in g.nodes.values_mut() {
                 for children in n.slots.values_mut() {
                     for c in children.iter_mut() {
@@ -4112,7 +4174,7 @@ impl EditSession {
         }
         let pr = parent_rev.clone();
         let cr = child_rev.clone();
-        self.stage(|g| {
+        self.stage(vec![pr.clone()], |g| {
             if let Some(n) = g.nodes.get_mut(&pr) {
                 n.slots.insert(slot.to_string(), vec![cr.clone()]);
             }
@@ -4147,7 +4209,7 @@ impl EditSession {
         }
         let pr = parent_rev.clone();
         let cr = child_rev.clone();
-        self.stage(|g| {
+        self.stage(vec![pr.clone()], |g| {
             if let Some(n) = g.nodes.get_mut(&pr) {
                 n.slots
                     .entry(slot.to_string())
@@ -4175,7 +4237,7 @@ impl EditSession {
             .map_err(|e| format!("insert_child: {e}"))?;
         let pr = parent_rev.clone();
         let cr = child_rev.clone();
-        self.stage(|g| {
+        self.stage(vec![pr.clone()], |g| {
             if let Some(n) = g.nodes.get_mut(&pr) {
                 let v = n.slots.entry(slot.to_string()).or_default();
                 let idx = index.min(v.len());
@@ -4223,7 +4285,11 @@ impl EditSession {
             return Ok(());
         }
         let nn = new_name.to_string();
-        self.stage(|g| {
+        let dirty = targets
+            .iter()
+            .map(|(revision, _)| revision.clone())
+            .collect();
+        self.stage(dirty, |g| {
             for (rev, kind) in &targets {
                 if let Some(n) = g.nodes.get_mut(rev) {
                     if kind == "call" {
@@ -4272,7 +4338,7 @@ impl EditSession {
         validate_node(&kind, &fields, &slots)?;
         let new_revision = self.graph.compute_revision(&kind, &fields, &slots);
         let r = rev.clone();
-        self.stage(|g| {
+        self.stage(vec![r.clone()], |g| {
             if let Some(n) = g.nodes.get_mut(&r) {
                 n.fields.insert(field.to_string(), value.clone());
             }
@@ -4290,7 +4356,14 @@ impl EditSession {
             .map_err(|e| format!("delete_entity: {e}"))?;
         let r = rev.clone();
         let h = handle.to_string();
-        self.stage(|g| {
+        let dirty = self
+            .graph
+            .nodes
+            .values()
+            .filter(|node| node.slots.values().flatten().any(|child| child == &r))
+            .map(|node| node.revision.clone())
+            .collect();
+        self.stage(dirty, |g| {
             g.nodes.remove(&r);
             g.heads.retain(|_, hh| hh != &r);
             g.module_entities.retain(|m| m != &h);

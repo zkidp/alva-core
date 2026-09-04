@@ -20,6 +20,7 @@ class Agent:
             stdout=subprocess.PIPE,
             text=True,
             encoding="utf-8",
+            env={**os.environ, "ALVA_VERIFY_DIRTY_TRACKING": "1"},
         )
 
     def call(self, tool: str, **arguments):
@@ -72,7 +73,8 @@ def main():
     assert measured["reused_reachable_nodes"] > 0
     assert rebuild["candidate_root_modules"] == 2
     assert rebuild["root_modules"] == 1
-    assert rebuild["dirty_detection_node_scans"] == measured["reachable_nodes"]
+    assert rebuild["dirty_seed_count"] == 1
+    assert rebuild["dirty_detection_node_scans"] == 0
     assert rebuild["affected_root_selection_visits"] > 0
     assert rebuild["node_visits"] >= rebuild["unique_nodes_visited"]
     assert rebuild["unique_nodes_visited"] < measured["reachable_nodes"]
