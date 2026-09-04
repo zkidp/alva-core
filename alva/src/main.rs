@@ -2465,7 +2465,7 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
                 resp!(
                     true,
                     &format!(
-                        "{{\"stored_nodes\":{},\"reachable_nodes\":{},\"base_reachable_nodes\":{},\"reused_reachable_nodes\":{},\"added_reachable_nodes\":{},\"removed_reachable_nodes\":{},\"changed_module_count\":{},\"changed_modules\":[{}],\"changed_modules_truncated\":{},\"last_revision_rebuild\":{{\"root_modules\":{},\"node_visits\":{},\"unique_nodes_visited\":{},\"rewritten_nodes\":{}}},\"full_check_runs\":{},\"graph_construction_scope\":{},\"semantic_check_scope\":{}}}",
+                        "{{\"stored_nodes\":{},\"reachable_nodes\":{},\"base_reachable_nodes\":{},\"reused_reachable_nodes\":{},\"added_reachable_nodes\":{},\"removed_reachable_nodes\":{},\"changed_module_count\":{},\"changed_modules\":[{}],\"changed_modules_truncated\":{},\"last_revision_rebuild\":{{\"candidate_root_modules\":{},\"root_modules\":{},\"dirty_detection_node_scans\":{},\"affected_root_selection_visits\":{},\"node_visits\":{},\"unique_nodes_visited\":{},\"rewritten_nodes\":{}}},\"full_check_runs\":{},\"graph_construction_scope\":{},\"semantic_check_scope\":{}}}",
                         work.stored_nodes,
                         work.reachable_nodes,
                         work.base_reachable_nodes,
@@ -2475,7 +2475,10 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
                         work.changed_module_count,
                         changed_modules,
                         work.changed_modules_truncated,
+                        work.rebuild_candidate_root_modules,
                         work.rebuild_root_modules,
+                        work.rebuild_dirty_detection_node_scans,
+                        work.rebuild_affected_root_selection_visits,
                         work.rebuild_node_visits,
                         work.rebuild_unique_nodes_visited,
                         work.rebuild_rewritten_nodes,

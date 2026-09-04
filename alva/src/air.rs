@@ -95,7 +95,10 @@ pub struct AirGraph {
 /// counters are execution measurements, not a claim of incremental behavior.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct RebuildStats {
+    pub candidate_root_modules: usize,
     pub root_modules: usize,
+    pub dirty_detection_node_scans: usize,
+    pub affected_root_selection_visits: usize,
     pub node_visits: usize,
     pub unique_nodes_visited: usize,
     pub rewritten_nodes: usize,
@@ -254,12 +257,76 @@ impl AirGraph {
             return stats; // never recurse on a cyclic graph
         }
         let modules: Vec<String> = self.module_entities.clone();
+        stats.candidate_root_modules = modules.len();
         for m in modules {
             if let Some(head) = self.heads.get(&m).cloned() {
                 stats.root_modules += 1;
                 let new_rev = self.recompute_revision_measured(&head, &mut stats, &mut unique);
                 self.heads.insert(m, new_rev);
             }
+        }
+        stats.unique_nodes_visited = unique.len();
+        stats
+    }
+
+    /// Rebuild only module roots whose current tree contains a node whose
+    /// content no longer matches its revision, or whose module head was
+    /// changed directly. Dirty discovery and root selection remain full-graph
+    /// scans and are reported separately; this method claims only affected-root
+    /// rebuild, not fully incremental validation.
+    pub fn rebuild_affected_revisions_with_stats(&mut self, previous: &AirGraph) -> RebuildStats {
+        let mut stats = RebuildStats::default();
+        let mut unique = std::collections::BTreeSet::new();
+        if !detect_cycles(self).is_empty() {
+            return stats;
+        }
+        let reachable = self.reachable();
+        let dirty = reachable
+            .iter()
+            .filter(|revision| {
+                let Some(node) = self.nodes.get(*revision) else {
+                    return false;
+                };
+                self.compute_revision(&node.kind, &node.fields, &node.slots) != revision.as_str()
+            })
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>();
+        stats.dirty_detection_node_scans = reachable.len();
+        let modules = self.module_entities.clone();
+        stats.candidate_root_modules = modules.len();
+        let mut affected = Vec::new();
+        for module in modules {
+            let Some(head) = self.heads.get(&module).cloned() else {
+                continue;
+            };
+            if previous.heads.get(&module) != Some(&head) {
+                affected.push((module, head));
+                continue;
+            }
+            let mut stack = vec![head.clone()];
+            let mut seen = std::collections::BTreeSet::new();
+            let mut contains_dirty = false;
+            while let Some(revision) = stack.pop() {
+                if !seen.insert(revision.clone()) {
+                    continue;
+                }
+                stats.affected_root_selection_visits += 1;
+                if dirty.contains(&revision) {
+                    contains_dirty = true;
+                    break;
+                }
+                if let Some(node) = self.nodes.get(&revision) {
+                    stack.extend(node.slots.values().flatten().cloned());
+                }
+            }
+            if contains_dirty {
+                affected.push((module, head));
+            }
+        }
+        for (module, head) in affected {
+            stats.root_modules += 1;
+            let new_revision = self.recompute_revision_measured(&head, &mut stats, &mut unique);
+            self.heads.insert(module, new_revision);
         }
         stats.unique_nodes_visited = unique.len();
         stats
@@ -3865,7 +3932,7 @@ impl EditSession {
             self.errors = vec![format!("E_AIR_CYCLE: {}", cycles[0])];
             return Err(format!("E_AIR_CYCLE: {}", cycles[0]));
         }
-        let rebuild_stats = candidate.rebuild_revisions_with_stats();
+        let rebuild_stats = candidate.rebuild_affected_revisions_with_stats(&self.graph);
         let problems = validate_graph(&candidate);
         if !problems.is_empty() {
             self.errors = problems.clone();
@@ -5052,6 +5119,50 @@ mod tests {
         g.module_entities.push("module:m".to_string());
         g.heads.insert("module:m".to_string(), root);
         assert!(detect_cycles(&g).is_empty());
+    }
+
+    #[test]
+    fn affected_root_rebuild_matches_full_rebuild_for_shared_dirty_node() {
+        let mut graph = AirGraph::new();
+        let leaf = graph.add(
+            "literal",
+            "",
+            BTreeMap::from([("value".to_string(), Value::Str("before".to_string()))]),
+            BTreeMap::new(),
+        );
+        let slots = BTreeMap::from([("items".to_string(), vec![leaf.clone()])]);
+        let left = graph.add(
+            "module",
+            "module:left",
+            BTreeMap::from([("name".to_string(), Value::Str("left".to_string()))]),
+            slots.clone(),
+        );
+        let right = graph.add(
+            "module",
+            "module:right",
+            BTreeMap::from([("name".to_string(), Value::Str("right".to_string()))]),
+            slots,
+        );
+        graph.module_entities = vec!["module:left".to_string(), "module:right".to_string()];
+        graph.heads.insert("module:left".to_string(), left);
+        graph.heads.insert("module:right".to_string(), right);
+        let previous = graph.clone();
+        graph
+            .nodes
+            .get_mut(&leaf)
+            .unwrap()
+            .fields
+            .insert("value".to_string(), Value::Str("after".to_string()));
+
+        let mut full = graph.clone();
+        let full_stats = full.rebuild_revisions_with_stats();
+        let stats = graph.rebuild_affected_revisions_with_stats(&previous);
+
+        assert_eq!(stats.candidate_root_modules, 2);
+        assert_eq!(stats.root_modules, 2);
+        assert_eq!(full_stats.root_modules, 2);
+        assert_eq!(graph.semantic_hash(), full.semantic_hash());
+        assert_eq!(graph.heads, full.heads);
     }
 
     #[test]

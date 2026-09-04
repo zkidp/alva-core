@@ -70,11 +70,14 @@ def main():
     assert measured["added_reachable_nodes"] > 0
     assert measured["removed_reachable_nodes"] > 0
     assert measured["reused_reachable_nodes"] > 0
-    assert rebuild["root_modules"] == 2
+    assert rebuild["candidate_root_modules"] == 2
+    assert rebuild["root_modules"] == 1
+    assert rebuild["dirty_detection_node_scans"] == measured["reachable_nodes"]
+    assert rebuild["affected_root_selection_visits"] > 0
     assert rebuild["node_visits"] >= rebuild["unique_nodes_visited"]
-    assert rebuild["unique_nodes_visited"] == measured["reachable_nodes"]
+    assert rebuild["unique_nodes_visited"] < measured["reachable_nodes"]
     assert rebuild["rewritten_nodes"] == measured["added_reachable_nodes"]
-    assert measured["graph_construction_scope"] == "all_module_roots_revision_rebuild"
+    assert measured["graph_construction_scope"] == "affected_module_roots_revision_rebuild"
     assert measured["semantic_check_scope"] == "full_project_when_check_runs"
     assert measured["full_check_runs"] == 0
 

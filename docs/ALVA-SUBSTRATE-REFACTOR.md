@@ -88,10 +88,16 @@ commits are not merged wholesale into the public product line.
 - `inspect_transaction_work` establishes the pre-incremental execution
   baseline. It reports current/base reachable revisions, exact revision reuse,
   changed module heads, actual module-root/node visits from the most recent
-  rebuild, rewritten nodes, and full semantic-check invocations. The report
-  labels today's rebuild and semantic check as full-scope; unchanged Merkle
-  revisions are evidence of structural reuse, not evidence that work was
+  rebuild, rewritten nodes, and full semantic-check invocations. Wave 07 used
+  it to establish the historical full-root baseline; unchanged Merkle
+  revisions alone are evidence of structural reuse, not evidence that work was
   skipped.
+- Revision rebuilding now performs full dirty discovery, then rebuilds only
+  module roots whose trees contain dirty revisions or whose heads changed
+  directly. Work reports separate candidate roots, dirty-detection scans,
+  affected-root selection visits, and actual rebuild visits. Graph invariants,
+  cycle detection, and semantic checking remain full-project gates, so this is
+  an affected-root optimization rather than a full incremental-checking claim.
 
 ## Planned service boundaries
 

@@ -53,7 +53,10 @@ pub(crate) struct TransactionWorkReport {
     pub(crate) changed_module_count: usize,
     pub(crate) changed_modules: Vec<String>,
     pub(crate) changed_modules_truncated: bool,
+    pub(crate) rebuild_candidate_root_modules: usize,
     pub(crate) rebuild_root_modules: usize,
+    pub(crate) rebuild_dirty_detection_node_scans: usize,
+    pub(crate) rebuild_affected_root_selection_visits: usize,
     pub(crate) rebuild_node_visits: usize,
     pub(crate) rebuild_unique_nodes_visited: usize,
     pub(crate) rebuild_rewritten_nodes: usize,
@@ -207,7 +210,10 @@ impl AgentRuntime {
             changed_module_count,
             changed_modules: all_changed_modules,
             changed_modules_truncated,
+            rebuild_candidate_root_modules: rebuild.candidate_root_modules,
             rebuild_root_modules: rebuild.root_modules,
+            rebuild_dirty_detection_node_scans: rebuild.dirty_detection_node_scans,
+            rebuild_affected_root_selection_visits: rebuild.affected_root_selection_visits,
             rebuild_node_visits: rebuild.node_visits,
             rebuild_unique_nodes_visited: rebuild.unique_nodes_visited,
             rebuild_rewritten_nodes: rebuild.rewritten_nodes,
@@ -215,7 +221,7 @@ impl AgentRuntime {
             graph_construction_scope: if self.text_input_staged {
                 "full_project_source_reparse"
             } else if session.last_rebuild_stats.is_some() {
-                "all_module_roots_revision_rebuild"
+                "affected_module_roots_revision_rebuild"
             } else {
                 "none_since_begin"
             },

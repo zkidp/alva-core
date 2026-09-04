@@ -1,0 +1,52 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "de30cef3d8a02f71d2a255698a9d6035953ffaf1",
+  "measurement_boundary": "Deterministic AIR execution counters on the identical Wave-07 fixture and mutation; no wall-time, model-quality, token, or full incremental-checking claim",
+  "capability": "affected-module-root revision rebuild",
+  "fixture": "tests/project/alva.toml",
+  "mutation": "change demo.app.run literal value from a to work-baseline",
+  "semantic_result_vs_wave_07": {
+    "stored_nodes": 55,
+    "reachable_nodes": 48,
+    "reused_reachable_nodes": 41,
+    "added_reachable_nodes": 7,
+    "removed_reachable_nodes": 7,
+    "changed_modules": [
+      "module:demo.app"
+    ],
+    "rewritten_nodes": 7,
+    "unchanged": true
+  },
+  "revision_rebuild_work": {
+    "candidate_root_modules": 2,
+    "affected_root_modules_rebuilt": 1,
+    "dirty_detection_node_scans": 48,
+    "affected_root_selection_visits": 49,
+    "rebuild_node_visits": 14,
+    "rebuild_unique_nodes_visited": 14
+  },
+  "comparison_to_wave_07": {
+    "root_modules_rebuilt_before": 2,
+    "root_modules_rebuilt_after": 1,
+    "rebuild_node_visits_before": 62,
+    "rebuild_node_visits_after": 14,
+    "rebuild_visit_reduction": 48,
+    "rebuild_visit_reduction_percent": 77.4,
+    "full_dirty_discovery_retained": true,
+    "full_cycle_and_invariant_validation_retained": true,
+    "full_semantic_check_retained": true
+  },
+  "correctness_boundary": {
+    "shared_dirty_revision_marks_every_containing_module_root": true,
+    "direct_module_head_change_marks_that_module_root": true,
+    "failed_stage_does_not_replace_transaction_graph": true,
+    "semantic_hash_or_diagnostic_change_claim": false
+  },
+  "modern_mcp_tool_surface": {
+    "tool_count": 16,
+    "tools_list_wire_bytes": 6859,
+    "increment_vs_wave_07_bytes": 0,
+    "tool_surface_hash": "16a2ba4bc93721af4a2ed3ae727d76783468bd17ee8cbfc6bd5625f39e711783"
+  },
+  "disposition": "AFFECTED_ROOT_REBUILD_CONFIRMED_FULL_DISCOVERY_VALIDATION_AND_SEMANTIC_CHECK_RETAINED"
+}
