@@ -29,6 +29,15 @@ def encoded_size(value: Any) -> int:
     return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
 
 
+def schema_description_bytes(value: Any) -> int:
+    if isinstance(value, dict):
+        own = len(value.get("description", "").encode("utf-8"))
+        return own + sum(schema_description_bytes(child) for child in value.values())
+    if isinstance(value, list):
+        return sum(schema_description_bytes(child) for child in value)
+    return 0
+
+
 class Mcp:
     def __init__(self, binary: Path):
         self.process = subprocess.Popen(
@@ -135,10 +144,15 @@ def census(binary: Path, project: Path, modern: bool) -> dict[str, Any]:
         "tool_description_bytes": sum(
             len(tool.get("description", "").encode("utf-8")) for tool in tools
         ),
+        "input_schema_bytes": sum(encoded_size(tool.get("inputSchema", {})) for tool in tools),
         "schema_description_bytes": sum(
-            len(json.dumps(tool.get("inputSchema", {}), ensure_ascii=False).encode("utf-8"))
-            for tool in tools
+            schema_description_bytes(tool.get("inputSchema", {})) for tool in tools
         ),
+        "tool_descriptions_with_examples": sum(
+            "Example:" in tool.get("description", "") for tool in tools
+        ),
+        "tool_surface_hash": listed.get("toolSurfaceHash"),
+        "schema_profile": listed.get("schemaProfile", "legacy-full"),
         "begin_transaction": result_payload_metrics(begin),
         "inspect_project": result_payload_metrics(inspect),
         "round_trips_measured": 5,

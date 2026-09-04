@@ -1,0 +1,35 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "cdce0834efdd2a156e865d1e58e9456a9050274e",
+  "measurement_boundary": "UTF-8 JSON wire bytes only; no tokenizer, prompt-cache, reasoning, or billed-token claim",
+  "fixture": "tests/project/alva.toml",
+  "legacy": {
+    "schema_profile": "legacy-full",
+    "tool_count": 14,
+    "tools_list_wire_bytes": 8462,
+    "input_schema_bytes": 5503,
+    "schema_description_bytes": 1157,
+    "tool_description_bytes": 942,
+    "tool_descriptions_with_examples": 14,
+    "response_behavior": "complete JSON text fallback plus structuredContent"
+  },
+  "modern": {
+    "schema_profile": "compact-v1",
+    "tool_count": 14,
+    "tools_list_wire_bytes": 5814,
+    "input_schema_bytes": 3039,
+    "schema_description_bytes": 0,
+    "tool_description_bytes": 489,
+    "tool_descriptions_with_examples": 0,
+    "tool_surface_hash": "2aea00bf0237b7a0ff4215d9750d84e79073967e2720fa4b6790b23334f37976",
+    "cache_ttl_ms": 3600000,
+    "response_behavior": "short text summary plus complete structuredContent"
+  },
+  "mechanical_change": {
+    "tools_list_wire_byte_reduction": 2648,
+    "tools_list_wire_byte_reduction_percent": 31.3,
+    "input_schema_byte_reduction": 2464,
+    "input_schema_byte_reduction_percent": 44.8
+  },
+  "disposition": "COMPACT_MODERN_SURFACE_CONFIRMED_LEGACY_UNCHANGED_NO_MODEL_TOKEN_CLAIM"
+}

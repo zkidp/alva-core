@@ -132,7 +132,10 @@ def modern_fixture(binary: Path) -> None:
         }
     )["result"]
     assert listed["resultType"] == "complete"
-    assert listed["ttlMs"] == 0 and listed["cacheScope"] == "private"
+    assert listed["ttlMs"] == 3_600_000 and listed["cacheScope"] == "private"
+    assert listed["schemaProfile"] == "compact-v1"
+    assert re.fullmatch(r"[0-9a-f]{64}", listed["toolSurfaceHash"])
+    assert len(json.dumps(listed, separators=(",", ":"))) < 6500
     unknown_tool = mcp.tool(3, "not_a_tool", {}, modern=True)
     assert unknown_tool["isError"] is True
     assert "E_MCP_UNKNOWN_TOOL" in modern_structured(unknown_tool)["error"]

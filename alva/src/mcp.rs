@@ -322,15 +322,30 @@ fn error(id: Value, code: i64, message: impl Into<String>, data: Option<Value>) 
     json!({"jsonrpc":"2.0", "id":id, "error":body})
 }
 
-fn tool_definition(name: &str) -> Option<Value> {
-    let spec = crate::aep::lookup(name)?;
-    if spec
-        .gate
-        .is_some_and(|gate| !crate::aep::gate_enabled(gate))
-    {
+fn compact_schema(value: &mut Value) {
+    match value {
+        Value::Object(object) => {
+            object.remove("$schema");
+            object.remove("description");
+            for child in object.values_mut() {
+                compact_schema(child);
+            }
+        }
+        Value::Array(values) => {
+            for child in values {
+                compact_schema(child);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn tool_definition(name: &str, compact: bool) -> Option<Value> {
+    let spec = aep::lookup(name)?;
+    if spec.gate.is_some_and(|gate| !aep::gate_enabled(gate)) {
         return None;
     }
-    let mut input_schema = crate::aep::operation_input_schema(spec);
+    let mut input_schema = aep::operation_input_schema(spec);
     if name != "begin_transaction" {
         let object = input_schema.as_object_mut()?;
         object
@@ -347,9 +362,17 @@ fn tool_definition(name: &str) -> Option<Value> {
     }
     let read_only = spec.effects == "inspection";
     let destructive = name == "commit_transaction";
+    let description = if compact {
+        format!("ALVA {}: {}.", spec.effects, name.replace('_', " "))
+    } else {
+        format!("ALVA semantic operation. Example: {}", spec.example)
+    };
+    if compact {
+        compact_schema(&mut input_schema);
+    }
     Some(json!({
         "name": name,
-        "description": format!("ALVA semantic operation. Example: {}", spec.example),
+        "description": description,
         "inputSchema": input_schema,
         "annotations": {
             "readOnlyHint": read_only,
@@ -362,12 +385,23 @@ fn tool_definition(name: &str) -> Option<Value> {
 fn list_tools(modern: bool) -> Value {
     let tools: Vec<Value> = MCP_TOOLS
         .iter()
-        .filter_map(|name| tool_definition(name))
+        .filter_map(|name| tool_definition(name, modern))
         .collect();
+    let surface_hash = if modern {
+        use sha2::{Digest, Sha256};
+        Some(format!(
+            "{:x}",
+            Sha256::digest(serde_json::to_vec(&tools).unwrap_or_default())
+        ))
+    } else {
+        None
+    };
     let mut result = json!({"tools":tools});
     if modern {
-        result["ttlMs"] = json!(0);
+        result["ttlMs"] = json!(3_600_000);
         result["cacheScope"] = json!("private");
+        result["toolSurfaceHash"] = json!(surface_hash.unwrap_or_default());
+        result["schemaProfile"] = json!("compact-v1");
     }
     result
 }
@@ -567,11 +601,27 @@ mod tests {
 
     #[test]
     fn construction_schema_advertises_dynamic_typed_children() {
-        let tool = tool_definition("construct_expression").unwrap();
+        let tool = tool_definition("construct_expression", false).unwrap();
         assert!(tool["inputSchema"]["additionalProperties"].is_object());
         assert!(tool["inputSchema"]["properties"]
             .get("...children")
             .is_none());
+    }
+
+    #[test]
+    fn modern_tool_surface_is_compact_and_fingerprinted() {
+        let legacy = list_tools(false);
+        let modern = list_tools(true);
+        let legacy_bytes = serde_json::to_vec(&legacy).unwrap().len();
+        let modern_bytes = serde_json::to_vec(&modern).unwrap().len();
+
+        assert!(modern_bytes < legacy_bytes * 3 / 4);
+        assert_eq!(modern["schemaProfile"], "compact-v1");
+        assert_eq!(modern["toolSurfaceHash"].as_str().unwrap().len(), 64);
+        assert!(!modern.to_string().contains("Example:"));
+        for tool in modern["tools"].as_array().unwrap() {
+            assert!(!tool["inputSchema"].to_string().contains("\"description\""));
+        }
     }
 
     #[test]

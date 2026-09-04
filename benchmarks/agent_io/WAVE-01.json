@@ -8,7 +8,7 @@
     "legacy_tools_list_wire_bytes": 8462,
     "modern_tools_list_wire_bytes": 8611,
     "tool_description_bytes": 942,
-    "schema_description_bytes": 5848
+    "input_schema_bytes": 5848
   },
   "before": {
     "legacy": {
