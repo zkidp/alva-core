@@ -1,6 +1,7 @@
 //! Transport-neutral state and lifecycle for one AEP editing session.
 
 use std::collections::BTreeMap;
+use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 
 use crate::{air, project};
@@ -18,6 +19,27 @@ pub(crate) struct TextPatchResult {
     pub(crate) replacements: usize,
     pub(crate) content_sha256: String,
     pub(crate) revision: String,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct SourceProjectionPreview {
+    pub(crate) path: String,
+    pub(crate) source_sha256: String,
+    pub(crate) projection_sha256: String,
+    pub(crate) revision: String,
+    pub(crate) changed: bool,
+    pub(crate) projection_preview: String,
+    pub(crate) projection_truncated: bool,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct SourceProjectionResult {
+    pub(crate) path: String,
+    pub(crate) source_sha256: String,
+    pub(crate) projection_sha256: String,
+    pub(crate) revision: String,
+    pub(crate) changed: bool,
+    pub(crate) all_sources_converged: bool,
 }
 
 struct SourceDocument {
@@ -265,6 +287,205 @@ impl AgentRuntime {
         })
     }
 
+    /// Render the authoritative transaction graph back to canonical `.alva`
+    /// without changing either AIR or source bytes. The entire manifest source
+    /// set must round-trip to the same semantic revision before any individual
+    /// projection is offered.
+    pub(crate) fn preview_source_projection(
+        &self,
+        path: &str,
+    ) -> Result<SourceProjectionPreview, String> {
+        let requested = self.resolve_source_path(path)?;
+        let projections = self.canonical_projection_set()?;
+        let projection = &projections[&requested];
+        let document = &self.source_documents[&requested];
+        let projection_sha256 = sha256_text(projection);
+        let revision = self.session_revision()?;
+        let max_preview_bytes = 4096;
+        let (projection_preview, projection_truncated) =
+            bounded_utf8_prefix(projection, max_preview_bytes);
+        Ok(SourceProjectionPreview {
+            path: path.to_string(),
+            source_sha256: document.content_sha256.clone(),
+            projection_sha256,
+            revision,
+            changed: projection != &document.text,
+            projection_preview,
+            projection_truncated,
+        })
+    }
+
+    /// Explicitly materialize one canonical AIR projection into a manifest
+    /// source file. This is deliberately separate from semantic commit: it is
+    /// a CAS-protected projection write, not an atomic AIR+source transaction.
+    pub(crate) fn materialize_source_projection(
+        &mut self,
+        path: &str,
+        expected_source_sha256: &str,
+        expected_projection_sha256: &str,
+        expected_revision: &str,
+    ) -> Result<SourceProjectionResult, String> {
+        let requested = self.resolve_source_path(path)?;
+        let revision = self.session_revision()?;
+        if revision != expected_revision {
+            return Err(format!(
+                "E_AEP_PROJECTION_STALE_AIR: expected {expected_revision} but transaction revision is {revision}"
+            ));
+        }
+        let base_revision = self
+            .base_graph
+            .as_ref()
+            .map(air::AirGraph::semantic_hash)
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        if revision != base_revision {
+            return Err(
+                "E_AEP_PROJECTION_UNCOMMITTED: commit semantic changes before materializing source"
+                    .to_string(),
+            );
+        }
+        let projections = self.canonical_projection_set()?;
+        let projection = projections[&requested].clone();
+        let projection_sha256 = sha256_text(&projection);
+        if projection_sha256 != expected_projection_sha256 {
+            return Err(format!(
+                "E_AEP_PROJECTION_STALE_OUTPUT: expected {expected_projection_sha256} but canonical projection is {projection_sha256}"
+            ));
+        }
+        let document = &self.source_documents[&requested];
+        if document.content_sha256 != expected_source_sha256 {
+            return Err(format!(
+                "E_AEP_PROJECTION_STALE_SOURCE: expected {expected_source_sha256} but transaction source is {}",
+                document.content_sha256
+            ));
+        }
+        let disk = std::fs::read_to_string(&document.path)
+            .map_err(|error| format!("E_AEP_PROJECTION_SOURCE_CHANGED: {error}"))?;
+        if sha256_text(&disk) != document.disk_sha256 {
+            return Err(
+                "E_AEP_PROJECTION_SOURCE_CHANGED: module bytes changed after transaction begin"
+                    .to_string(),
+            );
+        }
+
+        // Serialize projection writes with authoritative commits. Re-read AIR
+        // under that lock so a concurrent commit cannot be projected by this
+        // stale transaction.
+        let store = self.project_dir.join(air::AIR_STORE_DIR);
+        std::fs::create_dir_all(&store).map_err(|error| error.to_string())?;
+        let _lock = air::acquire_store_lock(&store)?;
+        let current = air::load_authoritative(&self.project_dir)?;
+        let current_revision = current.semantic_hash();
+        if current_revision != revision {
+            return Err(format!(
+                "E_AEP_PROJECTION_CONFLICT: authoritative revision {current_revision} != transaction revision {revision}"
+            ));
+        }
+        let disk = std::fs::read_to_string(&requested)
+            .map_err(|error| format!("E_AEP_PROJECTION_SOURCE_CHANGED: {error}"))?;
+        if sha256_text(&disk) != expected_source_sha256 {
+            return Err(
+                "E_AEP_PROJECTION_SOURCE_CHANGED: module bytes changed before projection write"
+                    .to_string(),
+            );
+        }
+        let changed = disk != projection;
+        if changed {
+            atomic_replace_source(&requested, projection.as_bytes())?;
+        }
+
+        let document = self.source_documents.get_mut(&requested).unwrap();
+        document.text = projection;
+        document.disk_sha256 = projection_sha256.clone();
+        document.content_sha256 = projection_sha256.clone();
+        let projected_revision = source_graph(&self.source_documents, &self.source_order)
+            .ok()
+            .map(|graph| graph.semantic_hash());
+        let all_sources_converged = projected_revision.as_deref() == Some(revision.as_str());
+        self.source_projection_revision = projected_revision;
+        self.text_input_staged = false;
+        Ok(SourceProjectionResult {
+            path: path.to_string(),
+            source_sha256: expected_source_sha256.to_string(),
+            projection_sha256,
+            revision,
+            changed,
+            all_sources_converged,
+        })
+    }
+
+    fn resolve_source_path(&self, path: &str) -> Result<PathBuf, String> {
+        self.session
+            .as_ref()
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        if path.is_empty() || Path::new(path).is_absolute() {
+            return Err("E_AEP_PROJECTION_PATH: path must be project-relative".to_string());
+        }
+        if Path::new(path).components().any(|component| {
+            matches!(
+                component,
+                Component::ParentDir | Component::RootDir | Component::Prefix(_)
+            )
+        }) {
+            return Err("E_AEP_PROJECTION_PATH: path traversal is forbidden".to_string());
+        }
+        let requested = std::fs::canonicalize(self.project_dir.join(path))
+            .map_err(|error| format!("E_AEP_PROJECTION_PATH: cannot resolve '{path}': {error}"))?;
+        if !self.source_documents.contains_key(&requested) {
+            return Err(
+                "E_AEP_PROJECTION_PATH: path is not a manifest-declared module source".to_string(),
+            );
+        }
+        Ok(requested)
+    }
+
+    fn session_revision(&self) -> Result<String, String> {
+        self.session
+            .as_ref()
+            .map(|session| session.graph.semantic_hash())
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())
+    }
+
+    fn canonical_projection_set(&self) -> Result<BTreeMap<PathBuf, String>, String> {
+        let session = self
+            .session
+            .as_ref()
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        if self.source_documents.is_empty() {
+            return Err("E_AEP_PROJECTION_SOURCE_UNAVAILABLE: no module sources".to_string());
+        }
+        let mut projections = BTreeMap::new();
+        let mut sources = Vec::with_capacity(self.source_order.len());
+        for path in &self.source_order {
+            let document = &self.source_documents[path];
+            let entity = format!("module:{}", document.module_name);
+            if !session.graph.module_entities.contains(&entity) {
+                return Err(format!(
+                    "E_AEP_PROJECTION_MODULE_MISSING: authoritative AIR has no module '{}'",
+                    document.module_name
+                ));
+            }
+            let module_revision = session.graph.heads.get(&entity).ok_or_else(|| {
+                format!(
+                    "E_AEP_PROJECTION_MODULE_MISSING: authoritative AIR has no head for module '{}'",
+                    document.module_name
+                )
+            })?;
+            let projection = air::module_to_sexpr(&session.graph, module_revision);
+            sources.push((document.module_name.clone(), projection.clone()));
+            projections.insert(path.clone(), projection);
+        }
+        let round_trip = project::graph_from_source_texts(&sources)
+            .map_err(|problems| format!("E_AEP_PROJECTION_ROUNDTRIP: {}", problems.join("; ")))?;
+        let expected = session.graph.semantic_hash();
+        let actual = round_trip.semantic_hash();
+        if actual != expected {
+            return Err(format!(
+                "E_AEP_PROJECTION_ROUNDTRIP: canonical source revision {actual} != AIR revision {expected}"
+            ));
+        }
+        Ok(projections)
+    }
+
     fn verify_text_sources_unchanged(&self) -> Result<(), String> {
         if !self.text_input_staged {
             return Ok(());
@@ -299,4 +520,43 @@ fn source_graph(
 
 fn sha256_text(text: &str) -> String {
     crate::air::hex(&Sha256::digest(text.as_bytes()))
+}
+
+fn bounded_utf8_prefix(text: &str, max_bytes: usize) -> (String, bool) {
+    if text.len() <= max_bytes {
+        return (text.to_string(), false);
+    }
+    let mut end = max_bytes;
+    while !text.is_char_boundary(end) {
+        end -= 1;
+    }
+    (text[..end].to_string(), true)
+}
+
+fn atomic_replace_source(path: &Path, bytes: &[u8]) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| "E_AEP_PROJECTION_WRITE: source has no parent directory".to_string())?;
+    let file_name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .ok_or_else(|| "E_AEP_PROJECTION_WRITE: invalid source filename".to_string())?;
+    let tmp = parent.join(format!(
+        ".{file_name}.alva-projection-{}.tmp",
+        std::process::id()
+    ));
+    let write_result = (|| -> Result<(), String> {
+        let mut file = std::fs::File::create(&tmp)
+            .map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
+        file.write_all(bytes)
+            .map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
+        file.sync_all()
+            .map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
+        std::fs::rename(&tmp, path).map_err(|error| format!("E_AEP_PROJECTION_WRITE: {error}"))?;
+        Ok(())
+    })();
+    if write_result.is_err() {
+        let _ = std::fs::remove_file(&tmp);
+    }
+    write_result
 }

@@ -1,0 +1,38 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "e96ad0e17d9e6c1deb90c7f79de6e48a77468517",
+  "measurement_boundary": "Deterministic protocol behavior and model-free source/AIR reconciliation fixtures only; no model-quality or billed-token claim",
+  "capability": "explicit canonical AIR-to-source projection reconciliation",
+  "protocol_shape": {
+    "preview_source_projection": "read-only, bounded to 4096 UTF-8 bytes, full projection identified by SHA-256",
+    "materialize_source_projection": "direct AEP projection write; deliberately excluded from MCP and stage_and_check",
+    "semantic_commit_and_source_write_atomic_together": false
+  },
+  "fail_closed_gates": {
+    "absolute_or_traversing_path": "REJECTED",
+    "non_manifest_module_path": "REJECTED",
+    "canonical_projection_parse_or_check_failure": "REJECTED",
+    "canonical_projection_semantic_revision_mismatch": "REJECTED",
+    "uncommitted_semantic_change": "REJECTED",
+    "stale_source_sha256": "REJECTED",
+    "stale_projection_sha256": "REJECTED",
+    "stale_or_concurrently_changed_air_revision": "REJECTED",
+    "external_source_change": "REJECTED"
+  },
+  "verified_paths": {
+    "text_input_commit_leaves_source_unchanged": true,
+    "preview_leaves_source_unchanged": true,
+    "complete_canonical_source_set_round_trips_to_exact_air_revision": true,
+    "failed_cas_leaves_source_unchanged": true,
+    "successful_materialization_converges_source_to_air": true,
+    "project_check_passes_after_materialization": true
+  },
+  "modern_mcp_tool_surface": {
+    "tool_count": 16,
+    "tools_list_wire_bytes": 6859,
+    "increment_vs_wave_05_bytes": 0,
+    "tool_surface_hash": "16a2ba4bc93721af4a2ed3ae727d76783468bd17ee8cbfc6bd5625f39e711783"
+  },
+  "known_boundary": "Each source file is replaced atomically under the AIR store lock, but multi-module source projection is not one filesystem-wide atomic transaction. all_sources_converged remains false until the complete declared source set matches AIR.",
+  "disposition": "PROJECTION_RECONCILIATION_CONFIRMED_EXPLICIT_CAS_NO_CROSS_REPRESENTATION_ATOMICITY_CLAIM"
+}

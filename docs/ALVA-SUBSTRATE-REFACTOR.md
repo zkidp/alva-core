@@ -76,8 +76,15 @@ commits are not merged wholesale into the public product line.
   authoritative AIR. MCP exposes it only as a nested `stage_and_check`
   mutation, avoiding a second unconstrained filesystem-edit surface.
 - Text patching currently refuses source-less projects, source/AIR divergence,
-  and text-after-semantic mixed mode. Projection reconciliation is deliberately
-  deferred rather than silently choosing one representation as newer.
+  and text-after-semantic mixed mode.
+- Projection reconciliation is explicit and two-step. A read-only preview first
+  renders every manifest module with the existing canonical AIR serializer and
+  requires the complete source set to parse, check, and reproduce the exact AIR
+  semantic revision. A separate materialization operation may then replace one
+  declared source under source-SHA, projection-SHA, and AIR-revision CAS while
+  holding the authoritative-store lock. It refuses uncommitted semantic state
+  and reports whether all source modules have converged. This projection write
+  is intentionally not described as atomic with the earlier AIR commit.
 
 ## Planned service boundaries
 

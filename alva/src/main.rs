@@ -2482,6 +2482,62 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
                 Err(error) => resp!(false, "null", &error),
             }
         }
+        "preview_source_projection" => {
+            let path = req.get("path").and_then(Json::as_str).unwrap_or("");
+            match runtime.preview_source_projection(path) {
+                Ok(preview) => resp!(
+                    true,
+                    &format!(
+                        "{{\"path\":{},\"source_sha256\":{},\"projection_sha256\":{},\"revision\":{},\"changed\":{},\"projection_preview\":{},\"projection_truncated\":{},\"authority\":\"AIR\",\"source_written\":false}}",
+                        json_str(&preview.path),
+                        json_str(&preview.source_sha256),
+                        json_str(&preview.projection_sha256),
+                        json_str(&preview.revision),
+                        preview.changed,
+                        json_str(&preview.projection_preview),
+                        preview.projection_truncated
+                    ),
+                    "canonical AIR projection previewed; source remains unchanged"
+                ),
+                Err(error) => resp!(false, "null", &error),
+            }
+        }
+        "materialize_source_projection" => {
+            let path = req.get("path").and_then(Json::as_str).unwrap_or("");
+            let expected_source_sha256 = req
+                .get("expected_source_sha256")
+                .and_then(Json::as_str)
+                .unwrap_or("");
+            let expected_projection_sha256 = req
+                .get("expected_projection_sha256")
+                .and_then(Json::as_str)
+                .unwrap_or("");
+            let expected_revision = req
+                .get("expected_revision")
+                .and_then(Json::as_str)
+                .unwrap_or("");
+            match runtime.materialize_source_projection(
+                path,
+                expected_source_sha256,
+                expected_projection_sha256,
+                expected_revision,
+            ) {
+                Ok(result) => resp!(
+                    true,
+                    &format!(
+                        "{{\"path\":{},\"previous_source_sha256\":{},\"projection_sha256\":{},\"revision\":{},\"changed\":{},\"all_sources_converged\":{},\"authority\":\"AIR\",\"source_written\":true,\"atomic_with_air_commit\":false}}",
+                        json_str(&result.path),
+                        json_str(&result.source_sha256),
+                        json_str(&result.projection_sha256),
+                        json_str(&result.revision),
+                        result.changed,
+                        result.all_sources_converged
+                    ),
+                    "canonical AIR projection materialized with source/AIR CAS"
+                ),
+                Err(error) => resp!(false, "null", &error),
+            }
+        }
         "stage_and_check" => {
             let operation_name = req.get("operation").and_then(Json::as_str).unwrap_or("");
             let nested_spec = aep::lookup(operation_name);
