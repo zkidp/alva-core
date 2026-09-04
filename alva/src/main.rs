@@ -436,9 +436,60 @@ fn parse_json(input: &str) -> Result<Json, String> {
         .and_then(convert)
 }
 
+fn json_to_serde(value: &Json) -> serde_json::Value {
+    match value {
+        Json::Null => serde_json::Value::Null,
+        Json::Bool(value) => serde_json::Value::Bool(*value),
+        Json::Num(value) => serde_json::Number::from_f64(*value)
+            .map(serde_json::Value::Number)
+            .unwrap_or(serde_json::Value::Null),
+        Json::Str(value) => serde_json::Value::String(value.clone()),
+        Json::Arr(values) => serde_json::Value::Array(values.iter().map(json_to_serde).collect()),
+        Json::Obj(values) => serde_json::Value::Object(
+            values
+                .iter()
+                .map(|(key, value)| (key.clone(), json_to_serde(value)))
+                .collect(),
+        ),
+    }
+}
+
+fn validate_agent_arguments(req: &Json, spec: &aep::OperationSpec) -> Result<(), String> {
+    let Json::Obj(fields) = req else {
+        return Err("E_AEP_INVALID_ARGUMENTS: request must be an object".to_string());
+    };
+    let mut arguments: serde_json::Map<String, serde_json::Value> = fields
+        .iter()
+        .filter(|(name, _)| name.as_str() != "request_id" && name.as_str() != "tool")
+        .map(|(name, value)| (name.clone(), json_to_serde(value)))
+        .collect();
+
+    // The historical aep.py key=value bridge encoded booleans as strings.
+    // Normalize that one documented compatibility form before applying the
+    // canonical registry contract. MCP remains strictly typed.
+    for argument in &spec.arguments {
+        if matches!(argument.schema, aep::ArgSchema::Bool(_)) {
+            if let Some(serde_json::Value::String(value)) = arguments.get(argument.name) {
+                let normalized = match value.as_str() {
+                    "true" | "1" => Some(true),
+                    "false" | "0" => Some(false),
+                    _ => None,
+                };
+                if let Some(normalized) = normalized {
+                    arguments.insert(
+                        argument.name.to_string(),
+                        serde_json::Value::Bool(normalized),
+                    );
+                }
+            }
+        }
+    }
+    aep::validate_json_arguments(spec, &arguments, &[])
+}
+
 #[cfg(test)]
 mod json_protocol_tests {
-    use super::{parse_json, Json};
+    use super::{parse_json, validate_agent_arguments, Json};
 
     #[test]
     fn parses_standard_unicode_escapes() {
@@ -459,6 +510,28 @@ mod json_protocol_tests {
     fn rejects_invalid_escape_and_trailing_input() {
         assert!(parse_json(r#"{"bad":"\q"}"#).is_err());
         assert!(parse_json(r#"{"ok":true} trailing"#).is_err());
+    }
+
+    #[test]
+    fn direct_agent_rejects_unknown_fields() {
+        let request = parse_json(
+            r#"{"tool":"set_effect","function":"demo.run","effect":"io","surprise":true}"#,
+        )
+        .unwrap();
+        let spec = crate::aep::lookup("set_effect").unwrap();
+        assert!(validate_agent_arguments(&request, spec)
+            .unwrap_err()
+            .contains("unknown field 'surprise'"));
+    }
+
+    #[test]
+    fn direct_agent_preserves_documented_boolean_string_compatibility() {
+        let request = parse_json(
+            r#"{"tool":"describe_construction","kind":"fold","include_candidates":"true"}"#,
+        )
+        .unwrap();
+        let spec = crate::aep::lookup("describe_construction").unwrap();
+        validate_agent_arguments(&request, spec).unwrap();
     }
 }
 
@@ -1589,7 +1662,16 @@ fn cmd_agent(_rest: &[String]) -> i32 {
         }
         // RFC-0005: registry is the single source of truth — canonicalize
         // aliases before dispatch so introspection and execution agree.
-        let canonical_tool: &str = aep::lookup(&tool).map(|s| s.name).unwrap_or(tool.as_str());
+        let operation = aep::lookup(&tool);
+        let canonical_tool: &str = operation.map(|s| s.name).unwrap_or(tool.as_str());
+        if let Some(spec) =
+            operation.filter(|spec| spec.gate.map(aep::gate_enabled).unwrap_or(true))
+        {
+            if let Err(error) = validate_agent_arguments(&req, spec) {
+                println!("{}", resp!(false, "null", &error));
+                continue;
+            }
+        }
         let out = match canonical_tool {
             "inspect_project" => {
                 let s = need_session!();

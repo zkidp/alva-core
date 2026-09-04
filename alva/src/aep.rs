@@ -807,6 +807,134 @@ pub fn operation_input_schema(spec: &OperationSpec) -> serde_json::Value {
     })
 }
 
+/// Validate the executable JSON argument contract derived from the registry.
+///
+/// `allowed_envelope_fields` are transport-owned fields such as an MCP
+/// transaction handle. Operation arguments remain defined only by the
+/// registry, including the explicit `...children` open tail used by typed
+/// construction.
+pub fn validate_json_arguments(
+    spec: &OperationSpec,
+    arguments: &serde_json::Map<String, serde_json::Value>,
+    allowed_envelope_fields: &[&str],
+) -> Result<(), String> {
+    let dynamic = spec
+        .arguments
+        .iter()
+        .find(|argument| argument.name.starts_with("..."));
+
+    for argument in &spec.arguments {
+        if argument.name.starts_with("...") {
+            continue;
+        }
+        match arguments.get(argument.name) {
+            Some(value) => validate_json_value(argument.name, argument.schema, value)?,
+            None if argument.required => {
+                return Err(format!(
+                    "E_AEP_INVALID_ARGUMENTS: missing required field '{}'",
+                    argument.name
+                ))
+            }
+            None => {}
+        }
+    }
+
+    for (name, value) in arguments {
+        if allowed_envelope_fields.contains(&name.as_str())
+            || spec.arguments.iter().any(|argument| argument.name == name)
+        {
+            continue;
+        }
+        if let Some(dynamic) = dynamic {
+            validate_json_value(name, dynamic.schema, value)?;
+        } else {
+            return Err(format!(
+                "E_AEP_INVALID_ARGUMENTS: unknown field '{name}' for '{}'",
+                spec.name
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn validate_json_value(
+    name: &str,
+    schema: ArgSchema,
+    value: &serde_json::Value,
+) -> Result<(), String> {
+    let valid = match schema {
+        ArgSchema::Bool(_) => value.is_boolean(),
+        ArgSchema::Array(_) => value.is_array(),
+        ArgSchema::Object(_) => value.is_object(),
+        ArgSchema::Flexible(_) => true,
+        // Operation-specific handlers retain responsibility for vocabulary
+        // membership so they can return richer recovery candidates and stable
+        // domain error codes. The protocol boundary enforces the JSON type.
+        ArgSchema::Enum(_, _) => value
+            .as_str()
+            .map(|candidate| !candidate.is_empty())
+            .unwrap_or(false),
+        ArgSchema::Revision(_)
+        | ArgSchema::EntityRef(_)
+        | ArgSchema::Symbol(_)
+        | ArgSchema::TypeExpr(_)
+        | ArgSchema::Path(_)
+        | ArgSchema::String(_) => value
+            .as_str()
+            .map(|candidate| !candidate.is_empty())
+            .unwrap_or(false),
+    };
+    if valid {
+        Ok(())
+    } else {
+        Err(format!(
+            "E_AEP_INVALID_ARGUMENTS: field '{name}' does not match {}",
+            schema.shape()
+        ))
+    }
+}
+
+#[cfg(test)]
+mod argument_validation_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn closed_operation_rejects_unknown_and_missing_fields() {
+        let spec = lookup("set_effect").unwrap();
+        let unknown = json!({"function":"demo.run","effect":"io","surprise":true});
+        let missing = json!({"function":"demo.run"});
+        assert!(
+            validate_json_arguments(spec, unknown.as_object().unwrap(), &[])
+                .unwrap_err()
+                .contains("unknown field 'surprise'")
+        );
+        assert!(
+            validate_json_arguments(spec, missing.as_object().unwrap(), &[])
+                .unwrap_err()
+                .contains("missing required field 'effect'")
+        );
+    }
+
+    #[test]
+    fn dynamic_construction_accepts_typed_child_keys() {
+        let spec = lookup("construct_expression").unwrap();
+        let arguments = json!({"kind":"not","value":"revision-1"});
+        validate_json_arguments(spec, arguments.as_object().unwrap(), &[]).unwrap();
+    }
+
+    #[test]
+    fn enum_strings_preserve_operation_recovery_and_boolean_shape_is_enforced() {
+        let list = lookup("list_capabilities").unwrap();
+        let bad_enum = json!({"category":"everything"});
+        validate_json_arguments(list, bad_enum.as_object().unwrap(), &[]).unwrap();
+
+        let describe = lookup("describe_construction").unwrap();
+        let bad_bool = json!({"kind":"fold","include_candidates":"true"});
+        assert!(validate_json_arguments(describe, bad_bool.as_object().unwrap(), &[]).is_err());
+    }
+}
+
 /// Deterministic closest-operation candidates for recovery hints.
 pub fn closest(name: &str, limit: usize) -> Vec<&'static OperationSpec> {
     let mut out: Vec<&'static OperationSpec> = Vec::new();

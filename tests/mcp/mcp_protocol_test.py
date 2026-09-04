@@ -154,6 +154,13 @@ def errors_fixture(binary: Path) -> None:
     unknown_tool = mcp.tool(6, "not_a_tool", {})
     assert unknown_tool["isError"] is True
     structured(unknown_tool)
+    unknown_field = mcp.tool(
+        7,
+        "begin_transaction",
+        {"project": "does-not-matter.toml", "unexpected_field": True},
+    )
+    assert unknown_field["isError"] is True
+    assert "unknown field 'unexpected_field'" in structured(unknown_field)["error"]
     mcp.close()
 
     missing_version_mcp = Mcp(binary)

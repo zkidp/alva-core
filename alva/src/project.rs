@@ -3,11 +3,12 @@ use crate::check::{self, ExtFn, ExtType};
 use crate::codegen;
 use crate::diag::Diag;
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 #[derive(Debug)]
 pub struct Project {
     pub name: String,
+    root: PathBuf,
     pub modules: Vec<(String, PathBuf)>,
 }
 
@@ -20,16 +21,30 @@ fn confined_module_path(base: &Path, configured: &str) -> Result<PathBuf, String
     }
     let root = std::fs::canonicalize(base)
         .map_err(|e| format!("cannot resolve project root {}: {e}", base.display()))?;
-    let candidate = std::fs::canonicalize(base.join(relative)).map_err(|e| {
-        format!(
-            "cannot resolve module path {}: {e}",
-            base.join(relative).display()
-        )
-    })?;
-    if !candidate.starts_with(&root) {
+    for component in relative.components() {
+        if matches!(
+            component,
+            Component::ParentDir | Component::RootDir | Component::Prefix(_)
+        ) {
+            return Err(format!("module path escapes project root: {configured}"));
+        }
+    }
+    let candidate = root.join(relative);
+    if candidate.exists() {
+        return canonical_confined(&root, &candidate, configured);
+    }
+    // Source-less AIR projects may intentionally omit the text projection.
+    // Keep the confined lexical path and re-check it if it is later loaded.
+    Ok(candidate)
+}
+
+fn canonical_confined(root: &Path, candidate: &Path, configured: &str) -> Result<PathBuf, String> {
+    let canonical = std::fs::canonicalize(candidate)
+        .map_err(|e| format!("cannot resolve module path {}: {e}", candidate.display()))?;
+    if !canonical.starts_with(root) {
         return Err(format!("module path escapes project root: {configured}"));
     }
-    Ok(candidate)
+    Ok(canonical)
 }
 
 // 极简 alva.toml 解析：
@@ -75,7 +90,13 @@ pub fn load_project(path: &Path) -> Result<Project, String> {
     if modules.is_empty() {
         return Err("alva.toml missing [modules] entries".to_string());
     }
-    Ok(Project { name, modules })
+    let root = std::fs::canonicalize(base)
+        .map_err(|e| format!("cannot resolve project root {}: {e}", base.display()))?;
+    Ok(Project {
+        name,
+        root,
+        modules,
+    })
 }
 
 #[cfg(test)]
@@ -162,7 +183,9 @@ pub fn load_modules(project: &Project) -> Result<Vec<LoadedModule>, Vec<Diag>> {
     let mut out = Vec::new();
     let mut diags = Vec::new();
     for (name, path) in &project.modules {
-        match load_one(path) {
+        let confined = canonical_confined(&project.root, path, &path.display().to_string())
+            .map_err(|error| vec![Diag::error(error)])?;
+        match load_one(&confined) {
             Ok(m) => out.push(LoadedModule {
                 name: name.clone(),
                 module: m,

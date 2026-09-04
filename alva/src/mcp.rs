@@ -4,6 +4,7 @@
 //! explicit MCP transaction handle is backed by an `alva agent` child, so the
 //! CLI and MCP surfaces execute the same registry and AIR transaction code.
 
+use crate::aep;
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
@@ -106,6 +107,15 @@ impl Gateway {
         let args = arguments
             .as_object()
             .ok_or("E_MCP_INVALID_ARGUMENTS: arguments must be an object")?;
+        let spec = aep::lookup(name)
+            .ok_or_else(|| format!("E_MCP_UNKNOWN_TOOL: unknown tool '{name}'"))?;
+        let envelope_fields = if name == "begin_transaction" {
+            &[][..]
+        } else {
+            &["transaction_id"][..]
+        };
+        aep::validate_json_arguments(spec, args, envelope_fields)
+            .map_err(|error| error.replacen("E_AEP_", "E_MCP_", 1))?;
 
         if name == "begin_transaction" {
             if self.active.is_some() {
