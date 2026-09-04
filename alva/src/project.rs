@@ -5,9 +5,31 @@ use crate::diag::Diag;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
+#[derive(Debug)]
 pub struct Project {
     pub name: String,
     pub modules: Vec<(String, PathBuf)>,
+}
+
+fn confined_module_path(base: &Path, configured: &str) -> Result<PathBuf, String> {
+    let relative = Path::new(configured);
+    if relative.is_absolute() {
+        return Err(format!(
+            "module path must be relative to the project root: {configured}"
+        ));
+    }
+    let root = std::fs::canonicalize(base)
+        .map_err(|e| format!("cannot resolve project root {}: {e}", base.display()))?;
+    let candidate = std::fs::canonicalize(base.join(relative)).map_err(|e| {
+        format!(
+            "cannot resolve module path {}: {e}",
+            base.join(relative).display()
+        )
+    })?;
+    if !candidate.starts_with(&root) {
+        return Err(format!("module path escapes project root: {configured}"));
+    }
+    Ok(candidate)
 }
 
 // 极简 alva.toml 解析：
@@ -41,7 +63,7 @@ pub fn load_project(path: &Path) -> Result<Project, String> {
                     }
                 }
                 "modules" => {
-                    modules.push((key.to_string(), base.join(val)));
+                    modules.push((key.to_string(), confined_module_path(base, val)?));
                 }
                 _ => {}
             }
@@ -54,6 +76,81 @@ pub fn load_project(path: &Path) -> Result<Project, String> {
         return Err("alva.toml missing [modules] entries".to_string());
     }
     Ok(Project { name, modules })
+}
+
+#[cfg(test)]
+mod path_confinement_tests {
+    use super::load_project;
+    use std::fs;
+    use std::path::PathBuf;
+
+    fn fixture(name: &str) -> PathBuf {
+        let thread_name = std::thread::current()
+            .name()
+            .unwrap_or("test")
+            .replace(':', "_");
+        let root = std::env::temp_dir().join(format!(
+            "alva-project-{name}-{}-{}",
+            std::process::id(),
+            thread_name
+        ));
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(root.join("workspace/src")).unwrap();
+        root
+    }
+
+    #[test]
+    fn accepts_existing_module_inside_project_root() {
+        let root = fixture("inside");
+        fs::write(root.join("workspace/src/日常.alva"), "(module demo)").unwrap();
+        fs::write(
+            root.join("workspace/alva.toml"),
+            "[project]\nname = \"demo\"\n[modules]\n\"demo\" = \"src/日常.alva\"\n",
+        )
+        .unwrap();
+
+        let project = load_project(&root.join("workspace/alva.toml")).unwrap();
+        assert!(project.modules[0].1.starts_with(root.join("workspace")));
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn rejects_parent_traversal_outside_project_root() {
+        let root = fixture("parent");
+        fs::write(root.join("secret.alva"), "(module secret)").unwrap();
+        fs::write(
+            root.join("workspace/alva.toml"),
+            "[project]\nname = \"demo\"\n[modules]\n\"secret\" = \"../secret.alva\"\n",
+        )
+        .unwrap();
+
+        let error = load_project(&root.join("workspace/alva.toml")).unwrap_err();
+        assert!(error.contains("escapes project root"), "{error}");
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn rejects_symlink_that_resolves_outside_project_root() {
+        use std::os::unix::fs::symlink;
+
+        let root = fixture("symlink");
+        fs::write(root.join("secret.alva"), "(module secret)").unwrap();
+        symlink(
+            root.join("secret.alva"),
+            root.join("workspace/src/link.alva"),
+        )
+        .unwrap();
+        fs::write(
+            root.join("workspace/alva.toml"),
+            "[project]\nname = \"demo\"\n[modules]\n\"secret\" = \"src/link.alva\"\n",
+        )
+        .unwrap();
+
+        let error = load_project(&root.join("workspace/alva.toml")).unwrap_err();
+        assert!(error.contains("escapes project root"), "{error}");
+        fs::remove_dir_all(root).unwrap();
+    }
 }
 
 pub struct LoadedModule {

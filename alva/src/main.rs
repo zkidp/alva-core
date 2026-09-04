@@ -377,7 +377,10 @@ fn cmd_impact(rest: &[String]) -> i32 {
 }
 
 // ---------------------------------------------------------------------------
-// Minimal JSON (protocol input for the AEP edit command)
+// JSON compatibility tree used by the AEP edit command.
+//
+// Parsing is delegated to serde_json so the CLI and MCP protocol surfaces
+// agree on standard JSON escaping, Unicode, number, and trailing-input rules.
 // ---------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
@@ -406,122 +409,57 @@ impl Json {
 }
 
 fn parse_json(input: &str) -> Result<Json, String> {
-    let mut pos = 0;
-    fn skip(input: &str, pos: &mut usize) {
-        while *pos < input.len() && input.as_bytes()[*pos].is_ascii_whitespace() {
-            *pos += 1;
+    fn convert(value: serde_json::Value) -> Result<Json, String> {
+        match value {
+            serde_json::Value::Null => Ok(Json::Null),
+            serde_json::Value::Bool(value) => Ok(Json::Bool(value)),
+            serde_json::Value::Number(value) => value
+                .as_f64()
+                .map(Json::Num)
+                .ok_or_else(|| "number is outside the supported range".to_string()),
+            serde_json::Value::String(value) => Ok(Json::Str(value)),
+            serde_json::Value::Array(values) => values
+                .into_iter()
+                .map(convert)
+                .collect::<Result<Vec<_>, _>>()
+                .map(Json::Arr),
+            serde_json::Value::Object(values) => values
+                .into_iter()
+                .map(|(key, value)| convert(value).map(|value| (key, value)))
+                .collect::<Result<BTreeMap<_, _>, _>>()
+                .map(Json::Obj),
         }
     }
-    fn value(input: &str, pos: &mut usize) -> Result<Json, String> {
-        skip(input, pos);
-        let c = input[*pos..].chars().next().ok_or("unexpected end")?;
-        match c {
-            '{' => {
-                *pos += 1;
-                let mut m = BTreeMap::new();
-                loop {
-                    skip(input, pos);
-                    if input[*pos..].starts_with('}') {
-                        *pos += 1;
-                        break;
-                    }
-                    let key = match value(input, pos)? {
-                        Json::Str(s) => s,
-                        _ => return Err("object key must be string".to_string()),
-                    };
-                    skip(input, pos);
-                    if !input[*pos..].starts_with(':') {
-                        return Err("expected ':'".to_string());
-                    }
-                    *pos += 1;
-                    let v = value(input, pos)?;
-                    m.insert(key, v);
-                    skip(input, pos);
-                    if input[*pos..].starts_with(',') {
-                        *pos += 1;
-                    }
-                }
-                Ok(Json::Obj(m))
-            }
-            '[' => {
-                *pos += 1;
-                let mut arr = Vec::new();
-                loop {
-                    skip(input, pos);
-                    if input[*pos..].starts_with(']') {
-                        *pos += 1;
-                        break;
-                    }
-                    arr.push(value(input, pos)?);
-                    skip(input, pos);
-                    if input[*pos..].starts_with(',') {
-                        *pos += 1;
-                    }
-                }
-                Ok(Json::Arr(arr))
-            }
-            '"' => {
-                *pos += 1;
-                let mut s = String::new();
-                let mut chars = input[*pos..].chars();
-                loop {
-                    match chars.next() {
-                        Some('"') => break,
-                        Some('\\') => match chars.next() {
-                            Some('n') => s.push('\n'),
-                            Some('t') => s.push('\t'),
-                            Some('r') => s.push('\r'),
-                            Some('"') => s.push('"'),
-                            Some('\\') => s.push('\\'),
-                            Some(other) => s.push(other),
-                            None => return Err("bad escape".to_string()),
-                        },
-                        Some(other) => s.push(other),
-                        None => return Err("unterminated string".to_string()),
-                    }
-                }
-                let consumed = input.len() - chars.as_str().len() - *pos;
-                *pos += consumed;
-                Ok(Json::Str(s))
-            }
-            't' => {
-                *pos += 4;
-                Ok(Json::Bool(true))
-            }
-            'f' => {
-                *pos += 5;
-                Ok(Json::Bool(false))
-            }
-            'n' => {
-                *pos += 4;
-                Ok(Json::Null)
-            }
-            '-' | '0'..='9' => {
-                let start = *pos;
-                while *pos < input.len()
-                    && (input.as_bytes()[*pos].is_ascii_digit()
-                        || input.as_bytes()[*pos] == b'.'
-                        || input.as_bytes()[*pos] == b'-'
-                        || input.as_bytes()[*pos] == b'e'
-                        || input.as_bytes()[*pos] == b'E'
-                        || input.as_bytes()[*pos] == b'+')
-                {
-                    *pos += 1;
-                }
-                input[start..*pos]
-                    .parse::<f64>()
-                    .map(Json::Num)
-                    .map_err(|e| format!("bad number: {e}"))
-            }
-            _ => Err(format!("unexpected char {c}")),
-        }
+
+    serde_json::from_str(input)
+        .map_err(|error| error.to_string())
+        .and_then(convert)
+}
+
+#[cfg(test)]
+mod json_protocol_tests {
+    use super::{parse_json, Json};
+
+    #[test]
+    fn parses_standard_unicode_escapes() {
+        let parsed = parse_json(r#"{"project":"Documents/\u65e5\u5e38/alva.toml"}"#).unwrap();
+        assert_eq!(
+            parsed.get("project").and_then(Json::as_str),
+            Some("Documents/日常/alva.toml")
+        );
     }
-    let v = value(input, &mut pos)?;
-    skip(input, &mut pos);
-    if pos != input.len() {
-        return Err("trailing input".to_string());
+
+    #[test]
+    fn parses_surrogate_pairs() {
+        let parsed = parse_json(r#"{"symbol":"\ud83e\udd16"}"#).unwrap();
+        assert_eq!(parsed.get("symbol").and_then(Json::as_str), Some("🤖"));
     }
-    Ok(v)
+
+    #[test]
+    fn rejects_invalid_escape_and_trailing_input() {
+        assert!(parse_json(r#"{"bad":"\q"}"#).is_err());
+        assert!(parse_json(r#"{"ok":true} trailing"#).is_err());
+    }
 }
 
 fn json_str(s: &str) -> String {

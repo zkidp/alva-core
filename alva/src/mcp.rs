@@ -362,8 +362,18 @@ fn list_tools(modern: bool) -> Value {
     result
 }
 
-fn call_result(value: Value, is_error: bool) -> Value {
-    let text = serde_json::to_string(&value).unwrap_or_else(|_| "null".to_string());
+fn call_result(value: Value, is_error: bool, modern: bool) -> Value {
+    let text = if modern {
+        if is_error {
+            "ALVA tool call failed; see structuredContent.".to_string()
+        } else {
+            "ALVA tool call completed; see structuredContent.".to_string()
+        }
+    } else {
+        // Legacy clients may not expose structuredContent, so preserve the
+        // complete JSON text fallback for the legacy protocol era.
+        serde_json::to_string(&value).unwrap_or_else(|_| "null".to_string())
+    };
     json!({
         "content":[{"type":"text","text":text}],
         "structuredContent":value,
@@ -451,8 +461,8 @@ fn dispatch(
                 .cloned()
                 .unwrap_or_else(|| json!({}));
             let result = match gateway.call_tool(name, &arguments) {
-                Ok(value) => call_result(value, false),
-                Err(message) => call_result(json!({"error":message}), true),
+                Ok(value) => call_result(value, false, modern),
+                Err(message) => call_result(json!({"error":message}), true, modern),
             };
             Some(success(id, result, modern))
         }
@@ -552,5 +562,22 @@ mod tests {
         assert!(tool["inputSchema"]["properties"]
             .get("...children")
             .is_none());
+    }
+
+    #[test]
+    fn modern_call_results_do_not_duplicate_structured_payload_as_text() {
+        let value = json!({"revision":"a".repeat(64),"diagnostics":[1,2,3]});
+        let modern = call_result(value.clone(), false, true);
+        let legacy = call_result(value.clone(), false, false);
+
+        assert_eq!(modern["structuredContent"], value);
+        assert_ne!(
+            modern["content"][0]["text"],
+            serde_json::to_string(&value).unwrap()
+        );
+        assert_eq!(
+            legacy["content"][0]["text"],
+            serde_json::to_string(&value).unwrap()
+        );
     }
 }

@@ -64,6 +64,17 @@ def structured(call_result: dict) -> dict:
     return call_result["structuredContent"]
 
 
+def modern_structured(call_result: dict) -> dict:
+    text = call_result["content"][0]["text"]
+    assert text.endswith("see structuredContent."), text
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        parsed = None
+    assert parsed != call_result["structuredContent"]
+    return call_result["structuredContent"]
+
+
 def legacy_fixture(binary: Path) -> None:
     mcp = Mcp(binary)
     initialized = mcp.request(
@@ -122,7 +133,10 @@ def modern_fixture(binary: Path) -> None:
     )["result"]
     assert listed["resultType"] == "complete"
     assert listed["ttlMs"] == 0 and listed["cacheScope"] == "private"
-    mixed = mcp.request({"jsonrpc": "2.0", "id": 3, "method": "tools/list", "params": {}})
+    unknown_tool = mcp.tool(3, "not_a_tool", {}, modern=True)
+    assert unknown_tool["isError"] is True
+    assert "E_MCP_UNKNOWN_TOOL" in modern_structured(unknown_tool)["error"]
+    mixed = mcp.request({"jsonrpc": "2.0", "id": 4, "method": "tools/list", "params": {}})
     assert mixed["error"]["code"] == -32602, mixed
     mcp.close()
 

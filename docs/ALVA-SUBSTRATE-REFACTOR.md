@@ -1,0 +1,81 @@
+# ALVA Substrate Refactor
+
+## Objective
+
+ALVA will optimize for the amount of information an agent must read, rediscover,
+and repeat while preserving typed authority, validation, stale-write protection,
+and atomic commit. Increasing the number of semantic mutation tools is not a
+goal by itself.
+
+The initial scope is the ALVA language and toolchain. General-purpose language
+frontends are explicitly outside this refactor.
+
+## Immutable evidence boundary
+
+The refactor begins from public `main` and does not rewrite E3, E4, or E5
+branches, artifacts, runners, outcomes, or frozen evidence. Product changes on
+experimental branches must be reviewed and ported independently; experimental
+commits are not merged wholesale into the public product line.
+
+## Execution order
+
+1. Freeze compatibility and measurement baselines.
+2. Add adversarial reproductions, then fix confirmed safety and protocol bugs.
+3. Measure agent-facing instruction, schema, observation, diagnostic, action,
+   and repeated wire content.
+4. Remove duplicated responses and unnecessary eager schema guidance while
+   retaining a legacy fallback.
+5. Add bounded/delta observations, stable diagnostic IDs, and transaction-local
+   short handles.
+6. Add compound prepare/stage/check calls and a first-class transactional text
+   patch path.
+7. Separate protocol, operations, transaction, graph, store, project, and
+   diagnostic service boundaries without changing behavior.
+8. Instrument and incrementally rebuild affected AIR subgraphs and indexes.
+9. Unify stale-reference and crash/concurrency semantics.
+10. Admit only operations with positive delivery, negative specificity,
+    atomic-failure, propagation, and scale evidence.
+
+## First-wave gates
+
+- Standard JSON Unicode and escape behavior is shared by CLI/AEP and MCP.
+- Manifest modules cannot escape the project root lexically or through links.
+- Rejected mutations leave no authoritative or projected partial write.
+- Advertised closed schemas reject unknown fields at the server boundary.
+- A reproducible, model-free MCP byte census reports tool-list and response
+  duplication cost before optimization.
+- Windows missing-linker behavior is reported as an environment prerequisite;
+  Linux/WSL remains the executable validation environment for this wave.
+
+## Planned service boundaries
+
+```text
+CLI / MCP / integrations
+        |
+protocol: decode, schema, version, compact wire forms
+        |
+operations: registry, discovery, native operation execution
+        |
+transaction: session, stale policy, check, commit, abort
+        |
+graph: AIR model, revisions, indexes, validation, diff
+        |
+store: generations, CAS, locking, recovery
+
+language: parse, AST, check, codegen
+project: manifest, loading, confinement
+diagnostics: stable IDs, plain/structured serializers, repair plans
+```
+
+File splitting is an enabling task, not a success metric. Each boundary must
+reduce duplicated logic, permit isolated testing, or unlock measurement and
+incremental execution.
+
+## Non-goals for the first wave
+
+- no AIR storage-format change;
+- no grammar or effect-system redesign;
+- no effect inference or polymorphism;
+- no automatic propagation mutation;
+- no general TEXT-versus-HYBRID model tournament;
+- no claim that static byte counts equal provider-billed tokens.

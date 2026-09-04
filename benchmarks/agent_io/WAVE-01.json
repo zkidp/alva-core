@@ -1,0 +1,40 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "baseline_source_commit": "cd73ae8c653953289ee758ce24e4821f1b4c5108",
+  "measurement_boundary": "UTF-8 JSON wire bytes only; no tokenizer, prompt-cache, reasoning, or billed-token claim",
+  "fixture": "tests/project/alva.toml",
+  "tool_surface": {
+    "tool_count": 14,
+    "legacy_tools_list_wire_bytes": 8462,
+    "modern_tools_list_wire_bytes": 8611,
+    "tool_description_bytes": 942,
+    "schema_description_bytes": 5848
+  },
+  "before": {
+    "legacy": {
+      "begin_transaction_wire_bytes": 344,
+      "inspect_project_wire_bytes": 632,
+      "text_duplicates_structured_content": true
+    },
+    "modern": {
+      "begin_transaction_wire_bytes": 460,
+      "inspect_project_wire_bytes": 748,
+      "text_duplicates_structured_content": true
+    }
+  },
+  "after_modern_response_deduplication": {
+    "legacy": {
+      "begin_transaction_wire_bytes": 344,
+      "inspect_project_wire_bytes": 632,
+      "text_duplicates_structured_content": true
+    },
+    "modern": {
+      "begin_transaction_wire_bytes": 370,
+      "inspect_project_wire_bytes": 511,
+      "text_duplicates_structured_content": false,
+      "begin_transaction_wire_byte_reduction_percent": 19.6,
+      "inspect_project_wire_byte_reduction_percent": 31.7
+    }
+  },
+  "disposition": "MECHANICAL_WIRE_REDUCTION_CONFIRMED_NO_MODEL_TOKEN_CLAIM"
+}
