@@ -2454,6 +2454,34 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
             Ok(()) => resp!(true, "{\"problems\":[]}", "check ok"),
             Err(error) => resp!(false, "null", &error),
         },
+        "stage_text_patch" => {
+            let path = req.get("path").and_then(Json::as_str).unwrap_or("");
+            let expected_sha256 = req
+                .get("expected_sha256")
+                .and_then(Json::as_str)
+                .unwrap_or("");
+            let old = req.get("old").and_then(Json::as_str).unwrap_or("");
+            let new = req.get("new").and_then(Json::as_str).unwrap_or("");
+            let replace_all = match req.get("replace_all") {
+                Some(Json::Bool(value)) => *value,
+                Some(Json::Str(value)) => matches!(value.as_str(), "true" | "1"),
+                _ => false,
+            };
+            match runtime.stage_text_patch(path, expected_sha256, old, new, replace_all) {
+                Ok(patch) => resp!(
+                    true,
+                    &format!(
+                        "{{\"path\":{},\"replacements\":{},\"content_sha256\":{},\"revision\":{},\"authority\":\"AIR\",\"source_written\":false}}",
+                        json_str(&patch.path),
+                        patch.replacements,
+                        json_str(&patch.content_sha256),
+                        json_str(&patch.revision)
+                    ),
+                    "text input staged and checked; source remains unchanged"
+                ),
+                Err(error) => resp!(false, "null", &error),
+            }
+        }
         "stage_and_check" => {
             let operation_name = req.get("operation").and_then(Json::as_str).unwrap_or("");
             let nested_spec = aep::lookup(operation_name);

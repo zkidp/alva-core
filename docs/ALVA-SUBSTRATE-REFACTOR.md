@@ -69,6 +69,15 @@ commits are not merged wholesale into the public product line.
 - MCP rejects lifecycle, inspection, recursive, gated, and non-exposed nested
   operations before forwarding `stage_and_check`, so the compound tool cannot
   bypass the curated MCP capability surface.
+- `stage_text_patch` provides a narrow text-input bridge for manifest-declared
+  `.alva` modules. It uses content-SHA CAS, exact-match replacement, full
+  project parse/check, path confinement, and commit-time source revalidation.
+  It never writes source files: successful commit stores the checked program as
+  authoritative AIR. MCP exposes it only as a nested `stage_and_check`
+  mutation, avoiding a second unconstrained filesystem-edit surface.
+- Text patching currently refuses source-less projects, source/AIR divergence,
+  and text-after-semantic mixed mode. Projection reconciliation is deliberately
+  deferred rather than silently choosing one representation as newer.
 
 ## Planned service boundaries
 

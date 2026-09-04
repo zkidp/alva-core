@@ -26,13 +26,9 @@ pub fn to_air(
                 .count()
         )
     })?;
-    let mut graph = crate::air::AirGraph::new();
+    let graph = loaded_modules_to_air(&modules);
     let mut paths = BTreeMap::new();
     for loaded in &modules {
-        let module_graph = crate::air::air_from_module(&loaded.module);
-        graph.nodes.extend(module_graph.nodes);
-        graph.heads.extend(module_graph.heads);
-        graph.module_entities.extend(module_graph.module_entities);
         if let Some((_, path)) = project
             .modules
             .iter()
@@ -42,6 +38,42 @@ pub fn to_air(
         }
     }
     Ok((graph, paths))
+}
+
+fn loaded_modules_to_air(modules: &[LoadedModule]) -> crate::air::AirGraph {
+    let mut graph = crate::air::AirGraph::new();
+    for loaded in modules {
+        let module_graph = crate::air::air_from_module(&loaded.module);
+        graph.nodes.extend(module_graph.nodes);
+        graph.heads.extend(module_graph.heads);
+        graph.module_entities.extend(module_graph.module_entities);
+    }
+    graph
+}
+
+/// Parse and check an exact in-memory source set, then materialize its AIR.
+/// Used by the transactional text-input bridge; it never writes source bytes.
+pub fn graph_from_source_texts(
+    sources: &[(String, String)],
+) -> Result<crate::air::AirGraph, Vec<String>> {
+    let mut modules = Vec::with_capacity(sources.len());
+    for (manifest_name, text) in sources {
+        let module = parse_module_text(text)
+            .map_err(|diagnostics| diagnostics.iter().map(Diag::render).collect::<Vec<_>>())?;
+        if module.name != *manifest_name {
+            return Err(vec![format!(
+                "E_MODULE_NAME_MISMATCH: manifest module '{}' contains module '{}'",
+                manifest_name, module.name
+            )]);
+        }
+        modules.push(LoadedModule {
+            name: manifest_name.clone(),
+            module,
+        });
+    }
+    let checked = check_project_loaded(modules)
+        .map_err(|diagnostics| diagnostics.iter().map(Diag::render).collect::<Vec<_>>())?;
+    Ok(loaded_modules_to_air(&checked))
 }
 
 fn confined_module_path(base: &Path, configured: &str) -> Result<PathBuf, String> {
@@ -246,7 +278,12 @@ fn load_one(path: &Path) -> Result<ast::Module, Vec<Diag>> {
     }
     let text = std::fs::read_to_string(path)
         .map_err(|e| vec![Diag::error(format!("cannot read {}: {e}", path.display()))])?;
-    let tree = crate::s_expr::parse_with_limits(&text, &limits)
+    parse_module_text(&text)
+}
+
+fn parse_module_text(text: &str) -> Result<ast::Module, Vec<Diag>> {
+    let limits = crate::s_expr::Limits::from_env();
+    let tree = crate::s_expr::parse_with_limits(text, &limits)
         .map_err(|e| vec![Diag::error_at(e.span(), e.message()).with_code(e.code())])?;
     ast::from_tree(&tree)
 }

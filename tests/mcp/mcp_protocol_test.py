@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -330,6 +331,178 @@ def semantic_fixture(binary: Path, repo: Path, commit: bool) -> None:
         subprocess.run([str(binary), "project", "build", str(project / "alva.toml")], check=True)
 
 
+def text_patch_fixture(binary: Path, repo: Path) -> None:
+    with tempfile.TemporaryDirectory(prefix="alva-mcp-text-") as temp:
+        project = Path(temp) / "project"
+        shutil.copytree(repo / "tests" / "project", project)
+        source = project / "src" / "app.alva"
+        source_before = source.read_bytes()
+        source_sha = hashlib.sha256(source_before).hexdigest()
+
+        mcp = Mcp(binary)
+        begun = structured(mcp.tool(30, "begin_transaction", {"project": str(project / "alva.toml")}))
+        transaction = begun["transaction_id"]
+        traversal = mcp.tool(
+            31,
+            "stage_and_check",
+            {"transaction_id": transaction, "operation": "stage_text_patch", "arguments": {
+                "path": "../project/src/app.alva", "expected_sha256": source_sha,
+                "old": '(string "a")', "new": '(string "blocked")'}},
+        )
+        assert traversal["isError"] is True, traversal
+        assert "path traversal is forbidden" in structured(traversal)["error"]
+        stale = mcp.tool(
+            32,
+            "stage_and_check",
+            {"transaction_id": transaction, "operation": "stage_text_patch", "arguments": {
+                "path": "src/app.alva", "expected_sha256": "0" * 64,
+                "old": '(string "a")', "new": '(string "blocked")'}},
+        )
+        assert stale["isError"] is True, stale
+        assert "E_AEP_TEXT_STALE" in structured(stale)["error"]
+        staged = mcp.tool(
+            33,
+            "stage_and_check",
+            {
+                "transaction_id": transaction,
+                "operation": "stage_text_patch",
+                "arguments": {
+                    "path": "src/app.alva",
+                    "expected_sha256": source_sha,
+                    "old": '(string "a")',
+                    "new": '(string "patched-by-text")',
+                },
+            },
+        )
+        assert staged["isError"] is False, staged
+        result = structured(staged)
+        assert result["operation"] == "stage_text_patch", result
+        assert result["mutation"]["source_written"] is False, result
+        assert result["mutation"]["authority"] == "AIR", result
+        assert result["check"]["ok"] is True, result
+        body = structured(
+            mcp.tool(
+                34,
+                "inspect_body",
+                {"transaction_id": transaction, "function": "demo.app.run"},
+            )
+        )["body"]
+        assert "literal value=patched-by-text" in body, body
+        assert source.read_bytes() == source_before
+        aborted = mcp.tool(35, "abort_transaction", {"transaction_id": transaction})
+        assert aborted["isError"] is False, aborted
+        mcp.close()
+        assert source.read_bytes() == source_before
+        assert not (project / "alva-air").exists()
+
+        external_mcp = Mcp(binary)
+        external_begin = structured(
+            external_mcp.tool(36, "begin_transaction", {"project": str(project / "alva.toml")})
+        )
+        external_tx = external_begin["transaction_id"]
+        source.write_bytes(source_before + b"\n# external change\n")
+        external = external_mcp.tool(
+            37,
+            "stage_and_check",
+            {"transaction_id": external_tx, "operation": "stage_text_patch", "arguments": {
+                "path": "src/app.alva", "expected_sha256": source_sha,
+                "old": '(string "a")', "new": '(string "blocked")'}},
+        )
+        assert external["isError"] is True, external
+        assert "E_AEP_TEXT_SOURCE_CHANGED" in structured(external)["error"]
+        source.write_bytes(source_before)
+        external_mcp.tool(38, "abort_transaction", {"transaction_id": external_tx})
+        external_mcp.close()
+
+        mixed_mcp = Mcp(binary)
+        mixed_begin = structured(
+            mixed_mcp.tool(39, "begin_transaction", {"project": str(project / "alva.toml")})
+        )
+        mixed_tx = mixed_begin["transaction_id"]
+        mixed_body = structured(
+            mixed_mcp.tool(
+                40,
+                "inspect_body",
+                {"transaction_id": mixed_tx, "function": "demo.app.run"},
+            )
+        )["body"]
+        mixed_literal = re.search(r"literal value=a rev=([0-9a-f]{64})", mixed_body)
+        assert mixed_literal, mixed_body
+        changed = mixed_mcp.tool(
+            41,
+            "change_field",
+            {"transaction_id": mixed_tx, "entity": mixed_literal.group(1),
+             "field": "value", "value": "semantic-first"},
+        )
+        assert changed["isError"] is False, changed
+        mixed = mixed_mcp.tool(
+            42,
+            "stage_and_check",
+            {"transaction_id": mixed_tx, "operation": "stage_text_patch", "arguments": {
+                "path": "src/app.alva", "expected_sha256": source_sha,
+                "old": '(string "a")', "new": '(string "blocked")'}},
+        )
+        assert mixed["isError"] is True, mixed
+        assert "E_AEP_TEXT_MIXED_MODE" in structured(mixed)["error"]
+        mixed_mcp.tool(43, "abort_transaction", {"transaction_id": mixed_tx})
+        mixed_mcp.close()
+        assert source.read_bytes() == source_before
+
+        commit_guard_mcp = Mcp(binary)
+        guard_begin = structured(
+            commit_guard_mcp.tool(
+                44, "begin_transaction", {"project": str(project / "alva.toml")}
+            )
+        )
+        guard_tx = guard_begin["transaction_id"]
+        guard_stage = commit_guard_mcp.tool(
+            45,
+            "stage_and_check",
+            {"transaction_id": guard_tx, "operation": "stage_text_patch", "arguments": {
+                "path": "src/app.alva", "expected_sha256": source_sha,
+                "old": '(string "a")', "new": '(string "commit-guard")'}},
+        )
+        assert guard_stage["isError"] is False, guard_stage
+        source.write_bytes(source_before + b"\n# changed before commit\n")
+        guarded_commit = commit_guard_mcp.tool(
+            46, "commit_transaction", {"transaction_id": guard_tx}
+        )
+        assert guarded_commit["isError"] is True, guarded_commit
+        assert "E_AEP_TEXT_SOURCE_CHANGED" in structured(guarded_commit)["error"]
+        assert not (project / "alva-air").exists()
+        source.write_bytes(source_before)
+        guard_abort = commit_guard_mcp.tool(
+            47, "abort_transaction", {"transaction_id": guard_tx}
+        )
+        assert guard_abort["isError"] is False, guard_abort
+        commit_guard_mcp.close()
+
+        commit_mcp = Mcp(binary)
+        commit_begin = structured(
+            commit_mcp.tool(48, "begin_transaction", {"project": str(project / "alva.toml")})
+        )
+        commit_tx = commit_begin["transaction_id"]
+        commit_stage = commit_mcp.tool(
+            49,
+            "stage_and_check",
+            {"transaction_id": commit_tx, "operation": "stage_text_patch", "arguments": {
+                "path": "src/app.alva", "expected_sha256": source_sha,
+                "old": '(string "a")', "new": '(string "committed-as-air")'}},
+        )
+        assert commit_stage["isError"] is False, commit_stage
+        committed = commit_mcp.tool(
+            50, "commit_transaction", {"transaction_id": commit_tx}
+        )
+        assert committed["isError"] is False, committed
+        commit_mcp.close()
+        assert source.read_bytes() == source_before
+        assert (project / "alva-air" / "current").is_file()
+        subprocess.run(
+            [str(binary), "project", "check", str(project / "alva.toml"), "--json"],
+            check=True,
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("binary", type=Path)
@@ -339,6 +512,7 @@ def main() -> None:
     legacy_fixture(binary)
     modern_fixture(binary)
     errors_fixture(binary)
+    text_patch_fixture(binary, repo)
     semantic_fixture(binary, repo, commit=False)
     semantic_fixture(binary, repo, commit=True)
     print("PASS: MCP legacy, modern, errors, authority safety, and semantic commit")

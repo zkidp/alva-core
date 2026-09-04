@@ -1,0 +1,38 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "8b818af93b46733d24e193250ea9dc616add58e1",
+  "measurement_boundary": "Deterministic protocol bytes and model-free safety fixtures only; no model-quality or billed-token claim",
+  "capability": "transactional text input bridge for manifest-declared .alva modules",
+  "authority_model": {
+    "source_file_write_during_stage": false,
+    "source_file_write_during_commit": false,
+    "authoritative_commit_target": "AIR generation plus CURRENT pointer",
+    "full_project_parse_and_semantic_check_before_stage": true
+  },
+  "fail_closed_gates": {
+    "absolute_or_traversing_path": "REJECTED",
+    "non_manifest_module_path": "REJECTED",
+    "stale_expected_content_sha256": "REJECTED",
+    "external_source_change_before_patch": "REJECTED",
+    "external_source_change_after_patch_before_commit": "REJECTED",
+    "ambiguous_old_text_without_replace_all": "REJECTED",
+    "invalid_or_semantically_failing_full_project": "REJECTED",
+    "semantic_mutation_before_text_patch": "REJECTED_AS_MIXED_MODE",
+    "source_less_or_source_divergent_authoritative_project": "REJECTED"
+  },
+  "verified_paths": {
+    "stage_then_abort_preserves_source_and_creates_no_store": true,
+    "stage_then_commit_preserves_source_and_creates_checked_air": true,
+    "transaction_view_observes_patched_semantics": true,
+    "mcp_direct_unbounded_text_tool_exposure": false,
+    "mcp_access_via_bounded_stage_and_check": true
+  },
+  "modern_tool_surface": {
+    "tool_count": 16,
+    "tools_list_wire_bytes": 6859,
+    "increment_vs_wave_04_bytes": 52,
+    "tool_surface_hash": "16a2ba4bc93721af4a2ed3ae727d76783468bd17ee8cbfc6bd5625f39e711783"
+  },
+  "known_boundary": "After a text-derived AIR commit, unchanged source text intentionally diverges from authority; a later text patch is refused until an explicit projection/reconciliation design is implemented.",
+  "disposition": "TEXT_INPUT_BRIDGE_SAFETY_GATES_CONFIRMED_NO_GENERAL_FILESYSTEM_PATCH_CLAIM"
+}

@@ -32,6 +32,8 @@ const MCP_TOOLS: &[&str] = &[
     "abort_transaction",
 ];
 
+const MCP_STAGE_MUTATIONS: &[&str] = &["construct_expression", "change_field", "stage_text_patch"];
+
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 enum ProtocolEra {
     #[default]
@@ -128,7 +130,7 @@ impl Gateway {
             })?;
             if nested_spec.effects != "mutation"
                 || nested_spec.name == "stage_and_check"
-                || !MCP_TOOLS.contains(&nested_spec.name)
+                || !MCP_STAGE_MUTATIONS.contains(&nested_spec.name)
             {
                 return Err(format!(
                     "E_MCP_STAGE_OPERATION_FORBIDDEN: '{}' is not an exposed MCP mutation",
@@ -380,6 +382,13 @@ fn tool_definition(name: &str, compact: bool) -> Option<Value> {
             .as_array_mut()?
             .insert(0, json!("transaction_id"));
     }
+    if name == "stage_and_check" {
+        input_schema["properties"]["operation"] = json!({
+            "type": "string",
+            "enum": MCP_STAGE_MUTATIONS,
+            "description": "Exposed mutation to stage before bounded diff and check."
+        });
+    }
     let read_only = spec.effects == "inspection";
     let destructive = name == "commit_transaction";
     let description = if compact {
@@ -615,7 +624,7 @@ mod tests {
         let digest = format!("{:x}", Sha256::digest(encoded));
         assert_eq!(
             digest,
-            "decbefaa78bcf44e13d72292196c9085607f1f1e21eb6d82a3d10d53ff1b455f"
+            "eda671b86c48f0b99da934e2b1558e0571f72dff779ac58495276548185851ee"
         );
     }
 

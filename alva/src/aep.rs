@@ -19,6 +19,7 @@ pub struct ArgSpec {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ArgSchema {
     String(&'static str),
+    Text(&'static str),
     Bool(&'static str),
     Revision(&'static str),
     EntityRef(&'static str),
@@ -35,6 +36,7 @@ impl ArgSchema {
     pub fn shape(self) -> &'static str {
         match self {
             Self::String(s)
+            | Self::Text(s)
             | Self::Bool(s)
             | Self::Revision(s)
             | Self::EntityRef(s)
@@ -65,6 +67,7 @@ impl ArgSchema {
             Self::Revision(_) => serde_json::json!({
                 "type":"string", "minLength":1, "description":description
             }),
+            Self::Text(_) => serde_json::json!({"type":"string","description":description}),
             Self::EntityRef(_)
             | Self::Symbol(_)
             | Self::TypeExpr(_)
@@ -144,7 +147,8 @@ fn schema_for_shape(shape: &'static str) -> ArgSchema {
         "entity-id|name" | "entity-id|qualified fn" | "hole-id" => ArgSchema::EntityRef(shape),
         "symbol" | "field" | "field name" | "target" => ArgSchema::Symbol(shape),
         "type" | "type string" | "type name" | "record type name" => ArgSchema::TypeExpr(shape),
-        "path to alva.toml" => ArgSchema::Path(shape),
+        "path to alva.toml" | "project-relative module path" => ArgSchema::Path(shape),
+        "text" => ArgSchema::Text(shape),
         "revisions (repeatable)" | "param specs" => ArgSchema::Array(shape),
         "field=value pairs" => ArgSchema::Object(shape),
         "revision | type string | json array" => ArgSchema::Flexible(shape),
@@ -453,6 +457,27 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             "mutation",
             "transaction",
             "stage_and_check operation=change_field arguments={<mutation arguments>}",
+            None,
+        ),
+        spec(
+            "stage_text_patch",
+            vec![],
+            vec!["any"],
+            vec![
+                arg("path", "project-relative module path", true),
+                arg("expected_sha256", "string", true),
+                arg("old", "string", true),
+                arg("new", "text", true),
+                arg("replace_all", "bool", false),
+            ],
+            vec![
+                "transaction",
+                "path is a manifest-declared module",
+                "source-derived graph is unchanged",
+            ],
+            "mutation",
+            "transaction",
+            "stage_text_patch path=src/app.alva expected_sha256=<sha> old=<exact> new=<text>",
             None,
         ),
         spec(
@@ -897,6 +922,7 @@ fn validate_json_value(
         ArgSchema::Array(_) => value.is_array(),
         ArgSchema::Object(_) => value.is_object(),
         ArgSchema::Flexible(_) => true,
+        ArgSchema::Text(_) => value.is_string(),
         // Operation-specific handlers retain responsibility for vocabulary
         // membership so they can return richer recovery candidates and stable
         // domain error codes. The protocol boundary enforces the JSON type.
