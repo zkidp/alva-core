@@ -241,6 +241,22 @@ def semantic_fixture(binary: Path, repo: Path, commit: bool) -> None:
                 {"transaction_id": transaction, "name": "demo.app.run", "kind": "function"},
             )
         )["entity"]
+        prepared = structured(
+            mcp.tool(
+                19,
+                "prepare_edit",
+                {
+                    "transaction_id": transaction,
+                    "entity": "demo.app.run",
+                    "kind": "function",
+                    "operation": "rename_entity",
+                },
+            )
+        )
+        assert prepared["revision"] == resolved
+        assert prepared["kind"] == "function"
+        assert "rename_entity" in prepared["applicable_operations"]
+        assert prepared["selected_operation"]["name"] == "rename_entity"
         applicable = structured(
             mcp.tool(
                 13,

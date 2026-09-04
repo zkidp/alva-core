@@ -130,6 +130,22 @@ def main():
           and r2["result"]["display"] == "rfc0005.a.Job"
           and r2["result"]["module"] == "rfc0005.a", r2)
 
+    prepared = a.tool(
+        "prepare_edit",
+        entity="rfc0005.a.Job",
+        kind="record",
+        operation="update_record_fields",
+    )
+    check(
+        "R17b prepare_edit combines resolution, context, and operation schema",
+        prepared["ok"]
+        and prepared["result"]["kind"] == "record"
+        and prepared["result"]["display"] == "rfc0005.a.Job"
+        and "update_record_fields" in prepared["result"]["applicable_operations"]
+        and prepared["result"]["selected_operation"]["name"] == "update_record_fields",
+        prepared,
+    )
+
     # --- applicable_operations: strict applicability ----------------------
 
     # R6 record entity -> record ops only; expression ops are context, not entity

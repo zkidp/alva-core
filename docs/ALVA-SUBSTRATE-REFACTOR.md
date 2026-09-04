@@ -47,6 +47,17 @@ commits are not merged wholesale into the public product line.
 - Windows missing-linker behavior is reported as an environment prerequisite;
   Linux/WSL remains the executable validation environment for this wave.
 
+## Implemented agent-I/O primitives
+
+- Modern MCP returns a short text summary plus complete `structuredContent`;
+  legacy MCP retains the full JSON text fallback.
+- Modern tool discovery uses `compact-v1`, a stable surface hash, and a cache
+  TTL rather than eagerly repeating examples and schema descriptions.
+- `prepare_edit` combines entity resolution, compact entity context,
+  applicability, and one caller-selected operation schema. The selected-only
+  design is intentional: returning every applicable schema reduced round trips
+  but did not reduce information volume.
+
 ## Planned service boundaries
 
 ```text

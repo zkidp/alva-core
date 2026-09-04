@@ -2842,6 +2842,120 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     }
                 }
             }
+            "prepare_edit" => {
+                let s = need_session!();
+                let entity = req
+                    .get("entity")
+                    .and_then(|v| v.as_str())
+                    .map(air::normalize_handle)
+                    .unwrap_or_default();
+                let kind_filter = req.get("kind").and_then(|v| v.as_str());
+                let module_filter = req.get("module").and_then(|v| v.as_str());
+                match resolve_entity_full(&s.graph, &entity, kind_filter, module_filter) {
+                    ResolveOutcome::Exact {
+                        id,
+                        kind,
+                        module,
+                        display,
+                    } => match s.graph.resolve(&id).cloned() {
+                        Some(node) => {
+                            let fields = node
+                                .fields
+                                .iter()
+                                .map(|(name, value)| {
+                                    format!("{}:{}", json_str(name), value_json(value))
+                                })
+                                .collect::<Vec<_>>()
+                                .join(",");
+                            let slot_counts = node
+                                .slots
+                                .iter()
+                                .map(|(name, values)| {
+                                    format!("{}:{}", json_str(name), values.len())
+                                })
+                                .collect::<Vec<_>>()
+                                .join(",");
+                            let applicable = aep::for_entity(&kind);
+                            let operation_names = applicable
+                                .iter()
+                                .map(|operation| json_str(operation.name))
+                                .collect::<Vec<_>>()
+                                .join(",");
+                            let selected_name =
+                                req.get("operation").and_then(|value| value.as_str());
+                            let selected_operation = selected_name
+                                .and_then(|selected| {
+                                    applicable
+                                        .iter()
+                                        .copied()
+                                        .find(|operation| operation.name == selected)
+                                })
+                                .map(|operation| {
+                                    let arguments = operation
+                                        .arguments
+                                        .iter()
+                                        .map(|argument| {
+                                            format!(
+                                                "{{\"name\":{},\"shape\":{},\"required\":{}}}",
+                                                json_str(argument.name),
+                                                json_str(argument.schema.shape()),
+                                                argument.required
+                                            )
+                                        })
+                                        .collect::<Vec<_>>()
+                                        .join(",");
+                                    format!(
+                                        "{{\"name\":{},\"effects\":{},\"arguments\":[{}]}}",
+                                        json_str(operation.name),
+                                        json_str(operation.effects),
+                                        arguments
+                                    )
+                                });
+                            if selected_name.is_some() && selected_operation.is_none() {
+                                resp!(
+                                    false,
+                                    &format!(
+                                        "{{\"applicable_operations\":[{}]}}",
+                                        operation_names
+                                    ),
+                                    "E_AEP_OPERATION_NOT_APPLICABLE: requested operation is not applicable to target"
+                                )
+                            } else {
+                                resp!(
+                                    true,
+                                    &format!(
+                                        "{{\"entity\":{},\"revision\":{},\"kind\":{},\"module\":{},\"display\":{},\"fields\":{{{}}},\"slot_counts\":{{{}}},\"applicable_operations\":[{}],\"selected_operation\":{}}}",
+                                        json_str(&node.entity),
+                                        json_str(&node.revision),
+                                        json_str(&kind),
+                                        json_str(&module),
+                                        json_str(&display),
+                                        fields,
+                                        slot_counts,
+                                        operation_names,
+                                        selected_operation.unwrap_or_else(|| "null".to_string())
+                                    ),
+                                    "prepared"
+                                )
+                            }
+                        }
+                        None => resp!(false, "null", &not_found(&s.graph, &entity)),
+                    },
+                    outcome => {
+                        let (code, message) = match &outcome {
+                            ResolveOutcome::Ambiguous { .. } => {
+                                ("E_AEP_AMBIGUOUS_ENTITY", "ambiguous entity")
+                            }
+                            _ => ("E_AEP_ENTITY_NOT_FOUND", "entity not found"),
+                        };
+                        resp!(
+                            false,
+                            &resolve_result_json(&outcome, &entity),
+                            &format!("{code}: {message}")
+                        )
+                    }
+                }
+            }
             "describe_operation" => {
                 let name = req
                     .get("name")

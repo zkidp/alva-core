@@ -240,6 +240,22 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             None,
         ),
         spec(
+            "prepare_edit",
+            vec![],
+            vec!["any"],
+            vec![
+                arg("entity", "entity-id|name", true),
+                arg("kind", "string(module|function|type|record|enum)", false),
+                arg("module", "string", false),
+                arg("operation", "string", false),
+            ],
+            vec!["transaction"],
+            "inspection",
+            "transaction",
+            "prepare_edit entity=queue.engine.claim kind=function operation=rename_entity",
+            None,
+        ),
+        spec(
             "describe_operation",
             vec![],
             vec!["any"],

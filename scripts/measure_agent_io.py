@@ -124,9 +124,83 @@ def census(binary: Path, project: Path, modern: bool) -> dict[str, Any]:
             modern,
         )
     )["result"]
-    mcp.request(
+    resolved = mcp.request(
         envelope(
             5,
+            "tools/call",
+            {
+                "name": "resolve_entity",
+                "arguments": {
+                    "transaction_id": transaction_id,
+                    "name": "demo.app.run",
+                    "kind": "function",
+                },
+            },
+            modern,
+        )
+    )["result"]
+    resolved_entity = resolved["structuredContent"]["entity"]
+    inspected_entity = mcp.request(
+        envelope(
+            6,
+            "tools/call",
+            {
+                "name": "inspect_entity",
+                "arguments": {
+                    "transaction_id": transaction_id,
+                    "entity": resolved_entity,
+                },
+            },
+            modern,
+        )
+    )["result"]
+    applicable = mcp.request(
+        envelope(
+            7,
+            "tools/call",
+            {
+                "name": "applicable_operations",
+                "arguments": {
+                    "transaction_id": transaction_id,
+                    "entity": resolved_entity,
+                },
+            },
+            modern,
+        )
+    )["result"]
+    described = mcp.request(
+        envelope(
+            8,
+            "tools/call",
+            {
+                "name": "describe_operation",
+                "arguments": {
+                    "transaction_id": transaction_id,
+                    "name": "rename_entity",
+                },
+            },
+            modern,
+        )
+    )["result"]
+    prepared = mcp.request(
+        envelope(
+            9,
+            "tools/call",
+            {
+                "name": "prepare_edit",
+                "arguments": {
+                    "transaction_id": transaction_id,
+                    "entity": "demo.app.run",
+                    "kind": "function",
+                    "operation": "rename_entity",
+                },
+            },
+            modern,
+        )
+    )["result"]
+    mcp.request(
+        envelope(
+            10,
             "tools/call",
             {
                 "name": "abort_transaction",
@@ -155,7 +229,20 @@ def census(binary: Path, project: Path, modern: bool) -> dict[str, Any]:
         "schema_profile": listed.get("schemaProfile", "legacy-full"),
         "begin_transaction": result_payload_metrics(begin),
         "inspect_project": result_payload_metrics(inspect),
-        "round_trips_measured": 5,
+        "prepare_edit_comparison": {
+            "separate_calls": {
+                "round_trips": 4,
+                "wire_bytes": sum(
+                    result_payload_metrics(result)["wire_bytes"]
+                    for result in (resolved, inspected_entity, applicable, described)
+                ),
+            },
+            "prepare_edit": {
+                "round_trips": 1,
+                "wire_bytes": result_payload_metrics(prepared)["wire_bytes"],
+            },
+        },
+        "round_trips_measured": 10,
     }
 
 

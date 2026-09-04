@@ -1,0 +1,32 @@
+{
+  "schema_version": "alva-agent-io-wave-v1",
+  "parent_commit": "d3138771adfd82ddfb8897bc55b2e606687411fd",
+  "measurement_boundary": "UTF-8 JSON wire bytes and protocol round trips only; no billed-token or model-quality claim",
+  "fixture_target": "demo.app.run",
+  "selected_operation": "rename_entity",
+  "modern": {
+    "separate_resolve_inspect_applicable_describe": {
+      "round_trips": 4,
+      "wire_bytes": 2237
+    },
+    "prepare_edit": {
+      "round_trips": 1,
+      "wire_bytes": 913
+    },
+    "per_preparation_reduction": {
+      "round_trips": 3,
+      "wire_bytes": 1324,
+      "wire_bytes_percent": 59.2
+    },
+    "tool_list_increment_vs_wave_02_bytes": 537,
+    "single_use_net_wire_reduction_including_tool_list_increment": 787,
+    "tool_surface_hash": "95da1f7ba89fa6e30be9a50400ce36896d976890c6056331e1ca9d9d829134c0"
+  },
+  "legacy": {
+    "separate_resolve_inspect_applicable_describe_wire_bytes": 3004,
+    "prepare_edit_wire_bytes": 1520,
+    "wire_bytes_percent": 49.4
+  },
+  "design_correction": "The initial prepare_edit prototype returned every applicable operation schema and saved almost no modern wire bytes. The accepted form returns operation names plus detailed schema only for the caller-selected applicable operation.",
+  "disposition": "COMPOUND_READ_PATH_MECHANICALLY_BETTER_NO_MODEL_CLAIM"
+}

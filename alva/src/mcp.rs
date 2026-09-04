@@ -16,6 +16,7 @@ const SERVER_NAME: &str = "alva";
 const MCP_TOOLS: &[&str] = &[
     "begin_transaction",
     "resolve_entity",
+    "prepare_edit",
     "applicable_operations",
     "describe_operation",
     "inspect_project",
@@ -595,7 +596,7 @@ mod tests {
         let digest = format!("{:x}", Sha256::digest(encoded));
         assert_eq!(
             digest,
-            "7a972f59a9232b08f4e13740dc98853ce9262a5d21ab67fe98ccafacb8b93ed9"
+            "f6d8d4eb2ab87c0b3b2851b87c0cc9b1cf4cddd4de25be87f27e99244951f71e"
         );
     }
 
