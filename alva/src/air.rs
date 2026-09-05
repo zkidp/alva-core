@@ -4439,15 +4439,13 @@ impl EditSession {
 
     /// Immutable field update on a named node (path-copy via staging).
     pub fn set_field(&mut self, handle: &str, field: &str, value: Value) -> Result<String, String> {
-        let rev = self
-            .resolve_current(handle)
-            .map_err(|e| {
-                if e.starts_with("E_") {
-                    e
-                } else {
-                    format!("set_field: {e}")
-                }
-            })?;
+        let rev = self.resolve_current(handle).map_err(|e| {
+            if e.starts_with("E_") {
+                e
+            } else {
+                format!("set_field: {e}")
+            }
+        })?;
         let kind = self
             .graph
             .get(&rev)
