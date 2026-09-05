@@ -4110,7 +4110,8 @@ impl EditSession {
                 return Err(self.errors[0].clone());
             }
         }
-        let rebuild_stats = candidate.rebuild_from_dirty_seeds_with_stats(&self.graph, dirty);
+        let rebuild_stats =
+            candidate.rebuild_from_dirty_seeds_with_stats(&self.graph, dirty.clone());
         let problems = validate_graph(&candidate);
         if !problems.is_empty() {
             self.errors = problems.clone();
