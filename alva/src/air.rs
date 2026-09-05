@@ -4047,6 +4047,10 @@ pub struct EditSession {
     pub last_semantic_total_modules: usize,
     pub last_semantic_checked_modules: usize,
     pub last_semantic_check_scope: &'static str,
+    /// Revision handles consumed by a successful mutation in this session.
+    /// They remain readable historical nodes but cannot be reused as mutation
+    /// compare-and-swap handles.
+    stale_mutation_revisions: std::collections::BTreeSet<String>,
 }
 
 impl EditSession {
@@ -4062,6 +4066,7 @@ impl EditSession {
             last_semantic_total_modules: 0,
             last_semantic_checked_modules: 0,
             last_semantic_check_scope: "none_since_begin",
+            stale_mutation_revisions: std::collections::BTreeSet::new(),
         }
     }
 
@@ -4112,6 +4117,7 @@ impl EditSession {
             return Err(format!("E_AIR_INVARIANT: {}", problems.join("; ")));
         }
         self.graph = candidate;
+        self.stale_mutation_revisions.extend(dirty);
         self.last_rebuild_stats = Some(rebuild_stats);
         Ok(())
     }
@@ -4126,6 +4132,9 @@ impl EditSession {
             .graph
             .resolve_rev(handle)
             .ok_or_else(|| format!("E_AEP_ENTITY_NOT_FOUND: {handle}"))?;
+        if self.stale_mutation_revisions.contains(&rev) {
+            return Err(format!("E_AEP_STALE_REVISION: {handle}"));
+        }
         if self.graph.is_reachable(&rev) {
             return Ok(rev);
         }
@@ -4432,7 +4441,13 @@ impl EditSession {
     pub fn set_field(&mut self, handle: &str, field: &str, value: Value) -> Result<String, String> {
         let rev = self
             .resolve_current(handle)
-            .map_err(|e| format!("set_field: {e}"))?;
+            .map_err(|e| {
+                if e.starts_with("E_") {
+                    e
+                } else {
+                    format!("set_field: {e}")
+                }
+            })?;
         let kind = self
             .graph
             .get(&rev)
