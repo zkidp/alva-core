@@ -1,0 +1,29 @@
+{
+  "schema_version": "ss3-core-qualification-v1",
+  "validated_commit": "e66e6fef9979c881aba014651b4d2e5b2d3339ce",
+  "source_archive_sha256": "117c251746453f06bf950127800f786ca6428531f7004cf418fbb2913d687b20",
+  "environment": {
+    "host_class": "independent Linux Docker execution",
+    "container": "rust:1.89-bullseye",
+    "container_digest": "sha256:8f72d971a31b278cebdb2eb64a44c3900ff27c716a4ef6f4db05946d10c9ae4e",
+    "rustc": "1.89.0",
+    "cargo": "1.89.0"
+  },
+  "binary": {
+    "version": "alva 0.14.1-preview.2",
+    "sha256": "d6e29fb1087e552d45c0d191b0c4ee38a9998d175583d6209051b74f095a8db2"
+  },
+  "validation": {
+    "cargo_fmt_check": "PASS",
+    "cargo_clippy_all_targets_all_features_deny_warnings": "PASS",
+    "cargo_unit_tests": "PASS_39_OF_39",
+    "cargo_build_locked": "PASS",
+    "strict_stale_revision_rejection": "PASS",
+    "air_commit_crash_atomicity_four_failpoints": "PASS",
+    "dirty_tracking_full_oracle": "PASS",
+    "incremental_check_full_oracle": "PASS",
+    "source_air_reconciliation": "PASS"
+  },
+  "claim_boundary": "Zero-model implementation qualification only; no SS3 scientific outcome or model-effect claim",
+  "model_calls_made": 0
+}
