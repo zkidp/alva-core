@@ -2,6 +2,7 @@
 """SS3 mechanical regressions for strict stale revisions and AIR atomicity."""
 
 import json
+import hashlib
 import os
 from pathlib import Path
 import re
@@ -47,6 +48,34 @@ def initialize(binary, project, output):
     )
 
 
+def sha256(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def authoritative_snapshot(binary, manifest):
+    store = manifest.parent / "alva-air"
+    current = (store / "current").read_bytes()
+    lines = current.decode("utf-8").splitlines()
+    assert len(lines) >= 2 and lines[0].isdigit() and len(lines[1]) == 64, current
+    generation = store / f"gen-{lines[0]}.air"
+    assert generation.is_file(), generation
+    agent = Agent(binary)
+    begun = agent.call("begin_transaction", project=str(manifest))
+    assert begun["ok"], begun
+    inspected = agent.call("inspect_body", function="demo.app.run")
+    assert inspected["ok"], inspected
+    aborted = agent.call("abort_transaction")
+    assert aborted["ok"], aborted
+    agent.close()
+    return {
+        "current_sha256": hashlib.sha256(current).hexdigest(),
+        "generation": int(lines[0]),
+        "revision": lines[1],
+        "air_sha256": sha256(generation),
+        "semantic_body": inspected["result"]["body"],
+    }
+
+
 def mutate(agent, project, value):
     begun = agent.call("begin_transaction", project=str(project))
     assert begun["ok"], begun
@@ -83,11 +112,24 @@ def crash_atomicity(binary):
     )
     for failpoint in failpoints:
         with tempfile.TemporaryDirectory(prefix=f"alva-air-crash-{failpoint}-") as temporary:
+            expected_dir = Path(temporary) / "expected"
+            shutil.copytree(ROOT / "tests" / "project", expected_dir)
+            expected_manifest = expected_dir / "alva.toml"
+            initialize(binary, expected_manifest, Path(temporary) / "expected-export")
+            exact_old = authoritative_snapshot(binary, expected_manifest)
+            expected_agent = Agent(binary)
+            mutate(expected_agent, expected_manifest, f"crash-{failpoint}")
+            expected_commit = expected_agent.call("commit_transaction")
+            assert expected_commit["ok"], expected_commit
+            expected_agent.close()
+            exact_new = authoritative_snapshot(binary, expected_manifest)
+            assert exact_new != exact_old
+
             project_dir = Path(temporary) / "project"
             shutil.copytree(ROOT / "tests" / "project", project_dir)
             manifest = project_dir / "alva.toml"
             initialize(binary, manifest, Path(temporary) / "initial-export")
-            current_before = (project_dir / "alva-air" / "current").read_text()
+            assert authoritative_snapshot(binary, manifest) == exact_old
             env = {**os.environ, "ALVA_TEST_AIR_FAILPOINT": failpoint}
             agent = Agent(binary, env)
             mutate(agent, manifest, f"crash-{failpoint}")
@@ -103,11 +145,13 @@ def crash_atomicity(binary):
                 capture_output=True,
             )
             assert checked.returncode == 0, (failpoint, checked.stdout, checked.stderr)
-            current_after = (project_dir / "alva-air" / "current").read_text()
-            if current_after != current_before:
-                lines = current_after.splitlines()
-                assert len(lines) >= 2 and lines[0].isdigit() and len(lines[1]) == 64
-                assert (project_dir / "alva-air" / f"gen-{lines[0]}.air").is_file()
+            actual = authoritative_snapshot(binary, manifest)
+            assert actual in (exact_old, exact_new), {
+                "failpoint": failpoint,
+                "old": exact_old,
+                "new": exact_new,
+                "actual": actual,
+            }
 
 
 def main():
