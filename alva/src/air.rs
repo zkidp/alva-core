@@ -1100,8 +1100,10 @@ pub fn write_authoritative(
         f.write_all(&data).map_err(|e| e.to_string())?;
         f.sync_all().map_err(|e| e.to_string())?;
     }
+    authoritative_commit_failpoint("after_generation_fsync");
     atomic_replace_path(&tmp, &gen_path)?;
     fsync_dir(&store).map_err(|e| e.to_string())?;
+    authoritative_commit_failpoint("after_generation_replace");
     let rev = g.semantic_hash();
     let current_tmp = store.join("current.tmp");
     {
@@ -1111,9 +1113,20 @@ pub fn write_authoritative(
             .map_err(|e| e.to_string())?;
         f.sync_all().map_err(|e| e.to_string())?;
     }
+    authoritative_commit_failpoint("after_current_fsync");
     atomic_replace_path(&current_tmp, &current_path)?;
+    authoritative_commit_failpoint("after_current_replace");
     fsync_dir(&store).map_err(|e| e.to_string())?;
     Ok(gen)
+}
+
+/// Debug-build-only crash injection for deterministic authoritative-store
+/// atomicity tests. Production/release binaries ignore the environment value.
+fn authoritative_commit_failpoint(name: &str) {
+    #[cfg(debug_assertions)]
+    if std::env::var("ALVA_TEST_AIR_FAILPOINT").as_deref() == Ok(name) {
+        std::process::exit(86);
+    }
 }
 
 fn read_generation(current_path: &Path) -> Option<u64> {
@@ -4105,8 +4118,9 @@ impl EditSession {
 
     /// AEP 0.7: resolve a handle to the CURRENT reachable revision. Accepts
     /// entity ids, exact revisions, and unambiguous prefixes. If the target
-    /// is a stale (unreachable) node that still carries an entity, map it to
-    /// that entity's current head so the agent never edits a ghost node.
+    /// is a stale (unreachable) named node, reject it explicitly. Entity ids
+    /// remain the stable way to request the current head; revision handles are
+    /// compare-and-swap evidence and are never silently refreshed.
     pub fn resolve_current(&self, handle: &str) -> Result<String, String> {
         let rev = self
             .graph
@@ -4121,12 +4135,7 @@ impl EditSession {
             if n.entity.is_empty() {
                 return Ok(rev);
             }
-            // 带 entity 的旧 revision：映射到该实体当前 head（stale->latest）。
-            if !n.entity.is_empty() {
-                if let Some(head) = self.graph.heads.get(&n.entity) {
-                    return Ok(head.clone());
-                }
-            }
+            return Err(format!("E_AEP_STALE_REVISION: {handle}"));
         }
         Err(format!("E_AEP_STALE_REVISION: {handle}"))
     }

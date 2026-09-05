@@ -2281,8 +2281,8 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
             //   contains: kind=contains collection=<rev> target=<rev>
             //   any/all/find: kind=<any|all|find> collection=<rev>
             //                 elem_var=<name> predicate=<rev>
-            // 用 resolve_current（AEP 0.7）解析句柄，避免 stale revision
-            // grounding 失败；结构错误即时拒绝。
+            // 用 resolve_current（AEP 0.7）解析当前句柄；旧 revision
+            // 必须显式失败，entity id 才表示请求当前 head。
             let s = need_session!();
             let kind = req.get("kind").and_then(|v| v.as_str()).unwrap_or("");
             let collection = req.get("collection").and_then(|v| v.as_str()).unwrap_or("");
