@@ -26,6 +26,9 @@ const MCP_TOOLS: &[&str] = &[
     "describe_construction",
     "construct_expression",
     "change_field",
+    "register_recovery_intent",
+    "inspect_recovery_context",
+    "begin_recovery",
     "stage_and_check",
     "preview_semantic_diff",
     "check_transaction",
@@ -410,22 +413,34 @@ fn tool_definition(name: &str, compact: bool) -> Option<Value> {
     let read_only = spec.effects == "inspection";
     let destructive = name == "commit_transaction";
     let description = if compact {
-        format!("ALVA {}: {}.", spec.effects, name.replace('_', " "))
+        format!("ALVA {}.", name.replace('_', " "))
     } else {
         format!("ALVA semantic operation. Example: {}", spec.example)
     };
     if compact {
         compact_schema(&mut input_schema);
     }
+    let annotations = if compact {
+        let mut hints = serde_json::Map::new();
+        if read_only {
+            hints.insert("readOnlyHint".to_string(), json!(true));
+        }
+        if destructive {
+            hints.insert("destructiveHint".to_string(), json!(true));
+        }
+        Value::Object(hints)
+    } else {
+        json!({
+            "readOnlyHint": read_only,
+            "destructiveHint": destructive,
+            "openWorldHint": false
+        })
+    };
     Some(json!({
         "name": name,
         "description": description,
         "inputSchema": input_schema,
-        "annotations": {
-            "readOnlyHint": read_only,
-            "destructiveHint": destructive,
-            "openWorldHint": false
-        }
+        "annotations": annotations
     }))
 }
 
@@ -649,7 +664,7 @@ mod tests {
         let digest = format!("{:x}", Sha256::digest(encoded));
         assert_eq!(
             digest,
-            "eda671b86c48f0b99da934e2b1558e0571f72dff779ac58495276548185851ee"
+            "5530ac9b283e9691f731630f77ea7183affed776765150b6222b72d8d963a784"
         );
     }
 

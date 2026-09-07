@@ -5,8 +5,9 @@ use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 
 use crate::execution_events::{
-    CompactExecutionProjection, EventFields, EventRecorder, ExecutionEventKind,
+    CompactExecutionProjection, EventFields, EventRecorder, ExecutionEventKind, VerificationStatus,
 };
+use crate::recovery::{self, RecoveryContext, RecoveryIntent};
 use crate::{air, project};
 use sha2::{Digest, Sha256};
 
@@ -90,6 +91,10 @@ pub(crate) struct AgentRuntime {
     source_projection_revision: Option<String>,
     text_input_staged: bool,
     semantic_baseline_validated: bool,
+    recovery_intent: Option<RecoveryIntent>,
+    recovery_origin_graph: Option<air::AirGraph>,
+    recovery_context: Option<RecoveryContext>,
+    recovery_active: bool,
     execution_events: EventRecorder,
     active_operation_event: Option<String>,
     active_operation: Option<String>,
@@ -146,19 +151,31 @@ impl AgentRuntime {
                 None
             };
             if let Some(event) = event {
-                self.record_event(
+                let outcome = self.record_event(
                     event,
                     EventFields {
-                        operation: Some(operation),
+                        operation: Some(operation.clone()),
                         target_entity: self.active_target.clone(),
                         base_revision: self.base_revision(),
                         current_revision: self.current_revision(),
-                        resulting_revision,
+                        resulting_revision: resulting_revision.clone(),
                         rejection_reason: (!ok).then(|| message.to_string()),
                         parent_event_id,
                         ..EventFields::default()
                     },
                 );
+                if ok && effects == Some("mutation") && self.recovery_active {
+                    self.record_event(
+                        ExecutionEventKind::RecoveryActionSucceeded,
+                        EventFields {
+                            operation: Some(operation),
+                            current_revision: self.current_revision(),
+                            resulting_revision,
+                            parent_event_id: Some(outcome),
+                            ..EventFields::default()
+                        },
+                    );
+                }
             }
         }
         self.active_operation_event = None;
@@ -229,7 +246,122 @@ impl AgentRuntime {
         self.source_projection_revision = source_projection_revision;
         self.text_input_staged = false;
         self.semantic_baseline_validated = false;
+        self.recovery_intent = None;
+        self.recovery_origin_graph = None;
+        self.recovery_context = None;
+        self.recovery_active = false;
         Ok(revision)
+    }
+
+    pub(crate) fn register_recovery_intent(
+        &mut self,
+        original_target: &str,
+        original_obligations: Vec<String>,
+    ) -> Result<&RecoveryIntent, String> {
+        if self.recovery_intent.is_some() {
+            return Err(
+                "E_AEP_RECOVERY_INTENT_ALREADY_REGISTERED: original obligations are immutable"
+                    .to_string(),
+            );
+        }
+        let graph = self
+            .session
+            .as_ref()
+            .map(|session| session.graph.clone())
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        let base_graph = self
+            .base_graph
+            .as_ref()
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        let base_revision = base_graph.semantic_hash();
+        let graph_changed = graph.heads != base_graph.heads
+            || graph.module_entities != base_graph.module_entities
+            || !graph.nodes.keys().eq(base_graph.nodes.keys());
+        if graph_changed {
+            return Err(
+                "E_AEP_RECOVERY_INTENT_LATE: register public obligations before staging changes"
+                    .to_string(),
+            );
+        }
+        self.recovery_intent = Some(recovery::register_intent(
+            &graph,
+            base_revision,
+            original_target,
+            original_obligations,
+        )?);
+        self.recovery_origin_graph = Some(graph);
+        Ok(self.recovery_intent.as_ref().unwrap())
+    }
+
+    pub(crate) fn recovery_context(&self) -> Result<&RecoveryContext, String> {
+        self.recovery_context
+            .as_ref()
+            .ok_or_else(|| "E_AEP_RECOVERY_NOT_AVAILABLE: no stale recovery context".to_string())
+    }
+
+    pub(crate) fn begin_recovery(&mut self) -> Result<&RecoveryContext, String> {
+        if self.recovery_active {
+            return Err(
+                "E_AEP_RECOVERY_ACTIVE: recovery transaction is already active".to_string(),
+            );
+        }
+        let intent = self.recovery_intent.clone().ok_or_else(|| {
+            "E_AEP_RECOVERY_INTENT_REQUIRED: register intent before conflict".to_string()
+        })?;
+        let original_base = self
+            .recovery_origin_graph
+            .clone()
+            .ok_or_else(|| "E_AEP_NO_TRANSACTION".to_string())?;
+        let rejected_event_id = self
+            .recovery_context
+            .as_ref()
+            .map(|context| context.rejected_event_id.clone())
+            .ok_or_else(|| "E_AEP_RECOVERY_NOT_AVAILABLE: no stale recovery context".to_string())?;
+        let current = air::load_authoritative(&self.project_dir)?;
+        let context =
+            recovery::build_context(&intent, &original_base, &current, rejected_event_id.clone());
+        let revision = current.semantic_hash();
+        self.base_graph = Some(current.clone());
+        self.session = Some(air::EditSession::begin(current, revision));
+        self.semantic_baseline_validated = false;
+        self.text_input_staged = false;
+        self.recovery_active = true;
+        self.record_event(
+            ExecutionEventKind::RecoveryStarted,
+            EventFields {
+                current_revision: Some(context.current_revision.clone()),
+                parent_event_id: Some(rejected_event_id),
+                ..EventFields::default()
+            },
+        );
+        self.recovery_context = Some(context);
+        Ok(self.recovery_context.as_ref().unwrap())
+    }
+
+    /// Verifier-owned completion hook. It is intentionally not dispatched by
+    /// the agent or MCP protocol.
+    #[allow(dead_code)]
+    pub(crate) fn complete_recovery_from_verifier(
+        &mut self,
+        status: VerificationStatus,
+    ) -> Result<(), String> {
+        let parent = self
+            .execution_events
+            .last()
+            .map(|event| event.event_id.clone())
+            .ok_or_else(|| "E_AEP_RECOVERY_NOT_AVAILABLE: no recovery event".to_string())?;
+        let context = self
+            .recovery_context
+            .as_mut()
+            .ok_or_else(|| "E_AEP_RECOVERY_NOT_AVAILABLE: no recovery context".to_string())?;
+        recovery::apply_verifier_decision(context, status);
+        let revision = self.current_revision();
+        let verified = self
+            .execution_events
+            .record_final_task_verified(parent, status, revision)?;
+        self.execution_events
+            .record_recovery_completed(verified, status)
+            .map(|_| ())
     }
 
     pub(crate) fn check(&mut self) -> Result<(), String> {
@@ -392,7 +524,22 @@ impl AgentRuntime {
             }
             Err(error) => {
                 self.session = Some(session);
-                self.record_commit_rejection(&semantic, &error, error.contains("E_AEP_CONFLICT"));
+                let stale = error.contains("E_AEP_CONFLICT");
+                let rejected_event = self.record_commit_rejection(&semantic, &error, stale);
+                if stale {
+                    if let (Some(intent), Some(base_graph), Ok(current)) = (
+                        self.recovery_intent.as_ref(),
+                        self.recovery_origin_graph.as_ref(),
+                        air::load_authoritative(&self.project_dir),
+                    ) {
+                        self.recovery_context = Some(recovery::build_context(
+                            intent,
+                            base_graph,
+                            &current,
+                            rejected_event,
+                        ));
+                    }
+                }
                 Err(error)
             }
         }
@@ -401,6 +548,7 @@ impl AgentRuntime {
     pub(crate) fn abort(&mut self) {
         self.session = None;
         self.semantic_baseline_validated = false;
+        self.recovery_active = false;
     }
 
     pub(crate) fn stage_text_patch(
@@ -751,7 +899,7 @@ impl AgentRuntime {
             .unwrap_or_else(|_| "event-schema-error".to_string())
     }
 
-    fn record_commit_rejection(&mut self, parent: &str, error: &str, stale: bool) {
+    fn record_commit_rejection(&mut self, parent: &str, error: &str, stale: bool) -> String {
         let rejected = self.record_event(
             ExecutionEventKind::OperationRejected,
             EventFields {
@@ -764,7 +912,7 @@ impl AgentRuntime {
             },
         );
         if stale {
-            self.record_event(
+            return self.record_event(
                 ExecutionEventKind::StaleWriteRejected,
                 EventFields {
                     operation: Some("commit_transaction".to_string()),
@@ -775,6 +923,7 @@ impl AgentRuntime {
                 },
             );
         }
+        rejected
     }
 }
 

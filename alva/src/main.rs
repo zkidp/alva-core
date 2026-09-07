@@ -12,6 +12,7 @@ mod execution_events;
 mod manifest;
 mod mcp;
 mod project;
+mod recovery;
 mod s_expr;
 
 use std::collections::BTreeMap;
@@ -2617,6 +2618,59 @@ fn execute_agent_request_inner(runtime: &mut AgentRuntime, req: &Json, op_index:
                 Err(error) => resp!(false, "null", &error),
             }
         }
+        "register_recovery_intent" => {
+            let original_target = req
+                .get("original_target")
+                .and_then(Json::as_str)
+                .unwrap_or("");
+            let obligations = match req.get("original_obligations") {
+                Some(Json::Arr(items)) => items
+                    .iter()
+                    .map(|item| {
+                        item.as_str().map(str::to_string).ok_or_else(|| {
+                            "E_AEP_RECOVERY_OBLIGATION_TYPE: obligations must be strings"
+                                .to_string()
+                        })
+                    })
+                    .collect::<Result<Vec<_>, _>>(),
+                _ => Err(
+                    "E_AEP_RECOVERY_OBLIGATION_TYPE: original_obligations must be an array"
+                        .to_string(),
+                ),
+            };
+            match obligations.and_then(|obligations| {
+                runtime.register_recovery_intent(original_target, obligations)
+            }) {
+                Ok(intent) => resp!(
+                    true,
+                    &format!(
+                        "{{\"registered\":true,\"original_base_revision\":{},\"original_target\":{},\"obligation_count\":{}}}",
+                        json_str(&intent.original_base_revision),
+                        serde_json::to_string(&intent.original_target)
+                            .unwrap_or_else(|_| "null".to_string()),
+                        intent.original_obligations.len()
+                    ),
+                    "public recovery intent registered"
+                ),
+                Err(error) => resp!(false, "null", &error),
+            }
+        }
+        "inspect_recovery_context" => match runtime.recovery_context() {
+            Ok(context) => resp!(
+                true,
+                &serde_json::to_string(context).unwrap_or_else(|_| "null".to_string()),
+                "bounded intent-preserving recovery context"
+            ),
+            Err(error) => resp!(false, "null", &error),
+        },
+        "begin_recovery" => match runtime.begin_recovery() {
+            Ok(context) => resp!(
+                true,
+                &serde_json::to_string(context).unwrap_or_else(|_| "null".to_string()),
+                "recovery transaction started at current authoritative revision"
+            ),
+            Err(error) => resp!(false, "null", &error),
+        },
         "stage_and_check" => {
             let operation_name = req.get("operation").and_then(Json::as_str).unwrap_or("");
             let nested_spec = aep::lookup(operation_name);

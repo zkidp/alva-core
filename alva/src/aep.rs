@@ -149,7 +149,9 @@ fn schema_for_shape(shape: &'static str) -> ArgSchema {
         "type" | "type string" | "type name" | "record type name" => ArgSchema::TypeExpr(shape),
         "path to alva.toml" | "project-relative module path" => ArgSchema::Path(shape),
         "text" => ArgSchema::Text(shape),
-        "revisions (repeatable)" | "param specs" => ArgSchema::Array(shape),
+        "revisions (repeatable)" | "param specs" | "public task obligations" => {
+            ArgSchema::Array(shape)
+        }
         "field=value pairs" => ArgSchema::Object(shape),
         "revision | type string | json array" => ArgSchema::Flexible(shape),
         "string(module|function|type|record|enum)" => {
@@ -454,6 +456,42 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             "inspection",
             "transaction",
             "inspect_transaction_work",
+            None,
+        ),
+        spec(
+            "register_recovery_intent",
+            vec![],
+            vec!["any"],
+            vec![
+                arg("original_target", "entity-id|name", true),
+                arg("original_obligations", "public task obligations", true),
+            ],
+            vec!["transaction", "before any staged program change"],
+            "recovery",
+            "transaction",
+            "register_recovery_intent original_target=queue.engine.claim original_obligations=[<public requirement>]",
+            None,
+        ),
+        spec(
+            "inspect_recovery_context",
+            vec![],
+            vec!["any"],
+            vec![],
+            vec!["stale commit after registered recovery intent"],
+            "inspection",
+            "transaction",
+            "inspect_recovery_context",
+            None,
+        ),
+        spec(
+            "begin_recovery",
+            vec![],
+            vec!["any"],
+            vec![],
+            vec!["stale commit after registered recovery intent"],
+            "recovery",
+            "transaction",
+            "begin_recovery",
             None,
         ),
         spec(
