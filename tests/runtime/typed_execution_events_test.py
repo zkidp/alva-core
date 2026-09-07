@@ -67,37 +67,66 @@ def without_execution(response: dict) -> dict:
 def observational_equivalence(binary: Path, fixture: Path, root: Path) -> None:
     off_project = root / "off"
     on_project = root / "on"
+    failed_sink_project = root / "failed-sink"
     shutil.copytree(fixture, off_project)
     shutil.copytree(fixture, on_project)
+    shutil.copytree(fixture, failed_sink_project)
     log = root / "equivalence.jsonl"
     off = Agent(binary, None, "same-session", "same-transaction")
     on = Agent(binary, log, "same-session", "same-transaction")
+    failed_sink = Agent(
+        binary,
+        root / "missing-parent" / "events.jsonl",
+        "same-session",
+        "same-transaction",
+    )
     off_responses = [
+        off.call("check_transaction"),
         off.call("begin_transaction", project=str(off_project / "alva.toml")),
         off.call("check_transaction"),
         off.call("preview_source_projection", path="src/x.alva"),
         off.call("commit_transaction"),
     ]
     on_responses = [
+        on.call("check_transaction"),
         on.call("begin_transaction", project=str(on_project / "alva.toml")),
         on.call("check_transaction"),
         on.call("preview_source_projection", path="src/x.alva"),
         on.call("commit_transaction"),
     ]
+    failed_sink_responses = [
+        failed_sink.call("check_transaction"),
+        failed_sink.call(
+            "begin_transaction", project=str(failed_sink_project / "alva.toml")
+        ),
+        failed_sink.call("check_transaction"),
+        failed_sink.call("preview_source_projection", path="src/x.alva"),
+        failed_sink.call("commit_transaction"),
+    ]
     off.close()
     on.close()
-    assert [without_execution(item) for item in off_responses] == [
+    failed_sink.close()
+    expected = [without_execution(item) for item in off_responses]
+    assert expected == [
         without_execution(item) for item in on_responses
     ]
+    assert expected == [without_execution(item) for item in failed_sink_responses]
+    assert not off_responses[0]["ok"]
+    assert off_responses[0]["message"] == "E_AEP_NO_TRANSACTION"
     assert off_responses[-1]["result"]["revision"] == on_responses[-1]["result"]["revision"]
+    assert off_responses[-1]["result"]["generation"] == on_responses[-1]["result"]["generation"]
     assert (off_project / "src/x.alva").read_bytes() == (on_project / "src/x.alva").read_bytes()
+    assert (off_project / "src/x.alva").read_bytes() == (
+        failed_sink_project / "src/x.alva"
+    ).read_bytes()
     assert log.exists() and load_events(log)
+    assert not (root / "missing-parent").exists()
 
 
-def stale_chain(binary: Path, fixture: Path, root: Path) -> None:
-    project = root / "stale"
+def run_stale_scenario(
+    binary: Path, fixture: Path, project: Path, event_log: Path | None
+) -> tuple[dict, dict, dict]:
     shutil.copytree(fixture, project)
-    event_log = root / "stale.jsonl"
     left = Agent(binary, event_log, "session-left", "tx-left")
     right = Agent(binary, event_log, "session-right", "tx-right")
     assert left.call("begin_transaction", project=str(project / "alva.toml"))["ok"]
@@ -111,6 +140,21 @@ def stale_chain(binary: Path, fixture: Path, root: Path) -> None:
     assert stale["execution"]["state"] == "stale_write_rejected"
     left.close()
     right.close()
+
+    observer = Agent(binary, event_log, "session-observer", "tx-observer")
+    observed = observer.call("begin_transaction", project=str(project / "alva.toml"))
+    observer.close()
+    assert observed["result"]["project_revision"] == left_commit["result"]["revision"]
+    return left_commit, stale, observed
+
+
+def stale_chain(binary: Path, fixture: Path, root: Path) -> None:
+    event_log = root / "stale.jsonl"
+    logged = run_stale_scenario(binary, fixture, root / "stale-on", event_log)
+    unlogged = run_stale_scenario(binary, fixture, root / "stale-off", None)
+    assert [without_execution(response) for response in logged] == [
+        without_execution(response) for response in unlogged
+    ]
 
     recorded = load_events(event_log)
     stale_event = next(event for event in reversed(recorded) if event["event"] == "stale_write_rejected")
@@ -132,7 +176,7 @@ def stale_chain(binary: Path, fixture: Path, root: Path) -> None:
         "stale_write_rejected",
     ]
     assert stale_event["transaction_id"] == "tx-right"
-    assert stale_event["current_revision"] == left_commit["result"]["revision"]
+    assert stale_event["current_revision"] == logged[0]["result"]["revision"]
     assert all(event["schema_version"] == "alva.execution-event.v1" for event in recorded)
     assert all("intent_preserved" not in event for event in recorded)
 
