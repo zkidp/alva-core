@@ -1,4 +1,5 @@
 mod aep;
+mod agent_runtime;
 mod air;
 mod ast;
 mod capability;
@@ -52,7 +53,7 @@ fn run() -> i32 {
         "air" => cmd_air(rest),
         "edit" => cmd_edit(rest),
         "agent" => cmd_agent(rest),
-        "mcp" => mcp::cmd_mcp(),
+        "mcp" => mcp::cmd_mcp(rest),
         "hole" => cmd_hole(rest),
         "view" => cmd_view(rest),
         "capabilities" => cmd_capabilities(rest),
@@ -1611,7 +1612,22 @@ fn type_expr_for(name: &str, g: &mut air::AirGraph) -> Result<String, String> {
     Ok(g.add("type_expr", "", f, BTreeMap::new()))
 }
 
-fn cmd_agent(_rest: &[String]) -> i32 {
+fn cmd_agent(rest: &[String]) -> i32 {
+    let event_log = flag_value(rest, "--event-log").map(PathBuf::from);
+    let runtime_session_id = flag_value(rest, "--session-id")
+        .unwrap_or_else(|| format!("agent_{:x}", std::process::id()));
+    let runtime_transaction_id = flag_value(rest, "--transaction-id");
+    let mut execution = match agent_runtime::EventRecorder::new(
+        runtime_session_id,
+        runtime_transaction_id,
+        event_log.as_deref(),
+    ) {
+        Ok(recorder) => recorder,
+        Err(error) => {
+            eprintln!("{error}");
+            return 2;
+        }
+    };
     let mut session: Option<air::EditSession> = None;
     let mut base_graph: Option<air::AirGraph> = None;
     let mut real_dir = PathBuf::new();
@@ -1660,21 +1676,81 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 agent_resp(Some(&request_id), op_index, $ok, $result, $msg, Vec::new())
             };
         }
+        // RFC-0005: registry is the single source of truth — canonicalize
+        // aliases before dispatch so introspection and execution agree.
+        let canonical_tool: &str = aep::lookup(&tool).map(|s| s.name).unwrap_or(tool.as_str());
+        let base_before = session.as_ref().map(|s| s.base_hash.clone());
+        let current_before = session.as_ref().map(|s| s.graph.semantic_hash());
+        let target_entity = ["entity", "function", "module", "parent", "project"]
+            .iter()
+            .find_map(|key| req.get(key).and_then(|value| value.as_str()))
+            .map(str::to_string);
+        let requested_event = match execution.record(
+            agent_runtime::ExecutionEventKind::OperationRequested,
+            agent_runtime::EventFields {
+                operation: Some(canonical_tool.to_string()),
+                target_entity: target_entity.clone(),
+                base_revision: base_before.clone(),
+                current_revision: current_before.clone(),
+                ..agent_runtime::EventFields::default()
+            },
+        ) {
+            Ok(event_id) => event_id,
+            Err(error) => {
+                println!("{}", resp!(false, "null", &error));
+                continue;
+            }
+        };
         macro_rules! need_session {
             () => {
                 match session.as_mut() {
                     Some(s) => s,
                     None => {
-                        let out = resp!(false, "null", "E_AEP_NO_TRANSACTION");
-                        println!("{out}");
+                        let rejection = "E_AEP_NO_TRANSACTION";
+                        if let Err(error) = execution.record(
+                            agent_runtime::ExecutionEventKind::OperationRejected,
+                            agent_runtime::EventFields {
+                                operation: Some(canonical_tool.to_string()),
+                                target_entity: target_entity.clone(),
+                                base_revision: base_before.clone(),
+                                current_revision: current_before.clone(),
+                                rejection_reason: Some(rejection.to_string()),
+                                parent_event_id: Some(requested_event.clone()),
+                                ..agent_runtime::EventFields::default()
+                            },
+                        ) {
+                            eprintln!("{error}");
+                        }
+                        let out = resp!(false, "null", rejection);
+                        println!(
+                            "{}",
+                            agent_runtime::attach_compact_projection(
+                                &out,
+                                execution.compact_projection()
+                            )
+                        );
                         continue;
                     }
                 }
             };
         }
-        // RFC-0005: registry is the single source of truth — canonicalize
-        // aliases before dispatch so introspection and execution agree.
-        let canonical_tool: &str = aep::lookup(&tool).map(|s| s.name).unwrap_or(tool.as_str());
+        let mut causal_parent = requested_event.clone();
+        if canonical_tool == "commit_transaction" {
+            match execution.record(
+                agent_runtime::ExecutionEventKind::CommitAttempted,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    target_entity: target_entity.clone(),
+                    base_revision: base_before.clone(),
+                    current_revision: current_before.clone(),
+                    parent_event_id: Some(requested_event.clone()),
+                    ..agent_runtime::EventFields::default()
+                },
+            ) {
+                Ok(event_id) => causal_parent = event_id,
+                Err(error) => eprintln!("{error}"),
+            }
+        }
         let out = match canonical_tool {
             "inspect_project" => {
                 let s = need_session!();
@@ -3181,7 +3257,148 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 )
             }
         };
-        println!("{out}");
+        let parsed = serde_json::from_str::<serde_json::Value>(&out).unwrap_or_default();
+        let ok = parsed.get("ok").and_then(serde_json::Value::as_bool) == Some(true);
+        let rejection_reason = parsed
+            .get("message")
+            .and_then(serde_json::Value::as_str)
+            .map(str::to_string);
+        let resulting_revision = parsed
+            .pointer("/result/revision")
+            .or_else(|| parsed.pointer("/result/new_revision"))
+            .or_else(|| parsed.pointer("/result/project_revision"))
+            .and_then(serde_json::Value::as_str)
+            .map(str::to_string);
+        let current_after = session.as_ref().map(|s| s.graph.semantic_hash());
+        let effects = aep::lookup(canonical_tool).map(|spec| spec.effects);
+        let stale_commit = !ok
+            && canonical_tool == "commit_transaction"
+            && rejection_reason
+                .as_deref()
+                .is_some_and(|message| message.contains("E_AEP_CONFLICT"));
+        if canonical_tool == "commit_transaction" && (ok || stale_commit) {
+            match execution.record(
+                agent_runtime::ExecutionEventKind::SemanticCheckPassed,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    base_revision: base_before.clone(),
+                    current_revision: current_after.clone().or_else(|| resulting_revision.clone()),
+                    parent_event_id: Some(causal_parent.clone()),
+                    ..agent_runtime::EventFields::default()
+                },
+            ) {
+                Ok(event_id) => causal_parent = event_id,
+                Err(error) => eprintln!("{error}"),
+            }
+        }
+        let outcome = if !ok {
+            execution.record(
+                agent_runtime::ExecutionEventKind::OperationRejected,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    target_entity: target_entity.clone(),
+                    base_revision: base_before.clone(),
+                    current_revision: current_after.clone().or_else(|| resulting_revision.clone()),
+                    rejection_reason: rejection_reason.clone(),
+                    parent_event_id: Some(causal_parent),
+                    ..agent_runtime::EventFields::default()
+                },
+            )
+        } else if canonical_tool == "begin_transaction" {
+            execution.record(
+                agent_runtime::ExecutionEventKind::TransactionStarted,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    target_entity: target_entity.clone(),
+                    base_revision: resulting_revision.clone(),
+                    current_revision: resulting_revision.clone(),
+                    resulting_revision: resulting_revision.clone(),
+                    parent_event_id: Some(causal_parent),
+                    ..agent_runtime::EventFields::default()
+                },
+            )
+        } else if canonical_tool == "abort_transaction" {
+            execution.record(
+                agent_runtime::ExecutionEventKind::TransactionAborted,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    base_revision: base_before.clone(),
+                    current_revision: current_before.clone(),
+                    parent_event_id: Some(causal_parent),
+                    ..agent_runtime::EventFields::default()
+                },
+            )
+        } else if canonical_tool == "commit_transaction" {
+            execution.record(
+                agent_runtime::ExecutionEventKind::CommitSucceeded,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    base_revision: base_before.clone(),
+                    current_revision: current_after.clone(),
+                    resulting_revision: resulting_revision.clone(),
+                    parent_event_id: Some(causal_parent),
+                    ..agent_runtime::EventFields::default()
+                },
+            )
+        } else if canonical_tool == "check_transaction" {
+            execution.record(
+                agent_runtime::ExecutionEventKind::SemanticCheckPassed,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    base_revision: base_before.clone(),
+                    current_revision: current_after.clone(),
+                    parent_event_id: Some(causal_parent),
+                    ..agent_runtime::EventFields::default()
+                },
+            )
+        } else if effects == Some("mutation") {
+            execution.record(
+                agent_runtime::ExecutionEventKind::MutationStaged,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    target_entity: target_entity.clone(),
+                    base_revision: base_before.clone(),
+                    current_revision: current_after.clone(),
+                    resulting_revision: resulting_revision.clone(),
+                    parent_event_id: Some(causal_parent),
+                    ..agent_runtime::EventFields::default()
+                },
+            )
+        } else {
+            Ok(requested_event.clone())
+        };
+        if let Err(error) = outcome {
+            eprintln!("{error}");
+        }
+        if stale_commit {
+            let rejected = execution
+                .last()
+                .map(|event| event.event_id.clone())
+                .unwrap_or(requested_event);
+            let authoritative_current = rejection_reason.as_deref().and_then(|message| {
+                message
+                    .split("authoritative revision ")
+                    .nth(1)
+                    .and_then(|suffix| suffix.split_whitespace().next())
+                    .map(str::to_string)
+            });
+            if let Err(error) = execution.record(
+                agent_runtime::ExecutionEventKind::StaleWriteRejected,
+                agent_runtime::EventFields {
+                    operation: Some(canonical_tool.to_string()),
+                    current_revision: authoritative_current,
+                    rejection_reason,
+                    parent_event_id: Some(rejected),
+                    ..agent_runtime::EventFields::default()
+                },
+            ) {
+                eprintln!("{error}");
+            }
+        }
+        println!(
+            "{}",
+            agent_runtime::attach_compact_projection(&out, execution.compact_projection())
+        );
     }
     0
 }
@@ -5122,6 +5339,7 @@ fn cmd_manifest(rest: &[String]) -> i32 {
 fn usage() {
     eprintln!("usage: alva <check|build|run|manifest|project|impact|air|edit|agent|mcp|hole|view|capabilities|doctor> [arguments]");
     eprintln!("       alva --version");
+    eprintln!("       alva agent|mcp [--event-log <jsonl-path>]");
 }
 
 fn parse_args(rest: &[String]) -> CliArgs {
