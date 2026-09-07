@@ -7,6 +7,7 @@
 use crate::aep;
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, BufWriter, Write};
+use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
 
 const MODERN_VERSION: &str = "2026-07-28";
@@ -49,10 +50,19 @@ struct AgentChild {
 }
 
 impl AgentChild {
-    fn spawn() -> Result<Self, String> {
+    fn spawn(transaction_id: &str, event_log: Option<&Path>) -> Result<Self, String> {
         let exe = std::env::current_exe().map_err(|e| format!("cannot locate alva: {e}"))?;
-        let mut child = Command::new(exe)
+        let mut command = Command::new(exe);
+        command
             .arg("agent")
+            .arg("--session-id")
+            .arg(format!("mcp_{transaction_id}"))
+            .arg("--transaction-id")
+            .arg(transaction_id);
+        if let Some(path) = event_log {
+            command.arg("--event-log").arg(path);
+        }
+        let mut child = command
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit())
@@ -101,6 +111,7 @@ impl Drop for AgentChild {
 struct Gateway {
     active: Option<(String, AgentChild)>,
     next_transaction: u64,
+    event_log: Option<PathBuf>,
 }
 
 impl Gateway {
@@ -146,7 +157,10 @@ impl Gateway {
                         .to_string(),
                 );
             }
-            let mut child = AgentChild::spawn()?;
+            self.next_transaction += 1;
+            let transaction_id =
+                format!("tx_{:x}_{:016x}", std::process::id(), self.next_transaction);
+            let mut child = AgentChild::spawn(&transaction_id, self.event_log.as_deref())?;
             let mut request = Value::Object(args.clone());
             request["request_id"] = json!("mcp-begin");
             request["tool"] = json!(name);
@@ -160,15 +174,15 @@ impl Gateway {
             }
             let response = child.call(&request)?;
             ensure_agent_ok(&response)?;
-            self.next_transaction += 1;
-            let transaction_id =
-                format!("tx_{:x}_{:016x}", std::process::id(), self.next_transaction);
             let mut result = response
                 .get("result")
                 .and_then(Value::as_object)
                 .cloned()
                 .unwrap_or_default();
             result.insert("transaction_id".to_string(), json!(transaction_id));
+            if let Some(execution) = response.get("execution") {
+                result.insert("execution".to_string(), execution.clone());
+            }
             self.active = Some((transaction_id, child));
             return Ok(Value::Object(result));
         }
@@ -191,6 +205,10 @@ impl Gateway {
         let response = child.call(&Value::Object(forwarded))?;
         ensure_agent_ok(&response)?;
         let mut result = response.get("result").cloned().unwrap_or(Value::Null);
+        if let (Some(object), Some(execution)) = (result.as_object_mut(), response.get("execution"))
+        {
+            object.insert("execution".to_string(), execution.clone());
+        }
         if name == "applicable_operations" {
             filter_applicable_operations(&mut result);
         }
@@ -548,11 +566,18 @@ fn dispatch(
     }
 }
 
-pub fn cmd_mcp() -> i32 {
+pub fn cmd_mcp(rest: &[String]) -> i32 {
     let stdin = std::io::stdin();
     let stdout = std::io::stdout();
     let mut output = BufWriter::new(stdout.lock());
-    let mut gateway = Gateway::default();
+    let event_log = rest
+        .windows(2)
+        .find(|pair| pair[0] == "--event-log")
+        .map(|pair| PathBuf::from(&pair[1]));
+    let mut gateway = Gateway {
+        event_log,
+        ..Gateway::default()
+    };
     let mut protocol_era = ProtocolEra::default();
     for line in stdin.lock().lines() {
         let line = match line {

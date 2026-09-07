@@ -4,6 +4,9 @@ use std::collections::BTreeMap;
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 
+use crate::execution_events::{
+    CompactExecutionProjection, EventFields, EventRecorder, ExecutionEventKind,
+};
 use crate::{air, project};
 use sha2::{Digest, Sha256};
 
@@ -87,9 +90,86 @@ pub(crate) struct AgentRuntime {
     source_projection_revision: Option<String>,
     text_input_staged: bool,
     semantic_baseline_validated: bool,
+    execution_events: EventRecorder,
+    active_operation_event: Option<String>,
+    active_operation: Option<String>,
+    active_target: Option<String>,
 }
 
 impl AgentRuntime {
+    pub(crate) fn configure_execution_events(
+        &mut self,
+        session_id: String,
+        transaction_id: Option<String>,
+        event_log: Option<&Path>,
+    ) {
+        self.execution_events = EventRecorder::new(session_id, transaction_id, event_log);
+    }
+
+    pub(crate) fn begin_operation(&mut self, operation: &str, target: Option<String>) {
+        let parent = self.record_event(
+            ExecutionEventKind::OperationRequested,
+            EventFields {
+                operation: Some(operation.to_string()),
+                target_entity: target.clone(),
+                base_revision: self.base_revision(),
+                current_revision: self.current_revision(),
+                ..EventFields::default()
+            },
+        );
+        self.active_operation_event = Some(parent);
+        self.active_operation = Some(operation.to_string());
+        self.active_target = target;
+    }
+
+    pub(crate) fn finish_operation(
+        &mut self,
+        ok: bool,
+        message: &str,
+        resulting_revision: Option<String>,
+        effects: Option<&str>,
+    ) {
+        let operation = self.active_operation.clone().unwrap_or_default();
+        let parent_event_id = self.active_operation_event.clone();
+        if operation != "commit_transaction" {
+            let event = if !ok {
+                Some(ExecutionEventKind::OperationRejected)
+            } else if operation == "begin_transaction" {
+                Some(ExecutionEventKind::TransactionStarted)
+            } else if operation == "abort_transaction" {
+                Some(ExecutionEventKind::TransactionAborted)
+            } else if operation == "check_transaction" {
+                Some(ExecutionEventKind::SemanticCheckPassed)
+            } else if effects == Some("mutation") {
+                Some(ExecutionEventKind::MutationStaged)
+            } else {
+                None
+            };
+            if let Some(event) = event {
+                self.record_event(
+                    event,
+                    EventFields {
+                        operation: Some(operation),
+                        target_entity: self.active_target.clone(),
+                        base_revision: self.base_revision(),
+                        current_revision: self.current_revision(),
+                        resulting_revision,
+                        rejection_reason: (!ok).then(|| message.to_string()),
+                        parent_event_id,
+                        ..EventFields::default()
+                    },
+                );
+            }
+        }
+        self.active_operation_event = None;
+        self.active_operation = None;
+        self.active_target = None;
+    }
+
+    pub(crate) fn compact_execution_projection(&self) -> Option<CompactExecutionProjection> {
+        self.execution_events.compact_projection()
+    }
+
     pub(crate) fn session_mut(&mut self) -> Result<&mut air::EditSession, String> {
         self.session
             .as_mut()
@@ -253,23 +333,66 @@ impl AgentRuntime {
     }
 
     pub(crate) fn commit(&mut self) -> Result<CommitResult, String> {
-        self.verify_text_sources_unchanged()?;
+        let requested = self.active_operation_event.clone();
+        let attempted = self.record_event(
+            ExecutionEventKind::CommitAttempted,
+            EventFields {
+                operation: Some("commit_transaction".to_string()),
+                base_revision: self.base_revision(),
+                current_revision: self.current_revision(),
+                parent_event_id: requested,
+                ..EventFields::default()
+            },
+        );
+        if let Err(error) = self.verify_text_sources_unchanged() {
+            self.record_commit_rejection(&attempted, &error, false);
+            return Err(error);
+        }
         let Some(mut session) = self.session.take() else {
-            return Err("E_AEP_NO_TRANSACTION".to_string());
+            let error = "E_AEP_NO_TRANSACTION".to_string();
+            self.record_commit_rejection(&attempted, &error, false);
+            return Err(error);
         };
         let errors = session.check();
         if !errors.is_empty() {
             self.session = Some(session);
-            return Err(format!("check failed: {}", errors.join("; ")));
+            let error = format!("check failed: {}", errors.join("; "));
+            self.record_commit_rejection(&attempted, &error, false);
+            return Err(error);
         }
+        let semantic = self.record_event(
+            ExecutionEventKind::SemanticCheckPassed,
+            EventFields {
+                operation: Some("commit_transaction".to_string()),
+                base_revision: Some(session.base_hash.clone()),
+                current_revision: Some(session.graph.semantic_hash()),
+                parent_event_id: Some(attempted),
+                ..EventFields::default()
+            },
+        );
         let base = session.base_hash.clone();
         match air::write_authoritative(&self.project_dir, &session.graph, Some(&base)) {
-            Ok(generation) => Ok(CommitResult {
-                generation,
-                revision: session.graph.semantic_hash(),
-            }),
+            Ok(generation) => {
+                let revision = session.graph.semantic_hash();
+                self.record_event(
+                    ExecutionEventKind::CommitSucceeded,
+                    EventFields {
+                        operation: Some("commit_transaction".to_string()),
+                        base_revision: Some(base),
+                        current_revision: Some(revision.clone()),
+                        resulting_revision: Some(revision.clone()),
+                        parent_event_id: Some(semantic),
+                        ..EventFields::default()
+                    },
+                );
+                Ok(CommitResult {
+                    generation,
+                    revision,
+                })
+            }
             Err(error) => {
                 self.session = Some(session);
+                self.record_commit_rejection(&semantic, &error, error.contains("E_AEP_CONFLICT"));
                 Err(error)
             }
         }
@@ -609,6 +732,58 @@ impl AgentRuntime {
         }
         Ok(())
     }
+
+    fn base_revision(&self) -> Option<String> {
+        self.session
+            .as_ref()
+            .map(|session| session.base_hash.clone())
+    }
+
+    fn current_revision(&self) -> Option<String> {
+        self.session
+            .as_ref()
+            .map(|session| session.graph.semantic_hash())
+    }
+
+    fn record_event(&mut self, event: ExecutionEventKind, fields: EventFields) -> String {
+        self.execution_events
+            .record(event, fields)
+            .unwrap_or_else(|_| "event-schema-error".to_string())
+    }
+
+    fn record_commit_rejection(&mut self, parent: &str, error: &str, stale: bool) {
+        let rejected = self.record_event(
+            ExecutionEventKind::OperationRejected,
+            EventFields {
+                operation: Some("commit_transaction".to_string()),
+                base_revision: self.base_revision(),
+                current_revision: self.current_revision(),
+                rejection_reason: Some(error.to_string()),
+                parent_event_id: Some(parent.to_string()),
+                ..EventFields::default()
+            },
+        );
+        if stale {
+            self.record_event(
+                ExecutionEventKind::StaleWriteRejected,
+                EventFields {
+                    operation: Some("commit_transaction".to_string()),
+                    current_revision: authoritative_revision(error),
+                    rejection_reason: Some(error.to_string()),
+                    parent_event_id: Some(rejected),
+                    ..EventFields::default()
+                },
+            );
+        }
+    }
+}
+
+fn authoritative_revision(error: &str) -> Option<String> {
+    error
+        .split("authoritative revision ")
+        .nth(1)
+        .and_then(|suffix| suffix.split_whitespace().next())
+        .map(str::to_string)
 }
 
 fn source_graph(

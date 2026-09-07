@@ -8,6 +8,7 @@ mod check;
 mod codegen;
 mod construction;
 mod diag;
+mod execution_events;
 mod manifest;
 mod mcp;
 mod project;
@@ -60,7 +61,7 @@ fn run() -> i32 {
         "air" => cmd_air(rest),
         "edit" => cmd_edit(rest),
         "agent" => cmd_agent(rest),
-        "mcp" => mcp::cmd_mcp(),
+        "mcp" => mcp::cmd_mcp(rest),
         "hole" => cmd_hole(rest),
         "view" => cmd_view(rest),
         "capabilities" => cmd_capabilities(rest),
@@ -1400,8 +1401,14 @@ fn type_expr_for(name: &str, g: &mut air::AirGraph) -> Result<String, String> {
     Ok(g.add("type_expr", "", f, BTreeMap::new()))
 }
 
-fn cmd_agent(_rest: &[String]) -> i32 {
+fn cmd_agent(rest: &[String]) -> i32 {
     let mut runtime = AgentRuntime::default();
+    runtime.configure_execution_events(
+        flag_value(rest, "--session-id")
+            .unwrap_or_else(|| format!("agent_{:x}", std::process::id())),
+        flag_value(rest, "--transaction-id"),
+        flag_value(rest, "--event-log").as_deref().map(Path::new),
+    );
     let mut op_index = 0usize;
     use std::io::BufRead;
     let stdin = std::io::stdin();
@@ -1438,6 +1445,37 @@ fn cmd_agent(_rest: &[String]) -> i32 {
 }
 
 fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize) -> String {
+    let tool = req.get("tool").and_then(Json::as_str).unwrap_or("");
+    let operation = aep::lookup(tool);
+    let canonical_tool = operation.map(|spec| spec.name).unwrap_or(tool);
+    let target = ["entity", "function", "module", "parent", "path", "project"]
+        .iter()
+        .find_map(|key| req.get(key).and_then(Json::as_str))
+        .map(str::to_string);
+    runtime.begin_operation(canonical_tool, target);
+    let response = execute_agent_request_inner(runtime, req, op_index);
+    let parsed = serde_json::from_str::<serde_json::Value>(&response).unwrap_or_default();
+    let ok = parsed.get("ok").and_then(serde_json::Value::as_bool) == Some(true);
+    let message = parsed
+        .get("message")
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or("");
+    let resulting_revision = parsed
+        .pointer("/result/revision")
+        .or_else(|| parsed.pointer("/result/new_revision"))
+        .or_else(|| parsed.pointer("/result/project_revision"))
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_string);
+    runtime.finish_operation(
+        ok,
+        message,
+        resulting_revision,
+        operation.map(|spec| spec.effects),
+    );
+    execution_events::attach_compact_projection(&response, runtime.compact_execution_projection())
+}
+
+fn execute_agent_request_inner(runtime: &mut AgentRuntime, req: &Json, op_index: usize) -> String {
     let request_id = req
         .get("request_id")
         .and_then(|v| v.as_str())
@@ -2622,7 +2660,10 @@ fn execute_agent_request(runtime: &mut AgentRuntime, req: &Json, op_index: usize
             );
             nested_fields.insert("tool".to_string(), Json::Str(nested_spec.name.to_string()));
             let nested_request = Json::Obj(nested_fields);
-            let nested_wire = execute_agent_request(runtime, &nested_request, op_index);
+            // The outer stage_and_check request is the observable operation;
+            // its nested mutation is an implementation detail of the same
+            // AgentRuntime transaction.
+            let nested_wire = execute_agent_request_inner(runtime, &nested_request, op_index);
             let nested_response: serde_json::Value = match serde_json::from_str(&nested_wire) {
                 Ok(response) => response,
                 Err(error) => {
@@ -5033,6 +5074,7 @@ fn cmd_manifest(rest: &[String]) -> i32 {
 fn usage() {
     eprintln!("usage: alva <check|build|run|manifest|project|impact|air|edit|agent|mcp|hole|view|capabilities|doctor> [arguments]");
     eprintln!("       alva --version");
+    eprintln!("       alva agent|mcp [--event-log <jsonl-path>]");
 }
 
 fn parse_args(rest: &[String]) -> CliArgs {
