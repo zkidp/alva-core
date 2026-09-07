@@ -38,11 +38,22 @@ layout, or applying a large text patch to `.alva` files.
 9. On failure, use `error_code`, `result`, `diagnostics`, and only then
    `message` to make a targeted repair. Re-resolve stale entities and re-run
    discovery rather than silently substituting an ID.
-10. Call `commit_transaction` only after the staged check passes. Otherwise
+10. Call `commit_transaction` only after the staged check passes. On confirmed
+    stale/conflict rejection, use the default iterative recovery below. Otherwise
     call `abort_transaction`. Afterward run
     `alva project check <alva.toml> --json` and any task-relevant build or
     tests. An ALVA transaction commit is not a Git commit; inspect repository
     changes and create a Git commit only when the user requested one.
+
+## Default stale recovery: keep the read/act loop alive
+
+Preserve the original assignment and conversation. Abort private staging, begin
+a transaction against current authority, re-inspect, and return those tool
+results to the same writer so it can continue editing in later turns. Do not
+stop after one response or equate inspection/check/commit success with verified
+task completion. Read [references/recovery.md](references/recovery.md) on a
+conflict or when implementing host orchestration. RecoveryContext/rebinding is
+optional experimental assistance, not the default or a required tool sequence.
 
 Read [references/workflow.md](references/workflow.md) before performing a
 semantic edit. Read [references/diagnostics.md](references/diagnostics.md) when

@@ -22,6 +22,15 @@ with an `alva.toml` path, then pass the returned `transaction_id` to every later
 tool. Finish with `commit_transaction` or `abort_transaction`. EOF discards an
 uncommitted transaction.
 
+Confirmed stale/conflict rejection is recoverable within the same writer
+conversation. Preserve the original assignment/history, abort the rejected
+handle, begin a fresh transaction, and continue inspection/edit/check turns
+with the NEW handle. Neither inspection nor compiler PASS ends recovery.
+After commit, use the actual task verifier. RecoveryContext is optional
+experimental assistance, not a required default. See the canonical
+[recovery workflow](../skills/alva/references/recovery.md), including the
+transport-neutral host adapter and separate host/core event semantics.
+
 ## Claude Code
 
 ```bash

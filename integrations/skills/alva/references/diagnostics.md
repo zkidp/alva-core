@@ -31,8 +31,10 @@ atomic; do not assume it partially applied.
   `result.expected`, `result.actual`, and candidate bindings; re-run
   `describe_construction` before retrying.
 - `E_AEP_CONFLICT`: another process changed authority after this transaction
-  began. Abort, begin a new transaction, resolve again, and re-evaluate the
-  change against the new project revision.
+  began. Follow [Minimal Iterative Recovery](recovery.md): preserve the original
+  assignment/conversation, abort private staging, begin on current authority,
+  and feed fresh inspection results back into subsequent writer turns. Do not
+  treat the first read-only response as completion.
 
 Do not retry an identical failed mutation without new information.
 
