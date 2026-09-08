@@ -31,6 +31,14 @@ experimental assistance, not a required default. See the canonical
 [recovery workflow](../skills/alva/references/recovery.md), including the
 transport-neutral host adapter and separate host/core event semantics.
 
+Host adapters must distinguish admission for another provider request from
+admission for actions in a response already confirmed complete. Drain those
+legal actions in order under tool/wall/cancellation/safety gates, then apply the
+request/token decision before asking for another turn. Incomplete or ambiguous
+responses provide no executable actions. MCP itself continues to enforce tool
+schemas, explicit transaction handles, authority, stale and commit boundaries;
+the server does not synthesize model actions or host verification.
+
 ## Claude Code
 
 ```bash

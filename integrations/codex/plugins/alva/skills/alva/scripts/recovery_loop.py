@@ -10,6 +10,25 @@ from copy import deepcopy
 from uuid import uuid4
 
 
+class ReturnedTurn:
+    """Host-normalized provider turn; actions are usable only when completed."""
+
+    def __init__(self, status, actions=(), response_id=None):
+        if status not in {'completed', 'incomplete', 'unknown'}:
+            raise ValueError('Unsupported provider turn status')
+        self.status = status
+        self.actions = list(actions)
+        self.response_id = response_id
+
+    @classmethod
+    def completed(cls, actions, response_id=None):
+        return cls('completed', actions, response_id)
+
+    @classmethod
+    def incomplete(cls, response_id=None):
+        return cls('incomplete', (), response_id)
+
+
 class MinimalIterativeRecovery:
     def __init__(self, assignment, conversation, dispatch, event_sink=None):
         self.assignment = assignment
@@ -20,6 +39,7 @@ class MinimalIterativeRecovery:
         self.committed = False
         self.verification = 'UNKNOWN'
         self.recovery_id = uuid4().hex
+        self.action_ledger = {}
 
     def emit(self, kind, response=None, **fields):
         event = {'schema': 'alva.integration-recovery.v1', 'sequence': len(self.events) + 1,
@@ -49,6 +69,64 @@ class MinimalIterativeRecovery:
             self.emit('mutation', response, ok=response['ok'])
         return response
 
+    def normalize_turn(self, returned):
+        """Normalize a completed host response without interpreting its content.
+
+        Adapters must pass ReturnedTurn after verifying provider completion.
+        """
+        if isinstance(returned, ReturnedTurn):
+            turn = returned
+        else:
+            return ReturnedTurn('unknown')
+        if turn.status != 'completed':
+            return turn
+        normalized = []
+        for action in turn.actions:
+            if not isinstance(action, dict):
+                return ReturnedTurn('unknown', response_id=turn.response_id)
+            action_id = action.get('action_id')
+            tool = action.get('tool')
+            arguments = action.get('arguments')
+            if (not isinstance(action_id, str) or not action_id or
+                    not isinstance(tool, str) or not isinstance(arguments, dict)):
+                return ReturnedTurn('unknown', response_id=turn.response_id)
+            normalized.append((action_id, tool, arguments))
+        return ReturnedTurn.completed(normalized, turn.response_id)
+
+    @staticmethod
+    def action_gate(action_admission, tool, arguments):
+        if action_admission is None:
+            return None
+        decision = action_admission(tool, deepcopy(arguments))
+        if decision is True or decision is None:
+            return None
+        if decision is False:
+            return 'HOST_ACTION_GATE'
+        return str(decision)
+
+    def deliver(self, action_id, tool, arguments):
+        """Dispatch once; an ambiguous outcome is recorded and never retried."""
+        prior = self.action_ledger.get(action_id)
+        if prior is not None:
+            self.emit('action_duplicate_suppressed', action_id=action_id,
+                      prior_state=prior['state'])
+            return prior.get('response'), True
+        self.action_ledger[action_id] = {'state': 'DISPATCHING', 'tool': tool}
+        self.emit('action_delivery_started', action_id=action_id, tool=tool)
+        try:
+            response = self.call(tool, arguments)
+        except Exception as error:
+            self.action_ledger[action_id] = {'state': 'UNKNOWN', 'tool': tool,
+                                             'error_type': type(error).__name__}
+            self.emit('action_outcome_unknown', action_id=action_id, tool=tool,
+                      error_type=type(error).__name__)
+            return None, False
+        self.action_ledger[action_id] = {'state': 'COMPLETED', 'tool': tool,
+                                         'response': deepcopy(response)}
+        self.emit('action_delivered', response, action_id=action_id, tool=tool,
+                  ok=response.get('ok'))
+        return response, False
+
     @staticmethod
     def conflict(response):
         return not response['ok'] and response.get('error_code') == 'E_AEP_CONFLICT'
@@ -71,26 +149,43 @@ class MinimalIterativeRecovery:
         # Return current authoritative facts into the SAME conversation.
         return self.call('inspect_project', {})['ok']
 
-    def run(self, rejected, project, next_turn, budget_available, verify=None):
+    def run(self, rejected, project, next_turn, budget_available, verify=None,
+            action_admission=None):
         """Continue read/act feedback until commit+host verification or a stop.
 
-        next_turn(assignment, conversation) returns [(tool, arguments), ...].
-        An empty turn means the host/agent stopped, not that the task passed.
-        budget_available is checked before every turn and operation. There is
-        no one-response recovery cap and no compiler-PASS completion shortcut.
+        next_turn returns ReturnedTurn after validating the response envelope.
+        A completed empty turn means the host/agent stopped, not task success.
+        budget_available is request admission: it is checked before requesting
+        each next turn, never used to discard actions from a completed turn.
+        action_admission is the host's independent tool/wall/cancel/safety gate.
+        There is no one-response recovery cap or compiler-PASS shortcut.
         """
         if not budget_available():
             return 'UNKNOWN'
         if not self.restart(rejected, project):
             return 'BLOCKED'
-        while budget_available():
-            actions = next_turn(self.assignment, deepcopy(self.conversation))
-            if not actions:
+        while True:
+            if not budget_available():
                 return 'UNKNOWN'
-            for tool, arguments in actions:
-                if not budget_available():
+            returned = self.normalize_turn(next_turn(
+                self.assignment, deepcopy(self.conversation)))
+            if returned.status != 'completed':
+                self.emit('response_not_completed', status=returned.status,
+                          response_id=returned.response_id)
+                return 'UNKNOWN'
+            if not returned.actions:
+                return 'UNKNOWN'
+            for action_id, tool, arguments in returned.actions:
+                gate = self.action_gate(action_admission, tool, arguments)
+                if gate:
+                    self.emit('action_withheld', action_id=action_id, tool=tool,
+                              reason=gate)
                     return 'UNKNOWN'
-                response = self.call(tool, arguments)
+                response, duplicate = self.deliver(action_id, tool, arguments)
+                if response is None:
+                    return 'UNKNOWN'
+                if duplicate:
+                    continue
                 if self.conflict(response):
                     if not self.restart(response, project):
                         return 'BLOCKED'
@@ -107,4 +202,3 @@ class MinimalIterativeRecovery:
                         self.verification = status
                         self.emit('final_verification', status=status)
                     return self.verification
-        return 'UNKNOWN'

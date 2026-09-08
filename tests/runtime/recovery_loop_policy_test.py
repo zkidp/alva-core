@@ -5,9 +5,13 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'integrations/skills/alva/scripts'))
-from recovery_loop import MinimalIterativeRecovery
+from recovery_loop import MinimalIterativeRecovery, ReturnedTurn
 
 STALE = {'ok': False, 'error_code': 'E_AEP_CONFLICT'}
+
+
+def action(action_id, tool):
+    return {'action_id': action_id, 'tool': tool, 'arguments': {}}
 
 
 class PolicyTests(unittest.TestCase):
@@ -49,8 +53,10 @@ class PolicyTests(unittest.TestCase):
                     return STALE
             return {'ok': True, 'result': {}}
         flow, calls = self.make(dispatch)
-        turns = iter([[('commit_transaction', {}), ('MUST_NOT_EXECUTE', {})],
-                      [('inspect_project', {})], [('commit_transaction', {})]])
+        turns = iter([ReturnedTurn.completed([action('commit-1', 'commit_transaction'),
+                                              action('tail', 'MUST_NOT_EXECUTE')]),
+                      ReturnedTurn.completed([action('inspect', 'inspect_project')]),
+                      ReturnedTurn.completed([action('commit-2', 'commit_transaction')])])
         self.assertEqual(flow.run(STALE, 'project', lambda *_: next(turns), lambda: True, lambda: 'PASSED'), 'PASSED')
         self.assertNotIn('MUST_NOT_EXECUTE', calls)
         self.assertEqual(calls.count('begin_transaction'), 2)
@@ -60,13 +66,15 @@ class PolicyTests(unittest.TestCase):
 
     def test_verifier_failure_not_success(self):
         flow, _ = self.make()
-        self.assertEqual(flow.run(STALE, 'project', lambda *_: [('commit_transaction', {})], lambda: True, lambda: 'FAILED'), 'FAILED')
+        self.assertEqual(flow.run(STALE, 'project', lambda *_: ReturnedTurn.completed(
+            [action('commit', 'commit_transaction')]), lambda: True, lambda: 'FAILED'), 'FAILED')
         self.assertTrue(flow.committed)
 
     def test_untyped_verifier_result_is_unknown(self):
         for status in (True, {'ok': True}, None):
             flow, _ = self.make()
-            self.assertEqual(flow.run(STALE, 'project', lambda *_: [('commit_transaction', {})], lambda: True, lambda: status), 'UNKNOWN')
+            self.assertEqual(flow.run(STALE, 'project', lambda *_: ReturnedTurn.completed(
+                [action('commit', 'commit_transaction')]), lambda: True, lambda: status), 'UNKNOWN')
 
 
 if __name__ == '__main__':

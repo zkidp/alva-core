@@ -56,6 +56,35 @@ rejection and fresh transaction; never relabel native evidence. The helper
 emits these host events, distinct inspection/mutation/check/commit phases and
 explicit host-verifier status. Sink failures must not change program behavior.
 
+### Post-response action delivery
+
+Treat admission for the next model/provider request separately from admission
+for actions already contained in a completed response. Once an authorized
+request returns a response whose completion is confirmed, execute its legal
+actions in order even if recording that response exhausts the request/token
+budget. Then stop before another model request. Do not zero, roll back or
+otherwise rewrite the actual usage ledger to accomplish this.
+
+New adapters should return `ReturnedTurn.completed(...)` from `next_turn`, with
+stable provider/tool-call IDs as `action_id`. Return `ReturnedTurn.incomplete()`
+for incomplete responses; unknown values fail closed. Bare action lists are not
+accepted because they do not prove response completion. Incomplete or ambiguous
+responses never contribute actions.
+
+Pass an independent `action_admission(tool, arguments)` callback for tool-count,
+wall-clock, cancellation and additional host-safety gates. Provider request and
+token limits do not belong in that callback. The normal dispatcher must still
+enforce the operation allowlist, argument validation, authority, stale,
+transaction and verifier boundaries. A new conflict stops the remaining old
+response tail and follows the existing abort/begin/re-inspect lifecycle. A
+successful commit stops all later actions and remains UNKNOWN without an
+independent verifier.
+
+The helper records each stable action ID before dispatch. Duplicate IDs are
+suppressed. If dispatch raises after execution may have occurred, the ledger
+records UNKNOWN and the helper stops; it never blindly retries the action. The
+host does not synthesize a commit or any other action the model did not return.
+
 `operation_succeeded`, `state_committed`, public checks and final task
 verification remain separate. One-sided intention satisfaction does not measure
 storage partial writes. Source projection remains an explicit materialization

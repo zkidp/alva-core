@@ -45,6 +45,11 @@ layout, or applying a large text patch to `.alva` files.
     tests. An ALVA transaction commit is not a Git commit; inspect repository
     changes and create a Git commit only when the user requested one.
 
+Host adapters must drain legal actions from a confirmed completed response
+before applying request/token admission to the next model turn. Read
+[references/recovery.md](references/recovery.md) for the separate action gates,
+conflict-tail stop, idempotency ledger and fail-closed incomplete-response rule.
+
 ## Default stale recovery: keep the read/act loop alive
 
 Preserve the original assignment and conversation. Abort private staging, begin

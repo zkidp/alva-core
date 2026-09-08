@@ -13,7 +13,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'integrations/skills/alva/scripts'))
-from recovery_loop import MinimalIterativeRecovery
+from recovery_loop import MinimalIterativeRecovery, ReturnedTurn
 from intent_preserving_recovery_test import Agent
 
 
@@ -101,20 +101,24 @@ def scenario(binary, root, mode, use_mcp=False, verifier_available=True):
             if turns == 1:
                 assert conversation[-1]['tool'] == 'inspect_project'
                 assert flow.verification == 'UNKNOWN' and not flow.committed
-                return [('inspect_body', {'function': 'demo.app.run_current'})]
+                return ReturnedTurn.completed([{'action_id': 'inspect-body', 'tool': 'inspect_body',
+                    'arguments': {'function': 'demo.app.run_current'}}])
             if turns == 2:
                 assert conversation[-1]['tool'] == 'inspect_body'
                 assert not flow.committed and flow.verification == 'UNKNOWN'
                 body = conversation[-1]['response']['result']['body']
                 entity = re.search(r'literal value=a rev=([0-9a-f]{64})', body).group(1)
-                return [('change_field', {'entity': entity, 'field': 'value', 'value': 'retained label'})]
+                return ReturnedTurn.completed([{'action_id': 'change-label', 'tool': 'change_field',
+                    'arguments': {'entity': entity, 'field': 'value', 'value': 'retained label'}}])
             if turns == 3:
                 assert flow.verification == 'UNKNOWN'
-                return [('check_transaction', {})]
+                return ReturnedTurn.completed([{'action_id': 'check', 'tool': 'check_transaction',
+                    'arguments': {}}])
             assert turns == 4
             assert conversation[-1]['response']['ok']
             assert not flow.committed and flow.verification == 'UNKNOWN'
-            return [('commit_transaction', {})]
+            return ReturnedTurn.completed([{'action_id': 'commit', 'tool': 'commit_transaction',
+                'arguments': {}}])
         def verify():
             observer = Agent(binary, None, 'verifier')
             try:
