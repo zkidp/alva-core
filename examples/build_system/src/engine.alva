@@ -47,6 +47,7 @@
                 (let deps (call build.model.deps_from_string (ref text))
                   (let p
                     (record build.model.Package
+                      (config_hash (string ""))
                       (name (ref name))
                       (source_hash (string ""))
                       (deps (ref deps))
@@ -56,7 +57,7 @@
                       (dep_outputs (map (prim string) (prim string))))
                     (call append (ref out) (ref p)))))))))))
 
-  ;; 用 state/ 里的记录覆盖 manifest 条目（持久化：prev/output/dep_outputs）
+  ;; Merge cache metadata only; current manifest retains name/dependency authority.
   (fn merge_state
     (params
       (param root (prim string))
@@ -82,9 +83,18 @@
                       (acc rebuilt (vec build.model.Package) (vec build.model.Package))
                       (let p (call get (ref out) (ref j))
                         (if (== (field (ref p) "name") (ref name))
-                          (call append (ref rebuilt) (ref loaded))
+                          (call append (ref rebuilt)
+                            (record build.model.Package
+                              (name (field (ref p) "name"))
+                              (deps (field (ref p) "deps"))
+                              (source_hash (field (ref loaded) "source_hash"))
+                              (state (field (ref loaded) "state"))
+                              (output_hash (field (ref loaded) "output_hash"))
+                              (prev_source_hash (field (ref loaded) "prev_source_hash"))
+                              (config_hash (field (ref loaded) "config_hash"))
+                              (dep_outputs (field (ref loaded) "dep_outputs"))))
                           (call append (ref rebuilt) (ref p)))))
-                    (call append (ref out) (ref loaded)))))))))))
+                    (ref out))))))))))
 
   ;; source hash = sha256(src/<name> 内容)
   (fn read_source_hash
@@ -114,11 +124,13 @@
           (field (call unwrap (ref found)) "output_hash")
           (string "")))))
 
-  ;; output_hash = sha256(source 内容 + "|" + 排序后的 "dep:output" 列表)
+  ;; Two fixed-width SHA256 inputs, then sorted dep:output entries.
+  ;; Configuration therefore changes the output identity seen by dependents.
   (fn compute_output
     (params
       (param root (prim string))
       (param p build.model.Package)
+      (param config_hash (prim string))
       (param all (vec build.model.Package)))
     (returns (result (prim string) (prim string)))
     (eff io)
@@ -139,8 +151,9 @@
                       (call concat (call dep_output_of (ref all) (ref d))
                         (string ";")))))))
             (ok (call build.fs.sha256_hex
-                  (call to-bytes (call concat (ref src)
-                    (call concat (string "|") (ref joined)))))))))))
+                  (call to-bytes
+                    (call concat (call build.fs.sha256_hex (call to-bytes (ref src)))
+                      (call concat (ref config_hash) (ref joined)))))))))))
 
   ;; staged 写 out/<name>：temp + fsync -> FAILPOINT -> rename -> fsync_dir
   (fn stage_output
@@ -168,6 +181,7 @@
             (catch e (raise (ref e))))
           (try (call build.fs.fsync_dir (call build.store.out_dir (ref root)))
             (catch e (raise (ref e))))
+          (call build.fs.failpoint (string "wf-build-after-promote"))
           (ok (nil))))))
 
   ;; build 一个 package：读 source -> 判定 needs -> BUILT（staged+promote）或 CACHED
@@ -182,15 +196,22 @@
       (let source_hash
         (try (call read_source_hash (ref root) (field (ref p) "name"))
           (catch e (raise (ref e))))
-        (if (call build.model.needs_build (ref p) (ref source_hash) (ref all))
+        (let config_hash
+          (try (call build.store.read_config_hash (ref root) (field (ref p) "name"))
+            (catch e (raise (ref e))))
+        (let output_valid
+          (try (call build.store.output_matches (ref root) (ref p)) (catch e (raise (ref e))))
+        (if (or (not (ref output_valid))
+                (call build.model.needs_build (ref p) (ref source_hash) (ref config_hash) (ref all)))
           (let output
-            (try (call compute_output (ref root) (ref p) (ref all))
+            (try (call compute_output (ref root) (ref p) (ref config_hash) (ref all))
               (catch e (raise (ref e))))
             (block
               (try (call stage_output (ref root) (ref p) (ref output))
                 (catch e (raise (ref e))))
               (let updated
                 (record build.model.Package
+                  (config_hash (ref config_hash))
                   (name (field (ref p) "name"))
                   (source_hash (field (ref p) "source_hash"))
                   (deps (field (ref p) "deps"))
@@ -201,6 +222,7 @@
                 (ok (ref updated)))))
           (let cached
             (record build.model.Package
+              (config_hash (field (ref p) "config_hash"))
               (name (field (ref p) "name"))
               (source_hash (field (ref p) "source_hash"))
               (deps (field (ref p) "deps"))
@@ -208,7 +230,7 @@
               (output_hash (field (ref p) "output_hash"))
               (prev_source_hash (field (ref p) "prev_source_hash"))
               (dep_outputs (field (ref p) "dep_outputs")))
-            (ok (ref cached)))))))
+            (ok (ref cached)))))))))
 
   ;; 记录 dep_outputs（build/cache 后更新为当前 deps 的 output_hash）
   (fn record_dep_outputs
@@ -225,6 +247,7 @@
             (let d (call get (ref deps) (ref i))
               (call set (ref out) (ref d) (call dep_output_of (ref all) (ref d)))))
           (record build.model.Package
+            (config_hash (field (ref p) "config_hash"))
             (name (field (ref p) "name"))
             (source_hash (field (ref p) "source_hash"))
             (deps (field (ref p) "deps"))

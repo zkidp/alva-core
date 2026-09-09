@@ -6,7 +6,32 @@
   (cap io unsafe-ffi)
   (export manifest_dir state_dir out_dir tmp_dir
           ensure_dirs atomic_write save_package load_package
-          list_package_names)
+          list_package_names read_config_hash output_matches)
+
+  (fn output_matches
+    (params (param root (prim string)) (param p build.model.Package))
+    (returns (result (prim bool) (prim string)))
+    (eff io)
+    (body
+      (let path (call concat (call out_dir (ref root))
+                   (call concat (string "/") (field (ref p) "name")))
+        (if (call build.fs.exists (ref path))
+          (let actual (try (call build.fs.read_string (ref path)) (catch e (raise (ref e))))
+            (ok (== (ref actual) (field (ref p) "output_hash"))))
+          (ok (bool false))))))
+
+  ;; Missing config means exact UTF-8 bytes "default". Read failures propagate.
+  (fn read_config_hash
+    (params (param root (prim string)) (param name (prim string)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (let path (call concat (ref root) (call concat (string "/config/") (ref name)))
+        (let text
+          (if (call build.fs.exists (ref path))
+            (try (call build.fs.read_string (ref path)) (catch e (raise (ref e))))
+            (string "default"))
+          (ok (call build.fs.sha256_hex (call to-bytes (ref text))))))))
 
   (fn manifest_dir
     (params (param root (prim string)))
@@ -71,6 +96,8 @@
           (try (call build.fs.fsync_file (ref tmp))
             (catch e (raise (ref e))))
           (try (call build.fs.rename (ref tmp) (ref path))
+            (catch e (raise (ref e))))
+          (try (call build.fs.fsync_dir (call state_dir (ref root)))
             (catch e (raise (ref e))))
           (ok (nil))))))
 

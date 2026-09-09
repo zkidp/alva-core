@@ -14,7 +14,7 @@ build farms.
   `output_hash`, `prev_source_hash`, `dep_outputs`)
 - dependency DAG (`core -> util/api -> app`), cycle rejection before build
 - deterministic topological build order
-- content-based cache: source hash unchanged + dependency outputs unchanged
+- config-aware cache: source hash, config hash and dependency outputs unchanged
   -> CACHE HIT
 - incremental invalidation: change B -> A cached, B/C/D rebuilt, unrelated
   nodes untouched
@@ -54,3 +54,27 @@ python tests/build_cases.py --exe <out>/buildsys/target/debug/buildsys.exe
 
 The graph-scenario tests write manifests and sources under `ALVA_BUILD_ROOT`,
 then drive scenario runs and assert the build report.
+
+## Per-package configuration (WF-01)
+
+Write UTF-8 configuration to `ALVA_BUILD_ROOT/config/<package>`; an absent file
+means `default` (without newline). Exact bytes matter: an empty file, whitespace,
+and line endings are distinct configurations. This input is an opaque build
+configuration dimension, not a new compiler-flags interpreter.
+
+Configuration participates in cache and output identity, so affected reverse
+dependencies rebuild while unrelated nodes remain cached. State format 2 saves
+the successful configuration identity. Legacy/unknown-format state is rebuilt
+once, never reused as a compatible cache hit. Missing or mismatching output
+also forces rebuilding. The build assumes inputs are not concurrently edited.
+
+Run the additional external behavior tests:
+
+```bash
+python tests/config_cases.py --exe <buildsys> [--legacy-exe <pre-WF-01-buildsys>]
+```
+
+These cover exact/default configuration, reverse dependencies, restarts, legacy
+migration, read errors, and crashes both before output promotion and after
+promotion but before metadata publication. See `WF-01.md` for the pre-edit
+contract and impact map. B1–B11 and their original acceptance file are unchanged.

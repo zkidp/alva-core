@@ -23,6 +23,7 @@
       (field state BuildState)
       (field output_hash (prim string))
       (field prev_source_hash (prim string))
+      (field config_hash (prim string))
       (field dep_outputs (map (prim string) (prim string)))))
 
   ;; ---- 状态标签 ----
@@ -115,7 +116,9 @@
     (pure)
     (body
       (call concat
-        (call concat (string "name=") (field (ref p) "name"))
+        (call concat (string "format=2\n")
+          (call concat (call concat (string "config_hash=") (field (ref p) "config_hash"))
+            (call concat (string "\nname=") (field (ref p) "name"))))
         (call concat (string "\n")
           (call concat (call concat (string "source_hash=") (field (ref p) "source_hash"))
             (call concat (string "\n")
@@ -164,6 +167,10 @@
                 (state (call state_from_label (call extract_field (ref parts) (string "state=") (string "PENDING"))))
                 (output_hash (call extract_field (ref parts) (string "output_hash=") (string "")))
                 (prev_source_hash (call extract_field (ref parts) (string "prev_source_hash=") (string "")))
+                (config_hash
+                  (if (== (call extract_field (ref parts) (string "format=") (string "")) (string "2"))
+                    (call extract_field (ref parts) (string "config_hash=") (string ""))
+                    (string "")))
                 (dep_outputs (call dep_outputs_from_string (call extract_field (ref parts) (string "dep_outputs=") (string "")))))))))))
 
   ;; ---- 图（M3 独立实现，不复用 workflow）----
@@ -337,17 +344,22 @@
                       (bool true))
                     (bool true))))))))))
 
-  ;; 是否需要 build：source 变了（engine 传入当前 hash）或依赖输出变了
+  ;; Cache requires successful state plus equal source/config and dependency set/outputs.
   (fn needs_build
     (params
       (param p Package)
       (param current_source_hash (prim string))
+      (param current_config_hash (prim string))
       (param pkgs (vec Package)))
     (returns (prim bool))
     (pure)
     (body
-      (or (not (== (ref current_source_hash) (field (ref p) "prev_source_hash")))
-          (call dep_output_changed (ref p) (ref pkgs)))))
+      (or (not (or (== (call state_label (field (ref p) "state")) (string "BUILT"))
+                    (== (call state_label (field (ref p) "state")) (string "CACHED"))))
+      (or (not (== (ref current_config_hash) (field (ref p) "config_hash")))
+        (or (not (== (ref current_source_hash) (field (ref p) "prev_source_hash")))
+          (or (not (== (call len (field (ref p) "deps")) (call len (call keys (field (ref p) "dep_outputs")))))
+            (call dep_output_changed (ref p) (ref pkgs))))))))
 
   ;; 报告行："name CACHED|BUILT|FAILED|PENDING"
   (fn report_line
@@ -362,6 +374,7 @@
   (test topo_single
     (body
       (let p (record Package
+               (config_hash (string ""))
                (name (string "p")) (source_hash (string "")) (deps (vec (prim string)))
                (state (variant BuildState pending)) (output_hash (string ""))
                (prev_source_hash (string "")) (dep_outputs (map (prim string) (prim string))))
@@ -371,10 +384,12 @@
   (test topo_chain
     (body
       (let a (record Package
+               (config_hash (string ""))
                (name (string "a")) (source_hash (string "")) (deps (vec (prim string)))
                (state (variant BuildState pending)) (output_hash (string ""))
                (prev_source_hash (string "")) (dep_outputs (map (prim string) (prim string))))
         (let b (record Package
+                 (config_hash (string ""))
                  (name (string "b")) (source_hash (string "")) (deps (vec (prim string) (string "a")))
                  (state (variant BuildState pending)) (output_hash (string ""))
                  (prev_source_hash (string "")) (dep_outputs (map (prim string) (prim string))))
