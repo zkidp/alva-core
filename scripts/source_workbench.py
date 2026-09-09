@@ -222,7 +222,8 @@ class Workbench:
         after = resource.getrusage(resource.RUSAGE_CHILDREN)
         encoded = json.dumps(result, ensure_ascii=False).encode()
         if len(encoded) > 16384:
-            result = {"truncated": True, "full_result_utf8_bytes": len(encoded),
+            status_fields = {k: result[k] for k in ("returncode", "ok", "error_code") if isinstance(result, dict) and k in result}
+            result = {**status_fields, "truncated": True, "full_result_utf8_bytes": len(encoded),
                       "full_result_sha256": hashlib.sha256(encoded).hexdigest(),
                       "preview": encoded[:12000].decode(errors="replace"),
                       "instruction": "Narrow the read/search/view; omitted content is not supplied."}
