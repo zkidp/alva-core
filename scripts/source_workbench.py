@@ -20,7 +20,9 @@ import tomllib
 COMMON = {
     "environment": {},
     "revision": {},
-    "read": {"revision": "sha256", "path": "relative path", "start_line": "1-based integer", "line_count": "1..100"},
+    "read": {"revision": "sha256", "path": "relative path",
+             "start_line": "optional 1-based integer within the file; use 1 for an empty file",
+             "line_count": "optional integer from 1 through 100 inclusive"},
     "search": {"revision": "sha256", "text": "literal substring"},
     "edit": {"revision": "sha256", "path": "relative .alva/alva.toml",
              "old": "exact unique substring; empty only for new file", "new": "replacement"},
@@ -32,10 +34,32 @@ VIEWS = {"inspect_project": set(), "inspect_module": {"name"},
          "inspect_function": {"name"}, "inspect_body": {"function"},
          "resolve_entity": {"name", "kind", "module"}}
 IGNORED = {".git", "out", "target", "__pycache__"}
+READ_LINE_COUNT_MIN = 1
+READ_LINE_COUNT_MAX = 100
+
+
+def common_parameters(tool):
+    """Return the model-visible JSON schema used by both workflow arms."""
+    args = COMMON[tool]
+    properties = {}
+    for name, description in args.items():
+        spec = {"type": "integer" if name in ("start_line", "line_count") else "string",
+                "description": description}
+        if name == "start_line":
+            spec["minimum"] = 1
+        elif name == "line_count":
+            spec.update({"minimum": READ_LINE_COUNT_MIN, "maximum": READ_LINE_COUNT_MAX})
+        properties[name] = spec
+    return {"type": "object", "properties": properties,
+            "required": [name for name in properties if name not in ("start_line", "line_count")],
+            "additionalProperties": False}
 
 
 class Rejected(Exception):
-    pass
+    def __init__(self, code, **details):
+        super().__init__(code)
+        self.code = code
+        self.details = details
 
 
 class Workbench:
@@ -130,7 +154,8 @@ class Workbench:
             if hashlib.sha256(Path(self.binary).read_bytes()).hexdigest() != self.binary_hash:
                 raise Rejected("COMPILER_BINARY_CHANGED")
             if tool == "tools":
-                result = dict(COMMON)
+                result = {name: {"arguments": args, "parameters": common_parameters(name)}
+                          for name, args in COMMON.items()}
                 if self.arm == "T+V":
                     result["observe"] = {"revision": "sha256", "view": list(VIEWS), "args": "object"}
                 return self.response(True, result, start, cpu, child, category, revision)
@@ -153,11 +178,29 @@ class Workbench:
                 result = {"files": sorted(files)}
             elif tool == "read":
                 start_line, line_count = request.get("start_line", 1), request.get("line_count", 100)
-                if type(start_line) is not int or type(line_count) is not int or start_line < 1 or not 1 <= line_count <= 100:
-                    raise Rejected("INVALID_READ_RANGE")
                 lines = files[request["path"]].decode().splitlines(keepends=True)
-                result = {"text": "".join(lines[start_line - 1:start_line - 1 + line_count]),
-                          "start_line": start_line, "total_lines": len(lines)}
+                maximum_start = max(1, len(lines))
+                invalid = {}
+                if type(start_line) is not int or not 1 <= start_line <= maximum_start:
+                    invalid["start_line"] = start_line
+                if type(line_count) is not int or not READ_LINE_COUNT_MIN <= line_count <= READ_LINE_COUNT_MAX:
+                    invalid["line_count"] = line_count
+                if invalid:
+                    raise Rejected("INVALID_READ_RANGE", invalid_arguments=invalid,
+                                   legal_range={"start_line": {"type": "integer", "minimum": 1,
+                                                                "maximum": maximum_start},
+                                                "line_count": {"type": "integer", "minimum": READ_LINE_COUNT_MIN,
+                                                               "maximum": READ_LINE_COUNT_MAX}},
+                                   total_lines=len(lines))
+                selected = lines[start_line - 1:start_line - 1 + line_count]
+                end_line = start_line + len(selected) - 1 if selected else None
+                eof = not selected or end_line == len(lines)
+                result = {"text": "".join(selected),
+                          "requested_range": {"start_line": start_line, "line_count": line_count},
+                          "actual_range": {"start_line": start_line if selected else None,
+                                           "end_line": end_line, "line_count": len(selected)},
+                          "total_lines": len(lines), "eof": eof,
+                          "next_start_line": None if eof else end_line + 1}
             elif tool == "search":
                 result = [{"path": p, "line": i, "text": line}
                           for p, data in sorted(files.items())
@@ -215,14 +258,17 @@ class Workbench:
                 raise Rejected("SOURCE_CHANGED_DURING_OPERATION")
             return self.response(True, result, start, cpu, child, category, revision)
         except (Rejected, KeyError, ValueError, TypeError, OSError, subprocess.TimeoutExpired) as e:
-            return self.response(False, {"error": str(e)}, start, cpu, child, category, revision)
+            result = {"error": e.code, **e.details} if isinstance(e, Rejected) else {"error": str(e)}
+            return self.response(False, result, start, cpu, child, category, revision)
 
     @staticmethod
     def response(ok, result, start, cpu, child, category, revision):
         after = resource.getrusage(resource.RUSAGE_CHILDREN)
         encoded = json.dumps(result, ensure_ascii=False).encode()
         if len(encoded) > 16384:
-            status_fields = {k: result[k] for k in ("returncode", "ok", "error_code") if isinstance(result, dict) and k in result}
+            status_fields = {k: result[k] for k in ("returncode", "ok", "error_code", "requested_range",
+                                                     "actual_range", "total_lines", "eof", "next_start_line")
+                             if isinstance(result, dict) and k in result}
             result = {**status_fields, "truncated": True, "full_result_utf8_bytes": len(encoded),
                       "full_result_sha256": hashlib.sha256(encoded).hexdigest(),
                       "preview": encoded[:12000].decode(errors="replace"),

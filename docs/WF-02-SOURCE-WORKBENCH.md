@@ -41,8 +41,13 @@ closed schemas. Observation allows only inspect_project/module/function/body
 and resolve_entity. No arbitrary AEP passthrough, commit, semantic mutation,
 transactional text editing, recovery context, or ledger is exposed.
 
-Reads are paged (default first 100 lines). Paging was added before comparison
-execution so large source files remain fully accessible to both workflows.
+Reads are paged (default first 100 lines). `start_line` is one-based and must
+identify an existing line (or line 1 for an empty file); `line_count` is 1..100.
+The model-visible schema and host use these same bounds. Invalid requests name
+the rejected argument, the legal range and total line count. Successful pages
+return requested and actual ranges, total lines, EOF and the next start line.
+Oversized envelopes remain explicitly `truncated`, retain their page metadata
+and digest, and never claim omitted content was supplied.
 
 ## Source authority and freshness
 

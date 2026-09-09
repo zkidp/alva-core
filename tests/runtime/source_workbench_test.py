@@ -98,6 +98,62 @@ class HostTest(unittest.TestCase):
         self.assertTrue(r["ok"], r)
         self.assertEqual(self.revision(), rev)
 
+    def test_read_schema_range_errors_and_exact_pagination(self):
+        rev = self.revision()
+        schema = mod.common_parameters("read")
+        self.assertEqual(schema["properties"]["start_line"]["minimum"], 1)
+        self.assertEqual(schema["properties"]["line_count"]["minimum"], 1)
+        self.assertEqual(schema["properties"]["line_count"]["maximum"], 100)
+
+        expected = (self.project / "src/model.alva").read_bytes().decode()
+        total = len(expected.splitlines(keepends=True))
+        chunks = []
+        start = 1
+        while True:
+            page = self.call("read", revision=rev, path="src/model.alva",
+                             start_line=start, line_count=7)
+            self.assertTrue(page["ok"], page)
+            result = page["result"]
+            self.assertEqual(result["requested_range"], {"start_line": start, "line_count": 7})
+            self.assertEqual(result["actual_range"]["start_line"], start)
+            self.assertEqual(result["actual_range"]["line_count"],
+                             result["actual_range"]["end_line"] - start + 1)
+            chunks.append(result["text"])
+            if result["eof"]:
+                self.assertIsNone(result["next_start_line"])
+                break
+            self.assertEqual(result["next_start_line"], result["actual_range"]["end_line"] + 1)
+            start = result["next_start_line"]
+        self.assertEqual("".join(chunks), expected)
+        self.assertEqual(result["total_lines"], total)
+
+        for bad in ({"start_line": 0, "line_count": 10},
+                    {"start_line": 1, "line_count": 101},
+                    {"start_line": "1", "line_count": 10},
+                    {"start_line": total + 1, "line_count": 10}):
+            answer = self.call("read", revision=rev, path="src/model.alva", **bad)
+            self.assertFalse(answer["ok"], answer)
+            error = answer["result"]
+            self.assertEqual(error["error"], "INVALID_READ_RANGE")
+            self.assertTrue(error["invalid_arguments"])
+            self.assertEqual(error["legal_range"]["start_line"],
+                             {"type": "integer", "minimum": 1, "maximum": total})
+            self.assertEqual(error["legal_range"]["line_count"],
+                             {"type": "integer", "minimum": 1, "maximum": 100})
+
+    def test_oversized_read_is_explicitly_truncated_with_page_metadata(self):
+        path = self.project / "src/large.alva"
+        path.write_text("".join(f";; {i:03d} " + "x" * 300 + "\n" for i in range(100)))
+        page = self.call("read", revision=self.revision(), path="src/large.alva",
+                         start_line=1, line_count=100)
+        self.assertTrue(page["ok"], page)
+        self.assertTrue(page["result"]["truncated"])
+        self.assertEqual(page["result"]["actual_range"],
+                         {"start_line": 1, "end_line": 100, "line_count": 100})
+        self.assertTrue(page["result"]["eof"])
+        self.assertIsNone(page["result"]["next_start_line"])
+        self.assertIn("omitted content is not supplied", page["result"]["instruction"])
+
     def test_live_jsonl_and_wf01_build_acceptance(self):
         # Real process wire, not merely calling a mock Python method.
         rev = self.revision()
