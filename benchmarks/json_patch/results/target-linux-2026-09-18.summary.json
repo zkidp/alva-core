@@ -1,0 +1,355 @@
+{
+  "all_timed_runs_completed_with_expected_disposition": true,
+  "alva_over_rust_p50_ratio": {
+    "max": 11.317245652802066,
+    "median_across_workloads": 1.8724177810080969,
+    "min": 1.008047319215669
+  },
+  "alva_p50_ms": {
+    "max": 33.87925,
+    "min": 2.093421
+  },
+  "alva_peak_rss_kib": {
+    "max": 12752,
+    "min": 2288
+  },
+  "binaries": {
+    "alva": {
+      "bytes": 752616,
+      "path": "/home/zeke/alva-json-usable.SttzsZ/target/json-patch-component-target/json_patch_component/target/release/json_patch_component",
+      "sha256": "0837f6a1ee99a70368576048b5f7896e3c0ceb495f23699cef4c368e1ee584ee"
+    },
+    "rust_reference": {
+      "bytes": 815352,
+      "path": "/home/zeke/alva-json-usable.SttzsZ/benchmarks/json_patch/rust_reference/target/release/json-patch-reference-cli",
+      "sha256": "a77c3e40eddf7e2d6fa7b47183cff6f6173bbcaf446439cac6b422f2d7a57134"
+    }
+  },
+  "compatibility_cases": [
+    {
+      "direct_performance_eligible": false,
+      "name": "numeric-equivalent-1-vs-1.0",
+      "outcomes": {
+        "alva": {
+          "classification": "success",
+          "cpu_system_ns": 0,
+          "cpu_user_ns": 1473000,
+          "elapsed_ns": 1926120,
+          "returncode": 0,
+          "stderr_bytes": 0,
+          "stdout_bytes": 7,
+          "termination": "exit"
+        },
+        "rust_reference": {
+          "classification": "spec_rejection",
+          "cpu_system_ns": 1341000,
+          "cpu_user_ns": 0,
+          "elapsed_ns": 1677729,
+          "returncode": 1,
+          "stderr_bytes": 78,
+          "stdout_bytes": 0,
+          "termination": "exit"
+        }
+      },
+      "reason": "reference JSON-number equality may use different representation semantics"
+    },
+    {
+      "direct_performance_eligible": false,
+      "name": "numeric-distinct-above-2p53",
+      "outcomes": {
+        "alva": {
+          "classification": "spec_rejection",
+          "cpu_system_ns": 0,
+          "cpu_user_ns": 1264000,
+          "elapsed_ns": 1584985,
+          "returncode": 1,
+          "stderr_bytes": 43,
+          "stdout_bytes": 0,
+          "termination": "exit"
+        },
+        "rust_reference": {
+          "classification": "spec_rejection",
+          "cpu_system_ns": 1312000,
+          "cpu_user_ns": 0,
+          "elapsed_ns": 1622868,
+          "returncode": 1,
+          "stderr_bytes": 78,
+          "stdout_bytes": 0,
+          "termination": "exit"
+        }
+      },
+      "reason": "separate exact-decimal compatibility check"
+    }
+  ],
+  "host": {
+    "machine": "x86_64",
+    "platform": "Linux-5.15.0-186-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12"
+  },
+  "limits": {
+    "address_space_bytes": 536870912,
+    "capture_bytes": 16777216,
+    "wall_seconds": 10.0
+  },
+  "ratio_is_descriptive_not_pooled_speedup": true,
+  "schedule": {
+    "measurements": 30,
+    "order": "alternating per iteration",
+    "warmups": 3
+  },
+  "workload_count": 21,
+  "workloads": [
+    {
+      "alva_over_rust_p50": 1.008047319215669,
+      "alva_p50_ms": 3.460821,
+      "alva_p95_ms": 4.274498,
+      "alva_peak_rss_kib": 2288,
+      "input_bytes": 1024,
+      "name": "pointer-object-1k",
+      "rust_p50_ms": 3.433193,
+      "rust_p95_ms": 4.013528,
+      "rust_peak_rss_kib": 2320,
+      "shape": "pointer/1k"
+    },
+    {
+      "alva_over_rust_p50": 1.096040666793359,
+      "alva_p50_ms": 5.975092,
+      "alva_p95_ms": 6.540364,
+      "alva_peak_rss_kib": 2492,
+      "input_bytes": 32768,
+      "name": "pointer-object-32k",
+      "rust_p50_ms": 5.451524,
+      "rust_p95_ms": 6.015222,
+      "rust_peak_rss_kib": 2272,
+      "shape": "pointer/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.4319418996518405,
+      "alva_p50_ms": 9.911246,
+      "alva_p95_ms": 10.880898,
+      "alva_peak_rss_kib": 4364,
+      "input_bytes": 262144,
+      "name": "pointer-object-256k",
+      "rust_p50_ms": 6.921542,
+      "rust_p95_ms": 7.29474,
+      "rust_peak_rss_kib": 2828,
+      "shape": "pointer/256k"
+    },
+    {
+      "alva_over_rust_p50": 2.0721557426808466,
+      "alva_p50_ms": 8.871452,
+      "alva_p95_ms": 12.66192,
+      "alva_peak_rss_kib": 10692,
+      "input_bytes": 983040,
+      "name": "pointer-object-near1m",
+      "rust_p50_ms": 4.281267,
+      "rust_p95_ms": 6.548423,
+      "rust_peak_rss_kib": 4968,
+      "shape": "pointer/near1m"
+    },
+    {
+      "alva_over_rust_p50": 2.230666749595721,
+      "alva_p50_ms": 10.759398,
+      "alva_p95_ms": 13.380056,
+      "alva_peak_rss_kib": 4008,
+      "input_bytes": 32768,
+      "name": "wide-object-replace-32k",
+      "rust_p50_ms": 4.8234,
+      "rust_p95_ms": 6.248935,
+      "rust_peak_rss_kib": 2672,
+      "shape": "wide-object/32k"
+    },
+    {
+      "alva_over_rust_p50": 2.1145045864509626,
+      "alva_p50_ms": 7.759644,
+      "alva_p95_ms": 11.796265,
+      "alva_peak_rss_kib": 6332,
+      "input_bytes": 262144,
+      "name": "wide-object-replace-256k",
+      "rust_p50_ms": 3.669722,
+      "rust_p95_ms": 5.748726,
+      "rust_peak_rss_kib": 3496,
+      "shape": "wide-object/256k"
+    },
+    {
+      "alva_over_rust_p50": 2.0589664849220495,
+      "alva_p50_ms": 10.255675,
+      "alva_p95_ms": 12.572261,
+      "alva_peak_rss_kib": 3684,
+      "input_bytes": 32768,
+      "name": "array-head-insert-32k",
+      "rust_p50_ms": 4.980982,
+      "rust_p95_ms": 6.452064,
+      "rust_peak_rss_kib": 2476,
+      "shape": "array-head/32k"
+    },
+    {
+      "alva_over_rust_p50": 2.2026773092757486,
+      "alva_p50_ms": 9.529901,
+      "alva_p95_ms": 12.490454,
+      "alva_peak_rss_kib": 3536,
+      "input_bytes": 32768,
+      "name": "array-tail-insert-32k",
+      "rust_p50_ms": 4.326508,
+      "rust_p95_ms": 5.883666,
+      "rust_peak_rss_kib": 2612,
+      "shape": "array-tail/32k"
+    },
+    {
+      "alva_over_rust_p50": 5.740741530372961,
+      "alva_p50_ms": 25.041614,
+      "alva_p95_ms": 27.146814,
+      "alva_peak_rss_kib": 12752,
+      "input_bytes": 262144,
+      "name": "array-head-insert-256k",
+      "rust_p50_ms": 4.362087,
+      "rust_p95_ms": 4.590709,
+      "rust_peak_rss_kib": 4292,
+      "shape": "array-head/256k"
+    },
+    {
+      "alva_over_rust_p50": 5.91605611715317,
+      "alva_p50_ms": 25.51708,
+      "alva_p95_ms": 25.752703,
+      "alva_peak_rss_kib": 12736,
+      "input_bytes": 262144,
+      "name": "array-tail-insert-256k",
+      "rust_p50_ms": 4.313191,
+      "rust_p95_ms": 4.532141,
+      "rust_peak_rss_kib": 4180,
+      "shape": "array-tail/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.2654571556121739,
+      "alva_p50_ms": 7.279355,
+      "alva_p95_ms": 7.867374,
+      "alva_peak_rss_kib": 2816,
+      "input_bytes": 32768,
+      "name": "deep-replace-32k",
+      "rust_p50_ms": 5.752352,
+      "rust_p95_ms": 6.260692,
+      "rust_peak_rss_kib": 2356,
+      "shape": "deep/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.5217995615500934,
+      "alva_p50_ms": 10.955432,
+      "alva_p95_ms": 14.283298,
+      "alva_peak_rss_kib": 5232,
+      "input_bytes": 262144,
+      "name": "deep-replace-256k",
+      "rust_p50_ms": 7.198998,
+      "rust_p95_ms": 9.847543,
+      "rust_peak_rss_kib": 3356,
+      "shape": "deep/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.235861104874712,
+      "alva_p50_ms": 5.05331,
+      "alva_p95_ms": 7.905124,
+      "alva_peak_rss_kib": 2728,
+      "input_bytes": 32768,
+      "name": "copy-subtree-32k",
+      "rust_p50_ms": 4.088898,
+      "rust_p95_ms": 6.11839,
+      "rust_peak_rss_kib": 2416,
+      "shape": "copy/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.8724177810080969,
+      "alva_p50_ms": 12.886011,
+      "alva_p95_ms": 15.100665,
+      "alva_peak_rss_kib": 5292,
+      "input_bytes": 262144,
+      "name": "copy-subtree-256k",
+      "rust_p50_ms": 6.882017,
+      "rust_p95_ms": 9.2263,
+      "rust_peak_rss_kib": 3412,
+      "shape": "copy/256k"
+    },
+    {
+      "alva_over_rust_p50": 4.179880511801516,
+      "alva_p50_ms": 11.336116,
+      "alva_p95_ms": 14.529675,
+      "alva_peak_rss_kib": 3332,
+      "input_bytes": 32768,
+      "name": "recursive-test-32k",
+      "rust_p50_ms": 2.712067,
+      "rust_p95_ms": 4.194663,
+      "rust_peak_rss_kib": 2492,
+      "shape": "recursive-test/32k"
+    },
+    {
+      "alva_over_rust_p50": 3.476664849631702,
+      "alva_p50_ms": 11.716218,
+      "alva_p95_ms": 16.584233,
+      "alva_peak_rss_kib": 5528,
+      "input_bytes": 262144,
+      "name": "recursive-test-256k",
+      "rust_p50_ms": 3.369959,
+      "rust_p95_ms": 5.139126,
+      "rust_peak_rss_kib": 3452,
+      "shape": "recursive-test/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.7866605254521426,
+      "alva_p50_ms": 9.16234,
+      "alva_p95_ms": 11.427362,
+      "alva_peak_rss_kib": 2772,
+      "input_bytes": 32768,
+      "name": "operation-sequence-16-32k",
+      "rust_p50_ms": 5.128193,
+      "rust_p95_ms": 5.979301,
+      "rust_peak_rss_kib": 2368,
+      "shape": "sequence/32k"
+    },
+    {
+      "alva_over_rust_p50": 11.317245652802066,
+      "alva_p50_ms": 33.87925,
+      "alva_p95_ms": 34.911211,
+      "alva_peak_rss_kib": 5772,
+      "input_bytes": 262144,
+      "name": "operation-sequence-64-256k",
+      "rust_p50_ms": 2.993595,
+      "rust_p95_ms": 3.207598,
+      "rust_peak_rss_kib": 3476,
+      "shape": "sequence/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.0807933172597874,
+      "alva_p50_ms": 2.093421,
+      "alva_p95_ms": 2.747687,
+      "alva_peak_rss_kib": 2588,
+      "input_bytes": 32768,
+      "name": "first-operation-failure-32k",
+      "rust_p50_ms": 1.93693,
+      "rust_p95_ms": 2.412805,
+      "rust_peak_rss_kib": 2292,
+      "shape": "failure-first/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.6718723893857494,
+      "alva_p50_ms": 10.036479,
+      "alva_p95_ms": 11.319881,
+      "alva_peak_rss_kib": 2752,
+      "input_bytes": 32768,
+      "name": "late-operation-failure-32k",
+      "rust_p50_ms": 6.003137,
+      "rust_p95_ms": 6.714805,
+      "rust_peak_rss_kib": 2416,
+      "shape": "failure-late/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.2085894465340745,
+      "alva_p50_ms": 4.438384,
+      "alva_p95_ms": 7.29871,
+      "alva_peak_rss_kib": 2592,
+      "input_bytes": 32768,
+      "name": "move-object-32k",
+      "rust_p50_ms": 3.672367,
+      "rust_p95_ms": 6.228355,
+      "rust_peak_rss_kib": 2452,
+      "shape": "move/32k"
+    }
+  ]
+}

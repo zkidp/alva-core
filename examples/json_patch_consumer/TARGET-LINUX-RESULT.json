@@ -1,0 +1,13 @@
+{
+  "actual_alva_binary_cases": 4,
+  "caller_failure_cases": 3,
+  "module_consumer": {
+    "clean_project_check": "PASS",
+    "clean_project_release_build": "PASS",
+    "runtime_output": {"a": 2},
+    "source_binding_repair_commit": "a0738a63a9ce553269338247168c9f2558150b36"
+  },
+  "native_consumer": "PASS",
+  "platform": "Ubuntu 22.04.5 LTS x86_64",
+  "status": "PASS"
+}

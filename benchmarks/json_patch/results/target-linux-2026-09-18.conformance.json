@@ -1,0 +1,18 @@
+{
+  "comparator_regressions": 7,
+  "contract_failure_exit_status": 101,
+  "platform": "linux",
+  "release_overflow_exit_status": 101,
+  "release_reliability_e2e": "PASS",
+  "status": "PASS",
+  "upstream": {
+    "disabled_not_counted_as_pass": 4,
+    "enabled": 108,
+    "expected_rejection": 34,
+    "expected_success": 74
+  },
+  "local": {
+    "expected_rejection": 15,
+    "success": 11
+  }
+}

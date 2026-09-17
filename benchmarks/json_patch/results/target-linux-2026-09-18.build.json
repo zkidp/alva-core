@@ -1,0 +1,24 @@
+{
+  "architecture": "x86_64",
+  "benchmark_commit": "2bd2d4c1082bebf588254fa89af376b50cd48957",
+  "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)",
+  "component_binary": {
+    "bytes": 752616,
+    "sha256": "0837f6a1ee99a70368576048b5f7896e3c0ceb495f23699cef4c368e1ee584ee"
+  },
+  "component_generated_cargo_toml_sha256": "e85fc4616ebf86066dfe4ab11af7497186ece0d3106cdda6000f59755f22ab9d",
+  "core_cargo_lock_sha256": "04327925a4b230b2e64047505a137ef695c6d31a61c75537c82e56d28abedf18",
+  "cpu": "Intel(R) N100",
+  "cpu_count": 4,
+  "host": "authorized Linux backend",
+  "kernel": "Linux 5.15.0-186-generic x86_64",
+  "os": "Ubuntu 22.04.5 LTS",
+  "python": "Python 3.10.12",
+  "reference_binary": {
+    "bytes": 815352,
+    "sha256": "a77c3e40eddf7e2d6fa7b47183cff6f6173bbcaf446439cac6b422f2d7a57134"
+  },
+  "reference_cargo_lock_sha256": "812fcb460b5996bee9c489fd3eeab43221e045c076e58e8c1166fdaf2945615b",
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "stage1_component_commit": "166c41337556be7d3167aeef1a41047ede55bf0c"
+}
