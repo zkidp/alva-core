@@ -30,8 +30,16 @@ def main() -> int:
                 "rust_p50_ms": rust["p50"] / 1_000_000,
                 "rust_p95_ms": rust["p95"] / 1_000_000,
                 "alva_over_rust_p50": case["alva_over_rust_p50"],
-                "alva_peak_rss_kib": case["peak_rss_kib"]["alva"],
-                "rust_peak_rss_kib": case["peak_rss_kib"]["rust_reference"],
+                "alva_peak_rss_kib": (
+                    case["peak_rss_kib"]["alva"].get("value_kib")
+                    if isinstance(case["peak_rss_kib"]["alva"], dict)
+                    else case["peak_rss_kib"]["alva"]
+                ),
+                "rust_peak_rss_kib": (
+                    case["peak_rss_kib"]["rust_reference"].get("value_kib")
+                    if isinstance(case["peak_rss_kib"]["rust_reference"], dict)
+                    else case["peak_rss_kib"]["rust_reference"]
+                ),
             }
         )
     ratios = [row["alva_over_rust_p50"] for row in rows]

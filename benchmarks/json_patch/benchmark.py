@@ -51,67 +51,174 @@ def equal_json(left: Any, right: Any) -> bool:
     return False
 
 
-def child_limits() -> None:
-    resource.setrlimit(resource.RLIMIT_AS, (MEMORY_BYTES, MEMORY_BYTES))
-    resource.setrlimit(resource.RLIMIT_CPU, (math.ceil(TIMEOUT_SECONDS), math.ceil(TIMEOUT_SECONDS) + 1))
+def child_limits(memory_bytes: int, timeout_seconds: float):
+    def apply() -> None:
+        resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
+        cpu_seconds = max(1, math.ceil(timeout_seconds))
+        resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds + 1))
+
+    return apply
 
 
-def run_bounded(executable: Path, payload: bytes) -> dict[str, Any]:
+def run_bounded(
+    command: Path | list[str],
+    payload: bytes,
+    *,
+    timeout_seconds: float = TIMEOUT_SECONDS,
+    memory_bytes: int = MEMORY_BYTES,
+    output_bytes: int = OUTPUT_BYTES,
+    cleanup_seconds: float = 2.0,
+) -> dict[str, Any]:
+    """Run one process group under one wall deadline.
+
+    The deadline starts immediately before Popen. Python cannot interrupt a Popen
+    blocked inside the OS, but stdin delivery, output capture, child execution,
+    and normal reaping all share the remaining deadline after Popen returns.
+    Cleanup after a forced termination has a separate, bounded allowance.
+    """
     before = resource.getrusage(resource.RUSAGE_CHILDREN)
     start = time.perf_counter_ns()
+    deadline = time.monotonic() + timeout_seconds
+    argv = [str(command)] if isinstance(command, Path) else [str(item) for item in command]
     process = subprocess.Popen(
-        [str(executable)],
+        argv,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        preexec_fn=child_limits,
+        preexec_fn=child_limits(memory_bytes, timeout_seconds),
         start_new_session=True,
     )
+    spawn_elapsed_ns = time.perf_counter_ns() - start
     assert process.stdin is not None and process.stdout is not None and process.stderr is not None
+    selector = selectors.DefaultSelector()
+    streams = {process.stdout: bytearray(), process.stderr: bytearray()}
+    totals = {process.stdout: 0, process.stderr: 0}
+    stdin_offset = 0
+    stdin_broken_pipe = False
+    termination = "exit"
+    returncode: int | None = None
+
+    def kill_group() -> None:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+    def close_stdin() -> None:
+        try:
+            selector.unregister(process.stdin)
+        except (KeyError, ValueError):
+            pass
+        if not process.stdin.closed:
+            process.stdin.close()
+
+    def read_ready(stream: Any) -> bool:
+        nonlocal termination
+        try:
+            chunk = os.read(stream.fileno(), 65536)
+        except BlockingIOError:
+            return False
+        if not chunk:
+            try:
+                selector.unregister(stream)
+            except (KeyError, ValueError):
+                pass
+            return False
+        totals[stream] += len(chunk)
+        target = streams[stream]
+        remaining = max(0, output_bytes - len(target))
+        target.extend(chunk[:remaining])
+        if totals[stream] > output_bytes:
+            termination = "output_limit"
+            kill_group()
+            return True
+        return False
+
     try:
-        process.stdin.write(payload)
-        process.stdin.close()
-        selector = selectors.DefaultSelector()
-        streams = {process.stdout: bytearray(), process.stderr: bytearray()}
-        for stream in streams:
+        for stream in (process.stdin, process.stdout, process.stderr):
             os.set_blocking(stream.fileno(), False)
-            selector.register(stream, selectors.EVENT_READ)
-        deadline = time.monotonic() + TIMEOUT_SECONDS
-        termination = "exit"
-        while selector.get_map():
+        if payload:
+            selector.register(process.stdin, selectors.EVENT_WRITE)
+        else:
+            process.stdin.close()
+        selector.register(process.stdout, selectors.EVENT_READ)
+        selector.register(process.stderr, selectors.EVENT_READ)
+
+        while selector.get_map() or process.poll() is None:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 termination = "timeout"
-                os.killpg(process.pid, signal.SIGKILL)
+                kill_group()
                 break
-            for key, _ in selector.select(remaining):
-                chunk = os.read(key.fd, 65536)
-                if not chunk:
-                    selector.unregister(key.fileobj)
-                    continue
-                target = streams[key.fileobj]
-                target.extend(chunk)
-                if len(target) > OUTPUT_BYTES:
-                    termination = "output_limit"
-                    os.killpg(process.pid, signal.SIGKILL)
-                    break
+            events = selector.select(remaining)
+            for key, mask in events:
+                if key.fileobj is process.stdin and mask & selectors.EVENT_WRITE:
+                    try:
+                        sent = os.write(process.stdin.fileno(), payload[stdin_offset : stdin_offset + 65536])
+                        stdin_offset += sent
+                        if stdin_offset == len(payload):
+                            close_stdin()
+                    except (BrokenPipeError, OSError):
+                        stdin_broken_pipe = True
+                        close_stdin()
+                elif key.fileobj in streams and mask & selectors.EVENT_READ:
+                    if read_ready(key.fileobj):
+                        break
             if termination != "exit":
                 break
-        returncode = process.wait(timeout=2)
+            if process.poll() is not None and not selector.get_map():
+                break
+
+        compute_elapsed_ns = time.perf_counter_ns() - start
+        cleanup_deadline = time.monotonic() + cleanup_seconds
+        if termination != "exit":
+            kill_group()
+        close_stdin()
+        while selector.get_map() and time.monotonic() < cleanup_deadline:
+            events = selector.select(max(0.0, cleanup_deadline - time.monotonic()))
+            if not events:
+                break
+            for key, mask in events:
+                if key.fileobj in streams and mask & selectors.EVENT_READ:
+                    read_ready(key.fileobj)
+        try:
+            returncode = process.wait(timeout=max(0.0, cleanup_deadline - time.monotonic()))
+        except subprocess.TimeoutExpired:
+            kill_group()
+            try:
+                returncode = process.wait(timeout=max(0.0, cleanup_deadline - time.monotonic()))
+            except subprocess.TimeoutExpired:
+                returncode = process.poll()
     finally:
         if process.poll() is None:
-            os.killpg(process.pid, signal.SIGKILL)
-            process.wait()
+            kill_group()
+            try:
+                process.wait(timeout=cleanup_seconds)
+            except subprocess.TimeoutExpired:
+                pass
+        selector.close()
+        for stream in (process.stdin, process.stdout, process.stderr):
+            try:
+                stream.close()
+            except OSError:
+                pass
     elapsed = time.perf_counter_ns() - start
     after = resource.getrusage(resource.RUSAGE_CHILDREN)
     stdout = bytes(streams[process.stdout])
     stderr = bytes(streams[process.stderr])
     return {
         "elapsed_ns": elapsed,
+        "compute_elapsed_ns": compute_elapsed_ns,
+        "cleanup_elapsed_ns": elapsed - compute_elapsed_ns,
+        "spawn_elapsed_ns": spawn_elapsed_ns,
         "cpu_user_ns": round((after.ru_utime - before.ru_utime) * 1_000_000_000),
         "cpu_system_ns": round((after.ru_stime - before.ru_stime) * 1_000_000_000),
         "returncode": returncode,
         "termination": termination,
+        "stdin_bytes_sent": stdin_offset,
+        "stdin_broken_pipe": stdin_broken_pipe,
+        "stdout_bytes_read": totals[process.stdout],
+        "stderr_bytes_read": totals[process.stderr],
         "stdout": stdout,
         "stderr": stderr,
     }
@@ -128,7 +235,7 @@ def classify(run: dict[str, Any]) -> str:
     if "panicked at" in stderr:
         return "panic"
     if run["returncode"] < 0:
-        return "signal_or_memory_kill"
+        return "signal_termination"
     if "json.patch" in stderr or "json.pointer" in stderr:
         return "spec_rejection"
     return "other_failure"
@@ -174,26 +281,24 @@ def summarize(samples: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def rss_kib(executable: Path, payload: bytes) -> int | None:
+def rss_kib(executable: Path, payload: bytes) -> dict[str, Any]:
     with tempfile.NamedTemporaryFile() as timing:
-        completed = subprocess.run(
-            ["/usr/bin/time", "-v", "-o", timing.name, str(executable)],
-            input=payload,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=TIMEOUT_SECONDS,
-            check=False,
-            preexec_fn=child_limits,
-        )
+        run = run_bounded(["/usr/bin/time", "-v", "-o", timing.name, str(executable)], payload)
         timing.seek(0)
+        value = None
         for line in timing.read().decode("utf-8", errors="replace").splitlines():
             if "Maximum resident set size (kbytes)" in line:
-                return int(line.rsplit(":", 1)[1].strip())
-    return None
+                value = int(line.rsplit(":", 1)[1].strip())
+                break
+    return {
+        "value_kib": value,
+        "reason": None if value is not None else f"bounded_run_{classify(run)}",
+        "scope": "GNU time reported maximum RSS for measured executable",
+        "run": public_run(run),
+    }
 
 
-def correctness(executable: Path, payload: bytes, record: dict[str, Any], root: Path) -> dict[str, Any]:
-    run = run_bounded(executable, payload)
+def validate_run(run: dict[str, Any], record: dict[str, Any], root: Path) -> None:
     category = classify(run)
     assert category == record["expected_status"], (record["name"], category, run["stderr"])
     if category == "success":
@@ -202,6 +307,11 @@ def correctness(executable: Path, payload: bytes, record: dict[str, Any], root: 
         assert equal_json(actual, expected), record["name"]
     else:
         assert run["stdout"] == b"", record["name"]
+
+
+def correctness(executable: Path, payload: bytes, record: dict[str, Any], root: Path) -> dict[str, Any]:
+    run = run_bounded(executable, payload)
+    validate_run(run, record, root)
     return public_run(run)
 
 
@@ -219,9 +329,16 @@ def main() -> int:
     manifest = json.loads((args.workloads / "manifest.json").read_text(encoding="utf-8"))
     executables = {"alva": args.alva.resolve(), "rust_reference": args.reference.resolve()}
     result: dict[str, Any] = {
-        "schema": 1,
+        "schema": 2,
         "host": {"platform": platform.platform(), "machine": platform.machine(), "python": platform.python_version()},
-        "limits": {"wall_seconds": TIMEOUT_SECONDS, "address_space_bytes": MEMORY_BYTES, "capture_bytes": OUTPUT_BYTES},
+        "limits": {
+            "wall_seconds": TIMEOUT_SECONDS,
+            "cleanup_seconds": 2.0,
+            "address_space_bytes": MEMORY_BYTES,
+            "stdout_capture_bytes": OUTPUT_BYTES,
+            "stderr_capture_bytes": OUTPUT_BYTES,
+            "aggregate_capture_bytes": 2 * OUTPUT_BYTES,
+        },
         "schedule": {"warmups": WARMUPS, "measurements": MEASUREMENTS, "order": "alternating per iteration"},
         "binaries": {
             name: {"path": str(path), "sha256": file_sha256(path), "bytes": path.stat().st_size}
@@ -238,19 +355,19 @@ def main() -> int:
             name: correctness(executable, payload, record, args.workloads)
             for name, executable in executables.items()
         }
-        case["first_invocation"] = {
+        case["pre_warmup_observation"] = {
             name: public_run(run_bounded(executable, payload)) for name, executable in executables.items()
         }
         for iteration in range(WARMUPS):
             order = list(executables.items()) if iteration % 2 == 0 else list(reversed(executables.items()))
             for _, executable in order:
-                assert classify(run_bounded(executable, payload)) == record["expected_status"]
+                validate_run(run_bounded(executable, payload), record, args.workloads)
         samples: dict[str, list[dict[str, Any]]] = {name: [] for name in executables}
         for iteration in range(MEASUREMENTS):
             order = list(executables.items()) if iteration % 2 == 0 else list(reversed(executables.items()))
             for name, executable in order:
                 measured = run_bounded(executable, payload)
-                assert classify(measured) == record["expected_status"]
+                validate_run(measured, record, args.workloads)
                 samples[name].append(public_run(measured))
         case["measurements"] = samples
         case["summary"] = {name: summarize(rows) for name, rows in samples.items()}
