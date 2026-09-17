@@ -1,0 +1,29 @@
+(module
+  (name "consumer.main")
+  (version "0.1.0")
+  (dep "alva.std.io" "0.1.0")
+  (dep "alva.std.json" "0.1.0")
+  (dep "json_patch.patch" "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn required
+    (params (param request (prim json)) (param name (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (try (call alva.std.json.get (ref request) (ref name))
+        (catch e (raise (call concat (string "consumer: missing field: ") (ref name)))))))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let input (try (call alva.std.io.read_stdin) (catch e (raise (ref e))))
+        (let request (try (call alva.std.json.parse (ref input)) (catch e (raise (ref e))))
+          (let document (try (call required (ref request) (string "doc")) (catch e (raise (ref e))))
+            (let patch (try (call required (ref request) (string "patch")) (catch e (raise (ref e))))
+              (let patched (try (call json_patch.patch.apply (ref document) (ref patch)) (catch e (raise (ref e))))
+                (try (call alva.std.io.write_stdout (call alva.std.json.serialize (ref patched)))
+                  (catch e (raise (ref e))))))))))))

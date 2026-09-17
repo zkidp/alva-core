@@ -1,0 +1,12 @@
+[package]
+name = "json-patch-reference-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+json-patch = { version = "=4.2.0", default-features = false }
+serde_json = { version = "=1.0.151", features = ["arbitrary_precision"] }
+
+[profile.release]
+overflow-checks = true
+panic = "unwind"
