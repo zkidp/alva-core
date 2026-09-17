@@ -14,7 +14,7 @@ The successful transformations come from the ALVA executable. Small synthetic ex
 
 ## ALVA module reuse
 
-The current toolchain has no package registry or versioned local-dependency declaration. `prepare_module_consumer.py` therefore verifies the pinned Pointer/Patch source hashes, copies only those two reusable modules into a clean project's `vendor/` directory, writes an explicit `alva.toml`, and leaves the consumer-owned `consumer.main` separate.
+The current toolchain has no package registry or versioned local-dependency declaration. `prepare_module_consumer.py` therefore verifies platform-independent LF-normalized hashes, writes only those two reusable modules into a clean project's `vendor/` directory, writes an explicit `alva.toml`, and leaves the consumer-owned `consumer.main` separate.
 
 ```bash
 python3 examples/json_patch_consumer/prepare_module_consumer.py --output /tmp/alva-module-consumer

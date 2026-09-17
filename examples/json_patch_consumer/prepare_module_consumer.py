@@ -14,13 +14,18 @@ ROOT = Path(__file__).resolve().parents[2]
 LIBRARY = ROOT / "examples" / "json_patch_component" / "src"
 APP = Path(__file__).resolve().parent / "src" / "main.alva"
 PINNED = {
-    "pointer.alva": "5e0232eab5e4b6fbb83a43b4ad5784bce6833d3f8f7e0789f2fe4140c3dfd9f2",
-    "patch.alva": "cffb242f6a32f572094d60f1238c04355d728c55f968f9826d44aef5e60020b4",
+    "pointer.alva": "af7bd0a723be59b01159f07718a964a31d9bf2acd06c21bd8ea09052d4abd852",
+    "patch.alva": "7e265b87aa90ae3a6d6453b440deb7f80b7dcbb8fc8b61d4a453a1f174047038",
 }
 
 
-def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def normalized_source(path: Path) -> bytes:
+    """Bind textual module content independent of Git CRLF materialization."""
+    return path.read_bytes().replace(b"\r\n", b"\n")
+
+
+def sha256(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
 
 
 def main() -> int:
@@ -33,10 +38,11 @@ def main() -> int:
     vendor.mkdir(parents=True)
     source.mkdir()
     for name, expected in PINNED.items():
-        actual = sha256(LIBRARY / name)
+        content = normalized_source(LIBRARY / name)
+        actual = sha256(content)
         if actual != expected:
             raise SystemExit(f"{name} hash changed: {actual} != {expected}")
-        shutil.copy2(LIBRARY / name, vendor / name)
+        (vendor / name).write_bytes(content)
     shutil.copy2(APP, source / "main.alva")
     (args.output / "alva.toml").write_text(
         """[project]\nname = \"json_patch_consumer\"\n\n[modules]\n\"json_patch.pointer\" = \"vendor/json_patch/pointer.alva\"\n\"json_patch.patch\" = \"vendor/json_patch/patch.alva\"\n\"consumer.main\" = \"src/main.alva\"\n""",
