@@ -1,0 +1,36 @@
+;; alva.std.io — minimal bounded process I/O for one-request native components.
+;; Reading and writing are effectful and return Result so callers must handle
+;; OS, size, UTF-8, write, and flush failures explicitly.
+(module
+  (name "alva.std.io")
+  (version "0.1.0")
+  (cap io unsafe-ffi)
+  (export read_stdin write_stdout)
+
+  (extern glue.io_read_stdin_utf8
+    (params (param max_bytes (prim i64)))
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::io_read_stdin_utf8({max_bytes})"))
+
+  (extern glue.io_write_stdout
+    (params (param text (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (unsafe)
+    (rust "glue::io_write_stdout({text})"))
+
+  (fn read_stdin
+    (params)
+    (returns (result (prim string) (prim string)))
+    (eff io)
+    (body
+      (call glue.io_read_stdin_utf8 (int 1048576))))
+
+  (fn write_stdout
+    (params (param text (prim string)))
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call glue.io_write_stdout (ref text)))))

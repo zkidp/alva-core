@@ -1,0 +1,6 @@
+[project]
+name = "json_component"
+
+[modules]
+"json_component.calc" = "src/calc.alva"
+"json_component.main" = "src/main.alva"

@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 /// std 模块本身是普通模块：类型检查走 check_with_external，AIR/manifest/
 /// AEP 全部自然可用；运行时实现通过 glue externs 绑定。
 pub const STD_SOURCES: &[(&str, &str)] = &[
+    ("alva.std.io", include_str!("std_src/io.alva")),
     ("alva.std.json", include_str!("std_src/json.alva")),
     ("alva.std.string", include_str!("std_src/string.alva")),
 ];
@@ -415,6 +416,8 @@ pub fn codegen_project(
     for (c, v) in deps {
         cargo.push_str(&format!("{c} = \"{v}\"\n"));
     }
+    cargo.push_str("\n[profile.release]\n");
+    cargo.push_str("overflow-checks = true\n");
 
     let mut mod_decls = String::new();
     let mut has_main = false;

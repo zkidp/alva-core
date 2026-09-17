@@ -1,0 +1,20 @@
+(module
+  (name "single_file_invariant_failure")
+  (version "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn require_even
+    (params (param value (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (inv (== (mod (ref value) (int 2)) (int 0)))
+    (body (ref value)))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call require_even (int 3))
+      (ok (nil)))))

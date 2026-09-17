@@ -138,6 +138,14 @@ else
   FAILED=1
 fi
 
+# release contracts/overflow + bounded JSON component (real debug/release artifacts)
+if bash "$ROOT/tests/release_json_component/run_test.sh"; then
+  echo "PASS release reliability/json component"
+else
+  echo "FAIL release reliability/json component"
+  FAILED=1
+fi
+
 # contracts: build and run tests
 for f in "$ROOT"/tests/contracts/*.alva; do
   [ -e "$f" ] || continue

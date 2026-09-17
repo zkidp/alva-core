@@ -1,0 +1,20 @@
+(module
+  (name "single_file_pre_failure")
+  (version "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn require_nonnegative
+    (params (param value (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (>= (ref value) (int 0)))
+    (body (ref value)))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call require_nonnegative (int -1))
+      (ok (nil)))))

@@ -126,6 +126,8 @@ fn codegen_inner(
     for (c, v) in &module.rust_deps {
         cargo.push_str(&format!("{c} = \"{v}\"\n"));
     }
+    cargo.push_str("\n[profile.release]\n");
+    cargo.push_str("overflow-checks = true\n");
 
     Generated {
         crate_name,
@@ -198,14 +200,14 @@ fn gen_fn(
 
     for pre in &f.pre {
         s.push_str(&format!(
-            "    debug_assert!({}, \"[{module_name}.{}] precondition violated\");\n",
+            "    assert!({}, \"[{module_name}.{}] precondition violated\");\n",
             gen_expr(pre, &ctx),
             f.name
         ));
     }
     for inv in &f.inv {
         s.push_str(&format!(
-            "    debug_assert!({}, \"[{module_name}.{}] invariant violated\");\n",
+            "    assert!({}, \"[{module_name}.{}] invariant violated\");\n",
             gen_expr(inv, &ctx),
             f.name
         ));
@@ -234,14 +236,14 @@ fn gen_fn(
         // 不变量在函数出口再次检查（result 可见）
         for inv in &f.inv {
             s.push_str(&format!(
-                "    debug_assert!({}, \"[{module_name}.{}] invariant violated at exit\");\n",
+                "    assert!({}, \"[{module_name}.{}] invariant violated at exit\");\n",
                 gen_expr(inv, &pctx),
                 f.name
             ));
         }
         for post in &f.post {
             s.push_str(&format!(
-                "    debug_assert!({}, \"[{module_name}.{}] postcondition violated\");\n",
+                "    assert!({}, \"[{module_name}.{}] postcondition violated\");\n",
                 gen_expr(post, &pctx),
                 f.name
             ));
@@ -716,7 +718,7 @@ fn gen_expr(e: &Expr, ctx: &Ctx) -> String {
             c2.vars.insert(acc_name.clone(), acc_rust.clone());
             let inv_check = match inv {
                 Some(i) => format!(
-                    "debug_assert!({}, \"loop invariant violated\");",
+                    "assert!({}, \"loop invariant violated\");",
                     gen_used(i, &c2)
                 ),
                 None => String::new(),
@@ -1564,6 +1566,44 @@ mod glue {
 
     pub fn json_object(m: std::collections::HashMap<String, serde_json::Value>) -> serde_json::Value {
         serde_json::Value::Object(m.into_iter().collect())
+    }
+
+    // ===== alva.std.io runtime =====
+
+    pub fn io_read_stdin_utf8(max_bytes: i64) -> Result<String, String> {
+        use std::io::Read;
+
+        let max = usize::try_from(max_bytes)
+            .map_err(|_| "io.read-stdin: max_bytes must be non-negative".to_string())?;
+        let limit = max
+            .checked_add(1)
+            .ok_or_else(|| "io.read-stdin: max_bytes is too large".to_string())?;
+        let stdin = std::io::stdin();
+        let mut input = Vec::new();
+        stdin
+            .lock()
+            .take(limit as u64)
+            .read_to_end(&mut input)
+            .map_err(|e| format!("io.read-stdin: {e}"))?;
+        if input.len() > max {
+            return Err(format!(
+                "io.read-stdin: input exceeds {max_bytes} byte limit"
+            ));
+        }
+        String::from_utf8(input).map_err(|_| "io.read-stdin: input is not valid UTF-8".to_string())
+    }
+
+    pub fn io_write_stdout(text: String) -> Result<(), String> {
+        use std::io::Write;
+
+        let stdout = std::io::stdout();
+        let mut output = stdout.lock();
+        output
+            .write_all(text.as_bytes())
+            .map_err(|e| format!("io.write-stdout: {e}"))?;
+        output
+            .flush()
+            .map_err(|e| format!("io.write-stdout flush: {e}"))
     }
 
     // ===== alva.std.string runtime =====

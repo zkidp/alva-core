@@ -1,0 +1,94 @@
+(module
+  (name "json_component.calc")
+  (version "0.1.0")
+  (dep "alva.std.json" "0.1.0")
+  (export calculate)
+
+  (fn required_i64
+    (params
+      (param request (prim json))
+      (param field_name (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (let field_value
+        (try (call alva.std.json.get (ref request) (ref field_name))
+          (catch e (raise (ref e))))
+        (try (call alva.std.json.as_i64 (ref field_value))
+          (catch e (raise (ref e)))))))
+
+  (fn sum_values
+    (params
+      (param values (prim json))
+      (param count (prim i64)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (pre (>= (ref count) (int 0)))
+    (pre (<= (ref count) (int 100000)))
+    (inv (== (call alva.std.json.length (ref values)) (ok (ref count))))
+    (post (== (call alva.std.json.length (ref values)) (ok (ref count))))
+    (body
+      (fold i (range (int 0) (ref count))
+        (acc total (prim i64) (int 0))
+        (+ (ref total)
+           (try (call alva.std.json.as_i64
+                  (try (call alva.std.json.index (ref values) (ref i))
+                    (catch e (raise (ref e)))))
+             (catch e (raise (ref e))))))))
+
+  (fn calculate_sum
+    (params (param request (prim json)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (let values
+        (try (call alva.std.json.get (ref request) (string "values"))
+          (catch e (raise (ref e))))
+        (let count
+          (try (call alva.std.json.length (ref values))
+            (catch e (raise (ref e))))
+          (if (> (ref count) (int 100000))
+            (raise (string "request.values: more than 100000 items"))
+            (call sum_values (ref values) (ref count)))))))
+
+  (fn calculate_binary
+    (params
+      (param request (prim json))
+      (param op (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (let left
+        (try (call required_i64 (ref request) (string "left"))
+          (catch e (raise (ref e))))
+        (let right
+          (try (call required_i64 (ref request) (string "right"))
+            (catch e (raise (ref e))))
+          (if (== (ref op) (string "add"))
+            (+ (ref left) (ref right))
+            (if (== (ref op) (string "subtract"))
+              (- (ref left) (ref right))
+              (if (== (ref op) (string "multiply"))
+                (* (ref left) (ref right))
+                (raise (string "request.op: expected sum, add, subtract, or multiply")))))))))
+
+  (fn calculate
+    (params (param request (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (let op_value
+        (try (call alva.std.json.get (ref request) (string "op"))
+          (catch e (raise (ref e))))
+        (let op
+          (try (call alva.std.json.as_string (ref op_value))
+            (catch e (raise (ref e))))
+          (let answer
+            (if (== (ref op) (string "sum"))
+              (try (call calculate_sum (ref request))
+                (catch e (raise (ref e))))
+              (try (call calculate_binary (ref request) (ref op))
+                (catch e (raise (ref e)))))
+            (call alva.std.json.object
+              (map (prim string) (prim json)
+                ((string "result") (call alva.std.json.from_i64 (ref answer)))))))))))

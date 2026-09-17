@@ -1,0 +1,26 @@
+(module
+  (name "json_component.main")
+  (version "0.1.0")
+  (dep "alva.std.io" "0.1.0")
+  (dep "alva.std.json" "0.1.0")
+  (dep "json_component.calc" "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let input
+        (try (call alva.std.io.read_stdin)
+          (catch e (raise (ref e))))
+        (let request
+          (try (call alva.std.json.parse (ref input))
+            (catch e (raise (ref e))))
+          (let response
+            (try (call json_component.calc.calculate (ref request))
+              (catch e (raise (ref e))))
+            (let output (call alva.std.json.serialize (ref response))
+              (try (call alva.std.io.write_stdout (ref output))
+                (catch e (raise (ref e)))))))))))

@@ -1,0 +1,20 @@
+(module
+  (name "single_file_post_failure")
+  (version "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn must_increase
+    (params (param value (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (post (> (ref result) (ref value)))
+    (body (ref value)))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (call must_increase (int 7))
+      (ok (nil)))))
