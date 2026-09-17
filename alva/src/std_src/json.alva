@@ -9,6 +9,7 @@
   (version "0.1.0")
   (cap unsafe-ffi)
   (export parse serialize pretty get index keys length set
+          array_set array_insert array_remove object_remove number_equal
           is_object is_array is_string is_number is_bool is_null
           as_string as_i64 as_f64 as_bool
           from_string from_i64 from_f64 from_bool from_nil array object)
@@ -75,6 +76,47 @@
     (pure)
     (unsafe)
     (rust "glue::json_set(&{v}, {key}, {val})"))
+
+  (extern glue.json_array_set
+    (params
+      (param v (prim json))
+      (param i (prim i64))
+      (param val (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_array_set(&{v}, {i}, {val})"))
+
+  (extern glue.json_array_insert
+    (params
+      (param v (prim json))
+      (param i (prim i64))
+      (param val (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_array_insert(&{v}, {i}, {val})"))
+
+  (extern glue.json_array_remove
+    (params (param v (prim json)) (param i (prim i64)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_array_remove(&{v}, {i})"))
+
+  (extern glue.json_object_remove
+    (params (param v (prim json)) (param key (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_object_remove(&{v}, {key})"))
+
+  (extern glue.json_number_equal
+    (params (param left (prim json)) (param right (prim json)))
+    (returns (result (prim bool) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::json_number_equal(&{left}, &{right})"))
 
   (extern glue.json_is_object
     (params (param v (prim json)))
@@ -257,6 +299,47 @@
     (pure)
     (body
       (call glue.json_set (ref v) (ref key) (ref val))))
+
+  (fn array_set
+    (params
+      (param v (prim json))
+      (param i (prim i64))
+      (param val (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_array_set (ref v) (ref i) (ref val))))
+
+  (fn array_insert
+    (params
+      (param v (prim json))
+      (param i (prim i64))
+      (param val (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_array_insert (ref v) (ref i) (ref val))))
+
+  (fn array_remove
+    (params (param v (prim json)) (param i (prim i64)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_array_remove (ref v) (ref i))))
+
+  (fn object_remove
+    (params (param v (prim json)) (param key (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (call glue.json_object_remove (ref v) (ref key))))
+
+  (fn number_equal
+    (params (param left (prim json)) (param right (prim json)))
+    (returns (result (prim bool) (prim string)))
+    (pure)
+    (body
+      (call glue.json_number_equal (ref left) (ref right))))
 
   (fn is_object
     (params (param v (prim json)))

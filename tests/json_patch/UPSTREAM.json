@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/json-patch/json-patch-tests.git",
+  "commit": "2a928f9044aad35c74e2788d498bcf2c6b91adea",
+  "license": "Apache-2.0 (as stated in the upstream README)",
+  "files": {
+    "tests.json": {
+      "sha256": "97f86fb1712cc8eb9d2f77953745866cf6f8a015c14292ee76cdfe692fcf8358",
+      "records": 95,
+      "enabled_runnable": 92,
+      "disabled": 3
+    },
+    "spec_tests.json": {
+      "sha256": "02ef7919ef62b91e2da426089df1c6d963d18fd6cc9680a018cf2d6328d8cc7d",
+      "records": 17,
+      "enabled_runnable": 16,
+      "disabled": 1
+    }
+  }
+}

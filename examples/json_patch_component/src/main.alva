@@ -1,0 +1,66 @@
+(module
+  (name "json_patch.main")
+  (version "0.1.0")
+  (dep "alva.std.io" "0.1.0")
+  (dep "alva.std.json" "0.1.0")
+  (dep "json_patch.patch" "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn request_field
+    (params
+      (param request (prim json))
+      (param field_name (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (try (call alva.std.json.get (ref request) (ref field_name))
+        (catch e (raise (call concat (string "json.patch: missing field: ") (ref field_name)))))))
+
+  (fn request_string
+    (params
+      (param request (prim json))
+      (param field_name (prim string)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (let value
+        (try (call request_field (ref request) (ref field_name))
+          (catch e (raise (ref e))))
+        (try (call alva.std.json.as_string (ref value))
+          (catch e (raise (call concat (string "json.patch: field must be a string: ") (ref field_name))))))))
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let input
+        (try (call alva.std.io.read_stdin)
+          (catch e (raise (ref e))))
+        (let request
+          (try (call alva.std.json.parse (ref input))
+            (catch e (raise (call concat (string "json.patch: ") (ref e)))))
+          (let mode
+            (try (call request_string (ref request) (string "mode"))
+              (catch e (raise (ref e))))
+            (let document
+              (try (call request_field (ref request) (string "doc"))
+                (catch e (raise (ref e))))
+              (let computed
+                (if (== (ref mode) (string "pointer"))
+                  (let pointer
+                    (try (call request_string (ref request) (string "pointer"))
+                      (catch e (raise (ref e))))
+                    (try (call json_patch.patch.resolve (ref document) (ref pointer))
+                      (catch e (raise (ref e)))))
+                  (if (== (ref mode) (string "patch"))
+                    (let patch
+                      (try (call request_field (ref request) (string "patch"))
+                        (catch e (raise (ref e))))
+                      (try (call json_patch.patch.apply (ref document) (ref patch))
+                        (catch e (raise (ref e)))))
+                    (raise (string "json.patch: mode must be pointer or patch"))))
+                (let output (call alva.std.json.serialize (ref computed))
+                  (try (call alva.std.io.write_stdout (ref output))
+                    (catch e (raise (ref e)))))))))))))

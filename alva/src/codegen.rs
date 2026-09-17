@@ -121,10 +121,16 @@ fn codegen_inner(
     }
     if !declared.contains("serde_json") {
         // glue 的 json 原语（alva.std.json）依赖 serde_json，对所有生成 crate 提供。
-        cargo.push_str("serde_json = \"1\"\n");
+        cargo.push_str("serde_json = { version = \"1\", features = [\"arbitrary_precision\"] }\n");
     }
     for (c, v) in &module.rust_deps {
-        cargo.push_str(&format!("{c} = \"{v}\"\n"));
+        if c == "serde_json" {
+            cargo.push_str(&format!(
+                "serde_json = {{ version = \"{v}\", features = [\"arbitrary_precision\"] }}\n"
+            ));
+        } else {
+            cargo.push_str(&format!("{c} = \"{v}\"\n"));
+        }
     }
     cargo.push_str("\n[profile.release]\n");
     cargo.push_str("overflow-checks = true\n");
@@ -1566,6 +1572,125 @@ mod glue {
 
     pub fn json_object(m: std::collections::HashMap<String, serde_json::Value>) -> serde_json::Value {
         serde_json::Value::Object(m.into_iter().collect())
+    }
+
+    pub fn json_array_set(
+        v: &serde_json::Value,
+        i: i64,
+        val: serde_json::Value,
+    ) -> Result<serde_json::Value, String> {
+        let a = v
+            .as_array()
+            .ok_or_else(|| "json.array-set: value is not an array".to_string())?;
+        let index = usize::try_from(i)
+            .map_err(|_| format!("json.array-set: invalid index {i}"))?;
+        if index >= a.len() {
+            return Err(format!("json.array-set: index {i} out of range"));
+        }
+        let mut out = a.clone();
+        out[index] = val;
+        Ok(serde_json::Value::Array(out))
+    }
+
+    pub fn json_array_insert(
+        v: &serde_json::Value,
+        i: i64,
+        val: serde_json::Value,
+    ) -> Result<serde_json::Value, String> {
+        let a = v
+            .as_array()
+            .ok_or_else(|| "json.array-insert: value is not an array".to_string())?;
+        let index = usize::try_from(i)
+            .map_err(|_| format!("json.array-insert: invalid index {i}"))?;
+        if index > a.len() {
+            return Err(format!("json.array-insert: index {i} out of range"));
+        }
+        let mut out = a.clone();
+        out.insert(index, val);
+        Ok(serde_json::Value::Array(out))
+    }
+
+    pub fn json_array_remove(
+        v: &serde_json::Value,
+        i: i64,
+    ) -> Result<serde_json::Value, String> {
+        let a = v
+            .as_array()
+            .ok_or_else(|| "json.array-remove: value is not an array".to_string())?;
+        let index = usize::try_from(i)
+            .map_err(|_| format!("json.array-remove: invalid index {i}"))?;
+        if index >= a.len() {
+            return Err(format!("json.array-remove: index {i} out of range"));
+        }
+        let mut out = a.clone();
+        out.remove(index);
+        Ok(serde_json::Value::Array(out))
+    }
+
+    pub fn json_object_remove(
+        v: &serde_json::Value,
+        key: String,
+    ) -> Result<serde_json::Value, String> {
+        let m = v
+            .as_object()
+            .ok_or_else(|| "json.object-remove: value is not an object".to_string())?;
+        if !m.contains_key(&key) {
+            return Err(format!("json.object-remove: no field '{key}'"));
+        }
+        let mut out = m.clone();
+        out.remove(&key);
+        Ok(serde_json::Value::Object(out))
+    }
+
+    fn normalize_json_number(text: &str) -> Result<(bool, String, i64), String> {
+        let (negative, unsigned) = match text.strip_prefix('-') {
+            Some(rest) => (true, rest),
+            None => (false, text),
+        };
+        let (mantissa, exponent_text) = unsigned
+            .split_once(['e', 'E'])
+            .map(|(m, e)| (m, Some(e)))
+            .unwrap_or((unsigned, None));
+        let exponent = match exponent_text {
+            Some(e) => e
+                .parse::<i64>()
+                .map_err(|_| "json.number-equal: exponent is outside supported i64 range".to_string())?,
+            None => 0,
+        };
+        let (whole, fraction) = mantissa.split_once('.').unwrap_or((mantissa, ""));
+        let mut digits = format!("{whole}{fraction}");
+        if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+            return Err("json.number-equal: malformed JSON number".to_string());
+        }
+        let first_nonzero = digits.find(|c| c != '0').unwrap_or(digits.len());
+        digits.drain(..first_nonzero);
+        if digits.is_empty() {
+            return Ok((false, "0".to_string(), 0));
+        }
+        let mut scale = exponent
+            .checked_sub(fraction.len() as i64)
+            .ok_or_else(|| "json.number-equal: exponent scale overflow".to_string())?;
+        while digits.ends_with('0') {
+            digits.pop();
+            scale = scale
+                .checked_add(1)
+                .ok_or_else(|| "json.number-equal: exponent scale overflow".to_string())?;
+        }
+        Ok((negative, digits, scale))
+    }
+
+    pub fn json_number_equal(
+        left: &serde_json::Value,
+        right: &serde_json::Value,
+    ) -> Result<bool, String> {
+        let left = left
+            .as_number()
+            .ok_or_else(|| "json.number-equal: left value is not a number".to_string())?;
+        let right = right
+            .as_number()
+            .ok_or_else(|| "json.number-equal: right value is not a number".to_string())?;
+        Ok(normalize_json_number(&left.to_string())?
+            == normalize_json_number(&right.to_string())?)
     }
 
     // ===== alva.std.io runtime =====

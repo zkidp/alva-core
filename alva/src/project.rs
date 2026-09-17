@@ -414,7 +414,13 @@ pub fn codegen_project(
     deps.entry("serde_json".to_string())
         .or_insert_with(|| "1".to_string());
     for (c, v) in deps {
-        cargo.push_str(&format!("{c} = \"{v}\"\n"));
+        if c == "serde_json" {
+            cargo.push_str(&format!(
+                "serde_json = {{ version = \"{v}\", features = [\"arbitrary_precision\"] }}\n"
+            ));
+        } else {
+            cargo.push_str(&format!("{c} = \"{v}\"\n"));
+        }
     }
     cargo.push_str("\n[profile.release]\n");
     cargo.push_str("overflow-checks = true\n");

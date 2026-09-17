@@ -1,0 +1,106 @@
+(module
+  (name "json_patch.pointer")
+  (version "0.1.0")
+  (dep "alva.std.string" "0.1.0")
+  (export parse parse_index proper_prefix)
+
+  (fn valid_escapes
+    (params (param token (prim string)))
+    (returns (prim bool))
+    (pure)
+    (body
+      (let chars (call alva.std.string.chars (ref token))
+        (fold i (range (int 0) (call len (ref chars)))
+          (acc valid (prim bool) (bool true))
+          (if (not (ref valid))
+            (bool false)
+            (if (== (call get (ref chars) (ref i)) (string "~"))
+              (if (>= (+ (ref i) (int 1)) (call len (ref chars)))
+                (bool false)
+                (let escaped (call get (ref chars) (+ (ref i) (int 1)))
+                  (or (== (ref escaped) (string "0"))
+                      (== (ref escaped) (string "1")))))
+              (bool true)))))))
+
+  (fn decode_token
+    (params (param token (prim string)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (if (call valid_escapes (ref token))
+        (call alva.std.string.replace
+          (call alva.std.string.replace (ref token) (string "~1") (string "/"))
+          (string "~0")
+          (string "~"))
+        (raise (string "json.pointer: invalid '~' escape")))))
+
+  (fn parse
+    (params (param pointer (prim string)))
+    (returns (result (vec (prim string)) (prim string)))
+    (pure)
+    (body
+      (if (== (ref pointer) (string ""))
+        (vec (prim string))
+        (if (not (call alva.std.string.starts_with (ref pointer) (string "/")))
+          (raise (string "json.pointer: non-empty pointer must start with '/'"))
+          (let raw (call split (ref pointer) (string "/"))
+            (fold i (range (int 1) (call len (ref raw)))
+              (acc tokens (vec (prim string)) (vec (prim string)))
+              (call append
+                (ref tokens)
+                (try (call decode_token (call get (ref raw) (ref i)))
+                  (catch e (raise (ref e)))))))))))
+
+  (fn digit
+    (params (param c (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (if (== (ref c) (string "0")) (int 0)
+        (if (== (ref c) (string "1")) (int 1)
+          (if (== (ref c) (string "2")) (int 2)
+            (if (== (ref c) (string "3")) (int 3)
+              (if (== (ref c) (string "4")) (int 4)
+                (if (== (ref c) (string "5")) (int 5)
+                  (if (== (ref c) (string "6")) (int 6)
+                    (if (== (ref c) (string "7")) (int 7)
+                      (if (== (ref c) (string "8")) (int 8)
+                        (if (== (ref c) (string "9")) (int 9)
+                          (raise (string "json.pointer: array index is not a decimal integer"))))))))))))))
+
+  (fn parse_index
+    (params (param token (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (let chars (call alva.std.string.chars (ref token))
+        (if (== (call len (ref chars)) (int 0))
+          (raise (string "json.pointer: empty array index"))
+          (if (and (> (call len (ref chars)) (int 1))
+                   (== (call get (ref chars) (int 0)) (string "0")))
+            (raise (string "json.pointer: array index has a leading zero"))
+            (fold i (range (int 0) (call len (ref chars)))
+              (acc value (prim i64) (int 0))
+              (let d
+                (try (call digit (call get (ref chars) (ref i)))
+                  (catch e (raise (ref e))))
+                (if (or (> (ref value) (int 922337203685477580))
+                        (and (== (ref value) (int 922337203685477580))
+                             (> (ref d) (int 7))))
+                  (raise (string "json.pointer: array index exceeds i64"))
+                  (+ (* (ref value) (int 10)) (ref d))))))))))
+
+  (fn proper_prefix
+    (params
+      (param prefix (vec (prim string)))
+      (param full (vec (prim string))))
+    (returns (prim bool))
+    (pure)
+    (body
+      (if (>= (call len (ref prefix)) (call len (ref full)))
+        (bool false)
+        (fold i (range (int 0) (call len (ref prefix)))
+          (acc same (prim bool) (bool true))
+          (and (ref same)
+               (== (call get (ref prefix) (ref i))
+                   (call get (ref full) (ref i)))))))))

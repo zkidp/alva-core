@@ -1,0 +1,7 @@
+[project]
+name = "json_patch_component"
+
+[modules]
+"json_patch.pointer" = "src/pointer.alva"
+"json_patch.patch" = "src/patch.alva"
+"json_patch.main" = "src/main.alva"

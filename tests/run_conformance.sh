@@ -146,6 +146,14 @@ else
   FAILED=1
 fi
 
+# reusable JSON Pointer/Patch modules + native release CLI
+if bash "$ROOT/tests/json_patch/run_test.sh"; then
+  echo "PASS json pointer/patch component"
+else
+  echo "FAIL json pointer/patch component"
+  FAILED=1
+fi
+
 # contracts: build and run tests
 for f in "$ROOT"/tests/contracts/*.alva; do
   [ -e "$f" ] || continue

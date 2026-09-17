@@ -1,0 +1,329 @@
+(module
+  (name "json_patch.patch")
+  (version "0.1.0")
+  (dep "alva.std.json" "0.1.0")
+  (dep "json_patch.pointer" "0.1.0")
+  (export resolve apply)
+
+  (fn child
+    (params
+      (param container (prim json))
+      (param token (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (call alva.std.json.is_object (ref container))
+        (try (call alva.std.json.get (ref container) (ref token))
+          (catch e (raise (call concat (string "json.patch: ") (ref e)))))
+        (if (call alva.std.json.is_array (ref container))
+          (let index
+            (try (call json_patch.pointer.parse_index (ref token))
+              (catch e (raise (ref e))))
+            (try (call alva.std.json.index (ref container) (ref index))
+              (catch e (raise (call concat (string "json.patch: ") (ref e))))))
+          (raise (string "json.patch: pointer traverses a scalar value"))))))
+
+  (fn resolve_at
+    (params
+      (param current (prim json))
+      (param tokens (vec (prim string)))
+      (param position (prim i64)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (== (ref position) (call len (ref tokens)))
+        (ref current)
+        (let next
+          (try (call child (ref current) (call get (ref tokens) (ref position)))
+            (catch e (raise (ref e))))
+          (try (call resolve_at (ref next) (ref tokens) (+ (ref position) (int 1)))
+            (catch e (raise (ref e))))))))
+
+  (fn resolve
+    (params
+      (param document (prim json))
+      (param pointer (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (let tokens
+        (try (call json_patch.pointer.parse (ref pointer))
+          (catch e (raise (ref e))))
+        (call resolve_at (ref document) (ref tokens) (int 0)))))
+
+  (fn replace_child
+    (params
+      (param container (prim json))
+      (param token (prim string))
+      (param value (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (call alva.std.json.is_object (ref container))
+        (let existing
+          (try (call alva.std.json.get (ref container) (ref token))
+            (catch e (raise (call concat (string "json.patch: ") (ref e)))))
+          (try (call alva.std.json.set (ref container) (ref token) (ref value))
+            (catch e (raise (ref e)))))
+        (if (call alva.std.json.is_array (ref container))
+          (let index
+            (try (call json_patch.pointer.parse_index (ref token))
+              (catch e (raise (ref e))))
+            (try (call alva.std.json.array_set (ref container) (ref index) (ref value))
+              (catch e (raise (call concat (string "json.patch: ") (ref e))))))
+          (raise (string "json.patch: target parent is a scalar value"))))))
+
+  (fn add_child
+    (params
+      (param container (prim json))
+      (param token (prim string))
+      (param value (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (call alva.std.json.is_object (ref container))
+        (try (call alva.std.json.set (ref container) (ref token) (ref value))
+          (catch e (raise (ref e))))
+        (if (call alva.std.json.is_array (ref container))
+          (let index
+            (if (== (ref token) (string "-"))
+              (try (call alva.std.json.length (ref container))
+                (catch e (raise (ref e))))
+              (try (call json_patch.pointer.parse_index (ref token))
+                (catch e (raise (ref e)))))
+            (try (call alva.std.json.array_insert (ref container) (ref index) (ref value))
+              (catch e (raise (call concat (string "json.patch: ") (ref e))))))
+          (raise (string "json.patch: target parent is a scalar value"))))))
+
+  (fn remove_child
+    (params
+      (param container (prim json))
+      (param token (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (call alva.std.json.is_object (ref container))
+        (try (call alva.std.json.object_remove (ref container) (ref token))
+          (catch e (raise (call concat (string "json.patch: ") (ref e)))))
+        (if (call alva.std.json.is_array (ref container))
+          (let index
+            (try (call json_patch.pointer.parse_index (ref token))
+              (catch e (raise (ref e))))
+            (try (call alva.std.json.array_remove (ref container) (ref index))
+              (catch e (raise (call concat (string "json.patch: ") (ref e))))))
+          (raise (string "json.patch: target parent is a scalar value"))))))
+
+  (fn add_at
+    (params
+      (param current (prim json))
+      (param tokens (vec (prim string)))
+      (param position (prim i64))
+      (param value (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (== (ref position) (call len (ref tokens)))
+        (ref value)
+        (let token (call get (ref tokens) (ref position))
+          (if (== (+ (ref position) (int 1)) (call len (ref tokens)))
+            (try (call add_child (ref current) (ref token) (ref value))
+              (catch e (raise (ref e))))
+            (let old_child
+              (try (call child (ref current) (ref token))
+                (catch e (raise (ref e))))
+              (let new_child
+                (try (call add_at (ref old_child) (ref tokens) (+ (ref position) (int 1)) (ref value))
+                  (catch e (raise (ref e))))
+                (try (call replace_child (ref current) (ref token) (ref new_child))
+                  (catch e (raise (ref e)))))))))))
+
+  (fn replace_at
+    (params
+      (param current (prim json))
+      (param tokens (vec (prim string)))
+      (param position (prim i64))
+      (param value (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (== (ref position) (call len (ref tokens)))
+        (ref value)
+        (let token (call get (ref tokens) (ref position))
+          (if (== (+ (ref position) (int 1)) (call len (ref tokens)))
+            (try (call replace_child (ref current) (ref token) (ref value))
+              (catch e (raise (ref e))))
+            (let old_child
+              (try (call child (ref current) (ref token))
+                (catch e (raise (ref e))))
+              (let new_child
+                (try (call replace_at (ref old_child) (ref tokens) (+ (ref position) (int 1)) (ref value))
+                  (catch e (raise (ref e))))
+                (try (call replace_child (ref current) (ref token) (ref new_child))
+                  (catch e (raise (ref e)))))))))))
+
+  (fn remove_at
+    (params
+      (param current (prim json))
+      (param tokens (vec (prim string)))
+      (param position (prim i64)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (== (call len (ref tokens)) (int 0))
+        (raise (string "json.patch: removing the whole document has no JSON result"))
+        (let token (call get (ref tokens) (ref position))
+          (if (== (+ (ref position) (int 1)) (call len (ref tokens)))
+            (try (call remove_child (ref current) (ref token))
+              (catch e (raise (ref e))))
+            (let old_child
+              (try (call child (ref current) (ref token))
+                (catch e (raise (ref e))))
+              (let new_child
+                (try (call remove_at (ref old_child) (ref tokens) (+ (ref position) (int 1)))
+                  (catch e (raise (ref e))))
+                (try (call replace_child (ref current) (ref token) (ref new_child))
+                  (catch e (raise (ref e)))))))))))
+
+  (fn equal
+    (params
+      (param left (prim json))
+      (param right (prim json)))
+    (returns (result (prim bool) (prim string)))
+    (pure)
+    (body
+      (if (and (call alva.std.json.is_null (ref left))
+               (call alva.std.json.is_null (ref right)))
+        (bool true)
+        (if (and (call alva.std.json.is_string (ref left))
+                 (call alva.std.json.is_string (ref right)))
+          (== (try (call alva.std.json.as_string (ref left)) (catch e (raise (ref e))))
+              (try (call alva.std.json.as_string (ref right)) (catch e (raise (ref e)))))
+          (if (and (call alva.std.json.is_bool (ref left))
+                   (call alva.std.json.is_bool (ref right)))
+            (== (try (call alva.std.json.as_bool (ref left)) (catch e (raise (ref e))))
+                (try (call alva.std.json.as_bool (ref right)) (catch e (raise (ref e)))))
+            (if (and (call alva.std.json.is_number (ref left))
+                     (call alva.std.json.is_number (ref right)))
+              (try (call alva.std.json.number_equal (ref left) (ref right))
+                (catch e (raise (ref e))))
+              (if (and (call alva.std.json.is_array (ref left))
+                       (call alva.std.json.is_array (ref right)))
+                (let left_len (try (call alva.std.json.length (ref left)) (catch e (raise (ref e))))
+                  (let right_len (try (call alva.std.json.length (ref right)) (catch e (raise (ref e))))
+                    (if (not (== (ref left_len) (ref right_len)))
+                      (bool false)
+                      (fold i (range (int 0) (ref left_len))
+                        (acc same (prim bool) (bool true))
+                        (if (not (ref same))
+                          (bool false)
+                          (try (call equal
+                                 (try (call alva.std.json.index (ref left) (ref i)) (catch e (raise (ref e))))
+                                 (try (call alva.std.json.index (ref right) (ref i)) (catch e (raise (ref e)))))
+                            (catch e (raise (ref e)))))))))
+                (if (and (call alva.std.json.is_object (ref left))
+                         (call alva.std.json.is_object (ref right)))
+                  (let left_keys (try (call alva.std.json.keys (ref left)) (catch e (raise (ref e))))
+                    (let right_keys (try (call alva.std.json.keys (ref right)) (catch e (raise (ref e))))
+                      (if (not (== (call len (ref left_keys)) (call len (ref right_keys))))
+                        (bool false)
+                        (fold i (range (int 0) (call len (ref left_keys)))
+                          (acc same (prim bool) (bool true))
+                          (if (not (ref same))
+                            (bool false)
+                            (let key (call get (ref left_keys) (ref i))
+                              (let right_value (call alva.std.json.get (ref right) (ref key))
+                                (if (not (call is-ok (ref right_value)))
+                                  (bool false)
+                                  (try (call equal
+                                         (try (call alva.std.json.get (ref left) (ref key)) (catch e (raise (ref e))))
+                                         (call unwrap (ref right_value)))
+                                    (catch e (raise (ref e))))))))))))
+                  (bool false)))))))))
+
+  (fn required_string
+    (params
+      (param operation (prim json))
+      (param field_name (prim string)))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (let value
+        (try (call alva.std.json.get (ref operation) (ref field_name))
+          (catch e (raise (call concat (string "json.patch: missing or invalid field: ") (ref field_name)))))
+        (try (call alva.std.json.as_string (ref value))
+          (catch e (raise (call concat (string "json.patch: field must be a string: ") (ref field_name))))))))
+
+  (fn required_value
+    (params
+      (param operation (prim json))
+      (param field_name (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (try (call alva.std.json.get (ref operation) (ref field_name))
+        (catch e (raise (call concat (string "json.patch: missing field: ") (ref field_name)))))))
+
+  (fn apply_operation
+    (params
+      (param document (prim json))
+      (param operation (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (let op (try (call required_string (ref operation) (string "op")) (catch e (raise (ref e))))
+        (let path (try (call required_string (ref operation) (string "path")) (catch e (raise (ref e))))
+          (let path_tokens (try (call json_patch.pointer.parse (ref path)) (catch e (raise (ref e))))
+            (if (== (ref op) (string "add"))
+              (let value (try (call required_value (ref operation) (string "value")) (catch e (raise (ref e))))
+                (try (call add_at (ref document) (ref path_tokens) (int 0) (ref value))
+                  (catch e (raise (ref e)))))
+              (if (== (ref op) (string "remove"))
+                (try (call remove_at (ref document) (ref path_tokens) (int 0))
+                  (catch e (raise (ref e))))
+                (if (== (ref op) (string "replace"))
+                  (let value (try (call required_value (ref operation) (string "value")) (catch e (raise (ref e))))
+                    (try (call replace_at (ref document) (ref path_tokens) (int 0) (ref value))
+                      (catch e (raise (ref e)))))
+                  (if (== (ref op) (string "copy"))
+                    (let from (try (call required_string (ref operation) (string "from")) (catch e (raise (ref e))))
+                      (let value (try (call resolve (ref document) (ref from)) (catch e (raise (ref e))))
+                        (try (call add_at (ref document) (ref path_tokens) (int 0) (ref value))
+                          (catch e (raise (ref e))))))
+                    (if (== (ref op) (string "move"))
+                      (let from (try (call required_string (ref operation) (string "from")) (catch e (raise (ref e))))
+                        (let from_tokens (try (call json_patch.pointer.parse (ref from)) (catch e (raise (ref e))))
+                          (let value (try (call resolve_at (ref document) (ref from_tokens) (int 0)) (catch e (raise (ref e))))
+                            (if (== (ref from_tokens) (ref path_tokens))
+                              (ref document)
+                              (if (call json_patch.pointer.proper_prefix (ref from_tokens) (ref path_tokens))
+                                (raise (string "json.patch: move destination is inside the source"))
+                                (let removed (try (call remove_at (ref document) (ref from_tokens) (int 0)) (catch e (raise (ref e))))
+                                  (try (call add_at (ref removed) (ref path_tokens) (int 0) (ref value))
+                                    (catch e (raise (ref e))))))))))
+                      (if (== (ref op) (string "test"))
+                        (let expected (try (call required_value (ref operation) (string "value")) (catch e (raise (ref e))))
+                          (let actual (try (call resolve_at (ref document) (ref path_tokens) (int 0)) (catch e (raise (ref e))))
+                            (if (try (call equal (ref actual) (ref expected)) (catch e (raise (ref e))))
+                              (ref document)
+                              (raise (string "json.patch: test operation failed")))))
+                        (raise (string "json.patch: unrecognized operation")))))))))))))
+
+  (fn apply
+    (params
+      (param document (prim json))
+      (param patch (prim json)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (if (call alva.std.json.is_array (ref patch))
+        (let count
+          (try (call alva.std.json.length (ref patch))
+            (catch e (raise (string "json.patch: patch must be an array"))))
+          (fold i (range (int 0) (ref count))
+            (acc current (prim json) (ref document))
+            (let operation
+              (try (call alva.std.json.index (ref patch) (ref i))
+                (catch e (raise (ref e))))
+              (try (call apply_operation (ref current) (ref operation))
+                (catch e (raise (ref e)))))))
+        (raise (string "json.patch: patch must be an array"))))))
