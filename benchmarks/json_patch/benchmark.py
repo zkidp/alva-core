@@ -319,15 +319,27 @@ def file_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def rotated_order(items: list[tuple[str, Path]], iteration: int) -> list[tuple[str, Path]]:
+    offset = iteration % len(items)
+    return items[offset:] + items[:offset]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--workloads", type=Path, required=True)
     parser.add_argument("--alva", type=Path, required=True)
+    parser.add_argument("--alva-baseline", type=Path)
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     manifest = json.loads((args.workloads / "manifest.json").read_text(encoding="utf-8"))
     executables = {"alva": args.alva.resolve(), "rust_reference": args.reference.resolve()}
+    if args.alva_baseline is not None:
+        executables = {
+            "alva_unoptimized": args.alva_baseline.resolve(),
+            "alva": args.alva.resolve(),
+            "rust_reference": args.reference.resolve(),
+        }
     result: dict[str, Any] = {
         "schema": 2,
         "host": {"platform": platform.platform(), "machine": platform.machine(), "python": platform.python_version()},
@@ -339,7 +351,12 @@ def main() -> int:
             "stderr_capture_bytes": OUTPUT_BYTES,
             "aggregate_capture_bytes": 2 * OUTPUT_BYTES,
         },
-        "schedule": {"warmups": WARMUPS, "measurements": MEASUREMENTS, "order": "alternating per iteration"},
+        "schedule": {
+            "warmups": WARMUPS,
+            "measurements": MEASUREMENTS,
+            "order": "cyclic rotation per iteration",
+            "implementations": list(executables),
+        },
         "binaries": {
             name: {"path": str(path), "sha256": file_sha256(path), "bytes": path.stat().st_size}
             for name, path in executables.items()
@@ -359,12 +376,12 @@ def main() -> int:
             name: public_run(run_bounded(executable, payload)) for name, executable in executables.items()
         }
         for iteration in range(WARMUPS):
-            order = list(executables.items()) if iteration % 2 == 0 else list(reversed(executables.items()))
+            order = rotated_order(list(executables.items()), iteration)
             for _, executable in order:
                 validate_run(run_bounded(executable, payload), record, args.workloads)
         samples: dict[str, list[dict[str, Any]]] = {name: [] for name in executables}
         for iteration in range(MEASUREMENTS):
-            order = list(executables.items()) if iteration % 2 == 0 else list(reversed(executables.items()))
+            order = rotated_order(list(executables.items()), iteration)
             for name, executable in order:
                 measured = run_bounded(executable, payload)
                 validate_run(measured, record, args.workloads)
@@ -375,6 +392,9 @@ def main() -> int:
         alva_p50 = case["summary"]["alva"]["elapsed_ns"]["p50"]
         rust_p50 = case["summary"]["rust_reference"]["elapsed_ns"]["p50"]
         case["alva_over_rust_p50"] = alva_p50 / rust_p50
+        if "alva_unoptimized" in case["summary"]:
+            baseline_p50 = case["summary"]["alva_unoptimized"]["elapsed_ns"]["p50"]
+            case["optimized_over_unoptimized_p50"] = alva_p50 / baseline_p50
         result["workloads"].append(case)
         args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 

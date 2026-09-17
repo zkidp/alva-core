@@ -40,6 +40,17 @@ def main() -> int:
                     if isinstance(case["peak_rss_kib"]["rust_reference"], dict)
                     else case["peak_rss_kib"]["rust_reference"]
                 ),
+                "unoptimized_p50_ms": (
+                    case["summary"]["alva_unoptimized"]["elapsed_ns"]["p50"] / 1_000_000
+                    if "alva_unoptimized" in case["summary"] else None
+                ),
+                "optimized_over_unoptimized_p50": case.get("optimized_over_unoptimized_p50"),
+                "unoptimized_peak_rss_kib": (
+                    case["peak_rss_kib"]["alva_unoptimized"].get("value_kib")
+                    if "alva_unoptimized" in case["peak_rss_kib"]
+                    and isinstance(case["peak_rss_kib"]["alva_unoptimized"], dict)
+                    else case["peak_rss_kib"].get("alva_unoptimized")
+                ),
             }
         )
     ratios = [row["alva_over_rust_p50"] for row in rows]
@@ -82,12 +93,16 @@ def main() -> int:
         "",
         f"Across workload-level p50 ratios, ALVA/Rust had descriptive median `{statistics.median(ratios):.2f}x`, range `{min(ratios):.2f}–{max(ratios):.2f}x`. This is not a pooled speedup estimate. ALVA workload p50 ranged `{min(row['alva_p50_ms'] for row in rows):.2f}–{max(row['alva_p50_ms'] for row in rows):.2f} ms`; OS-reported process peak RSS ranged `{min(row['alva_peak_rss_kib'] for row in rows)}–{max(row['alva_peak_rss_kib'] for row in rows)} KiB`.",
         "",
-        "| workload | bytes | ALVA p50 ms | Rust p50 ms | ratio | ALVA/Rust RSS KiB |",
-        "|---|---:|---:|---:|---:|---:|",
+        "| workload | bytes | ALVA p50 ms | unoptimized p50 ms | Rust p50 ms | ALVA/Rust ratio | opt/unopt ratio | RSS opt/unopt/Rust KiB |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in rows:
         lines.append(
-            f"| {row['name']} | {row['input_bytes']} | {row['alva_p50_ms']:.3f} | {row['rust_p50_ms']:.3f} | {row['alva_over_rust_p50']:.2f} | {row['alva_peak_rss_kib']}/{row['rust_peak_rss_kib']} |"
+            f"| {row['name']} | {row['input_bytes']} | {row['alva_p50_ms']:.3f} | "
+            f"{row['unoptimized_p50_ms'] if row['unoptimized_p50_ms'] is not None else 'n/a'} | "
+            f"{row['rust_p50_ms']:.3f} | {row['alva_over_rust_p50']:.2f} | "
+            f"{row['optimized_over_unoptimized_p50'] if row['optimized_over_unoptimized_p50'] is not None else 'n/a'} | "
+            f"{row['alva_peak_rss_kib']}/{row['unoptimized_peak_rss_kib'] or 'n/a'}/{row['rust_peak_rss_kib']} |"
         )
     lines.extend(
         [
