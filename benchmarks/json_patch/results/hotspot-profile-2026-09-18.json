@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "host": {
+    "os": "Ubuntu 22.04.5",
+    "architecture": "x86_64",
+    "cpu": "Intel(R) N100"
+  },
+  "profiling_tools": {
+    "perf_available": false,
+    "perf_event_paranoid": 4,
+    "valgrind_available": false,
+    "strace_available": true,
+    "security_settings_changed": false
+  },
+  "unoptimized_binary_sha256": "0837f6a1ee99a70368576048b5f7896e3c0ceb495f23699cef4c368e1ee584ee",
+  "optimized_binary_sha256": "c02b16dc997c507504390ad633da631ae9f0e9e084da4ad0a761d49b8fe87f00",
+  "generated_sources": {
+    "unoptimized_alva_std_json_sha256": "77b39b004583a0a64f0c32154e5a1a36ee5dd067b7ad0b67f384c547ce0eb072",
+    "unoptimized_json_patch_sha256": "a9e4499ab313abe9e771d2d03c5a56d86206a3b43b07e57061edf811e4e66107",
+    "optimized_alva_std_json_sha256": "afcbbaa9c4822b6a7914ff4587dd033b85cc9b1eb2d11ce1c3006b19dc2899ab",
+    "optimized_json_patch_sha256": "f28bbc5fe120c3693c46f022902a702c59ee6d8bb72b17d99c622c2c8ecc74c4"
+  },
+  "selected_workloads": {
+    "array-head-insert-256k": {
+      "baseline_p50_ms": 24.934291,
+      "optimized_p50_ms": 24.101984,
+      "paired_wall_ratio_median": 0.9656744191,
+      "paired_wall_wins": 27,
+      "paired_cpu_ratio_median": 0.9658190438,
+      "paired_cpu_wins": 27,
+      "pairs": 30,
+      "baseline_rss_kib": 12664,
+      "optimized_rss_kib": 12056
+    },
+    "array-tail-insert-256k": {
+      "baseline_p50_ms": 25.625394,
+      "optimized_p50_ms": 24.815887,
+      "paired_wall_ratio_median": 0.9679265188,
+      "paired_wall_wins": 22,
+      "paired_cpu_ratio_median": 0.9673028992,
+      "paired_cpu_wins": 22,
+      "pairs": 30,
+      "baseline_rss_kib": 12632,
+      "optimized_rss_kib": 11944
+    },
+    "operation-sequence-64-256k": {
+      "baseline_p50_ms": 33.733317,
+      "optimized_p50_ms": 32.167417,
+      "paired_wall_ratio_median": 0.9532572993,
+      "paired_wall_wins": 30,
+      "paired_cpu_ratio_median": 0.9528415695,
+      "paired_cpu_wins": 30,
+      "pairs": 30,
+      "baseline_rss_kib": 5608,
+      "optimized_rss_kib": 5100
+    },
+    "pointer-object-1k": {
+      "baseline_p50_ms": 1.506798,
+      "optimized_p50_ms": 1.505985,
+      "paired_wall_ratio_median": 0.9914364109,
+      "paired_wall_wins": 16,
+      "paired_cpu_ratio_median": 0.9991748613,
+      "paired_cpu_wins": 16,
+      "pairs": 30,
+      "baseline_rss_kib": 2212,
+      "optimized_rss_kib": 2184
+    }
+  },
+  "system_call_profile": {
+    "command": "/usr/bin/strace -c -f <unoptimized-binary> < operation-sequence-64-256k.request.json",
+    "syscalls": 119,
+    "reported_syscall_seconds": 0.000522,
+    "interpretation": "Observed process time was not dominated by blocking system calls; syscall accounting is diagnostic and not part of performance samples."
+  },
+  "direct_code_observation": "Generated mutator externs received an owned serde_json::Value but immediately borrowed it into glue, where the full object/array container was cloned before mutation.",
+  "candidate": "Consume the already-owned JSON container inside five generic mutator glue functions; public ALVA value semantics remain clone-on-call.",
+  "experimental_provider_calls": 0
+}
