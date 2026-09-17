@@ -1,0 +1,386 @@
+{
+  "all_timed_runs_completed_with_expected_disposition": true,
+  "alva_over_rust_p50_ratio": {
+    "max": 11.673072069661732,
+    "median_across_workloads": 1.905082154406582,
+    "min": 1.023926923802025
+  },
+  "alva_p50_ms": {
+    "max": 33.856765,
+    "min": 1.477289
+  },
+  "alva_peak_rss_kib": {
+    "max": 12688,
+    "min": 2292
+  },
+  "binaries": {
+    "alva": {
+      "bytes": 752616,
+      "path": "/home/zeke/alva-json-artifacts/166c413-0837f6a1/json_patch_component",
+      "sha256": "0837f6a1ee99a70368576048b5f7896e3c0ceb495f23699cef4c368e1ee584ee"
+    },
+    "rust_reference": {
+      "bytes": 815352,
+      "path": "/home/zeke/alva-json-usable.SttzsZ/benchmarks/json_patch/rust_reference/target/release/json-patch-reference-cli",
+      "sha256": "a77c3e40eddf7e2d6fa7b47183cff6f6173bbcaf446439cac6b422f2d7a57134"
+    }
+  },
+  "compatibility_cases": [
+    {
+      "direct_performance_eligible": false,
+      "name": "numeric-equivalent-1-vs-1.0",
+      "outcomes": {
+        "alva": {
+          "classification": "success",
+          "cleanup_elapsed_ns": 49659,
+          "compute_elapsed_ns": 1911699,
+          "cpu_system_ns": 1483000,
+          "cpu_user_ns": 0,
+          "elapsed_ns": 1961358,
+          "returncode": 0,
+          "spawn_elapsed_ns": 1461751,
+          "stderr_bytes": 0,
+          "stderr_bytes_read": 0,
+          "stdin_broken_pipe": false,
+          "stdin_bytes_sent": 78,
+          "stdout_bytes": 7,
+          "stdout_bytes_read": 7,
+          "termination": "exit"
+        },
+        "rust_reference": {
+          "classification": "spec_rejection",
+          "cleanup_elapsed_ns": 47289,
+          "compute_elapsed_ns": 1579232,
+          "cpu_system_ns": 0,
+          "cpu_user_ns": 1250000,
+          "elapsed_ns": 1626521,
+          "returncode": 1,
+          "spawn_elapsed_ns": 1120042,
+          "stderr_bytes": 78,
+          "stderr_bytes_read": 78,
+          "stdin_broken_pipe": false,
+          "stdin_bytes_sent": 78,
+          "stdout_bytes": 0,
+          "stdout_bytes_read": 0,
+          "termination": "exit"
+        }
+      },
+      "reason": "reference JSON-number equality may use different representation semantics"
+    },
+    {
+      "direct_performance_eligible": false,
+      "name": "numeric-distinct-above-2p53",
+      "outcomes": {
+        "alva": {
+          "classification": "spec_rejection",
+          "cleanup_elapsed_ns": 44956,
+          "compute_elapsed_ns": 1540526,
+          "cpu_system_ns": 1267000,
+          "cpu_user_ns": 0,
+          "elapsed_ns": 1585482,
+          "returncode": 1,
+          "spawn_elapsed_ns": 1139425,
+          "stderr_bytes": 43,
+          "stderr_bytes_read": 43,
+          "stdin_broken_pipe": false,
+          "stdin_bytes_sent": 110,
+          "stdout_bytes": 0,
+          "stdout_bytes_read": 0,
+          "termination": "exit"
+        },
+        "rust_reference": {
+          "classification": "spec_rejection",
+          "cleanup_elapsed_ns": 45747,
+          "compute_elapsed_ns": 1476025,
+          "cpu_system_ns": 0,
+          "cpu_user_ns": 1204000,
+          "elapsed_ns": 1521772,
+          "returncode": 1,
+          "spawn_elapsed_ns": 1084131,
+          "stderr_bytes": 78,
+          "stderr_bytes_read": 78,
+          "stdin_broken_pipe": false,
+          "stdin_bytes_sent": 110,
+          "stdout_bytes": 0,
+          "stdout_bytes_read": 0,
+          "termination": "exit"
+        }
+      },
+      "reason": "separate exact-decimal compatibility check"
+    }
+  ],
+  "host": {
+    "machine": "x86_64",
+    "platform": "Linux-5.15.0-186-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12"
+  },
+  "limits": {
+    "address_space_bytes": 536870912,
+    "aggregate_capture_bytes": 33554432,
+    "cleanup_seconds": 2.0,
+    "stderr_capture_bytes": 16777216,
+    "stdout_capture_bytes": 16777216,
+    "wall_seconds": 10.0
+  },
+  "ratio_is_descriptive_not_pooled_speedup": true,
+  "schedule": {
+    "measurements": 30,
+    "order": "alternating per iteration",
+    "warmups": 3
+  },
+  "workload_count": 21,
+  "workloads": [
+    {
+      "alva_over_rust_p50": 1.023926923802025,
+      "alva_p50_ms": 1.477289,
+      "alva_p95_ms": 1.567467,
+      "alva_peak_rss_kib": 2292,
+      "input_bytes": 1024,
+      "name": "pointer-object-1k",
+      "rust_p50_ms": 1.442768,
+      "rust_p95_ms": 1.528269,
+      "rust_peak_rss_kib": 2212,
+      "shape": "pointer/1k"
+    },
+    {
+      "alva_over_rust_p50": 1.122205853283256,
+      "alva_p50_ms": 1.680409,
+      "alva_p95_ms": 1.854978,
+      "alva_peak_rss_kib": 2488,
+      "input_bytes": 32768,
+      "name": "pointer-object-32k",
+      "rust_p50_ms": 1.497416,
+      "rust_p95_ms": 1.616046,
+      "rust_peak_rss_kib": 2428,
+      "shape": "pointer/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.478097821948399,
+      "alva_p50_ms": 8.346508,
+      "alva_p95_ms": 10.463108,
+      "alva_peak_rss_kib": 4380,
+      "input_bytes": 262144,
+      "name": "pointer-object-256k",
+      "rust_p50_ms": 5.64679,
+      "rust_p95_ms": 7.176116,
+      "rust_peak_rss_kib": 2732,
+      "shape": "pointer/256k"
+    },
+    {
+      "alva_over_rust_p50": 2.0620651952081195,
+      "alva_p50_ms": 9.7503,
+      "alva_p95_ms": 12.279698,
+      "alva_peak_rss_kib": 10856,
+      "input_bytes": 983040,
+      "name": "pointer-object-near1m",
+      "rust_p50_ms": 4.728415,
+      "rust_p95_ms": 6.646769,
+      "rust_peak_rss_kib": 4964,
+      "shape": "pointer/near1m"
+    },
+    {
+      "alva_over_rust_p50": 2.6551814167651364,
+      "alva_p50_ms": 9.051078,
+      "alva_p95_ms": 12.268007,
+      "alva_peak_rss_kib": 3920,
+      "input_bytes": 32768,
+      "name": "wide-object-replace-32k",
+      "rust_p50_ms": 3.408836,
+      "rust_p95_ms": 6.217184,
+      "rust_peak_rss_kib": 2592,
+      "shape": "wide-object/32k"
+    },
+    {
+      "alva_over_rust_p50": 2.0830303975576734,
+      "alva_p50_ms": 8.52069,
+      "alva_p95_ms": 15.148298,
+      "alva_peak_rss_kib": 6180,
+      "input_bytes": 262144,
+      "name": "wide-object-replace-256k",
+      "rust_p50_ms": 4.090526,
+      "rust_p95_ms": 7.925679,
+      "rust_peak_rss_kib": 3412,
+      "shape": "wide-object/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.905082154406582,
+      "alva_p50_ms": 8.343534,
+      "alva_p95_ms": 11.252288,
+      "alva_peak_rss_kib": 3616,
+      "input_bytes": 32768,
+      "name": "array-head-insert-32k",
+      "rust_p50_ms": 4.379619,
+      "rust_p95_ms": 5.983128,
+      "rust_peak_rss_kib": 2596,
+      "shape": "array-head/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.9134746542805499,
+      "alva_p50_ms": 8.697324,
+      "alva_p95_ms": 12.362354,
+      "alva_peak_rss_kib": 3628,
+      "input_bytes": 32768,
+      "name": "array-tail-insert-32k",
+      "rust_p50_ms": 4.545304,
+      "rust_p95_ms": 6.245323,
+      "rust_peak_rss_kib": 2616,
+      "shape": "array-tail/32k"
+    },
+    {
+      "alva_over_rust_p50": 5.796324460399159,
+      "alva_p50_ms": 24.894831,
+      "alva_p95_ms": 28.75703,
+      "alva_peak_rss_kib": 12576,
+      "input_bytes": 262144,
+      "name": "array-head-insert-256k",
+      "rust_p50_ms": 4.294934,
+      "rust_p95_ms": 4.706665,
+      "rust_peak_rss_kib": 4264,
+      "shape": "array-head/256k"
+    },
+    {
+      "alva_over_rust_p50": 5.961886398250022,
+      "alva_p50_ms": 25.499477,
+      "alva_p95_ms": 28.28528,
+      "alva_peak_rss_kib": 12688,
+      "input_bytes": 262144,
+      "name": "array-tail-insert-256k",
+      "rust_p50_ms": 4.277082,
+      "rust_p95_ms": 4.769197,
+      "rust_peak_rss_kib": 4180,
+      "shape": "array-tail/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.2754007113745651,
+      "alva_p50_ms": 2.094787,
+      "alva_p95_ms": 2.154744,
+      "alva_peak_rss_kib": 2764,
+      "input_bytes": 32768,
+      "name": "deep-replace-32k",
+      "rust_p50_ms": 1.642454,
+      "rust_p95_ms": 1.71577,
+      "rust_peak_rss_kib": 2412,
+      "shape": "deep/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.5341819546570414,
+      "alva_p50_ms": 5.522627,
+      "alva_p95_ms": 7.069945,
+      "alva_peak_rss_kib": 5112,
+      "input_bytes": 262144,
+      "name": "deep-replace-256k",
+      "rust_p50_ms": 3.599721,
+      "rust_p95_ms": 4.452783,
+      "rust_peak_rss_kib": 3232,
+      "shape": "deep/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.2673517635405265,
+      "alva_p50_ms": 2.094442,
+      "alva_p95_ms": 2.143446,
+      "alva_peak_rss_kib": 2732,
+      "input_bytes": 32768,
+      "name": "copy-subtree-32k",
+      "rust_p50_ms": 1.652613,
+      "rust_p95_ms": 1.697808,
+      "rust_peak_rss_kib": 2444,
+      "shape": "copy/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.8481896805993836,
+      "alva_p50_ms": 5.990345,
+      "alva_p95_ms": 7.32599,
+      "alva_peak_rss_kib": 5088,
+      "input_bytes": 262144,
+      "name": "copy-subtree-256k",
+      "rust_p50_ms": 3.241196,
+      "rust_p95_ms": 3.886753,
+      "rust_peak_rss_kib": 3236,
+      "shape": "copy/256k"
+    },
+    {
+      "alva_over_rust_p50": 3.9013828822544645,
+      "alva_p50_ms": 11.186045,
+      "alva_p95_ms": 16.234267,
+      "alva_peak_rss_kib": 3304,
+      "input_bytes": 32768,
+      "name": "recursive-test-32k",
+      "rust_p50_ms": 2.8672,
+      "rust_p95_ms": 4.442577,
+      "rust_peak_rss_kib": 2592,
+      "shape": "recursive-test/32k"
+    },
+    {
+      "alva_over_rust_p50": 2.9778351433353896,
+      "alva_p50_ms": 12.960149,
+      "alva_p95_ms": 16.410477,
+      "alva_peak_rss_kib": 5560,
+      "input_bytes": 262144,
+      "name": "recursive-test-256k",
+      "rust_p50_ms": 4.352205,
+      "rust_p95_ms": 6.753178,
+      "rust_peak_rss_kib": 3492,
+      "shape": "recursive-test/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.975083523112904,
+      "alva_p50_ms": 9.006608,
+      "alva_p95_ms": 11.123459,
+      "alva_peak_rss_kib": 2656,
+      "input_bytes": 32768,
+      "name": "operation-sequence-16-32k",
+      "rust_p50_ms": 4.560115,
+      "rust_p95_ms": 5.784375,
+      "rust_peak_rss_kib": 2352,
+      "shape": "sequence/32k"
+    },
+    {
+      "alva_over_rust_p50": 11.673072069661732,
+      "alva_p50_ms": 33.856765,
+      "alva_p95_ms": 35.0447,
+      "alva_peak_rss_kib": 5788,
+      "input_bytes": 262144,
+      "name": "operation-sequence-64-256k",
+      "rust_p50_ms": 2.900416,
+      "rust_p95_ms": 3.115768,
+      "rust_peak_rss_kib": 3316,
+      "shape": "sequence/256k"
+    },
+    {
+      "alva_over_rust_p50": 1.0770404599597494,
+      "alva_p50_ms": 2.078589,
+      "alva_p95_ms": 2.696348,
+      "alva_peak_rss_kib": 2556,
+      "input_bytes": 32768,
+      "name": "first-operation-failure-32k",
+      "rust_p50_ms": 1.929908,
+      "rust_p95_ms": 2.512257,
+      "rust_peak_rss_kib": 2320,
+      "shape": "failure-first/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.7463027701319116,
+      "alva_p50_ms": 9.05853,
+      "alva_p95_ms": 9.815905,
+      "alva_peak_rss_kib": 2648,
+      "input_bytes": 32768,
+      "name": "late-operation-failure-32k",
+      "rust_p50_ms": 5.187262,
+      "rust_p95_ms": 5.791243,
+      "rust_peak_rss_kib": 2448,
+      "shape": "failure-late/32k"
+    },
+    {
+      "alva_over_rust_p50": 1.1253258411234788,
+      "alva_p50_ms": 2.041511,
+      "alva_p95_ms": 3.190469,
+      "alva_peak_rss_kib": 2504,
+      "input_bytes": 32768,
+      "name": "move-object-32k",
+      "rust_p50_ms": 1.814151,
+      "rust_p95_ms": 2.690146,
+      "rust_peak_rss_kib": 2396,
+      "shape": "move/32k"
+    }
+  ]
+}

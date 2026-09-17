@@ -162,6 +162,35 @@
                  (catch e (call alva.std.json.from_nil))))
           (string "{\"a\":1,\"b\":true}"))))
 
+  ;; Mutators consume only their generated call argument. Reusing the source
+  ;; value must still observe the original, including after a rejected update.
+  (test mutators_preserve_original_and_repeat
+    (body
+      (let original (call parsed (string "[1,2]"))
+        (let inserted
+          (try (call alva.std.json.array_insert
+                 (ref original) (int 1) (call alva.std.json.from_i64 (int 9)))
+               (catch e (call alva.std.json.from_nil)))
+          (and
+            (== (call alva.std.json.serialize (ref original)) (string "[1,2]"))
+            (and
+              (== (call alva.std.json.serialize (ref inserted)) (string "[1,9,2]"))
+              (==
+                (call alva.std.json.serialize
+                  (try (call alva.std.json.array_set
+                         (ref original) (int 0) (call alva.std.json.from_i64 (int 7)))
+                       (catch e (call alva.std.json.from_nil))))
+                (string "[7,2]"))))))))
+
+  (test rejected_mutator_preserves_original
+    (body
+      (let original (call parsed (string "[1,2]"))
+        (let rejected
+          (try (call alva.std.json.array_remove (ref original) (int 7))
+               (catch e (call alva.std.json.from_nil)))
+          (and (call alva.std.json.is_null (ref rejected))
+               (== (call alva.std.json.serialize (ref original)) (string "[1,2]")))))))
+
   (test pretty_contains_newline
     (body
       (call alva.std.json.is_string

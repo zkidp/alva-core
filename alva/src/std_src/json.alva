@@ -75,7 +75,7 @@
     (returns (result (prim json) (prim string)))
     (pure)
     (unsafe)
-    (rust "glue::json_set(&{v}, {key}, {val})"))
+    (rust "glue::json_set({v}, {key}, {val})"))
 
   (extern glue.json_array_set
     (params
@@ -85,7 +85,7 @@
     (returns (result (prim json) (prim string)))
     (pure)
     (unsafe)
-    (rust "glue::json_array_set(&{v}, {i}, {val})"))
+    (rust "glue::json_array_set({v}, {i}, {val})"))
 
   (extern glue.json_array_insert
     (params
@@ -95,21 +95,21 @@
     (returns (result (prim json) (prim string)))
     (pure)
     (unsafe)
-    (rust "glue::json_array_insert(&{v}, {i}, {val})"))
+    (rust "glue::json_array_insert({v}, {i}, {val})"))
 
   (extern glue.json_array_remove
     (params (param v (prim json)) (param i (prim i64)))
     (returns (result (prim json) (prim string)))
     (pure)
     (unsafe)
-    (rust "glue::json_array_remove(&{v}, {i})"))
+    (rust "glue::json_array_remove({v}, {i})"))
 
   (extern glue.json_object_remove
     (params (param v (prim json)) (param key (prim string)))
     (returns (result (prim json) (prim string)))
     (pure)
     (unsafe)
-    (rust "glue::json_object_remove(&{v}, {key})"))
+    (rust "glue::json_object_remove({v}, {key})"))
 
   (extern glue.json_number_equal
     (params (param left (prim json)) (param right (prim json)))

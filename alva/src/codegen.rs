@@ -1485,15 +1485,14 @@ mod glue {
     }
 
     pub fn json_set(
-        v: &serde_json::Value,
+        v: serde_json::Value,
         key: String,
         val: serde_json::Value,
     ) -> Result<serde_json::Value, String> {
         match v {
-            serde_json::Value::Object(m) => {
-                let mut m2 = m.clone();
-                m2.insert(key.clone(), val);
-                Ok(serde_json::Value::Object(m2))
+            serde_json::Value::Object(mut m) => {
+                m.insert(key.clone(), val);
+                Ok(serde_json::Value::Object(m))
             }
             _ => Err(format!("json.set: value is not an object (key '{key}')")),
         }
@@ -1575,71 +1574,71 @@ mod glue {
     }
 
     pub fn json_array_set(
-        v: &serde_json::Value,
+        v: serde_json::Value,
         i: i64,
         val: serde_json::Value,
     ) -> Result<serde_json::Value, String> {
-        let a = v
-            .as_array()
-            .ok_or_else(|| "json.array-set: value is not an array".to_string())?;
+        let mut a = match v {
+            serde_json::Value::Array(a) => a,
+            _ => return Err("json.array-set: value is not an array".to_string()),
+        };
         let index = usize::try_from(i)
             .map_err(|_| format!("json.array-set: invalid index {i}"))?;
         if index >= a.len() {
             return Err(format!("json.array-set: index {i} out of range"));
         }
-        let mut out = a.clone();
-        out[index] = val;
-        Ok(serde_json::Value::Array(out))
+        a[index] = val;
+        Ok(serde_json::Value::Array(a))
     }
 
     pub fn json_array_insert(
-        v: &serde_json::Value,
+        v: serde_json::Value,
         i: i64,
         val: serde_json::Value,
     ) -> Result<serde_json::Value, String> {
-        let a = v
-            .as_array()
-            .ok_or_else(|| "json.array-insert: value is not an array".to_string())?;
+        let mut a = match v {
+            serde_json::Value::Array(a) => a,
+            _ => return Err("json.array-insert: value is not an array".to_string()),
+        };
         let index = usize::try_from(i)
             .map_err(|_| format!("json.array-insert: invalid index {i}"))?;
         if index > a.len() {
             return Err(format!("json.array-insert: index {i} out of range"));
         }
-        let mut out = a.clone();
-        out.insert(index, val);
-        Ok(serde_json::Value::Array(out))
+        a.insert(index, val);
+        Ok(serde_json::Value::Array(a))
     }
 
     pub fn json_array_remove(
-        v: &serde_json::Value,
+        v: serde_json::Value,
         i: i64,
     ) -> Result<serde_json::Value, String> {
-        let a = v
-            .as_array()
-            .ok_or_else(|| "json.array-remove: value is not an array".to_string())?;
+        let mut a = match v {
+            serde_json::Value::Array(a) => a,
+            _ => return Err("json.array-remove: value is not an array".to_string()),
+        };
         let index = usize::try_from(i)
             .map_err(|_| format!("json.array-remove: invalid index {i}"))?;
         if index >= a.len() {
             return Err(format!("json.array-remove: index {i} out of range"));
         }
-        let mut out = a.clone();
-        out.remove(index);
-        Ok(serde_json::Value::Array(out))
+        a.remove(index);
+        Ok(serde_json::Value::Array(a))
     }
 
     pub fn json_object_remove(
-        v: &serde_json::Value,
+        v: serde_json::Value,
         key: String,
     ) -> Result<serde_json::Value, String> {
-        let m = v
-            .as_object()
-            .ok_or_else(|| "json.object-remove: value is not an object".to_string())?;
+        let mut m = match v {
+            serde_json::Value::Object(m) => m,
+            _ => return Err("json.object-remove: value is not an object".to_string()),
+        };
         if !m.contains_key(&key) {
             return Err(format!("json.object-remove: no field '{key}'"));
         }
-        let mut out = m.clone();
-        out.remove(&key);
-        Ok(serde_json::Value::Object(out))
+        m.remove(&key);
+        Ok(serde_json::Value::Object(m))
     }
 
     fn normalize_json_number(text: &str) -> Result<(bool, String, i64), String> {
