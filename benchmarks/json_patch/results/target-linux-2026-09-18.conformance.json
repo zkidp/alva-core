@@ -1,6 +1,15 @@
 {
   "comparator_regressions": 7,
   "contract_failure_exit_status": 101,
+  "core_tests": {
+    "failed": 0,
+    "passed": 28
+  },
+  "driver_boundary_classification": {
+    "output": "external_output_limit",
+    "signal": "signal_or_memory_kill",
+    "timeout": "external_timeout"
+  },
   "platform": "linux",
   "release_overflow_exit_status": 101,
   "release_reliability_e2e": "PASS",

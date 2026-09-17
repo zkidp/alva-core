@@ -14,11 +14,15 @@ The engineering benchmark uses one process per request, Linux x86-64 release bui
 
 Workloads are deterministic engineering constructions spanning approximately 1 KiB, 32 KiB, 256 KiB, and 960 KiB requests. They are not real user traces. Only cases with matching correctness and behavior enter direct ratios; number-semantics compatibility cases are reported separately.
 
+On the authorized Ubuntu 22.04 x86-64 target, all 21 workloads completed with the expected disposition. ALVA p50 latency ranged from 2.09 to 33.88 ms and OS-reported process peak RSS from 2,288 to 12,752 KiB. The workload-level ALVA/Rust p50 ratio had descriptive median 1.87x and range 1.01–11.32x. These results are recorded with raw samples under `benchmarks/json_patch/results/`; they do not define an SLO. No optimization was made because no real latency target exists and the largest relative gap did not make the absolute run exceed 34 ms p50.
+
 ## Integration
 
 The binary consumer requires only the release executable, `call_component.py`, interface documentation, and request files. Callers must reject timeout, nonzero exit, empty/invalid/truncated output, and unexpected response shape. The first version returns transformed JSON and never overwrites the input file.
 
 Reusable ALVA modules currently require explicit hash-bound source vendoring because the toolchain has no package registry/local dependency declaration. The clean consumer example copies only `json_patch.pointer` and `json_patch.patch`, keeps its own application adapter, and builds through normal project tooling.
+
+The first target-Linux module-consumer attempt exposed one real integration defect: hashes based on platform-specific working-tree line endings rejected identical Git content. `CHANGE-001` changed the preparer to bind LF-normalized source bytes. The repaired clean project passed check, release build, and execution. This is an internal integration acceptance, not evidence of an external human user.
 
 ## Licensing and dependencies
 

@@ -55,8 +55,8 @@ fn run() -> Result<(), String> {
         }
         _ => return Err("json.patch.reference: mode must be pointer or patch".to_string()),
     };
-    let encoded = serde_json::to_vec(&output)
-        .map_err(|error| format!("json.patch.reference: {error}"))?;
+    let encoded =
+        serde_json::to_vec(&output).map_err(|error| format!("json.patch.reference: {error}"))?;
     io::stdout()
         .write_all(&encoded)
         .and_then(|_| io::stdout().flush())
