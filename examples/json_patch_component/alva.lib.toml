@@ -1,0 +1,6 @@
+[library]
+name = "json_patch"
+
+[modules]
+"json_patch.pointer" = "src/pointer.alva"
+"json_patch.patch" = "src/patch.alva"

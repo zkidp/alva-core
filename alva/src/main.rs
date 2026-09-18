@@ -257,6 +257,13 @@ fn cmd_project(rest: &[String]) -> i32 {
         .join(air::AIR_STORE_DIR)
         .join("current")
         .exists();
+    if has_authoritative && !proj.dependencies.is_empty() {
+        eprintln!(
+            "error: manifest {} declares local library dependencies, but authoritative AIR projects do not support local libraries in this version",
+            proj.manifest_path.display()
+        );
+        return 1;
+    }
     let check_loaded =
         |proj: &project::Project| -> Result<Vec<project::LoadedModule>, Vec<diag::Diag>> {
             if has_authoritative {
@@ -556,6 +563,12 @@ fn render_json(v: &Json) -> String {
 fn project_to_air(
     project: &project::Project,
 ) -> Result<(air::AirGraph, BTreeMap<String, PathBuf>), String> {
+    if !project.dependencies.is_empty() {
+        return Err(format!(
+            "manifest {} declares local library dependencies; AIR import/edit/write support for local libraries is not available in this version",
+            project.manifest_path.display()
+        ));
+    }
     let modules = project::load_modules(project).map_err(|ds| {
         format!(
             "{} module error(s) while loading project",
@@ -847,6 +860,20 @@ fn cmd_edit(_rest: &[String]) -> i32 {
                         continue;
                     }
                 };
+                if !proj.dependencies.is_empty() {
+                    println!(
+                        "{}",
+                        json_resp(
+                            false,
+                            "null",
+                            &format!(
+                                "manifest {} declares local library dependencies; AIR edit sessions do not support local libraries in this version",
+                                proj.manifest_path.display()
+                            )
+                        )
+                    );
+                    continue;
+                }
                 let project_dir = Path::new(file).parent().unwrap_or(Path::new("."));
                 let has_authoritative = project_dir
                     .join(air::AIR_STORE_DIR)
@@ -1142,6 +1169,8 @@ fn cmd_edit(_rest: &[String]) -> i32 {
                             modules.push(project::LoadedModule {
                                 name: name.clone(),
                                 module: m,
+                                origin: project::ModuleOrigin::StandardLibrary,
+                                source_path: None,
                             });
                         }
                         Err(e) => {
@@ -5043,6 +5072,12 @@ fn begin_agent_session(
         return Err("begin_transaction requires 'project'".to_string());
     }
     let proj = project::load_project(Path::new(file))?;
+    if !proj.dependencies.is_empty() {
+        return Err(format!(
+            "manifest {} declares local library dependencies; AIR agent editing for local libraries is not supported in this version",
+            proj.manifest_path.display()
+        ));
+    }
     let project_dir = Path::new(file).parent().unwrap_or(Path::new("."));
     let has_authoritative = project_dir
         .join(air::AIR_STORE_DIR)

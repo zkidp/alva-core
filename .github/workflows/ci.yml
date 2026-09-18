@@ -41,6 +41,9 @@ jobs:
         working-directory: alva
         run: cargo build
 
+      - name: Local library dependency acceptance
+        run: python tests/local_dependencies/run_tests.py
+
       - name: MCP protocol fixture
         run: |
           binary="alva/target/debug/alva"

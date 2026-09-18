@@ -2,7 +2,8 @@ use crate::ast;
 use crate::check::{self, ExtFn, ExtType};
 use crate::codegen;
 use crate::diag::Diag;
-use std::collections::{HashMap, HashSet};
+use serde::Deserialize;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 /// 编译器托管的 std 模块：源码以 .alva 形式内嵌进二进制，当项目任一模块
@@ -18,77 +19,464 @@ pub const STD_SOURCES: &[(&str, &str)] = &[
 pub struct Project {
     pub name: String,
     pub modules: Vec<(String, PathBuf)>,
+    pub dependencies: Vec<LibraryDependency>,
+    pub manifest_path: PathBuf,
 }
 
-// 极简 alva.toml 解析：
-//   [project]
-//   name = "store"
-//   [modules]
-//   "store.model" = "src/model.alva"
-pub fn load_project(path: &Path) -> Result<Project, String> {
+#[derive(Clone, Debug)]
+pub struct LibraryDependency {
+    pub name: String,
+    pub manifest_path: PathBuf,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ModuleOrigin {
+    Application {
+        manifest_path: PathBuf,
+    },
+    Library {
+        name: String,
+        manifest_path: PathBuf,
+    },
+    StandardLibrary,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ManifestDocument {
+    project: Option<ManifestIdentity>,
+    library: Option<ManifestIdentity>,
+    modules: BTreeMap<String, String>,
+    #[serde(default)]
+    dependencies: BTreeMap<String, String>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ManifestIdentity {
+    name: String,
+}
+
+fn canonical_manifest(path: &Path, context: &str) -> Result<PathBuf, String> {
+    std::fs::canonicalize(path)
+        .map_err(|e| format!("{context}: cannot resolve manifest {}: {e}", path.display()))
+}
+
+fn parse_manifest(path: &Path) -> Result<ManifestDocument, String> {
     let text = std::fs::read_to_string(path)
-        .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
-    let base = path.parent().unwrap_or(Path::new("."));
-    let mut name = String::new();
-    let mut modules = Vec::new();
-    let mut section = String::new();
-    for line in text.lines() {
-        let line = line.trim();
-        if line.is_empty() || line.starts_with('#') {
-            continue;
+        .map_err(|e| format!("manifest {}: cannot read: {e}", path.display()))?;
+    toml::from_str(&text).map_err(|e| format!("manifest {}: invalid TOML: {e}", path.display()))
+}
+
+fn dependency_path(
+    base: &Path,
+    manifest: &Path,
+    name: &str,
+    value: &str,
+) -> Result<PathBuf, String> {
+    let lower = value.to_ascii_lowercase();
+    if value.contains("://")
+        || lower.starts_with("git+")
+        || lower.starts_with("ssh:")
+        || lower.starts_with("file:")
+    {
+        return Err(format!(
+            "manifest {} dependency '{name}': only local filesystem manifest paths are supported, got '{value}'",
+            manifest.display()
+        ));
+    }
+    Ok(base.join(value))
+}
+
+pub fn load_project(path: &Path) -> Result<Project, String> {
+    let manifest_path = canonical_manifest(path, "application")?;
+    let doc = parse_manifest(&manifest_path)?;
+    let identity = match (doc.project, doc.library) {
+        (Some(project), None) => project,
+        (None, Some(_)) => {
+            return Err(format!(
+                "manifest {}: expected application [project], found [library]",
+                manifest_path.display()
+            ))
         }
-        if line.starts_with('[') && line.ends_with(']') {
-            section = line[1..line.len() - 1].trim().to_string();
-            continue;
+        (Some(_), Some(_)) => {
+            return Err(format!(
+                "manifest {}: cannot contain both [project] and [library]",
+                manifest_path.display()
+            ))
         }
-        if let Some((k, v)) = line.split_once('=') {
-            let key = k.trim().trim_matches('"');
-            let val = v.trim().trim_matches('"');
-            match section.as_str() {
-                "project" => {
-                    if key == "name" {
-                        name = val.to_string();
-                    }
+        (None, None) => {
+            return Err(format!(
+                "manifest {}: missing [project] table",
+                manifest_path.display()
+            ))
+        }
+    };
+    if identity.name.trim().is_empty() {
+        return Err(format!(
+            "manifest {}: [project].name must not be empty",
+            manifest_path.display()
+        ));
+    }
+    if doc.modules.is_empty() {
+        return Err(format!(
+            "manifest {}: missing [modules] entries",
+            manifest_path.display()
+        ));
+    }
+    let base = manifest_path.parent().unwrap_or(Path::new("."));
+    let modules = doc
+        .modules
+        .into_iter()
+        .map(|(name, value)| (name, base.join(value)))
+        .collect();
+    let dependencies = doc
+        .dependencies
+        .into_iter()
+        .map(|(name, value)| {
+            dependency_path(base, &manifest_path, &name, &value).map(|manifest_path| {
+                LibraryDependency {
+                    name,
+                    manifest_path,
                 }
-                "modules" => {
-                    modules.push((key.to_string(), base.join(val)));
-                }
-                _ => {}
-            }
-        }
-    }
-    if name.is_empty() {
-        return Err("alva.toml missing [project] name".to_string());
-    }
-    if modules.is_empty() {
-        return Err("alva.toml missing [modules] entries".to_string());
-    }
-    Ok(Project { name, modules })
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(Project {
+        name: identity.name,
+        modules,
+        dependencies,
+        manifest_path,
+    })
 }
 
 pub struct LoadedModule {
     pub name: String,
     pub module: ast::Module,
+    pub origin: ModuleOrigin,
+    pub source_path: Option<PathBuf>,
 }
 
 pub fn load_modules(project: &Project) -> Result<Vec<LoadedModule>, Vec<Diag>> {
     let mut out = Vec::new();
     let mut diags = Vec::new();
     for (name, path) in &project.modules {
-        match load_one(path) {
-            Ok(m) => out.push(LoadedModule {
-                name: name.clone(),
-                module: m,
-            }),
-            Err(d) => diags.extend(d),
+        load_declared_module(
+            name,
+            path,
+            ModuleOrigin::Application {
+                manifest_path: project.manifest_path.clone(),
+            },
+            &project.manifest_path,
+            &mut out,
+            &mut diags,
+        );
+    }
+    if diags.is_empty() {
+        let mut loaded_libraries = HashMap::new();
+        let mut visiting = Vec::new();
+        for dependency in &project.dependencies {
+            load_library(
+                dependency,
+                &mut out,
+                &mut loaded_libraries,
+                &mut visiting,
+                &mut diags,
+                &project.manifest_path,
+            );
         }
     }
     if diags.is_empty() {
+        validate_loaded_modules(project, &out)?;
         inject_std_modules(&mut out)?;
         Ok(out)
     } else {
         Err(diags)
     }
+}
+
+fn load_declared_module(
+    name: &str,
+    path: &Path,
+    origin: ModuleOrigin,
+    manifest_path: &Path,
+    out: &mut Vec<LoadedModule>,
+    diags: &mut Vec<Diag>,
+) {
+    match load_one(path) {
+        Ok(module) => {
+            if module.name != name {
+                diags.push(Diag::error(format!(
+                    "manifest {} module '{}': source {} declares module '{}'",
+                    manifest_path.display(),
+                    name,
+                    path.display(),
+                    module.name
+                )));
+            } else {
+                out.push(LoadedModule {
+                    name: name.to_string(),
+                    module,
+                    origin,
+                    source_path: Some(path.to_path_buf()),
+                });
+            }
+        }
+        Err(ds) => {
+            let prefix = format!(
+                "manifest {} module '{}' source {}",
+                manifest_path.display(),
+                name,
+                path.display()
+            );
+            diags.extend(ds.into_iter().map(|mut d| {
+                d.message = format!("{prefix}: {}", d.message);
+                d
+            }));
+        }
+    }
+}
+
+fn load_library(
+    dependency: &LibraryDependency,
+    out: &mut Vec<LoadedModule>,
+    loaded: &mut HashMap<PathBuf, String>,
+    visiting: &mut Vec<(PathBuf, String)>,
+    diags: &mut Vec<Diag>,
+    declaring_manifest: &Path,
+) {
+    let manifest_path = match canonical_manifest(
+        &dependency.manifest_path,
+        &format!(
+            "manifest {} dependency '{}'",
+            declaring_manifest.display(),
+            dependency.name
+        ),
+    ) {
+        Ok(path) => path,
+        Err(e) => {
+            diags.push(Diag::error(e));
+            return;
+        }
+    };
+    if let Some(pos) = visiting.iter().position(|(path, _)| path == &manifest_path) {
+        let mut chain: Vec<String> = visiting[pos..]
+            .iter()
+            .map(|(path, name)| format!("{name} ({})", path.display()))
+            .collect();
+        chain.push(format!("{} ({})", dependency.name, manifest_path.display()));
+        diags.push(Diag::error(format!(
+            "manifest {} dependency '{}': cyclic library dependency: {}",
+            declaring_manifest.display(),
+            dependency.name,
+            chain.join(" -> ")
+        )));
+        return;
+    }
+    if let Some(loaded_name) = loaded.get(&manifest_path) {
+        if loaded_name != &dependency.name {
+            diags.push(Diag::error(format!(
+                "manifest {} dependency '{}': library manifest {} was already loaded as '{}'",
+                declaring_manifest.display(),
+                dependency.name,
+                manifest_path.display(),
+                loaded_name
+            )));
+        }
+        return;
+    }
+    let doc = match parse_manifest(&manifest_path) {
+        Ok(doc) => doc,
+        Err(e) => {
+            diags.push(Diag::error(format!(
+                "manifest {} dependency '{}': {e}",
+                declaring_manifest.display(),
+                dependency.name
+            )));
+            return;
+        }
+    };
+    let identity = match (doc.project, doc.library) {
+        (None, Some(library)) => library,
+        (Some(_), None) => {
+            diags.push(Diag::error(format!(
+                "manifest {} dependency '{}': {} is an application manifest; expected [library]",
+                declaring_manifest.display(),
+                dependency.name,
+                manifest_path.display()
+            )));
+            return;
+        }
+        (Some(_), Some(_)) => {
+            diags.push(Diag::error(format!(
+                "library manifest {}: cannot contain both [project] and [library]",
+                manifest_path.display()
+            )));
+            return;
+        }
+        (None, None) => {
+            diags.push(Diag::error(format!(
+                "library manifest {}: missing [library] table",
+                manifest_path.display()
+            )));
+            return;
+        }
+    };
+    if identity.name != dependency.name {
+        diags.push(Diag::error(format!(
+            "manifest {} dependency '{}': library manifest {} declares name '{}'",
+            declaring_manifest.display(),
+            dependency.name,
+            manifest_path.display(),
+            identity.name
+        )));
+        return;
+    }
+    if doc.modules.is_empty() {
+        diags.push(Diag::error(format!(
+            "library manifest {} dependency '{}': missing [modules] entries",
+            manifest_path.display(),
+            dependency.name
+        )));
+        return;
+    }
+
+    visiting.push((manifest_path.clone(), identity.name.clone()));
+    let base = manifest_path.parent().unwrap_or(Path::new("."));
+    for (name, value) in doc.modules {
+        load_declared_module(
+            &name,
+            &base.join(value),
+            ModuleOrigin::Library {
+                name: identity.name.clone(),
+                manifest_path: manifest_path.clone(),
+            },
+            &manifest_path,
+            out,
+            diags,
+        );
+    }
+    for (name, value) in doc.dependencies {
+        let nested_path = match dependency_path(base, &manifest_path, &name, &value) {
+            Ok(path) => path,
+            Err(e) => {
+                diags.push(Diag::error(e));
+                continue;
+            }
+        };
+        load_library(
+            &LibraryDependency {
+                name,
+                manifest_path: nested_path,
+            },
+            out,
+            loaded,
+            visiting,
+            diags,
+            &manifest_path,
+        );
+    }
+    visiting.pop();
+    loaded.insert(manifest_path, identity.name);
+}
+
+fn validate_loaded_modules(project: &Project, modules: &[LoadedModule]) -> Result<(), Vec<Diag>> {
+    let mut diags = Vec::new();
+    let mut by_name: HashMap<&str, &LoadedModule> = HashMap::new();
+    let mut by_rust_name: HashMap<String, &LoadedModule> = HashMap::new();
+    for module in modules {
+        if module.name.starts_with("alva.std.") {
+            diags.push(Diag::error(format!(
+                "{} module '{}': compiler-managed alva.std.* modules cannot be declared by a project or library",
+                origin_label(&module.origin),
+                module.name
+            )));
+        }
+        if let Some(previous) = by_name.insert(&module.name, module) {
+            diags.push(Diag::error(format!(
+                "module name conflict '{}': {} and {} both declare it",
+                module.name,
+                module_label(previous),
+                module_label(module)
+            )));
+        }
+        let rust_name = rust_module_name(&module.name);
+        if let Some(previous) = by_rust_name.insert(rust_name.clone(), module) {
+            if previous.name != module.name {
+                diags.push(Diag::error(format!(
+                    "generated Rust filename conflict '{}.rs': module '{}' from {} conflicts with module '{}' from {}",
+                    rust_name,
+                    previous.name,
+                    module_label(previous),
+                    module.name,
+                    module_label(module)
+                )));
+            }
+        }
+        if matches!(module.origin, ModuleOrigin::Library { .. })
+            && module
+                .module
+                .fns
+                .iter()
+                .any(|function| function.name == "main")
+        {
+            diags.push(Diag::error(format!(
+                "{} module '{}': local libraries cannot define fn main in this first version",
+                origin_label(&module.origin),
+                module.name
+            )));
+        }
+    }
+    if !project.dependencies.is_empty() {
+        let app_entries: Vec<&str> = modules
+            .iter()
+            .filter(|module| matches!(module.origin, ModuleOrigin::Application { .. }))
+            .filter(|module| {
+                module
+                    .module
+                    .fns
+                    .iter()
+                    .any(|function| function.name == "main")
+            })
+            .map(|module| module.name.as_str())
+            .collect();
+        if app_entries.len() > 1 {
+            diags.push(Diag::error(format!(
+                "manifest {}: ambiguous application entry point; fn main appears in modules {}",
+                project.manifest_path.display(),
+                app_entries.join(", ")
+            )));
+        }
+    }
+    if diags.is_empty() {
+        Ok(())
+    } else {
+        Err(diags)
+    }
+}
+
+fn origin_label(origin: &ModuleOrigin) -> String {
+    match origin {
+        ModuleOrigin::Application { manifest_path } => {
+            format!("application manifest {}", manifest_path.display())
+        }
+        ModuleOrigin::Library {
+            name,
+            manifest_path,
+        } => format!("library '{name}' manifest {}", manifest_path.display()),
+        ModuleOrigin::StandardLibrary => "compiler standard library".to_string(),
+    }
+}
+
+fn module_label(module: &LoadedModule) -> String {
+    match &module.source_path {
+        Some(path) => format!("{} source {}", origin_label(&module.origin), path.display()),
+        None => origin_label(&module.origin),
+    }
+}
+
+fn rust_module_name(name: &str) -> String {
+    name.replace(['.', '-'], "_")
 }
 
 /// 注入项目依赖的 std 模块（迭代处理 std→std 依赖）。
@@ -118,6 +506,8 @@ fn inject_std_modules(out: &mut Vec<LoadedModule>) -> Result<(), Vec<Diag>> {
                         out.push(LoadedModule {
                             name: name.to_string(),
                             module,
+                            origin: ModuleOrigin::StandardLibrary,
+                            source_path: None,
                         });
                         added = true;
                     }
@@ -230,7 +620,12 @@ pub fn check_graph_semantic(g: &crate::air::AirGraph) -> Result<(), Vec<String>>
         match crate::air::air_to_module(g, entity) {
             Ok(m) => {
                 let name = m.name.clone();
-                modules.push(LoadedModule { name, module: m });
+                modules.push(LoadedModule {
+                    name,
+                    module: m,
+                    origin: ModuleOrigin::StandardLibrary,
+                    source_path: None,
+                });
             }
             Err(e) => return Err(vec![e]),
         }
@@ -256,6 +651,10 @@ pub fn load_modules_air(
             Ok(m) => out.push(LoadedModule {
                 name: name.clone(),
                 module: m,
+                origin: ModuleOrigin::Application {
+                    manifest_path: project.manifest_path.clone(),
+                },
+                source_path: None,
             }),
             Err(e) => return Err(vec![Diag::error(e)]),
         }
@@ -428,7 +827,7 @@ pub fn codegen_project(
     let mut mod_decls = String::new();
     let mut has_main = false;
     for lm in modules {
-        let san = lm.name.replace(['.', '-'], "_");
+        let san = rust_module_name(&lm.name);
         let gen = codegen::codegen_with_external(
             &lm.module,
             external_sigs_for(lm, modules),
@@ -449,10 +848,13 @@ pub fn codegen_project(
         );
         main.push_str(&mod_decls);
         main.push_str("fn main() -> Result<(), String> {\n");
-        // 找到导出 main 的模块（取最后一个）
-        for lm in modules.iter().rev() {
+        // 带本地库依赖的项目只允许应用自有模块作为入口；旧项目保留
+        // 原有的“最后一个 main”行为以避免无关兼容性变化。
+        for lm in modules.iter().rev().filter(|lm| {
+            project.dependencies.is_empty() || matches!(lm.origin, ModuleOrigin::Application { .. })
+        }) {
             if lm.module.fns.iter().any(|f| f.name == "main") {
-                let san = lm.name.replace(['.', '-'], "_");
+                let san = rust_module_name(&lm.name);
                 main.push_str(&format!("    {san}::main()\n"));
                 break;
             }

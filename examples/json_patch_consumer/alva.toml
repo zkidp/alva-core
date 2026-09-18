@@ -1,0 +1,8 @@
+[project]
+name = "json_patch_consumer"
+
+[modules]
+"consumer.main" = "src/main.alva"
+
+[dependencies]
+json_patch = "../json_patch_component/alva.lib.toml"
