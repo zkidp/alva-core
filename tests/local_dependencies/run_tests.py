@@ -10,11 +10,29 @@ import shutil
 import shlex
 import subprocess
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
 EXE_SUFFIX = ".exe" if os.name == "nt" else ""
+
+
+@contextmanager
+def temporary_workspace():
+    root = Path(tempfile.mkdtemp(prefix="alva local dependencies "))
+    try:
+        yield root
+    finally:
+        # Relocated Cargo artifacts can exceed MAX_PATH. Use the extended path
+        # form to remove only this freshly created fixture without truncation.
+        cleanup_path = str(root.resolve())
+        if os.name == "nt" and not cleanup_path.startswith("\\\\?\\"):
+            if cleanup_path.startswith("\\\\"):
+                cleanup_path = "\\\\?\\UNC\\" + cleanup_path[2:]
+            else:
+                cleanup_path = "\\\\?\\" + cleanup_path
+        shutil.rmtree(cleanup_path)
 
 
 def run(command: list[str], *, cwd: Path, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -381,8 +399,7 @@ def main() -> int:
     alva = args.alva.resolve()
     assert alva.exists(), f"compiler not found: {alva}"
 
-    with tempfile.TemporaryDirectory(prefix="alva local dependencies ") as temp_text:
-        temp = Path(temp_text)
+    with temporary_workspace() as temp:
         outside_cwd = temp / "unrelated cwd"
         outside_cwd.mkdir()
 

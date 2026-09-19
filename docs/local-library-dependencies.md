@@ -91,3 +91,24 @@ The accompanying change keeps the existing component application manifest and
 both Pointer/Patch implementation files intact. No preparer or consumer-owned
 vendor modules are required. D1, D2, D3, and the previous
 `TARGET-LINUX-RESULT.json` remain historical records.
+
+## Acceptance evidence
+
+The first full Linux acceptance of this feature ran on an actual GitHub-hosted
+Ubuntu 22.04 runner: [run 35474059896, Linux job](https://github.com/zkidp/alva-core/actions/runs/35474059896/job/105980114024)
+at commit `0a1258f32e5e9a98441691292c7c2e2161eca14a`. The independent JSON Patch
+application passed check, debug build, explicit release build, and execution
+both before and after directory relocation. Outputs were `{"name":"new"}` and
+`{"n":9007199254740993.0}`. The editable fixture changed from `before` to `after`.
+The workflow also passed existing project/stdlib/codegen/AIR/AEP/MCP regressions,
+108 enabled upstream JSON Patch cases, 26 local boundary cases, release
+contracts/overflow, and the native binary consumer (four ALVA cases and three
+caller rejection cases). Historical performance data was not rerun.
+
+The same workflow runs Windows compiler and local-library build tests after
+Linux passes. All modified Rust files pass formatting. The repository-wide
+format check still reports pre-existing differences in `aep.rs` and `air.rs`;
+strict Clippy still reports the two pre-existing AIR argument-count warnings
+and one existing `main.rs` needless borrow. The focused CI Clippy check excludes
+only those two lint classes and fails on other warnings. No macOS or WASM
+environment is part of this acceptance.

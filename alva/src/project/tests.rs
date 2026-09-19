@@ -66,6 +66,27 @@ fn malformed_fields_are_rejected_with_manifest_context() {
 }
 
 #[test]
+fn local_paths_with_at_signs_are_not_remote_git_addresses() {
+    let base = Path::new(".");
+    let manifest = Path::new("alva.toml");
+    for value in [
+        "../name@example/alva.lib.toml",
+        r"C:\Users\name@example\alva.lib.toml",
+    ] {
+        assert!(dependency_path(base, manifest, "lib", value).is_ok());
+    }
+    for value in [
+        "",
+        "https://example.org/lib.toml",
+        "git+https://example.org/lib",
+        "git@example.org:lib",
+    ] {
+        let error = dependency_path(base, manifest, "lib", value).unwrap_err();
+        assert!(error.contains("alva.toml dependency 'lib'"), "{error}");
+    }
+}
+
+#[test]
 fn canonical_library_identity_preserves_ownership_and_source_bytes() {
     let fixture = Fixture::new();
     let manifest = fixture.write(

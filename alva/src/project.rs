@@ -85,7 +85,9 @@ fn dependency_path(
         || lower.starts_with("git+")
         || lower.starts_with("ssh:")
         || lower.starts_with("file:")
-        || value.contains('@') && value.contains(':')
+        || value
+            .split_once(':')
+            .is_some_and(|(host, _)| host.contains('@') && !host.contains(['/', '\\']))
         || value.trim().is_empty()
     {
         return Err(format!(
