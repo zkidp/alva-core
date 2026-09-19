@@ -31,8 +31,9 @@ name = "json_patch"
 Dependency paths are relative to the manifest that declares them. Module paths
 are relative to their own application or library manifest. ALVA does not search
 parent directories, global locations, URLs, Git repositories, or version
-ranges. The dependency key must match `[library].name`; it does not rename ALVA
-modules.
+ranges. The dependency key names the declaration; it does not rename ALVA
+modules or establish a content/version identity. The library's own name and
+canonical manifest path are retained as the owner of each loaded module.
 
 Libraries may declare their own `[dependencies]`. A canonical manifest path is
 loaded once, so a diamond dependency shares one library. Cycles report the
@@ -66,3 +67,27 @@ cargo build --manifest-path /tmp/alva-local-build/json_patch_consumer/Cargo.toml
 printf '%s' '{"doc":{"name":"old"},"patch":[{"op":"replace","path":"/name","value":"new"}]}' \
   | /tmp/alva-local-build/json_patch_consumer/target/release/json_patch_consumer
 ```
+
+Expected stdout: `{"name":"new"}`. `project build` currently invokes a debug
+Cargo build; the separate `cargo build --release` command above is required to
+produce the release executable. Generated Cargo manifests keep exact JSON
+numbers (`arbitrary_precision`) and release `overflow-checks = true`.
+
+Run the repeatable acceptance suite after building the compiler:
+
+```bash
+cargo build --manifest-path alva/Cargo.toml --locked
+python3 tests/local_dependencies/run_tests.py
+```
+
+It puts a single shared JSON Patch library and a separate application outside
+the Core checkout, runs check/build/release/run from an unrelated directory,
+moves the entire fixture, and repeats. It also exercises a small editable
+library whose output changes from `before` to `after` while the application
+and output directory stay unchanged. Sources are checked byte-for-byte for
+unintended changes; no content-hash admission rule is introduced.
+
+The accompanying change keeps the existing component application manifest and
+both Pointer/Patch implementation files intact. No preparer or consumer-owned
+vendor modules are required. D1, D2, D3, and the previous
+`TARGET-LINUX-RESULT.json` remain historical records.

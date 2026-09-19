@@ -1,0 +1,71 @@
+name: Local library acceptance
+
+on:
+  push:
+    branches: [codex/core-local-library-dependencies]
+  pull_request:
+    paths:
+      - 'alva/**'
+      - 'tests/local_dependencies/**'
+      - 'examples/json_patch_component/**'
+      - 'examples/json_patch_consumer/**'
+      - '.github/workflows/local-libraries.yml'
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Compiler unit tests and build
+        working-directory: alva
+        run: |
+          cargo test --locked
+          cargo build --locked
+      - name: Isolated local library acceptance
+        run: python3 tests/local_dependencies/run_tests.py
+      - name: Existing conformance including project, stdlib, JSON numbers and release checks
+        run: bash tests/run_conformance.sh
+      - name: Each AIR regression must pass
+        run: |
+          export ALVA="$PWD/alva/target/debug/alva"
+          for suite in air_test air_check_soundness_test query_aep_test rfc0005_aep_test rfc0006_construction_test rfc0007_operand_test handle_canonical_test capability_catalog_test; do
+            python3 "tests/air/${suite}.py"
+          done
+          python3 tests/mcp/mcp_protocol_test.py alva/target/debug/alva
+      - name: Native binary consumer
+        run: |
+          alva/target/debug/alva project build examples/json_patch_component/alva.toml --out-dir out/native-consumer
+          cargo build --manifest-path out/native-consumer/json_patch_component/Cargo.toml --release
+          python3 examples/json_patch_consumer/test_native.py --binary out/native-consumer/json_patch_component/target/release/json_patch_component
+      - name: Format changed Rust files
+        working-directory: alva
+        run: rustfmt --check --edition 2021 --config skip_children=true src/project.rs src/project/tests.rs src/main.rs
+      - name: Clippy excluding the two known baseline lint classes
+        working-directory: alva
+        run: cargo clippy --locked -- -D warnings -A clippy::too_many_arguments -A clippy::needless_borrow
+
+  windows:
+    needs: linux
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Compiler unit tests and build
+        working-directory: alva
+        run: |
+          cargo test --locked
+          cargo build --locked
+      - name: Windows paths and actual project builds
+        run: python tests/local_dependencies/run_tests.py

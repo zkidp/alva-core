@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import shutil
+import shlex
 import subprocess
 import tempfile
 from pathlib import Path
@@ -17,6 +18,7 @@ EXE_SUFFIX = ".exe" if os.name == "nt" else ""
 
 
 def run(command: list[str], *, cwd: Path, check: bool = True) -> subprocess.CompletedProcess[str]:
+    print(f"cwd={cwd}\n$ {shlex.join(command)}", flush=True)
     completed = subprocess.run(
         command,
         cwd=cwd,
@@ -25,7 +27,7 @@ def run(command: list[str], *, cwd: Path, check: bool = True) -> subprocess.Comp
         errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        timeout=180,
+        timeout=300,
     )
     if check and completed.returncode != 0:
         raise AssertionError(
@@ -98,30 +100,36 @@ def check_project(alva: Path, manifest: Path, cwd: Path) -> subprocess.Completed
     return run([str(alva), "project", "check", str(manifest)], cwd=cwd)
 
 
-def build_project(alva: Path, manifest: Path, out_dir: Path, cwd: Path) -> Path:
+def build_project(
+    alva: Path, manifest: Path, out_dir: Path, cwd: Path, crate_name: str = "fixture_app"
+) -> Path:
+    check_project(alva, manifest, cwd)
     run(
         [str(alva), "project", "build", str(manifest), "--out-dir", str(out_dir)],
         cwd=cwd,
     )
-    crate = out_dir / "fixture_app"
+    crate = out_dir / crate_name
     cargo_toml = (crate / "Cargo.toml").read_text(encoding="utf-8")
     assert 'features = ["arbitrary_precision"]' in cargo_toml
     assert "[profile.release]\noverflow-checks = true" in cargo_toml
     run(["cargo", "build", "--manifest-path", str(crate / "Cargo.toml"), "--release"], cwd=cwd)
-    return crate / "target" / "release" / f"fixture_app{EXE_SUFFIX}"
+    return crate / "target" / "release" / f"{crate_name}{EXE_SUFFIX}"
 
 
 def expect_failure(alva: Path, manifest: Path, cwd: Path, *needles: str) -> None:
-    completed = run(
-        [str(alva), "project", "check", str(manifest)],
-        cwd=cwd,
-        check=False,
-    )
-    assert completed.returncode != 0, f"expected failure for {manifest}"
-    detail = completed.stdout + completed.stderr
-    for needle in needles:
-        assert needle.lower() in detail.lower(), f"missing {needle!r} in:\n{detail}"
-    assert "panicked at" not in detail.lower(), detail
+    output = manifest.parent / "must not generate"
+    for command in ("check", "build"):
+        completed = run(
+            [str(alva), "project", command, str(manifest), "--out-dir", str(output)],
+            cwd=cwd,
+            check=False,
+        )
+        assert completed.returncode != 0, f"expected {command} failure for {manifest}"
+        detail = completed.stdout + completed.stderr
+        for needle in needles:
+            assert needle.lower() in detail.lower(), f"missing {needle!r} in:\n{detail}"
+        assert "panicked at" not in detail.lower(), detail
+        assert not output.exists(), f"{command} generated output before rejecting {manifest}"
 
 
 def create_hot_fixture(root: Path, value: str, *, crlf: bool = False) -> tuple[Path, Path]:
@@ -183,7 +191,8 @@ def create_diamond_fixture(root: Path) -> Path:
             '  (dep "right.value" "0.1.0")\n'
             "  (export joined)\n"
             "  (fn joined (params) (returns (prim string)) (pure)\n"
-            "    (body (call concat (call left.value.left) (call right.value.right)))))\n"
+            "    (body (call concat (call left.value.left) (call right.value.right))))\n"
+            '  (test diamond (body (== (call joined) (string "valuevalue")))))\n'
         ),
     )
     return app / "alva.toml"
@@ -263,6 +272,22 @@ def rejection_tests(alva: Path, root: Path, cwd: Path) -> None:
     write(filename / "library" / "b.alva", library_module("a_b"))
     expect_failure(alva, filename / "alva.toml", cwd, "generated rust filename conflict", "a_b.rs")
 
+    # A user spelling can also collide with an injected std module or crate root.
+    for name in ("alva_std_io", "main", "lib"):
+        case = cases / f"reserved-{name}"
+        write(case / "alva.toml", app_manifest('names = "library/alva.lib.toml"'))
+        write(case / "src" / "main.alva", app_module(name))
+        write(case / "library" / "alva.lib.toml", lib_manifest("names", f'"{name}" = "value.alva"'))
+        write(case / "library" / "value.alva", library_module(name))
+        expect_failure(alva, case / "alva.toml", cwd, "generated rust filename", name)
+
+    app_conflict = cases / "app-conflict"
+    write(app_conflict / "alva.toml", app_manifest('sample = "library/alva.lib.toml"'))
+    write(app_conflict / "src" / "main.alva", app_module("app.main"))
+    write(app_conflict / "library" / "alva.lib.toml", lib_manifest("sample", '"app.main" = "value.alva"'))
+    write(app_conflict / "library" / "value.alva", library_module("app.main"))
+    expect_failure(alva, app_conflict / "alva.toml", cwd, "module name conflict", "app.main")
+
     library_main = cases / "library-main"
     write(library_main / "alva.toml", app_manifest('bad = "library/alva.lib.toml"'))
     write(library_main / "src" / "main.alva", app_module("bad.value"))
@@ -293,10 +318,56 @@ def rejection_tests(alva: Path, root: Path, cwd: Path) -> None:
     )
     expect_failure(alva, private / "alva.toml", cwd, "must be declared", "private.value.secret")
 
+    # External library bodies receive the same type/effect/capability checking.
+    for label, content, needle in (
+        ("type", library_module("checked.value").replace('(string "value")', '(+ (int 1) (bool true))'), "mismatch"),
+        ("capability", library_module("checked.value").replace('(export value)', '(cap nonexistent)\n(export value)'), "capability"),
+        ("effect", '''(module (name "checked.value") (version "0.1.0")
+          (dep "alva.std.io" "0.1.0") (cap io) (export value)
+          (fn value (params) (returns (prim string)) (pure)
+            (body (block (call alva.std.io.write_stdout (string "x")) (string "x")))))''', "effect"),
+    ):
+        case = cases / f"library-{label}"
+        write(case / "alva.toml", app_manifest('checked = "library/alva.lib.toml"'))
+        write(case / "src" / "main.alva", library_module("app.main"))
+        write(case / "library" / "alva.lib.toml", lib_manifest("checked", '"checked.value" = "value.alva"'))
+        write(case / "library" / "value.alva", content)
+        expect_failure(alva, case / "alva.toml", cwd, "alva.lib.toml", "checked.value", needle)
+
     air = cases / "air"
     manifest, _ = create_hot_fixture(air, "value")
     write(air / "application" / "alva-air" / "current", "1\ninvalid\n")
     expect_failure(alva, manifest, cwd, "authoritative air", "local library")
+
+    for authoritative in (False, True):
+        case = cases / f"edit-{authoritative}"
+        edit_manifest, lib_source = create_hot_fixture(case, "value")
+        before = lib_source.read_bytes()
+        store = edit_manifest.parent / "alva-air"
+        if authoritative:
+            write(store / "current", "1\ninvalid\n")
+        for command, request in (
+            ("edit", {"op": "begin", "project": str(edit_manifest)}),
+            ("agent", {"tool": "begin_transaction", "project": str(edit_manifest)}),
+        ):
+            result = subprocess.run(
+                [str(alva), command], cwd=cwd, input=json.dumps(request) + "\n",
+                text=True, encoding="utf-8", capture_output=True, timeout=10,
+            )
+            assert "local librar" in result.stdout, result.stdout + result.stderr
+            assert '"ok":false' in result.stdout, result.stdout
+        exported = run(
+            [str(alva), "air", "export", str(edit_manifest), "--authoritative",
+             "--out-dir", str(case / "no air export")], cwd=cwd, check=False,
+        )
+        assert exported.returncode != 0
+        assert "local librar" in exported.stderr
+        assert lib_source.read_bytes() == before
+        assert not (case / "no air export").exists()
+        if authoritative:
+            assert (store / "current").read_text() == "1\ninvalid\n"
+        else:
+            assert not store.exists()
 
 
 def main() -> int:
@@ -318,10 +389,13 @@ def main() -> int:
         diamond = create_diamond_fixture(temp / "diamond root")
         result = check_project(alva, diamond, outside_cwd)
         assert "4 modules checked" in result.stdout, result.stdout
+        run([str(alva), "project", "build", str(diamond), "--test", "--out-dir",
+             str(temp / "diamond build")], cwd=outside_cwd)
 
         movable = temp / "movable root"
         manifest, _ = create_hot_fixture(movable, "before", crlf=True)
-        check_project(alva, manifest, outside_cwd)
+        first_movable = build_project(alva, manifest, movable / "build output", outside_cwd)
+        assert run([str(first_movable)], cwd=outside_cwd).stdout == "before"
         moved = temp / "moved root with spaces"
         movable.rename(moved)
         moved_manifest = moved / "application" / "alva.toml"
@@ -331,6 +405,7 @@ def main() -> int:
 
         hot = temp / "hot update root"
         hot_manifest, hot_source = create_hot_fixture(hot, "before")
+        app_before = (hot_manifest.parent / "src" / "main.alva").read_bytes()
         hot_output = temp / "stable build output"
         first = build_project(alva, hot_manifest, hot_output, outside_cwd)
         assert run([str(first)], cwd=outside_cwd).stdout == "before"
@@ -338,56 +413,81 @@ def main() -> int:
         second = build_project(alva, hot_manifest, hot_output, outside_cwd)
         assert second == first
         assert run([str(second)], cwd=outside_cwd).stdout == "after"
+        assert (hot_manifest.parent / "src" / "main.alva").read_bytes() == app_before
+        print("EDITABLE SOURCE: before -> after; same application and output directory", flush=True)
+
+        legacy = temp / "legacy entry order"
+        legacy_manifest = write_legacy_entries(legacy)
+        legacy_binary = build_project(alva, legacy_manifest, legacy / "generated", outside_cwd)
+        assert run([str(legacy_binary)], cwd=outside_cwd).stdout == "last"
 
         rejection_tests(alva, temp, outside_cwd)
 
-        json_manifest = ROOT / "examples" / "json_patch_consumer" / "alva.toml"
-        check_project(alva, json_manifest, outside_cwd)
-        json_out = temp / "json patch build"
-        run(
-            [
-                str(alva),
-                "project",
-                "build",
-                str(json_manifest),
-                "--out-dir",
-                str(json_out),
-            ],
-            cwd=outside_cwd,
-        )
-        json_crate = json_out / "json_patch_consumer"
-        generated_manifest = (json_crate / "Cargo.toml").read_text(encoding="utf-8")
-        assert 'features = ["arbitrary_precision"]' in generated_manifest
-        assert "[profile.release]\noverflow-checks = true" in generated_manifest
-        run(
-            ["cargo", "build", "--manifest-path", str(json_crate / "Cargo.toml"), "--release"],
-            cwd=outside_cwd,
-        )
-        json_binary = json_crate / "target" / "release" / f"json_patch_consumer{EXE_SUFFIX}"
-        request = json.dumps(
-            {
-                "doc": {"name": "old"},
-                "patch": [{"op": "replace", "path": "/name", "value": "new"}],
-            },
-            separators=(",", ":"),
-        )
-        completed = subprocess.run(
-            [str(json_binary)],
-            cwd=outside_cwd,
-            input=request,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=10,
-        )
-        assert completed.returncode == 0, completed.stderr
-        assert json.loads(completed.stdout) == {"name": "new"}, completed.stdout
+        isolated_json_acceptance(alva, temp, outside_cwd)
 
     print('JSON PATCH OUTPUT: {"name":"new"}')
     print("LOCAL LIBRARY DEPENDENCY TESTS PASSED")
     return 0
+
+
+def write_legacy_entries(root: Path) -> Path:
+    manifest = root / "alva.toml"
+    write(manifest, '''[project]
+name = "fixture_app"
+[modules]
+"z.first" = "first.alva"
+"a.last" = "last.alva"
+''')
+    for name, value in (("z.first", "first"), ("a.last", "last")):
+        text = app_module("unused.value").replace('"app.main"', f'"{name}"')
+        text = text.replace('  (dep "unused.value" "0.1.0")\n', '')
+        text = text.replace('(call unused.value.value)', f'(string "{value}")')
+        write(root / f"{value}.alva", text)
+    return manifest
+
+
+def isolated_json_acceptance(alva: Path, temp: Path, cwd: Path) -> None:
+    # Copy only the shared library and application sources into an isolated
+    # acceptance fixture. No preparer or consumer-owned vendor directory is used.
+    original_root = temp / "standalone JSON Patch"
+    library = original_root / "library"
+    application = original_root / "application"
+    (library / "src").mkdir(parents=True)
+    (application / "src").mkdir(parents=True)
+    component = ROOT / "examples" / "json_patch_component"
+    consumer = ROOT / "examples" / "json_patch_consumer"
+    for name in ("pointer.alva", "patch.alva"):
+        shutil.copyfile(component / "src" / name, library / "src" / name)
+    shutil.copyfile(component / "alva.lib.toml", library / "alva.lib.toml")
+    shutil.copyfile(consumer / "src" / "main.alva", application / "src" / "main.alva")
+    write(application / "alva.toml", (consumer / "alva.toml").read_text(encoding="utf-8")
+          .replace('../json_patch_component/alva.lib.toml', '../library/alva.lib.toml'))
+    originals = {str(path.relative_to(original_root)): path.read_bytes()
+                 for path in original_root.rglob('*') if path.is_file()}
+    moved_root = temp / "relocated JSON Patch with spaces"
+    for root in (original_root, moved_root):
+        if root == moved_root:
+            original_root.rename(moved_root)
+        executable = build_project(
+            alva, root / "application" / "alva.toml", root / "generated", cwd,
+            crate_name="json_patch_consumer",
+        )
+        payloads = (
+            ('{"doc":{"name":"old"},"patch":[{"op":"replace","path":"/name","value":"new"}]}', '{"name":"new"}'),
+            ('{"doc":{"n":9007199254740993.0},"patch":[{"op":"test","path":"/n","value":9007199254740993}]}', '{"n":9007199254740993.0}'),
+        )
+        for payload, expected in payloads:
+            completed = subprocess.run(
+                [str(executable)], cwd=cwd, input=payload, text=True, encoding="utf-8",
+                capture_output=True, timeout=10,
+            )
+            assert completed.returncode == 0, completed.stderr
+            assert completed.stdout == expected, completed.stdout
+            print(f"RUN {executable}\nINPUT: {payload}\nOUTPUT: {completed.stdout}", flush=True)
+        for name, original in originals.items():
+            assert (root / name).read_bytes() == original, f"source rewritten: {name}"
+        assert not (root / "application" / "vendor").exists()
+    print("ISOLATED JSON PATCH: check/build/release/run passed before and after relocation", flush=True)
 
 
 if __name__ == "__main__":

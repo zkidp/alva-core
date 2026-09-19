@@ -2,9 +2,13 @@ use crate::ast;
 use crate::check::{self, ExtFn, ExtType};
 use crate::codegen;
 use crate::diag::Diag;
+use indexmap::IndexMap;
 use serde::Deserialize;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
+
+#[cfg(test)]
+mod tests;
 
 /// 编译器托管的 std 模块：源码以 .alva 形式内嵌进二进制，当项目任一模块
 /// 声明 `(use "alva.std.*" ...)` 依赖时自动注入，无需在 alva.toml 列出。
@@ -39,6 +43,7 @@ pub enum ModuleOrigin {
         manifest_path: PathBuf,
     },
     StandardLibrary,
+    AuthoritativeAir,
 }
 
 #[derive(Deserialize)]
@@ -46,9 +51,10 @@ pub enum ModuleOrigin {
 struct ManifestDocument {
     project: Option<ManifestIdentity>,
     library: Option<ManifestIdentity>,
-    modules: BTreeMap<String, String>,
+    // Preserve declaration order, including the legacy last-main entry rule.
+    modules: IndexMap<String, String>,
     #[serde(default)]
-    dependencies: BTreeMap<String, String>,
+    dependencies: IndexMap<String, String>,
 }
 
 #[derive(Deserialize)]
@@ -79,6 +85,8 @@ fn dependency_path(
         || lower.starts_with("git+")
         || lower.starts_with("ssh:")
         || lower.starts_with("file:")
+        || value.contains('@') && value.contains(':')
+        || value.trim().is_empty()
     {
         return Err(format!(
             "manifest {} dependency '{name}': only local filesystem manifest paths are supported, got '{value}'",
@@ -173,7 +181,7 @@ pub fn load_modules(project: &Project) -> Result<Vec<LoadedModule>, Vec<Diag>> {
         );
     }
     if diags.is_empty() {
-        let mut loaded_libraries = HashMap::new();
+        let mut loaded_libraries = HashSet::new();
         let mut visiting = Vec::new();
         for dependency in &project.dependencies {
             load_library(
@@ -187,8 +195,8 @@ pub fn load_modules(project: &Project) -> Result<Vec<LoadedModule>, Vec<Diag>> {
         }
     }
     if diags.is_empty() {
-        validate_loaded_modules(project, &out)?;
         inject_std_modules(&mut out)?;
+        validate_loaded_modules(project, &out)?;
         Ok(out)
     } else {
         Err(diags)
@@ -240,7 +248,7 @@ fn load_declared_module(
 fn load_library(
     dependency: &LibraryDependency,
     out: &mut Vec<LoadedModule>,
-    loaded: &mut HashMap<PathBuf, String>,
+    loaded: &mut HashSet<PathBuf>,
     visiting: &mut Vec<(PathBuf, String)>,
     diags: &mut Vec<Diag>,
     declaring_manifest: &Path,
@@ -273,16 +281,7 @@ fn load_library(
         )));
         return;
     }
-    if let Some(loaded_name) = loaded.get(&manifest_path) {
-        if loaded_name != &dependency.name {
-            diags.push(Diag::error(format!(
-                "manifest {} dependency '{}': library manifest {} was already loaded as '{}'",
-                declaring_manifest.display(),
-                dependency.name,
-                manifest_path.display(),
-                loaded_name
-            )));
-        }
+    if loaded.contains(&manifest_path) {
         return;
     }
     let doc = match parse_manifest(&manifest_path) {
@@ -322,13 +321,12 @@ fn load_library(
             return;
         }
     };
-    if identity.name != dependency.name {
+    if identity.name.trim().is_empty() {
         diags.push(Diag::error(format!(
-            "manifest {} dependency '{}': library manifest {} declares name '{}'",
+            "manifest {} dependency '{}': library manifest {} has an empty [library].name",
             declaring_manifest.display(),
             dependency.name,
-            manifest_path.display(),
-            identity.name
+            manifest_path.display()
         )));
         return;
     }
@@ -377,7 +375,7 @@ fn load_library(
         );
     }
     visiting.pop();
-    loaded.insert(manifest_path, identity.name);
+    loaded.insert(manifest_path);
 }
 
 fn validate_loaded_modules(project: &Project, modules: &[LoadedModule]) -> Result<(), Vec<Diag>> {
@@ -385,7 +383,7 @@ fn validate_loaded_modules(project: &Project, modules: &[LoadedModule]) -> Resul
     let mut by_name: HashMap<&str, &LoadedModule> = HashMap::new();
     let mut by_rust_name: HashMap<String, &LoadedModule> = HashMap::new();
     for module in modules {
-        if module.name.starts_with("alva.std.") {
+        if module.name.starts_with("alva.std.") && module.origin != ModuleOrigin::StandardLibrary {
             diags.push(Diag::error(format!(
                 "{} module '{}': compiler-managed alva.std.* modules cannot be declared by a project or library",
                 origin_label(&module.origin),
@@ -401,6 +399,14 @@ fn validate_loaded_modules(project: &Project, modules: &[LoadedModule]) -> Resul
             )));
         }
         let rust_name = rust_module_name(&module.name);
+        if rust_name == "main" || rust_name == "lib" {
+            diags.push(Diag::error(format!(
+                "{} module '{}': generated Rust filename '{}.rs' is reserved for the crate root",
+                module_label(module),
+                module.name,
+                rust_name
+            )));
+        }
         if let Some(previous) = by_rust_name.insert(rust_name.clone(), module) {
             if previous.name != module.name {
                 diags.push(Diag::error(format!(
@@ -465,6 +471,7 @@ fn origin_label(origin: &ModuleOrigin) -> String {
             manifest_path,
         } => format!("library '{name}' manifest {}", manifest_path.display()),
         ModuleOrigin::StandardLibrary => "compiler standard library".to_string(),
+        ModuleOrigin::AuthoritativeAir => "authoritative AIR".to_string(),
     }
 }
 
@@ -602,7 +609,20 @@ pub fn check_project_loaded(modules: Vec<LoadedModule>) -> Result<Vec<LoadedModu
     let mut all_diags = Vec::new();
     for lm in &modules {
         let (fns, types) = externals_of_deps(lm, &modules);
-        let diags = check::check_with_external(&lm.module, fns, types);
+        let diags: Vec<_> = check::check_with_external(&lm.module, fns, types)
+            .into_iter()
+            .map(|mut diagnostic| {
+                if lm.source_path.is_some() {
+                    diagnostic.message = format!(
+                        "{} module '{}': {}",
+                        module_label(lm),
+                        lm.name,
+                        diagnostic.message
+                    );
+                }
+                diagnostic
+            })
+            .collect();
         if diags.iter().any(|d| d.severity == "error") {
             all_diags.extend(diags);
             return Err(all_diags);
@@ -623,7 +643,7 @@ pub fn check_graph_semantic(g: &crate::air::AirGraph) -> Result<(), Vec<String>>
                 modules.push(LoadedModule {
                     name,
                     module: m,
-                    origin: ModuleOrigin::StandardLibrary,
+                    origin: ModuleOrigin::AuthoritativeAir,
                     source_path: None,
                 });
             }
@@ -642,6 +662,12 @@ pub fn load_modules_air(
     project: &Project,
     project_dir: &std::path::Path,
 ) -> Result<Vec<LoadedModule>, Vec<Diag>> {
+    if !project.dependencies.is_empty() {
+        return Err(vec![Diag::error(format!(
+            "manifest {}: authoritative AIR with local library dependencies is not supported in this version",
+            project.manifest_path.display()
+        ))]);
+    }
     let graph = crate::air::load_authoritative(project_dir)
         .map_err(|e| vec![Diag::error(e).with_code("E_STORAGE_008")])?;
     let mut out = Vec::new();

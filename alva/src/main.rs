@@ -1169,7 +1169,7 @@ fn cmd_edit(_rest: &[String]) -> i32 {
                             modules.push(project::LoadedModule {
                                 name: name.clone(),
                                 module: m,
-                                origin: project::ModuleOrigin::StandardLibrary,
+                                origin: project::ModuleOrigin::AuthoritativeAir,
                                 source_path: None,
                             });
                         }
@@ -2107,8 +2107,15 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     // identically to parser-imported ones (pure + empty
                     // eff, canonical empty pre/post/inv slots).
                     let fn_id = s.add_canonical_function(
-                        &name, true, vec![], param_ids, ret_id, vec![], vec![],
-                        vec![], body,
+                        &name,
+                        true,
+                        vec![],
+                        param_ids,
+                        ret_id,
+                        vec![],
+                        vec![],
+                        vec![],
+                        body,
                     )?;
                     s.append_child(&format!("module:{module}"), "functions", &fn_id)?;
                     Ok(fn_id)
@@ -3075,10 +3082,7 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     let s = need_session!();
                     let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
                     let param = req.get("param").and_then(|v| v.as_str()).unwrap_or("");
-                    let type_name = req
-                        .get("type")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("string");
+                    let type_name = req.get("type").and_then(|v| v.as_str()).unwrap_or("string");
                     let value = req.get("value").and_then(|v| v.as_str()).unwrap_or("");
                     match (|| -> Result<String, String> {
                         if param.is_empty() {
@@ -3120,11 +3124,12 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             .module_entities
                             .iter()
                             .find(|me| {
-                                s.graph.resolve(me).and_then(|mn| {
-                                    mn.slots
-                                        .get("functions")
-                                        .map(|f| f.contains(&fn_rev))
-                                }).unwrap_or(false)
+                                s.graph
+                                    .resolve(me)
+                                    .and_then(|mn| {
+                                        mn.slots.get("functions").map(|f| f.contains(&fn_rev))
+                                    })
+                                    .unwrap_or(false)
                             })
                             .map(|me| me.trim_start_matches("module:").to_string())
                             .unwrap_or_default();
@@ -3185,18 +3190,16 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             let mut af = BTreeMap::new();
                             af.insert("value".to_string(), arg_val);
                             for call_rev in callers {
-                                let arg_rev = s.create_node(
-                                    "literal", af.clone(), BTreeMap::new())?;
+                                let arg_rev =
+                                    s.create_node("literal", af.clone(), BTreeMap::new())?;
                                 s.append_child(&call_rev, "args", &arg_rev)?;
                             }
                         }
                         Ok(fn_entity)
                     })() {
-                        Ok(entity) => resp!(
-                            true,
-                            &format!("{{\"entity\":{}}}", json_str(&entity)),
-                            "ok"
-                        ),
+                        Ok(entity) => {
+                            resp!(true, &format!("{{\"entity\":{}}}", json_str(&entity)), "ok")
+                        }
                         Err(e) => resp!(false, "null", &e),
                     }
                 }
