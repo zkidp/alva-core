@@ -52,13 +52,16 @@ jobs:
           cargo build --manifest-path out/native-consumer/json_patch_component/Cargo.toml --release
           python3 examples/json_patch_consumer/test_native.py --binary out/native-consumer/json_patch_component/target/release/json_patch_component
       - name: Standards maintenance before/after source reproduction and offline rebuild
-        if: github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        if: hashFiles('demos/standards-maintenance/reproduce.py') != ''
         run: |
+          python3 demos/standards-maintenance/acceptance/test_harness.py
+          alva/target/debug/alva project build tests/stdlib/string/alva.toml --test --out-dir out/standards-string
+          cargo test --manifest-path out/standards-string/string_demo/Cargo.toml --release --locked
           git worktree add --detach "$RUNNER_TEMP/alva-before" 77f37cefdee53e24651acabff2a990fbaa5d96c2
           python3 demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP"
           python3 demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP" --offline
       - name: Preserve standards maintenance results and release artifacts
-        if: always() && github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        if: always() && hashFiles('demos/standards-maintenance/reproduce.py') != ''
         uses: actions/upload-artifact@v4
         with:
           name: standards-maintenance-linux
@@ -93,13 +96,16 @@ jobs:
       - name: Windows release safety
         run: python tests/release_json_component/e2e_test.py
       - name: Standards maintenance Windows source reproduction and offline rebuild
-        if: github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        if: hashFiles('demos/standards-maintenance/reproduce.py') != ''
         run: |
+          python demos/standards-maintenance/acceptance/test_harness.py
+          alva/target/debug/alva project build tests/stdlib/string/alva.toml --test --out-dir out/standards-string
+          cargo test --manifest-path out/standards-string/string_demo/Cargo.toml --release --locked
           git worktree add --detach "$RUNNER_TEMP/alva-before" 77f37cefdee53e24651acabff2a990fbaa5d96c2
           python demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP"
           python demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP" --offline
       - name: Preserve Windows results and release artifacts
-        if: always() && github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        if: always() && hashFiles('demos/standards-maintenance/reproduce.py') != ''
         uses: actions/upload-artifact@v4
         with:
           name: standards-maintenance-windows

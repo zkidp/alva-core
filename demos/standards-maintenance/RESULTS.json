@@ -3,6 +3,7 @@
   "kind": "standards-based feature extension; Codex-assisted development",
   "base": "77f37cefdee53e24651acabff2a990fbaa5d96c2",
   "test_first_commit": "8f1b65640de691731d2df69269d4088c19583b08",
+  "implementation_commit": "09cedc00bf62e8024f77728e017fd0984d5d434d",
   "status": "local acceptance passed; clean-commit CI pending",
   "source": "https://www.rfc-editor.org/rfc/rfc6901.html#section-6",
   "actual_standard_use": "https://json-schema.org/draft/2020-12/json-schema-core#section-5",
@@ -20,6 +21,9 @@
     "release_contract_overflow_and_caller": "PASS",
     "initial_baseline": {"artifact_directory": "sm-l28g5bou under system temp", "source_clean": true, "elapsed_seconds": 95.365, "subprocess_wait_seconds": 95.275, "binary_sha256": "bc97918223613e939326a399304743d755a8998eea73af94c982842b135e9021"},
     "initial_after": {"artifact_directory": "sm-4phv8oxu under system temp", "source_clean": false, "offline_fresh_after_build": true, "before_binary_from_initial_baseline": true, "elapsed_seconds": 125.245, "subprocess_wait_seconds": 125.079, "binary_sha256": "c87392358ac8695a6faa7533fb3e7fe18fb4c7b05de455ecebf8277eb1922f8e"},
+    "clean_two_source_offline": {"artifact_directory": "sm-61yxuu0u under system temp", "both_sources_clean_at_capture": true, "both_fresh_build_trees": true, "status": "PASS", "elapsed_seconds": 190.103, "subprocess_wait_seconds": 189.909, "before_binary_sha256": "c17660e6b45931ad2e237cee4fa6c254c1997b19812fd9c95f07d9a6dc21679d", "after_binary_sha256": "7136a99d19f871ed0ba5335cc315ed2b870da9691fcdcc3571c2fd2317a29518", "consumer_binary_sha256": "b7a2efd281be921a1fea98fde87bc5ae46c9276ff394d8058eab58f98c022611", "both_generated_lock_sha256": "3d71c68897029d9eb2e3c60108bb32304b4a6a024fa0b8655aa6a75f343cd4ff"},
+    "binary_only_empty_path": {"status": "PASS", "artifact_directory": "sm-iy6bp0z3 under system temp", "elapsed_seconds": 8.337, "subprocess_wait_seconds": 8.236, "source_consumer_and_core": "NOT_RUN"},
+    "harness_tests": 4,
     "consumer": {"outside_core": true, "same_library_path_dependency": true, "vendor": false, "exit": 0, "stdout": "{\"minimum\":9007199254740993.0}", "binary_sha256": "3ae2659ab1150b0d5d323e4c91409e5ad1232f69ca19d1f9fad93ef634c482e5"}
   },
   "target_owned_linux": {"status": "NOT_RUN", "reason": "strict SSH host-key verification failed: no trusted ED25519 key; verification not bypassed"},

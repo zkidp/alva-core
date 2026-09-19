@@ -64,6 +64,22 @@ hidden reasoning trace, blinded experiment or independent evaluator report.
 
 ## Accounting and reproducibility
 
+- A complete local two-source offline run at clean implementation commit
+  `09cedc00bf62e8024f77728e017fd0984d5d434d` used new before/after build trees
+  (`sm-61yxuu0u`). Both checkout states were recorded clean at capture, with
+  identical generated application lock hashes. All requirement, JSON regression,
+  Core unit and independent-consumer checks passed (190.103 seconds elapsed,
+  189.909 recorded subprocess wait). No executable from an earlier target was used.
+- Delivery audit removed unnecessary Rust/Git prerequisites from binary-only
+  mode, recorded harness/consumer input hashes, and rejected Python optimized
+  mode, which would disable assertions. Four harness tests cover abnormal exits,
+  exact types/numbers, malformed output, timeout and missing-program classification.
+  These harness tests are not extra standards-conformance samples.
+- Binary-only reproduction was then actually run with PATH empty and absolute
+  Python/component paths (`sm-iy6bp0z3`); it passed in 8.337 seconds (8.236
+  recorded subprocess wait). It correctly reports source consumer/Core units as
+  not run instead of borrowing those claims from the source-mode run.
+
 Raw per-command inputs, outputs, exit status, duration, source/lock hashes and
 artifact hashes are retained by each runner under its own RESULTS.json. These
 are program/test logs, not provider dialogues. The first baseline runner took

@@ -36,6 +36,21 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def check_outcome(completed, case, label):
+    """Infrastructure failure is never an expected specification rejection."""
+    stderr = completed.stderr.decode("utf-8", "strict")
+    reject = "error" in case or (label == "before" and case.get("new"))
+    if reject:
+        marker = ("mode must be pointer or patch"
+                  if label == "before" and case.get("new") else case["error"])
+        assert completed.returncode == 1, f"{case['id']}: abnormal/incorrect exit {completed.returncode}"
+        assert not completed.stdout, f"{case['id']}: rejected request leaked a result"
+        assert "panicked" not in stderr and marker in stderr, f"{case['id']}: unclassified rejection {stderr!r}"
+    else:
+        assert completed.returncode == 0 and not completed.stderr, f"{case['id']}: {stderr}"
+        JSON.assert_json_equal(JSON.semantic_json(completed.stdout), case["expected"], case["id"])
+
+
 class Session:
     def __init__(self, root, offline):
         self.root = root
@@ -48,7 +63,12 @@ class Session:
             self.env["CARGO_NET_OFFLINE"] = "true"
         self.report = {"status": "RUNNING", "started_utc": datetime.now(timezone.utc).isoformat(),
                        "platform": platform.platform(), "offline_requested": offline,
-                       "commands": [], "versions": {}, "costs": {}}
+                       "commands": [], "versions": {}, "costs": {},
+                       "package_sha256": {"runner": sha(HERE / "reproduce.py"),
+                                          "acceptance": sha(HERE / "acceptance/cases.json"),
+                                          "consumer_adapter": sha(HERE / "consumer/main.alva"),
+                                          "exact_comparator": sha(REPO / "tests/json_patch/run_tests.py"),
+                                          "caller": sha(REPO / "examples/json_patch_component/call_component.py")}}
         self.started = time.monotonic()
 
     def save(self):
@@ -109,7 +129,7 @@ class Session:
         (app / "alva.toml").write_text(
             '[project]\nname = "json_patch_component"\n[modules]\n'
             '"json_patch.main" = "main.alva"\n[dependencies]\n'
-            f'json_patch = {json.dumps(dependency.as_posix())}\n', encoding="utf-8")
+            f'json_patch = {json.dumps(dependency.as_posix(), ensure_ascii=False)}\n', encoding="utf-8")
         self.run([compiler, "project", "check", app / "alva.toml"])
         self.run([compiler, "project", "build", app / "alva.toml", "--out-dir", dest / "gen"])
         crate = dest / "gen/json_patch_component"
@@ -131,18 +151,9 @@ class Session:
         for case in cases:
             payload = JSON.encode_json(case["request"])
             completed = self.run([binary], payload=payload, timeout=10, check=False)
-            reject = "error" in case or (label == "before" and case.get("new"))
             row = {"id": case["id"], "passed": False}
             rows.append(row)
-            stderr = completed.stderr.decode("utf-8", "strict")
-            if reject:
-                marker = "mode must be pointer or patch" if label == "before" and case.get("new") else case["error"]
-                assert completed.returncode == 1, f"{case['id']}: abnormal/incorrect exit {completed.returncode}"
-                assert not completed.stdout, f"{case['id']}: rejected request leaked a result"
-                assert "panicked" not in stderr and marker in stderr, f"{case['id']}: unclassified rejection {stderr!r}"
-            else:
-                assert completed.returncode == 0 and not completed.stderr, f"{case['id']}: {stderr}"
-                JSON.assert_json_equal(JSON.semantic_json(completed.stdout), case["expected"], case["id"])
+            check_outcome(completed, case, label)
             row["passed"] = True
         self.save()
         print(f"{label}: {len(rows)} acceptance dispositions PASS", flush=True)
@@ -161,7 +172,7 @@ class Session:
         (app / "alva.toml").write_text(
             '[project]\nname = "schema_selection"\n[modules]\n'
             '"consumer.main" = "main.alva"\n[dependencies]\n'
-            f'json_patch = {json.dumps(dependency.as_posix())}\n', encoding="utf-8")
+            f'json_patch = {json.dumps(dependency.as_posix(), ensure_ascii=False)}\n', encoding="utf-8")
         self.run([compiler, "project", "check", app / "alva.toml"])
         self.run([compiler, "project", "build", app / "alva.toml", "--out-dir", app / "gen"])
         crate = app / "gen/schema_selection"
@@ -190,6 +201,9 @@ class Session:
                                    "library": str(dependency), "vendor": False,
                                    "binary": str(binary), "binary_sha256": sha(binary),
                                    "input": payload.decode(), "stdout": result.stdout.decode(),
+                                   "adapter_sha256": sha(app / "main.alva"),
+                                   "generated_lock_sha256": sha(crate / "Cargo.lock"),
+                                   "generated_lock": (crate / "Cargo.lock").read_text(encoding="utf-8"),
                                    "caller_accepts_exact_and_rejects_error": True}
 
 
@@ -205,13 +219,18 @@ def main():
     parser.add_argument("--offline", action="store_true", help="require existing Cargo caches")
     parser.add_argument("--work-parent", type=Path, help="parent for a fresh retained temporary directory")
     args = parser.parse_args()
+    if not __debug__:
+        parser.error("do not disable test assertions with python -O / PYTHONOPTIMIZE")
     if not args.baseline_only and not (args.after or args.after_binary):
         parser.error("provide --after or --after-binary, or --baseline-only")
     root = Path(tempfile.mkdtemp(prefix="sm-", dir=args.work_parent)).resolve()
     print(f"Artifacts retained at {root}", flush=True)
     session = Session(root, args.offline)
     try:
-        for command in (["rustc", "--version", "--verbose"], ["cargo", "--version"], [sys.executable, "--version"]):
+        tool_commands = [[sys.executable, "--version"]]
+        if args.before or args.after:
+            tool_commands += [["rustc", "--version", "--verbose"], ["cargo", "--version"]]
+        for command in tool_commands:
             session.run(command)
         JSON.assert_comparator_regressions()
         for label in (["before"] if args.baseline_only else ["before", "after"]):
@@ -228,6 +247,9 @@ def main():
             if source:
                 session.run(["cargo", "test", "--manifest-path", source / "alva/Cargo.toml",
                              "--locked", "--target-dir", target])
+                session.report["versions"][label]["core_unit_tests"] = "PASS"
+            else:
+                session.report["versions"][label]["core_unit_tests"] = "NOT_RUN (supplied binary)"
             if label == "after":
                 if source:
                     session.consumer(source, compiler)

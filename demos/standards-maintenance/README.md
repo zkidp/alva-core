@@ -20,11 +20,11 @@ or model credentials are needed. On Windows, use a working MSVC C++ toolchain
 or Rust's GNU toolchain with MinGW on PATH. PowerShell may need
 `$env:RUSTUP_TOOLCHAIN='stable-x86_64-pc-windows-gnu'` for the latter.
 
-Obtain two explicit local checkouts, without resetting any existing workspace:
+From the directory containing an existing `alva-after` checkout of the task
+branch, obtain a second explicit checkout without resetting any workspace:
 
 ```sh
-git worktree add --detach ../alva-before 77f37cefdee53e24651acabff2a990fbaa5d96c2
-# alva-after is an existing checkout of codex/standards-maintenance-demo.
+git -C alva-after worktree add --detach ../alva-before 77f37cefdee53e24651acabff2a990fbaa5d96c2
 python alva-after/demos/standards-maintenance/reproduce.py --before alva-before --after alva-after
 ```
 
@@ -73,6 +73,8 @@ python alva-after/demos/standards-maintenance/reproduce.py --before-binary /path
 Binary-only mode checks behavior and old JSON regressions, but explicitly reports
 source/library-consumer and Core unit tests as not run. The caller supplying the
 binaries owns their provenance; hashes are recorded, not treated as proof of origin.
+Only Python and compatible native binaries are required in this mode, not Cargo
+or Git. Do not use Python `-O` / `PYTHONOPTIMIZE` to disable acceptance assertions.
 `--baseline-only --before PATH` records the old result without expecting a repair.
 
 ## What to expect
@@ -108,3 +110,8 @@ or independent human tests. The task is now a development case, never an unseen
 evaluation task. No existing paper, frozen experiment or historical interpretation
 is changed. See [CHANGELOG.md](CHANGELOG.md), [RESULTS.json](RESULTS.json),
 [DEMO.md](DEMO.md), and the one-page [COMPARISON.md](COMPARISON.md).
+
+New source and original acceptance data use this repository's root license.
+Issue text and external fixes are not copied into the package. The unchanged
+third-party test corpus retains its [pinned provenance and Apache-2.0 declaration](../../tests/json_patch/UPSTREAM.json);
+the RFCs are linked as specifications, not reproduced in full.
