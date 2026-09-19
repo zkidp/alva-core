@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import subprocess
@@ -175,25 +176,32 @@ def load_caller_module() -> Any:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--binary", type=Path, help="test an explicitly supplied release CLI")
+    args = parser.parse_args()
     assert_comparator_regressions()
-    run(["cargo", "build"], cwd=ALVA_DIR, check=True)
+    if args.binary is None:
+        run(["cargo", "build"], cwd=ALVA_DIR, check=True)
     compiler = ALVA_DIR / "target" / "debug" / f"alva{EXE_SUFFIX}"
-    assert compiler.exists()
+    assert args.binary is not None or compiler.exists()
 
     with tempfile.TemporaryDirectory(prefix="alva-json-patch-") as temp_text:
         temp = Path(temp_text)
         generated = temp / "generated"
-        run(
-            [str(compiler), "project", "build", str(PROJECT), "--out-dir", str(generated)],
-            cwd=ROOT,
-            check=True,
-        )
+        if args.binary is None:
+            run(
+                [str(compiler), "project", "build", str(PROJECT), "--out-dir", str(generated)],
+                cwd=ROOT,
+                check=True,
+            )
         crate = generated / "json_patch_component"
-        run(
-            ["cargo", "build", "--manifest-path", str(crate / "Cargo.toml"), "--release"],
-            check=True,
-        )
-        executable = crate / "target" / "release" / f"json_patch_component{EXE_SUFFIX}"
+        if args.binary is None:
+            run(
+                ["cargo", "build", "--manifest-path", str(crate / "Cargo.toml"), "--release"],
+                check=True,
+            )
+        executable = (args.binary.resolve() if args.binary else
+                      crate / "target" / "release" / f"json_patch_component{EXE_SUFFIX}")
         assert executable.exists()
 
         totals = {

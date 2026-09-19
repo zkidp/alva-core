@@ -1,0 +1,27 @@
+;; Independent, single-document schema-fragment selector, not a schema validator.
+(module
+  (name "consumer.main")
+  (version "0.1.0")
+  (dep "alva.std.io" "0.1.0")
+  (dep "alva.std.json" "0.1.0")
+  (dep "json_patch.patch" "0.1.0")
+  (cap io)
+  (export main)
+
+  (fn main
+    (params)
+    (returns (result (prim nil) (prim string)))
+    (eff io)
+    (body
+      (let input (try (call alva.std.io.read_stdin) (catch e (raise (ref e))))
+        (let request (try (call alva.std.json.parse (ref input)) (catch e (raise (ref e))))
+          (let document (try (call alva.std.json.get (ref request) (string "doc")) (catch e (raise (ref e))))
+            (let pointer
+              (try (call alva.std.json.as_string
+                     (try (call alva.std.json.get (ref request) (string "pointer")) (catch e (raise (ref e)))))
+                (catch e (raise (ref e))))
+              (let selected
+                (try (call json_patch.patch.resolve_fragment (ref document) (ref pointer))
+                  (catch e (raise (ref e))))
+                (try (call alva.std.io.write_stdout (call alva.std.json.serialize (ref selected)))
+                  (catch e (raise (ref e))))))))))))
