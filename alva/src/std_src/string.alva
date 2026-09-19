@@ -15,7 +15,7 @@
           trim trim_start trim_end lower upper
           replace substring repeat
           lines chars
-          from_utf8)
+          from_utf8 from_utf8_octets)
 
   ;; ---- inspection ----
 
@@ -138,6 +138,14 @@
     (unsafe)
     (rust "glue::str_from_utf8({b})"))
 
+  ;; Checked construction from computed integer octets; not URI decoding.
+  (extern glue.str_from_utf8_octets
+    (params (param octets (vec (prim i64))))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (unsafe)
+    (rust "glue::str_from_utf8_octets({octets})"))
+
   ;; ---- typed wrappers (public API) ----
 
   (fn is_empty
@@ -250,4 +258,11 @@
     (pure)
     (body
       (call glue.str_from_utf8 (ref b))))
+
+  (fn from_utf8_octets
+    (params (param octets (vec (prim i64))))
+    (returns (result (prim string) (prim string)))
+    (pure)
+    (body
+      (call glue.str_from_utf8_octets (ref octets))))
 )

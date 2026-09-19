@@ -30,13 +30,16 @@ printf '%s' '{"mode":"patch","doc":{"items":[1,2]},"patch":[{"op":"add","path":"
 ## Supported range
 
 - RFC 6901 JSON-string pointer syntax, including the distinct empty pointer and `/`, array indices, and `~1` then `~0` decoding.
+- Explicit `fragment` mode and `json_patch.patch.resolve_fragment` accept RFC 6901 URI-fragment Pointers (including `#`), with single-layer percent decoding and strict UTF-8. `json_patch.pointer.parse_fragment` returns the decoded tokens. Existing `pointer` mode and Patch `path`/`from` do not change dialect.
 - RFC 6902 `add`, `remove`, `replace`, `move`, `copy`, and `test`, applied sequentially with failure propagation.
 - Exact JSON-number equality based on decimal value, including integers above 2^53; comparisons do not pass through `f64`. The base-10 exponent must fit in `i64`; larger exponents are rejected as unsupported rather than rounded.
 - A failed request writes no result document to stdout. Errors go to stderr and the process exits nonzero.
 
 Removing the document root with `remove` and path `""` is currently rejected because the component has no representation for an absent whole document. The precise comparison support is deliberately bounded JSON-number handling, not a new general-purpose decimal type.
 
-This component accepts the JSON representation only, not URI-fragment pointers. Passing the pinned public suite is a conformance regression result, not a claim that every RFC behavior or implementation limit has been covered. The component is an interface/runtime component, not a deployment or an authorization layer. It does not overwrite files, provide OS-level transactional output, or roll back external side effects. Callers remain responsible for timeouts, process status, response validation, and application-specific authorization.
+Fragment example: `{"mode":"fragment","doc":{"first name":"Ada"},"pointer":"#/first%20name"}` returns `"Ada"`. The caller explicitly selects this representation for an already loaded document. A bare JSON media type does not imply fragment Pointer semantics. Full URLs, raw non-URI characters, plain-name anchors, remote fetching, and JSON Schema validation are not supported. `+` is literal; `%` is decoded once, before Pointer token parsing. See the [standards maintenance demonstration](../../demos/standards-maintenance/README.md) for provenance and release acceptance.
+
+Passing the pinned public suite is a conformance regression result, not a claim that every RFC behavior or implementation limit has been covered. The component is an interface/runtime component, not a deployment or an authorization layer. It does not overwrite files, provide OS-level transactional output, or roll back external side effects. Callers remain responsible for timeouts, process status, response validation, and application-specific authorization.
 
 Run the pinned external and local conformance tests with:
 

@@ -2,7 +2,78 @@
   (name "json_patch.pointer")
   (version "0.1.0")
   (dep "alva.std.string" "0.1.0")
-  (export parse parse_index proper_prefix)
+  (export parse parse_fragment parse_index proper_prefix)
+
+  ;; URI grammar and percent decoding are library semantics. The stdlib only
+  ;; validates/converts octets to UTF-8; the lossy url-decode builtin is not used.
+  (type FragmentState
+    (record
+      (field next (prim i64))
+      (field octets (vec (prim i64)))))
+
+  (fn hex_digit
+    (params (param c (prim string)))
+    (returns (result (prim i64) (prim string)))
+    (pure)
+    (body
+      (let digits (call alva.std.string.chars (string "0123456789abcdef"))
+        (let lower (call alva.std.string.lower (ref c))
+          (let found
+            (fold i (range (int 0) (int 16))
+              (acc value (prim i64) (int -1))
+              (if (== (call get (ref digits) (ref i)) (ref lower))
+                (ref i) (ref value)))
+            (if (== (ref found) (int -1))
+              (raise (string "json.pointer: invalid percent escape"))
+              (ref found)))))))
+
+  (fn fragment_step
+    (params
+      (param chars (vec (prim string)))
+      (param i (prim i64))
+      (param state FragmentState))
+    (returns (result FragmentState (prim string)))
+    (pure)
+    (body
+      (if (< (ref i) (field (ref state) "next"))
+        (ref state)
+        (let c (call get (ref chars) (ref i))
+          (if (== (ref c) (string "%"))
+            (if (>= (+ (ref i) (int 2)) (call len (ref chars)))
+              (raise (string "json.pointer: incomplete percent escape"))
+              (let hi (try (call hex_digit (call get (ref chars) (+ (ref i) (int 1)))) (catch e (raise (ref e))))
+                (let lo (try (call hex_digit (call get (ref chars) (+ (ref i) (int 2)))) (catch e (raise (ref e))))
+                  (record FragmentState
+                    (next (+ (ref i) (int 3)))
+                    (octets (call append (field (ref state) "octets") (+ (* (ref hi) (int 16)) (ref lo))))))))
+            (if (call alva.std.string.contains
+                  (string "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~!$&'()*+,;=:@/?") (ref c))
+              (let octet
+                (try (parse-int (call to-string (call get (to-bytes (ref c)) (int 0))))
+                  (catch e (raise (ref e))))
+                (record FragmentState
+                  (next (+ (ref i) (int 1)))
+                  (octets (call append (field (ref state) "octets") (ref octet)))))
+              (raise (string "json.pointer: forbidden raw URI character"))))))))
+
+  (fn parse_fragment
+    (params (param fragment (prim string)))
+    (returns (result (vec (prim string)) (prim string)))
+    (pure)
+    (body
+      (if (not (call alva.std.string.starts_with (ref fragment) (string "#")))
+        (raise (string "json.pointer: fragment must start with '#'"))
+        (let chars (call alva.std.string.chars (ref fragment))
+          (let decoded
+            (fold i (range (int 1) (call len (ref chars)))
+              (acc state FragmentState
+                (record FragmentState (next (int 1)) (octets (vec (prim i64)))))
+              (try (call fragment_step (ref chars) (ref i) (ref state))
+                (catch e (raise (ref e)))))
+            (let pointer
+              (try (call alva.std.string.from_utf8_octets (field (ref decoded) "octets"))
+                (catch e (raise (call concat (string "json.pointer: ") (ref e)))))
+              (call parse (ref pointer))))))))
 
   (fn valid_escapes
     (params (param token (prim string)))

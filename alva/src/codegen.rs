@@ -1817,6 +1817,12 @@ mod glue {
     pub fn str_from_utf8(b: Vec<u8>) -> Result<String, String> {
         String::from_utf8(b).map_err(|e| format!("string.from_utf8: {e}"))
     }
+
+    pub fn str_from_utf8_octets(octets: Vec<i64>) -> Result<String, String> {
+        let bytes: Result<Vec<u8>, _> = octets.into_iter().map(u8::try_from).collect();
+        let bytes = bytes.map_err(|_| "string.from_utf8_octets: octet outside 0..255".to_string())?;
+        String::from_utf8(bytes).map_err(|_| "string.from_utf8_octets: invalid UTF-8".to_string())
+    }
 }
 "#;
 

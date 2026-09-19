@@ -2,13 +2,14 @@ name: Local library acceptance
 
 on:
   push:
-    branches: [codex/core-local-library-dependencies]
+    branches: [codex/core-local-library-dependencies, codex/standards-maintenance-demo]
   pull_request:
     paths:
       - 'alva/**'
       - 'tests/local_dependencies/**'
       - 'examples/json_patch_component/**'
       - 'examples/json_patch_consumer/**'
+      - 'demos/standards-maintenance/**'
       - '.github/workflows/local-libraries.yml'
 
 permissions:
@@ -21,9 +22,11 @@ defaults:
 jobs:
   linux:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -48,9 +51,25 @@ jobs:
           alva/target/debug/alva project build examples/json_patch_component/alva.toml --out-dir out/native-consumer
           cargo build --manifest-path out/native-consumer/json_patch_component/Cargo.toml --release
           python3 examples/json_patch_consumer/test_native.py --binary out/native-consumer/json_patch_component/target/release/json_patch_component
+      - name: Standards maintenance before/after source reproduction and offline rebuild
+        if: github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/alva-before" 77f37cefdee53e24651acabff2a990fbaa5d96c2
+          python3 demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP"
+          python3 demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP" --offline
+      - name: Preserve standards maintenance results and release artifacts
+        if: always() && github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        uses: actions/upload-artifact@v4
+        with:
+          name: standards-maintenance-linux
+          path: |
+            ${{ runner.temp }}/sm-*/RESULTS.json
+            ${{ runner.temp }}/sm-*/before/gen/json_patch_component/target/release/json_patch_component
+            ${{ runner.temp }}/sm-*/after/gen/json_patch_component/target/release/json_patch_component
+            ${{ runner.temp }}/sm-*/independent consumer/gen/schema_selection/target/release/schema_selection
       - name: Format changed Rust files
         working-directory: alva
-        run: rustfmt --check --edition 2021 --config skip_children=true src/project.rs src/project/tests.rs src/main.rs
+        run: rustfmt --check --edition 2021 --config skip_children=true src/project.rs src/project/tests.rs src/main.rs src/codegen.rs
       - name: Clippy excluding the two known baseline lint classes
         working-directory: alva
         run: cargo clippy --locked -- -D warnings -A clippy::too_many_arguments -A clippy::needless_borrow
@@ -58,9 +77,11 @@ jobs:
   windows:
     needs: linux
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
       - name: Compiler unit tests and build
         working-directory: alva
@@ -69,3 +90,21 @@ jobs:
           cargo build --locked
       - name: Windows paths and actual project builds
         run: python tests/local_dependencies/run_tests.py
+      - name: Windows release safety
+        run: python tests/release_json_component/e2e_test.py
+      - name: Standards maintenance Windows source reproduction and offline rebuild
+        if: github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/alva-before" 77f37cefdee53e24651acabff2a990fbaa5d96c2
+          python demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP"
+          python demos/standards-maintenance/reproduce.py --before "$RUNNER_TEMP/alva-before" --after "$PWD" --work-parent "$RUNNER_TEMP" --offline
+      - name: Preserve Windows results and release artifacts
+        if: always() && github.ref == 'refs/heads/codex/standards-maintenance-demo'
+        uses: actions/upload-artifact@v4
+        with:
+          name: standards-maintenance-windows
+          path: |
+            ${{ runner.temp }}/sm-*/RESULTS.json
+            ${{ runner.temp }}/sm-*/before/gen/json_patch_component/target/release/json_patch_component.exe
+            ${{ runner.temp }}/sm-*/after/gen/json_patch_component/target/release/json_patch_component.exe
+            ${{ runner.temp }}/sm-*/independent consumer/gen/schema_selection/target/release/schema_selection.exe

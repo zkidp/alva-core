@@ -3,7 +3,7 @@
   (version "0.1.0")
   (dep "alva.std.json" "0.1.0")
   (dep "json_patch.pointer" "0.1.0")
-  (export resolve apply)
+  (export resolve resolve_fragment apply)
 
   (fn child
     (params
@@ -48,6 +48,19 @@
     (body
       (let tokens
         (try (call json_patch.pointer.parse (ref pointer))
+          (catch e (raise (ref e))))
+        (call resolve_at (ref document) (ref tokens) (int 0)))))
+
+  ;; Explicit URI-fragment entry. Patch paths/from never use this parser.
+  (fn resolve_fragment
+    (params
+      (param document (prim json))
+      (param fragment (prim string)))
+    (returns (result (prim json) (prim string)))
+    (pure)
+    (body
+      (let tokens
+        (try (call json_patch.pointer.parse_fragment (ref fragment))
           (catch e (raise (ref e))))
         (call resolve_at (ref document) (ref tokens) (int 0)))))
 

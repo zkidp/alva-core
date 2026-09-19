@@ -129,4 +129,33 @@
       (== (try (call alva.std.string.from_utf8 (bytes "ff"))
                (catch e (string "err")))
           (string "err"))))
+
+  (test from_utf8_octets_empty
+    (body
+      (== (unwrap (call alva.std.string.from_utf8_octets (vec (prim i64))))
+          (string ""))))
+
+  (test from_utf8_octets_unicode
+    (body
+      (== (unwrap (call alva.std.string.from_utf8_octets
+                    (vec (prim i64) (int 65) (int 233) (int 155) (int 170))))
+          (string "A雪"))))
+
+  (test from_utf8_octets_negative
+    (body
+      (== (try (call alva.std.string.from_utf8_octets (vec (prim i64) (int -1)))
+            (catch e (ref e)))
+          (string "string.from_utf8_octets: octet outside 0..255"))))
+
+  (test from_utf8_octets_above_byte
+    (body
+      (== (try (call alva.std.string.from_utf8_octets (vec (prim i64) (int 256)))
+            (catch e (ref e)))
+          (string "string.from_utf8_octets: octet outside 0..255"))))
+
+  (test from_utf8_octets_invalid
+    (body
+      (== (try (call alva.std.string.from_utf8_octets (vec (prim i64) (int 255)))
+            (catch e (ref e)))
+          (string "string.from_utf8_octets: invalid UTF-8"))))
 )

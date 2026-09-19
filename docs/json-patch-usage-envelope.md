@@ -4,7 +4,7 @@ This document summarizes the tested component envelope. It does not claim comple
 
 ## Interface and conformance
 
-The release executable accepts one UTF-8 JSON request on stdin, limited to 1 MiB, and writes one complete JSON result only on zero exit. Supported modes are JSON-string Pointer resolution and RFC 6902 `add`, `remove`, `replace`, `move`, `copy`, and `test`. URI fragments are unsupported; removing the whole root is rejected; decimal-value comparison is exact within the documented exponent bound and is not a general decimal type.
+The release executable accepts one UTF-8 JSON request on stdin, limited to 1 MiB, and writes one complete JSON result only on zero exit. Supported modes are JSON-string Pointer resolution, explicit URI-fragment Pointer resolution, and RFC 6902 `add`, `remove`, `replace`, `move`, `copy`, and `test`. Fragment resolution is an additive source-mode library API described in the [standards maintenance demonstration](../demos/standards-maintenance/README.md), not automatic dialect detection, a URL fetcher or schema validator. Existing Pointer/Patch paths stay JSON-string-only. Removing the whole root is rejected; decimal-value comparison is exact within the documented exponent bound and is not a general decimal type.
 
 The pinned public corpus and local boundary/caller regressions must be rerun for every build. Expected specification rejection requires a classified JSON Pointer/Patch error, empty stdout, and no panic. Disabled upstream rows remain disabled rather than counted as passes.
 

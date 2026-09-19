@@ -21,6 +21,9 @@ directory.
 It is not part of normal local-library use. `test_native.py` separately tests
 the prebuilt native component boundary and is unchanged.
 
-The component API remains `0.1.0`, JSON-string Pointer only, root removal is
-unsupported, input is bounded to 1 MiB by the native component adapter, and
-JSON-number equality is bounded as documented by the component.
+The component API remains `0.1.0`; this Patch application continues to use
+JSON-string paths only. A separate additive `resolve_fragment` API and explicit
+native `fragment` mode are demonstrated in
+[`demos/standards-maintenance`](../../demos/standards-maintenance/README.md).
+Root removal is unsupported, input is bounded to 1 MiB by the native component
+adapter, and JSON-number equality is bounded as documented by the component.
