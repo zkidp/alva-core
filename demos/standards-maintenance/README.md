@@ -19,6 +19,8 @@ Use Git, Python 3.10+, Cargo/Rust stable and a native linker. No Python packages
 or model credentials are needed. On Windows, use a working MSVC C++ toolchain
 or Rust's GNU toolchain with MinGW on PATH. PowerShell may need
 `$env:RUSTUP_TOOLCHAIN='stable-x86_64-pc-windows-gnu'` for the latter.
+Run this directory as part of the repository checkout: it intentionally reuses
+the maintained caller and exact comparator, rather than vendoring those files.
 
 From the directory containing an existing `alva-after` checkout of the task
 branch, obtain a second explicit checkout without resetting any workspace:
@@ -97,6 +99,14 @@ Callers must wait for exit, apply a timeout and validate JSON and its expected
 shape before adopting it. A stdout write is not an OS transaction.
 
 ## Evidence and limitations
+
+The implementation and final harness at `276d651886696302ebcc22103ad63009b172e5ab`
+passed [Linux and Windows CI run 35476626643](https://github.com/zkidp/alva-core/actions/runs/35476626643),
+including actual fresh online and offline source reproduction on both platforms.
+The run's two named artifacts contain release binaries and complete result logs.
+The designated owned Linux target was not tested because SSH host-key trust was
+missing; this is not reported as target-server acceptance. Final evidence-only
+documentation does not change the tested implementation or harness.
 
 | Supported by this package's evidence | Not supported |
 | --- | --- |

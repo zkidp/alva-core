@@ -16,7 +16,15 @@ public issue explanations and normative specifications were inspected.
 
 The Rust `json-patch` performance reference cannot automatically serve as a
 maintenance arm: its crate dependency, adapter and ALVA library own different
-layers. Before selecting a future task, map the behavior owner in each stack,
+layers. Its existing README pins `json-patch` 4.2.0 and `serde_json` 1.0.151;
+Patch execution is delegated to the former. Only that README/dependency metadata
+was read after SM-001 selection, not the reference implementation or a repair.
+For SM-001, ALVA owns the new decoder and needs a small stdlib conversion;
+a conventional adapter could use existing ecosystem URI facilities. Whether a
+specific pinned conventional stack already satisfies the whole new contract,
+or exactly the same old contract, has **not** been established. Its work may be
+smaller or zero; no equal-work starting point is claimed. Before selecting a
+future task, map the behavior owner in each stack,
 verify both starting versions satisfy identical old requirements, and explicitly
 allow changes to the corresponding application/library/dependency layers.
 Check the chosen conventional dependency's actual pinned capability. If it

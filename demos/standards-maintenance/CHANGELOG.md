@@ -98,3 +98,41 @@ sample or a labor proxy.
 Final clean-commit / cross-platform evidence is listed in RESULTS.json. Existing
 historical experiment outputs, old Paper 1 and performance data remain unchanged.
 No model/provider experiment, external outreach, PR, release, merge or deployment.
+
+## Completed cross-platform verification and delivery
+
+Both actual GitHub-hosted jobs passed in
+[initial run 35476335646](https://github.com/zkidp/alva-core/actions/runs/35476335646)
+at implementation commit `09cedc00bf62e8024f77728e017fd0984d5d434d`, and again in
+[verified run 35476626643](https://github.com/zkidp/alva-core/actions/runs/35476626643)
+at `276d651886696302ebcc22103ad63009b172e5ab` after delivery-harness hardening.
+The latter Linux job finished at 23:42:39 UTC and Windows at 23:51:59 UTC on
+2026-09-19. Source snapshots were clean and generated before/after application
+locks matched. Each platform ran online and then actual fresh offline source
+builds, all 44 dispositions per arm, original 108 enabled / 26 local regressions,
+Core units, and the external-directory local-library consumer.
+
+Linux additionally passed the full existing conformance, each AIR/AEP suite,
+MCP and native caller (4 actual ALVA / 3 caller-failure cases). Linux Core has
+34 tests; Windows has 33 because of the Unix-only symlink test. Both verified
+jobs ran the 22 string tests in debug and release plus four harness tests;
+Windows also reran release safety. Local Windows GNU, GitHub Windows MSVC and
+GitHub Linux are separate environments. The designated owned Linux server
+remains **NOT_RUN** due to host-key trust, not silently replaced in the report.
+
+The verified CI artifacts are `standards-maintenance-linux` (ID 10593649540) and
+`standards-maintenance-windows` (ID 10594547244). They contain complete runner
+JSON logs and actual before/after/consumer release executables. RESULTS.json
+contains precise hashes, all 12 recorded reproduce-run durations, CI job durations,
+and all 22 changed files. Artifacts may expire under GitHub retention; the source
+reproduction is the durable deliverable. Windows online/offline executable hashes
+differed; no bit-for-bit reproducibility claim is made.
+
+The final commit is **evidence/documentation only** and uses `[skip ci]` to avoid
+repeating the same builds after the verified commit. Runtime source, tests and CI
+workflow are unchanged from `276d651`. The final Git HEAD/parent/origin identity is
+reported in the handoff, not recursively embedded in its own commit. This is not
+a claim that a different untested implementation passed. No temporary directory
+from the previous task was touched; this round's reproduction directories and
+downloaded evidence were retained for inspection. No generated binaries/logs or
+machine credentials are committed.
