@@ -45,8 +45,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/alva-codex-cli"
           gh release download rust-v0.164.0 --repo openai/codex \
             --pattern "codex-$target$suffix.tar.gz" --dir "$RUNNER_TEMP/alva-codex-cli"
-          tar -xzf "$RUNNER_TEMP/alva-codex-cli/codex-$target$suffix.tar.gz" \
-            -C "$RUNNER_TEMP/alva-codex-cli"
+          # Git Bash tar interprets a Windows drive colon as a remote host.
+          (cd "$RUNNER_TEMP/alva-codex-cli" && tar -xzf "codex-$target$suffix.tar.gz")
           echo "TEST_CODEX=$RUNNER_TEMP/alva-codex-cli/codex-$target$suffix" >> "$GITHUB_ENV"
       - name: Plugin packaging and real host transaction
         # No login, API key, turn/start, or model generation is needed.
