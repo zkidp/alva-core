@@ -96,7 +96,8 @@ def run(directory, codex, model_demo=False, model=None):
         install = Path(env["CODEX_HOME"]) / "skills/python-guard"
         shutil.copytree(SKILL, install)
     version = subprocess.run([codex, "--version"], capture_output=True, text=True, timeout=15, check=True).stdout.strip()
-    config = ["-c", 'sandbox_mode="workspace-write"', "-c", 'approval_policy="never"']
+    config = ["-c", 'sandbox_mode="workspace-write"', "-c", 'approval_policy="never"',
+              "-c", "features.plugins=false"]
     if os.name == "nt":
         config += ["-c", 'windows.sandbox="unelevated"']
     host = AppServer(codex, env, session.candidate, extra_args=config)

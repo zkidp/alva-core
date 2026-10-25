@@ -33,6 +33,9 @@ jobs:
           python-version: '3.12'
       - name: Candidate workflow regressions
         run: python -m unittest discover -s tests/python_guard -p test_candidate_workflow.py -v
+      - name: Install Linux sandbox runtime dependency
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y bubblewrap
       - name: Install pinned Codex in runner temporary storage
         env:
           GH_TOKEN: ${{ github.token }}

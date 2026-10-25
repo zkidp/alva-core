@@ -35,6 +35,10 @@ Concrete development corrections retained in the example:
    created, uniquely named host-owned `.local/` directory, not that parent ACL.
 4. Tests using isolated Python (`-I`) need explicit project import setup in the
    public test fixture. This was corrected in the fixture, not by changing P1.
+5. The first CI host runs found a missing Linux `bubblewrap` dependency and a
+   Windows cleanup lock from unrelated background plugin cloning. CI installs
+   the sandbox runtime; the standalone Guard host disables unrelated plugins.
+   Neither correction bypasses the sandbox or changes Guard verification.
 
 ## One actual model-generated candidate (not engineering-only)
 

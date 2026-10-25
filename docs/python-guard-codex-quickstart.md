@@ -126,7 +126,10 @@ does **not** implement the requested input validation: expected checks FAIL /
 applicability CURRENT is a passing engineering test, not a task success.
 No model turn or credential is required for this mode.
 
-CI pins official Codex 0.164.0 on Linux/Windows. The local Windows demonstration
+CI pins official Codex 0.164.0 on Linux/Windows and installs Linux `bubblewrap`.
+The standalone example disables unrelated plugins, leaving the separate Guard
+Skill and host callbacks available without background marketplace cloning.
+The local Windows demonstration
 used 0.163.0-alpha.11.2. The example explicitly selects the legacy `unelevated`
 Windows backend for this bounded fixture; it neither changes global config nor
 installs elevated sandbox accounts. Source, policy, control and tool directories
