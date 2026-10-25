@@ -160,7 +160,8 @@ def execute(argv: list[str], cwd: Path, environment: dict[str, str], limits: dic
             row["status"] = "PASS" if row["returncode"] == 0 else "FAIL"
             row["reason"] = "EXIT" if row["returncode"] >= 0 else "SIGNAL_TERMINATION"
             stderr = bytes(streams["stderr"])
-            if b"SyntaxError:" not in stderr and (b"ModuleNotFoundError:" in stderr or b"ImportError:" in stderr):
+            if (row["returncode"] != 0 and b"SyntaxError:" not in stderr
+                    and (b"ModuleNotFoundError:" in stderr or b"ImportError:" in stderr)):
                 row.update(status="UNKNOWN", reason="MISSING_OR_UNUSABLE_DEPENDENCY")
         kill()  # Dispose of any owned background descendants even after success.
     except (OSError, subprocess.SubprocessError) as exc:

@@ -258,6 +258,49 @@ class GuardTests(unittest.TestCase):
         result = self.verify(self.request())
         self.assertEqual(result["checks_status"], "UNKNOWN")
         self.assertIn("MISSING_OR_UNUSABLE_DEPENDENCY", result["reasons"])
+        rows = [row for row in result["checks"] if row["id"] == "dependency"]
+        self.assertEqual(len(rows), 2)
+        self.assertEqual([row["status"] for row in rows], ["UNKNOWN", "NOT_RUN"])
+        for row in rows[:1]:
+            self.assertNotEqual(row["returncode"], 0)
+            self.assertEqual(row["status"], "UNKNOWN")
+            self.assertEqual(row["reason"], "MISSING_OR_UNUSABLE_DEPENDENCY")
+            self.assertIn("ModuleNotFoundError:", row["stderr"]["text"])
+
+    def test_successful_dependency_diagnostics_remain_pass(self):
+        for marker in ("ImportError:", "ModuleNotFoundError:"):
+            with self.subTest(marker=marker):
+                self.policy["checks"] = [{"id": "diagnostic", "argv": ["$PYTHON", "-I", "-c",
+                    "import sys; sys.stderr.write(" + repr(marker + " optional backend unavailable\n") + ")"]}]
+                self.approve()
+                result = self.verify(self.request())
+                self.assertEqual(result["checks_status"], "PASS")
+                self.assertEqual(result["applicability_status"], "CURRENT")
+                self.assertNotIn("MISSING_OR_UNUSABLE_DEPENDENCY", result["reasons"])
+                rows = [row for row in result["checks"] if row["id"] == "diagnostic"]
+                self.assertEqual(len(rows), 2)
+                for row in rows:
+                    self.assertEqual(row["returncode"], 0)
+                    self.assertEqual(row["status"], "PASS")
+                    self.assertEqual(row["reason"], "EXIT")
+                    self.assertIn(marker, row["stderr"]["text"])
+                self.assertTrue(all(row["classification"] == "BOTH_PASS" for row in result["regression"]))
+
+    def test_nonzero_import_error_remains_unknown(self):
+        self.policy["checks"] = [{"id": "dependency", "argv": ["$PYTHON", "-I", "-c",
+            "raise ImportError('required backend unavailable')"]}]
+        self.approve()
+        result = self.verify(self.request())
+        self.assertEqual(result["checks_status"], "UNKNOWN")
+        self.assertIn("MISSING_OR_UNUSABLE_DEPENDENCY", result["reasons"])
+        rows = [row for row in result["checks"] if row["id"] == "dependency"]
+        self.assertEqual(len(rows), 2)
+        self.assertEqual([row["status"] for row in rows], ["UNKNOWN", "NOT_RUN"])
+        for row in rows[:1]:
+            self.assertNotEqual(row["returncode"], 0)
+            self.assertEqual(row["status"], "UNKNOWN")
+            self.assertEqual(row["reason"], "MISSING_OR_UNUSABLE_DEPENDENCY")
+            self.assertIn("ImportError:", row["stderr"]["text"])
 
     def test_mutating_checker_is_unknown(self):
         self.policy["checks"] = [{"id": "mutator", "argv": ["$PYTHON", "-I", "-c",
