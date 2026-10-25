@@ -1,0 +1,53 @@
+name: Python Guard Codex workflow
+
+on:
+  pull_request:
+    paths:
+      - 'integrations/python_guard_codex/**'
+      - 'integrations/skills/python-guard/**'
+      - 'examples/python_guard_codex/**'
+      - 'tests/python_guard/test_candidate_workflow.py'
+      - 'tests/integrations/codex_native_test.py'
+      - 'scripts/python_guard_candidate.py'
+      - '.github/workflows/python-guard-codex.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-workflow:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Candidate workflow regressions
+        run: python -m unittest discover -s tests/python_guard -p test_candidate_workflow.py -v
+      - name: Install pinned Codex in runner temporary storage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          target=x86_64-unknown-linux-musl
+          suffix=''
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            target=x86_64-pc-windows-msvc
+            suffix=.exe
+          fi
+          mkdir -p "$RUNNER_TEMP/guard-codex-cli"
+          gh release download rust-v0.164.0 --repo openai/codex \
+            --pattern "codex-$target$suffix.tar.gz" --dir "$RUNNER_TEMP/guard-codex-cli"
+          (cd "$RUNNER_TEMP/guard-codex-cli" && tar -xzf "codex-$target$suffix.tar.gz")
+          echo "TEST_CODEX=$RUNNER_TEMP/guard-codex-cli/codex-$target$suffix" >> "$GITHUB_ENV"
+      - name: Real Codex host, protected authority and candidate delivery
+        # No authentication, turn/start, or model generation in CI.
+        run: python examples/python_guard_codex/demo.py --codex "$TEST_CODEX"
