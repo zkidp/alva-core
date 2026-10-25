@@ -24,9 +24,9 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class AppServer:
-    def __init__(self, codex: str, env: dict[str, str], cwd: Path):
+    def __init__(self, codex: str, env: dict[str, str], cwd: Path, extra_args: list[str] | None = None):
         self.process = subprocess.Popen(
-            [codex, "app-server", "--stdio"], cwd=cwd, env=env,
+            [codex, "app-server", "--stdio", *(extra_args or [])], cwd=cwd, env=env,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             text=True, encoding="utf-8",
         )
