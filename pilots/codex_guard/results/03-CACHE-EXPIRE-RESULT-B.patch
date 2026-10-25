@@ -1,0 +1,48 @@
+diff --git a/cachetools/__init__.py b/cachetools/__init__.py
+index 341c1c7..4afbbd7 100644
+--- a/cachetools/__init__.py
++++ b/cachetools/__init__.py
+@@ -468,16 +468,20 @@ class TTLCache(_TimedCache):
+         """Remove expired items from the cache."""
+         if time is None:
+             time = self.timer()
++        expired = []
+         root = self.__root
+         curr = root.next
+         links = self.__links
++        cache_getitem = Cache.__getitem__
+         cache_delitem = Cache.__delitem__
+         while curr is not root and not (time < curr.expires):
++            expired.append((curr.key, cache_getitem(self, curr.key)))
+             cache_delitem(self, curr.key)
+             del links[curr.key]
+             next = curr.next
+             curr.unlink()
+             curr = next
++        return expired
+ 
+     def popitem(self):
+         """Remove and return the `(key, value)` pair least recently used that
+@@ -582,18 +586,22 @@ class TLRUCache(_TimedCache):
+         """Remove expired items from the cache."""
+         if time is None:
+             time = self.timer()
++        expired = []
+         items = self.__items
+         order = self.__order
+         # clean up the heap if too many items are marked as removed
+         if len(order) > len(items) * 2:
+             self.__order = order = [item for item in order if not item.removed]
+             heapq.heapify(order)
++        cache_getitem = Cache.__getitem__
+         cache_delitem = Cache.__delitem__
+         while order and (order[0].removed or not (time < order[0].expires)):
+             item = heapq.heappop(order)
+             if not item.removed:
++                expired.append((item.key, cache_getitem(self, item.key)))
+                 cache_delitem(self, item.key)
+                 del items[item.key]
++        return expired
+ 
+     def popitem(self):
+         """Remove and return the `(key, value)` pair least recently used that

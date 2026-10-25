@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / "pilots/codex_guard"))
 from integrations.python_guard import GuardError
 from integrations.python_guard.guard import canonical, digest
 from integrations.python_guard_codex import CandidateSession
+from integrations.python_guard.patch import apply_patch
 from prepare import public_files
 from tasks import TASKS
 from run import evaluate
@@ -31,7 +32,12 @@ class FrozenContract(unittest.TestCase):
             self.assertEqual(rows[0]["source_manifest"], rows[1]["source_manifest"])
             self.assertEqual(rows[0]["candidate_manifest"], rows[1]["candidate_manifest"])
         for name, identity in freeze["reused_hashes"].items():
-            self.assertEqual(digest((ROOT / name).read_bytes()), identity)
+            data = (ROOT / name).read_bytes()
+            # The actual execution used the hash-bound Windows checkout bytes.
+            # Git checks out reused P1/P2 text as LF on Linux. Reconstruct only
+            # these two newline encodings for CI; never change frozen runtime.
+            lf = data.replace(b"\r\n", b"\n")
+            self.assertIn(identity, {digest(data), digest(lf), digest(lf.replace(b"\n", b"\r\n"))})
 
     def test_six_baseline_expected_outcomes(self):
         for task in TASKS:
@@ -55,6 +61,45 @@ class FrozenContract(unittest.TestCase):
             self.assertIn("test_pilot.py", result["scope_violations"])
             self.assertEqual(result["independent_checks"]["task"]["status"], "FAIL")
             self.assertFalse(result["task_complete"])
+
+    def test_public_final_patches_replay_independent_checks(self):
+        results_file = ROOT / "pilots/codex_guard/RESULTS.json"
+        if not results_file.exists():
+            self.skipTest("execution has not closed")
+        rows = json.loads(results_file.read_bytes())
+        self.assertEqual(len(rows), 12)
+        for row in rows:
+            with self.subTest(slot=row["slot"]), tempfile.TemporaryDirectory() as temp:
+                baseline = ROOT / "pilots/codex_guard/inputs" / row["task"]
+                originals = {p.relative_to(baseline).as_posix(): p.read_bytes() for p in baseline.rglob("*") if p.is_file()}
+                patch = (ROOT / "pilots/codex_guard/results" / (row["slot"] + ".patch")).read_bytes()
+                self.assertEqual(digest(patch), row["patch_sha256"])
+                changes = apply_patch(patch.decode("utf-8"), originals) if patch else {}
+                editable = json.loads(originals["TASK.json"])["editable"]
+                self.assertFalse(set(changes) - set(editable))
+                tree = Path(temp) / "terminal"
+                shutil.copytree(baseline, tree)
+                for name, content in changes.items():
+                    target = tree / name
+                    if content is None:
+                        target.unlink()
+                    else:
+                        target.write_bytes(content)
+                for group in ("regression", "task"):
+                    result = subprocess.run([sys.executable, "-I", "test_pilot.py", group], cwd=tree,
+                        env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}, capture_output=True, timeout=30)
+                    self.assertEqual(result.returncode, row["independent_checks"][group]["returncode"], result.stderr.decode("utf-8", "replace"))
+
+    def test_protocol_deviation_is_not_hidden_by_passing_checks(self):
+        incident = ROOT / "pilots/codex_guard/results/INCIDENT-01.json"
+        if not incident.exists():
+            self.skipTest("execution has not closed")
+        record = json.loads(incident.read_bytes())
+        self.assertFalse(record["budget_control_valid"])
+        self.assertNotIn("turnId", record["actual_zero_model_reproduction"]["request"]["params"])
+        self.assertEqual(record["actual_zero_model_reproduction"]["response"]["error"]["code"], -32600)
+        self.assertEqual(record["observed_natural_completed_notifications"], 10)
+        self.assertEqual(len(record["terminal_notifications_not_observed"]), 2)
 
 
 class BindingScenarios(unittest.TestCase):
