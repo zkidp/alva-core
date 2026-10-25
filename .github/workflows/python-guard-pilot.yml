@@ -1,0 +1,26 @@
+name: Guard pilot reproducibility (zero model)
+on:
+  pull_request:
+    paths:
+      - 'pilots/codex_guard/**'
+      - 'tests/python_guard_pilot/**'
+      - '.github/workflows/python-guard-pilot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frozen-contract:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+        python: ['3.12', '3.14']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Frozen cases and evidence-binding scenarios (no login or model)
+        run: python -m unittest discover -s tests/python_guard_pilot -v

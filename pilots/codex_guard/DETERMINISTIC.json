@@ -1,0 +1,13 @@
+{
+  "classification": "ZERO_MODEL_EVIDENCE_BINDING_NOT_AGENT_CORRECTNESS",
+  "model_turns_started": 0,
+  "execution": "python -m unittest discover -s tests/python_guard_pilot -v",
+  "actual_test_result": {"tests": 6, "passed": 6, "failed": 0},
+  "scenarios": [
+    {"scenario": "original_source_changed_after_verification", "native_candidate_tests_exit": 0, "guard_applicability": "STALE", "interpretation": "Tests on the old candidate are not fresh applicability evidence; Git/hash comparison could also detect the changed original."},
+    {"scenario": "candidate_changed_after_verification", "native_tests_exit": 0, "native_git_diff_detects_change": true, "guard_candidate_matches_verified_patch": false, "interpretation": "Guard provides an explicit binding check; recomputed native patch hashes could provide equivalent detection."},
+    {"scenario": "protected_spec_weakened", "native_tests_exit": 0, "native_git_diff_exposes_protected_path": true, "guard_error": "PROTECTED_FILE", "interpretation": "Guard enforces approved scope at verification; ordinary Git plus a scope checker can enforce this too."}
+  ],
+  "pre_model_host_preflight": {"slots": 12, "source_and_policy_write_denied": 12, "candidate_access_pass": 12, "frozen_runtime_unchanged": 12},
+  "limitations": ["These cases do not establish an agent correctness effect.", "Neither Git nor Guard is a malicious-code sandbox.", "Native tests and Guard use the same behavioral assertions; their detection power must not be double-counted."]
+}
