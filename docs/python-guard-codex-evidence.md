@@ -39,6 +39,9 @@ Concrete development corrections retained in the example:
    Windows cleanup lock from unrelated background plugin cloning. CI installs
    the sandbox runtime; the standalone Guard host disables unrelated plugins.
    Neither correction bypasses the sandbox or changes Guard verification.
+6. Linux denied writes return `EROFS` with a read-only bind mount. The probe
+   accepts only explicit `EACCES`/`EPERM`/`EROFS` denials, not missing paths or
+   arbitrary execution errors. Windows and Linux must both execute the probe.
 
 ## One actual model-generated candidate (not engineering-only)
 

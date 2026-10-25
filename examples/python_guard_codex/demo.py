@@ -62,13 +62,15 @@ def sandbox_probe(host, session):
     outside = ROOT / "integrations/python_guard_codex/p2-write-probe.tmp"
     before = {p: p.read_bytes() for p in protected}
     program = (
-        "import json,pathlib,sys; results=[]\n"
+        "import errno,json,pathlib,sys; results=[]\n"
         "for i,name in enumerate(sys.argv[1:]):\n"
         " p=pathlib.Path(name)\n"
         " try:\n"
         "  with p.open('r+b' if i < 3 else 'xb') as f: pass\n"
         "  results.append(False)\n"
-        " except PermissionError: results.append(True)\n"
+        " except OSError as exc:\n"
+        "  if exc.errno not in (errno.EACCES, errno.EPERM, errno.EROFS): raise\n"
+        "  results.append(True)\n"
         "print(json.dumps(results))\n"
     )
     result = host.request("command/exec", {"command": [sys.executable, "-I", "-c", program,
