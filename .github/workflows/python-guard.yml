@@ -1,0 +1,32 @@
+name: Python Guard
+
+on:
+  pull_request:
+    paths:
+      - 'integrations/python_guard/**'
+      - 'tests/python_guard/**'
+      - 'examples/python_guard/**'
+      - '.github/workflows/python-guard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+        python: ['3.12', '3.14']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Deterministic Guard acceptance
+        run: python -m unittest discover -s tests/python_guard -p test_guard.py -v
+      - name: Real snapshot / verify / report CLI demo
+        run: python examples/python_guard/demo.py
