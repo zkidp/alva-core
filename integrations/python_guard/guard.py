@@ -95,7 +95,7 @@ class Guard:
             if not path.is_absolute():
                 raise GuardError("POLICY_UNAVAILABLE", f"{key} requires an absolute path")
         root = Path(policy["project_root"])
-        if not root.is_dir() or is_link(root.lstat()):
+        if root.exists() and (not root.is_dir() or is_link(root.lstat())):
             raise GuardError("UNSUPPORTED_FILE", "project root must be a real directory")
         policy["project_root"] = str(root.resolve())
         if type(policy["trusted_project"]) is not bool:

@@ -160,6 +160,17 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(result["applicability_status"], "STALE")
         self.assertEqual(result["checks"], [])
 
+    def test_removed_project_root_is_stale(self):
+        request = self.request()
+        moved = self.directory / "moved-project"
+        self.project.rename(moved)
+        before = {p.relative_to(moved): p.read_bytes() for p in moved.rglob("*.py")}
+        result = Guard(self.store, self.policy_file).verify(request)
+        self.assertEqual(result["checks_status"], "UNKNOWN")
+        self.assertEqual(result["applicability_status"], "STALE")
+        self.assertEqual(result["checks"], [])
+        self.assertEqual(before, {p.relative_to(moved): p.read_bytes() for p in moved.rglob("*.py")})
+
     def test_report_detects_stale_after_verification(self):
         result = self.verify(self.request())
         (self.project / "extra.py").write_text("x = 1\n")
