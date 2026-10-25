@@ -1,0 +1,57 @@
+name: Codex native integration
+
+on:
+  pull_request:
+    paths:
+      - 'alva/**'
+      - 'integrations/codex/**'
+      - 'integrations/skills/alva/**'
+      - 'tests/integrations/**'
+      - '.github/workflows/codex-integration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installed-plugin:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build existing ALVA toolchain
+        run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Install pinned Codex CLI in runner temporary storage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          target=x86_64-unknown-linux-musl
+          suffix=''
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            target=x86_64-pc-windows-msvc
+            suffix=.exe
+          fi
+          mkdir -p "$RUNNER_TEMP/alva-codex-cli"
+          gh release download rust-v0.164.0 --repo openai/codex \
+            --pattern "codex-$target$suffix.tar.gz" --dir "$RUNNER_TEMP/alva-codex-cli"
+          # Git Bash tar interprets a Windows drive colon as a remote host.
+          (cd "$RUNNER_TEMP/alva-codex-cli" && tar -xzf "codex-$target$suffix.tar.gz")
+          echo "TEST_CODEX=$RUNNER_TEMP/alva-codex-cli/codex-$target$suffix" >> "$GITHUB_ENV"
+      - name: Plugin packaging and real host transaction
+        # No login, API key, turn/start, or model generation is needed.
+        run: |
+          binary=alva/target/debug/alva
+          if [[ "$RUNNER_OS" == Windows ]]; then binary="$binary.exe"; fi
+          python tests/integrations/codex_plugin_test.py
+          python tests/integrations/codex_native_test.py "$binary" --codex "$TEST_CODEX"
