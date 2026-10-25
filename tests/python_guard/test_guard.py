@@ -176,7 +176,7 @@ class GuardTests(unittest.TestCase):
 
     def test_exact_context_no_offset_or_fuzz(self):
         request = self.request()
-        request["patch_utf8"] = request["patch_utf8"].replace("return sum(values)\n", "return sum(other)\n")
+        request["patch_utf8"] = request["patch_utf8"].replace("return sum(values)", "return sum(other)")
         self.rejection(request, "PREIMAGE_MISMATCH")
 
     def test_patch_path_escape(self):
