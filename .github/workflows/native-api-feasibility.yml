@@ -1,0 +1,43 @@
+name: Native API single-case feasibility
+
+on:
+  pull_request:
+    paths:
+      - 'feasibility/native_api/**'
+      - 'alva/**'
+      - '.github/workflows/native-api-feasibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  single-case:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build unchanged toolchain
+        run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Execute the one case without a model
+        run: |
+          binary=alva/target/debug/alva
+          if [[ "$RUNNER_OS" == "Windows" ]]; then binary="$binary.exe"; fi
+          python feasibility/native_api/run.py "$binary" --output out/native-api-ci.json
+          python -c "import json; r=json.load(open('out/native-api-ci.json',encoding='utf-8')); assert r['status']=='SUPPORTED',r.get('reason')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-api-${{ matrix.os }}
+          path: out/native-api-ci.json
