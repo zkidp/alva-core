@@ -1,0 +1,21 @@
+name: Cross-language pilot controller
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/cross_language/**'
+      - '.github/workflows/cross-language-controller.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  no-model-controller:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s benchmarks/cross_language -p test_controller.py -v

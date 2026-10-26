@@ -1,0 +1,43 @@
+{
+  "task": "Return a new list with each integer from xs incremented by one, preserving order and duplicates. Empty input returns empty. At most 16 integers, each in [-1000,1000].",
+  "signature": "solve(xs: (vec (prim i64))) -> (vec (prim i64))",
+  "language": "ALVA",
+  "condition": "Ordinary source edit is available; use read/edit/check/test.",
+  "examples": [
+    [
+      [],
+      []
+    ],
+    [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        2,
+        3,
+        4
+      ]
+    ]
+  ],
+  "initial_files": {
+    "alva.toml": "[project]\nname=\"bench\"\n[modules]\n\"bench\"=\"src/task.alva\"\n",
+    "src/task.alva": "(module (name \"bench\") (version \"0.1.0\") (export solve)\n(fn solve (params (param xs (vec (prim i64)))) (returns (vec (prim i64))) (pure) (body (vec (prim i64)))))\n"
+  },
+  "limits": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "effort": "low",
+    "wall_observation_seconds": 480,
+    "tool_callback_limit": 80,
+    "token_observation_threshold": 120000,
+    "interrupt_grace_seconds": 20,
+    "hard_provider_token_cap": false,
+    "concurrency": 1,
+    "model_turns_per_slot": 1,
+    "provider_generation_requests": null,
+    "dollar_cost": null
+  },
+  "common": "Use only the study tool; do not use shell, native file tools, internet, other sessions, delegation, or references. Implement solve for all supported inputs, not only examples. Checks/tests execute host-owned code. You may iterate within the fixed limits, then finish. No automatic source publishing or Git operations."
+}

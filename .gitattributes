@@ -1,0 +1,2 @@
+# Preserve prospective benchmark bytes and hashes across checkouts.
+benchmarks/cross_language/** -text

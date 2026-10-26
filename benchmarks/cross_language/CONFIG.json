@@ -1,0 +1,14 @@
+{
+  "model": "gpt-5.6-sol",
+  "provider": "openai",
+  "effort": "low",
+  "wall_observation_seconds": 480,
+  "tool_callback_limit": 80,
+  "token_observation_threshold": 120000,
+  "interrupt_grace_seconds": 20,
+  "hard_provider_token_cap": false,
+  "concurrency": 1,
+  "model_turns_per_slot": 1,
+  "provider_generation_requests": null,
+  "dollar_cost": null
+}
