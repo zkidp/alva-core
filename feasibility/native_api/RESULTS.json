@@ -1,0 +1,2035 @@
+{
+  "case": "metadata-signed-delta-api",
+  "status": "SUPPORTED",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "binary_sha256": "c8f5e89a19c4a0cd81ecbadb7d837d2eec8bd5661a3686ebb8ca22036c003d61",
+  "commands": [
+    {
+      "argv": [
+        "rustc",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "cargo",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "Python 3.14.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<REPO>\\alva\\target\\debug\\alva.exe",
+        "project",
+        "check",
+        "<SCRATCH>\\structured\\alva.toml",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<REPO>\\alva\\target\\debug\\alva.exe",
+        "project",
+        "build",
+        "<SCRATCH>\\structured\\alva.toml",
+        "--out-dir",
+        "<SCRATCH>\\build-baseline"
+      ],
+      "exit": 0,
+      "stdout": "project built: <SCRATCH>\\build-baseline\\demo\n",
+      "stderr": "     Locking 10 packages to latest compatible versions\n      Adding sha2 v0.10.9 (available: v0.11.0)\n   Compiling version_check v0.9.5\n   Compiling typenum v1.20.1\n   Compiling cfg-if v1.0.5\n   Compiling cpufeatures v0.2.17\n   Compiling generic-array v0.14.7\n   Compiling block-buffer v0.10.4\n   Compiling crypto-common v0.1.7\n   Compiling digest v0.10.7\n   Compiling sha2 v0.10.9\n   Compiling demo v0.1.0 (<SCRATCH>\\build-baseline\\demo)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.70s\n"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "<SCRATCH>\\build-baseline\\demo\\Cargo.toml"
+      ],
+      "exit": 0,
+      "stdout": "\nrunning 2 tests\ntest demo_app::test_run_works ... ok\ntest independent_baseline::original_behavior ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling demo v0.1.0 (<SCRATCH>\\build-baseline\\demo)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s\n     Running unittests src\\lib.rs (cargo-target\\debug\\deps\\demo-ce4bc188ee595cf3.exe)\n   Doc-tests demo\n"
+    },
+    {
+      "argv": [
+        "<REPO>\\alva\\target\\debug\\alva.exe",
+        "project",
+        "check",
+        "<SCRATCH>\\text\\alva.toml",
+        "--json"
+      ],
+      "exit": 1,
+      "stdout": "[{\"schema_version\":\"1\",\"code\":\"E_CALL_003\",\"severity\":\"error\",\"module\":\"demo.app\",\"span\":{\"start\":{\"line\":13,\"column\":9},\"end\":{\"line\":13,\"column\":9}},\"message\":\"external fn 'demo.model.touch_size' expects 2 argument(s), got 1\",\"expected\":[],\"actual\":[],\"caused_by\":[],\"affected_modules\":[\"demo.app\"],\"repairs\":[]}]\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<REPO>\\alva\\target\\debug\\alva.exe",
+        "project",
+        "check",
+        "<SCRATCH>\\text\\alva.toml",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<REPO>\\alva\\target\\debug\\alva.exe",
+        "project",
+        "build",
+        "<SCRATCH>\\text\\alva.toml",
+        "--out-dir",
+        "<SCRATCH>\\build-text"
+      ],
+      "exit": 0,
+      "stdout": "project built: <SCRATCH>\\build-text\\demo\n",
+      "stderr": "     Locking 10 packages to latest compatible versions\n      Adding sha2 v0.10.9 (available: v0.11.0)\n   Compiling demo v0.1.0 (<SCRATCH>\\build-text\\demo)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.23s\n"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "<SCRATCH>\\build-text\\demo\\Cargo.toml"
+      ],
+      "exit": 0,
+      "stdout": "\nrunning 4 tests\ntest demo_app::test_run_works ... ok\ntest independent_behavior::signed_delta_and_metadata ... ok\ntest independent_behavior::application_compatibility ... ok\ntest independent_behavior::repeated_adjustment ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling demo v0.1.0 (<SCRATCH>\\build-text\\demo)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s\n     Running unittests src\\lib.rs (cargo-target\\debug\\deps\\demo-ce4bc188ee595cf3.exe)\n   Doc-tests demo\n"
+    },
+    {
+      "argv": [
+        "<REPO>\\alva\\target\\debug\\alva.exe",
+        "project",
+        "check",
+        "<SCRATCH>\\structured\\alva.toml",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<REPO>\\alva\\target\\debug\\alva.exe",
+        "project",
+        "build",
+        "<SCRATCH>\\structured\\alva.toml",
+        "--out-dir",
+        "<SCRATCH>\\build-structured"
+      ],
+      "exit": 0,
+      "stdout": "project built: <SCRATCH>\\build-structured\\demo\n",
+      "stderr": "     Locking 10 packages to latest compatible versions\n      Adding sha2 v0.10.9 (available: v0.11.0)\n   Compiling demo v0.1.0 (<SCRATCH>\\build-structured\\demo)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s\n"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "<SCRATCH>\\build-structured\\demo\\Cargo.toml"
+      ],
+      "exit": 0,
+      "stdout": "\nrunning 4 tests\ntest independent_behavior::repeated_adjustment ... ok\ntest independent_behavior::application_compatibility ... ok\ntest demo_app::test_run_works ... ok\ntest independent_behavior::signed_delta_and_metadata ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling demo v0.1.0 (<SCRATCH>\\build-structured\\demo)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.42s\n     Running unittests src\\lib.rs (cargo-target\\debug\\deps\\demo-ce4bc188ee595cf3.exe)\n   Doc-tests demo\n"
+    }
+  ],
+  "aep": [
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "1",
+        "tool": "begin_transaction",
+        "project": "<SCRATCH>\\structured\\alva.toml"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "1",
+        "op_index": 1,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "2",
+        "tool": "applicable_operations",
+        "entity": "demo.model.touch_size"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "2",
+        "op_index": 2,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "076e02ed32c8d80b27735fff7500815da6ae0e1b0d81190e6d515ff0885a09f2",
+          "kind": "function",
+          "inspection": [
+            "applicable_operations",
+            "inspect_body",
+            "inspect_entity",
+            "inspect_function",
+            "inspect_test"
+          ],
+          "mutation": [
+            "add_param",
+            "append_step",
+            "change_field",
+            "rename_entity",
+            "set_effect"
+          ],
+          "context_operations": [
+            "abort_transaction",
+            "add_call_arg",
+            "add_record_field",
+            "begin_transaction",
+            "check_transaction",
+            "commit_transaction",
+            "construct_expression",
+            "create_binary",
+            "create_binding",
+            "create_block",
+            "create_call",
+            "create_if",
+            "create_literal",
+            "create_query",
+            "create_reference",
+            "describe_capability",
+            "describe_construction",
+            "describe_operation",
+            "inspect_project",
+            "list_candidates",
+            "list_capabilities",
+            "preview_semantic_diff",
+            "replace_expression",
+            "resolve_entity"
+          ]
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "3",
+        "tool": "applicable_operations",
+        "entity": "demo.app.run"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "3",
+        "op_index": 3,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+          "kind": "function",
+          "inspection": [
+            "applicable_operations",
+            "inspect_body",
+            "inspect_entity",
+            "inspect_function",
+            "inspect_test"
+          ],
+          "mutation": [
+            "add_param",
+            "append_step",
+            "change_field",
+            "rename_entity",
+            "set_effect"
+          ],
+          "context_operations": [
+            "abort_transaction",
+            "add_call_arg",
+            "add_record_field",
+            "begin_transaction",
+            "check_transaction",
+            "commit_transaction",
+            "construct_expression",
+            "create_binary",
+            "create_binding",
+            "create_block",
+            "create_call",
+            "create_if",
+            "create_literal",
+            "create_query",
+            "create_reference",
+            "describe_capability",
+            "describe_construction",
+            "describe_operation",
+            "inspect_project",
+            "list_candidates",
+            "list_capabilities",
+            "preview_semantic_diff",
+            "replace_expression",
+            "resolve_entity"
+          ]
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "4",
+        "tool": "describe_operation",
+        "name": "add_param"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "4",
+        "op_index": 4,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "name": "add_param",
+          "aliases": [],
+          "target_kinds": [
+            "function"
+          ],
+          "arguments": [
+            {
+              "name": "function",
+              "shape": "module fn",
+              "required": true
+            },
+            {
+              "name": "name",
+              "shape": "symbol",
+              "required": true
+            },
+            {
+              "name": "type",
+              "shape": "type",
+              "required": true
+            }
+          ],
+          "preconditions": [
+            "transaction"
+          ],
+          "effects": "mutation",
+          "example": "add_param function=queue.engine.fail name=error type=(prim string)",
+          "gated": false
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "5",
+        "tool": "describe_operation",
+        "name": "create_reference"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "5",
+        "op_index": 5,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "name": "create_reference",
+          "aliases": [],
+          "target_kinds": [
+            "any"
+          ],
+          "arguments": [
+            {
+              "name": "name",
+              "shape": "symbol",
+              "required": true
+            }
+          ],
+          "preconditions": [
+            "transaction"
+          ],
+          "effects": "mutation",
+          "example": "create_reference name=root",
+          "gated": false
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "6",
+        "tool": "describe_operation",
+        "name": "replace_expression"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "6",
+        "op_index": 6,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "name": "replace_expression",
+          "aliases": [
+            "replace_expr"
+          ],
+          "target_kinds": [
+            "any"
+          ],
+          "arguments": [
+            {
+              "name": "parent",
+              "shape": "revision",
+              "required": true
+            },
+            {
+              "name": "child",
+              "shape": "revision",
+              "required": true
+            },
+            {
+              "name": "position",
+              "shape": "kind-dependent slot position (see describe_operation expected_positions)",
+              "required": true
+            }
+          ],
+          "preconditions": [
+            "transaction"
+          ],
+          "effects": "mutation",
+          "example": "replace_expression parent=<rev> child=<rev> position=step",
+          "gated": false,
+          "expected_positions": [
+            "value",
+            "body",
+            "cond",
+            "then",
+            "else",
+            "left",
+            "right",
+            "step",
+            "arg",
+            "collection",
+            "predicate",
+            "start",
+            "end",
+            "init",
+            "cond2",
+            "catch",
+            "scrutinee",
+            "range_start",
+            "range_end",
+            "acc_init"
+          ]
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "7",
+        "tool": "describe_operation",
+        "name": "create_literal"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "7",
+        "op_index": 7,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "name": "create_literal",
+          "aliases": [],
+          "target_kinds": [
+            "any"
+          ],
+          "arguments": [
+            {
+              "name": "type",
+              "shape": "string|i64|bool|bytes|nil",
+              "required": true
+            },
+            {
+              "name": "value",
+              "shape": "string",
+              "required": true
+            }
+          ],
+          "preconditions": [
+            "transaction"
+          ],
+          "effects": "mutation",
+          "example": "create_literal type=i64 value=42",
+          "gated": false
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "8",
+        "tool": "describe_operation",
+        "name": "add_call_arg"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "8",
+        "op_index": 8,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "name": "add_call_arg",
+          "aliases": [],
+          "target_kinds": [
+            "any"
+          ],
+          "arguments": [
+            {
+              "name": "call",
+              "shape": "revision",
+              "required": true
+            },
+            {
+              "name": "arg",
+              "shape": "revision",
+              "required": true
+            }
+          ],
+          "preconditions": [
+            "transaction"
+          ],
+          "effects": "mutation",
+          "example": "add_call_arg call=<rev> arg=<rev>",
+          "gated": false
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "9",
+        "tool": "describe_operation",
+        "name": "rename_entity"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "9",
+        "op_index": 9,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "name": "rename_entity",
+          "aliases": [],
+          "target_kinds": [
+            "any"
+          ],
+          "arguments": [
+            {
+              "name": "entity",
+              "shape": "entity-id|name",
+              "required": true
+            },
+            {
+              "name": "new_name",
+              "shape": "target",
+              "required": true
+            }
+          ],
+          "preconditions": [
+            "transaction"
+          ],
+          "effects": "mutation",
+          "example": "rename_entity entity=queue.model.Job new_name=Task",
+          "gated": false
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "10",
+        "tool": "describe_construction",
+        "kind": "field",
+        "include_candidates": true
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "10",
+        "op_index": 10,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "canonical_kind": "field",
+          "aliases": [],
+          "fields": [
+            {
+              "name": "name",
+              "required": true
+            }
+          ],
+          "required_children": [
+            {
+              "name": "value",
+              "role": "expr",
+              "multiple": false
+            }
+          ],
+          "optional_children": [],
+          "result_type_rule": "field value expr 的类型（取决于 record；v0.1 不静态推导）",
+          "candidate_bindings": {
+            "items": [
+              {
+                "name": "etag",
+                "type": "string",
+                "kind": "param",
+                "current_revision": "02dd43fcd9ae7669c74830dc052cc1113c53f616eaea76badd4cc456390b1c3b",
+                "semantic_handle": {
+                  "symbol": "etag",
+                  "scope": "demo.model.make_meta",
+                  "expected_type": "string"
+                }
+              },
+              {
+                "name": "key",
+                "type": "string",
+                "kind": "param",
+                "current_revision": "7cc93e8751cff98ccff8fbc3478fd4c315f06a5bcb6e35dc7ae7237e9b31e262",
+                "semantic_handle": {
+                  "symbol": "key",
+                  "scope": "demo.model.make_meta",
+                  "expected_type": "string"
+                }
+              },
+              {
+                "name": "m",
+                "type": "Meta",
+                "kind": "param",
+                "current_revision": "306ac8475ba38c648b2e47668f7861d1a8191167d47926246662a9ff1de9a419",
+                "semantic_handle": {
+                  "symbol": "m",
+                  "scope": "demo.model.touch_size",
+                  "expected_type": "Meta"
+                }
+              },
+              {
+                "name": "size",
+                "type": "i64",
+                "kind": "param",
+                "current_revision": "3d694fe3d169db57450855a1eb20c85ad6890fc55135f10570032ceccb3ec8e5",
+                "semantic_handle": {
+                  "symbol": "size",
+                  "scope": "demo.model.make_meta",
+                  "expected_type": "i64"
+                }
+              }
+            ],
+            "total": 4,
+            "returned": 4,
+            "truncated": false
+          },
+          "example": "construct_expression kind=field name=\"valid\" value=<expr rev>",
+          "note": "record field access: (field <value> \"name\")"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "11",
+        "tool": "check_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "11",
+        "op_index": 11,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "problems": []
+        },
+        "diagnostics": [],
+        "message": "check ok"
+      }
+    },
+    {
+      "session": "initialize-authority",
+      "request": {
+        "request_id": "12",
+        "tool": "commit_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "12",
+        "op_index": 12,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "generation": 1,
+          "revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863"
+        },
+        "diagnostics": [],
+        "message": "committed"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "13",
+        "tool": "begin_transaction",
+        "project": "<SCRATCH>\\structured\\alva.toml"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "13",
+        "op_index": 1,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "stale-rename",
+      "request": {
+        "request_id": "14",
+        "tool": "begin_transaction",
+        "project": "<SCRATCH>\\structured\\alva.toml"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "14",
+        "op_index": 1,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "stale-rename",
+      "request": {
+        "request_id": "15",
+        "tool": "rename_entity",
+        "entity": "demo.app.run",
+        "new_name": "run_legacy"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "15",
+        "op_index": 2,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "renamed": true
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "stale-rename",
+      "request": {
+        "request_id": "16",
+        "tool": "check_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "16",
+        "op_index": 3,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "problems": []
+        },
+        "diagnostics": [],
+        "message": "check ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "17",
+        "tool": "add_param",
+        "function": "demo.model.touch_size",
+        "name": "delta",
+        "type": "i64"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "17",
+        "op_index": 2,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "revision": "01923b24aaab4ca12d7467b1e1c37cabab75b994b185bc3f94b95a232857165f"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "18",
+        "tool": "check_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "18",
+        "op_index": 3,
+        "ok": false,
+        "error_code": "E_AEP_OP",
+        "result": null,
+        "diagnostics": [],
+        "message": "check failed: 0:0: error: E_CALL_003: external fn 'demo.model.touch_size' expects 2 argument(s), got 1"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "19",
+        "tool": "commit_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "19",
+        "op_index": 4,
+        "ok": false,
+        "error_code": "E_AEP_OP",
+        "result": null,
+        "diagnostics": [],
+        "message": "check failed: 0:0: error: E_CALL_003: external fn 'demo.model.touch_size' expects 2 argument(s), got 1"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "20",
+        "tool": "inspect_entity",
+        "entity": "demo.model.touch_size"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "20",
+        "op_index": 5,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "module:demo.model/fn:touch_size",
+          "revision": "30eeb0971326f4a27825b654271146b9f1ade3fe2ce4a031d21a61fe4298ff7f",
+          "kind": "function",
+          "fields": {
+            "eff": [],
+            "name": "touch_size",
+            "pure": true
+          },
+          "slots": {
+            "body": [
+              "3a08de4d5ccca3e864ff07da1b6c7121d1075db6f1b29870b68cbb18b3c5ea6f"
+            ],
+            "inv": [],
+            "params": [
+              "306ac8475ba38c648b2e47668f7861d1a8191167d47926246662a9ff1de9a419",
+              "01923b24aaab4ca12d7467b1e1c37cabab75b994b185bc3f94b95a232857165f"
+            ],
+            "post": [],
+            "pre": [],
+            "returns": [
+              "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "21",
+        "tool": "inspect_entity",
+        "entity": "3a08de4d5ccca3e864ff07da1b6c7121d1075db6f1b29870b68cbb18b3c5ea6f"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "21",
+        "op_index": 6,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "3a08de4d5ccca3e864ff07da1b6c7121d1075db6f1b29870b68cbb18b3c5ea6f",
+          "kind": "block",
+          "fields": {},
+          "slots": {
+            "steps": [
+              "370614b35bd4d2816c2cd023093350af4bab95ac63a3a5b641ffd69366c208d3"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "22",
+        "tool": "inspect_entity",
+        "entity": "370614b35bd4d2816c2cd023093350af4bab95ac63a3a5b641ffd69366c208d3"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "22",
+        "op_index": 7,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "370614b35bd4d2816c2cd023093350af4bab95ac63a3a5b641ffd69366c208d3",
+          "kind": "record",
+          "fields": {
+            "type": "Meta"
+          },
+          "slots": {
+            "fields": [
+              "206e605ddb557accc2314cf6517da3968285c36815ed309ce16cceb23a771cd1",
+              "2bd040949e5958f969a6dcdf9c1be3e6764a9e54723a5fb3e54541f071c0087f",
+              "711bdc67f5f2b157da7cbb2a884e72fc2a13b1a48f2a94a448dd978699ecb1f0"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "23",
+        "tool": "inspect_entity",
+        "entity": "206e605ddb557accc2314cf6517da3968285c36815ed309ce16cceb23a771cd1"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "23",
+        "op_index": 8,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "206e605ddb557accc2314cf6517da3968285c36815ed309ce16cceb23a771cd1",
+          "kind": "record_field",
+          "fields": {
+            "name": "key"
+          },
+          "slots": {
+            "value": [
+              "3adfb863b484448edadb6aa6142943fd3af9d1cfc407ba27d5a5f20dfb635ca0"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "24",
+        "tool": "inspect_entity",
+        "entity": "3adfb863b484448edadb6aa6142943fd3af9d1cfc407ba27d5a5f20dfb635ca0"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "24",
+        "op_index": 9,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "3adfb863b484448edadb6aa6142943fd3af9d1cfc407ba27d5a5f20dfb635ca0",
+          "kind": "field",
+          "fields": {
+            "name": "key"
+          },
+          "slots": {
+            "value": [
+              "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "25",
+        "tool": "inspect_entity",
+        "entity": "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "25",
+        "op_index": 10,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2",
+          "kind": "ref",
+          "fields": {
+            "name": "m"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "26",
+        "tool": "inspect_entity",
+        "entity": "2bd040949e5958f969a6dcdf9c1be3e6764a9e54723a5fb3e54541f071c0087f"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "26",
+        "op_index": 11,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "2bd040949e5958f969a6dcdf9c1be3e6764a9e54723a5fb3e54541f071c0087f",
+          "kind": "record_field",
+          "fields": {
+            "name": "size"
+          },
+          "slots": {
+            "value": [
+              "c00fdeea7d238636094e395c2c1483034f71d5cae805867271dc9b391c6d551e"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "27",
+        "tool": "inspect_entity",
+        "entity": "c00fdeea7d238636094e395c2c1483034f71d5cae805867271dc9b391c6d551e"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "27",
+        "op_index": 12,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "c00fdeea7d238636094e395c2c1483034f71d5cae805867271dc9b391c6d551e",
+          "kind": "binary",
+          "fields": {
+            "op": "+"
+          },
+          "slots": {
+            "left": [
+              "4b82234f890472e573663722733db8075ab689703b487388cbdc4b9f8c40fbef"
+            ],
+            "right": [
+              "bd3f9f91e091b794904bd29178c07455593c27e0bd84418b1ef65e50c3ee3298"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "28",
+        "tool": "inspect_entity",
+        "entity": "4b82234f890472e573663722733db8075ab689703b487388cbdc4b9f8c40fbef"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "28",
+        "op_index": 13,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "4b82234f890472e573663722733db8075ab689703b487388cbdc4b9f8c40fbef",
+          "kind": "field",
+          "fields": {
+            "name": "size"
+          },
+          "slots": {
+            "value": [
+              "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "29",
+        "tool": "inspect_entity",
+        "entity": "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "29",
+        "op_index": 14,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2",
+          "kind": "ref",
+          "fields": {
+            "name": "m"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "30",
+        "tool": "inspect_entity",
+        "entity": "bd3f9f91e091b794904bd29178c07455593c27e0bd84418b1ef65e50c3ee3298"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "30",
+        "op_index": 15,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "bd3f9f91e091b794904bd29178c07455593c27e0bd84418b1ef65e50c3ee3298",
+          "kind": "literal",
+          "fields": {
+            "value": 1
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "31",
+        "tool": "inspect_entity",
+        "entity": "711bdc67f5f2b157da7cbb2a884e72fc2a13b1a48f2a94a448dd978699ecb1f0"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "31",
+        "op_index": 16,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "711bdc67f5f2b157da7cbb2a884e72fc2a13b1a48f2a94a448dd978699ecb1f0",
+          "kind": "record_field",
+          "fields": {
+            "name": "etag"
+          },
+          "slots": {
+            "value": [
+              "28c44bdb2e316cb4eb1e6d68d6260a7eccff661cbbcc5a003707f9fa3d3d1db7"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "32",
+        "tool": "inspect_entity",
+        "entity": "28c44bdb2e316cb4eb1e6d68d6260a7eccff661cbbcc5a003707f9fa3d3d1db7"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "32",
+        "op_index": 17,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "28c44bdb2e316cb4eb1e6d68d6260a7eccff661cbbcc5a003707f9fa3d3d1db7",
+          "kind": "field",
+          "fields": {
+            "name": "etag"
+          },
+          "slots": {
+            "value": [
+              "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "33",
+        "tool": "inspect_entity",
+        "entity": "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "33",
+        "op_index": 18,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2",
+          "kind": "ref",
+          "fields": {
+            "name": "m"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "34",
+        "tool": "inspect_entity",
+        "entity": "306ac8475ba38c648b2e47668f7861d1a8191167d47926246662a9ff1de9a419"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "34",
+        "op_index": 19,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "module:demo.model/fn:size_of/param:m",
+          "revision": "306ac8475ba38c648b2e47668f7861d1a8191167d47926246662a9ff1de9a419",
+          "kind": "param",
+          "fields": {
+            "name": "m"
+          },
+          "slots": {
+            "type": [
+              "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "35",
+        "tool": "inspect_entity",
+        "entity": "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "35",
+        "op_index": 20,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b",
+          "kind": "type_expr",
+          "fields": {
+            "name": "Meta",
+            "shape": "named"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "36",
+        "tool": "inspect_entity",
+        "entity": "01923b24aaab4ca12d7467b1e1c37cabab75b994b185bc3f94b95a232857165f"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "36",
+        "op_index": 21,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "01923b24aaab4ca12d7467b1e1c37cabab75b994b185bc3f94b95a232857165f",
+          "kind": "param",
+          "fields": {
+            "name": "delta"
+          },
+          "slots": {
+            "type": [
+              "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "37",
+        "tool": "inspect_entity",
+        "entity": "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "37",
+        "op_index": 22,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+          "kind": "type_expr",
+          "fields": {
+            "name": "i64",
+            "shape": "prim"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "38",
+        "tool": "inspect_entity",
+        "entity": "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "38",
+        "op_index": 23,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b",
+          "kind": "type_expr",
+          "fields": {
+            "name": "Meta",
+            "shape": "named"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "39",
+        "tool": "create_reference",
+        "name": "delta"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "39",
+        "op_index": 24,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "revision": "4c434ede35a17819dfdb7aa621f02562c9cf55d5765285c497fdf2d56e44b716"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "40",
+        "tool": "replace_expression",
+        "parent": "c00fdeea7d238636094e395c2c1483034f71d5cae805867271dc9b391c6d551e",
+        "child": "4c434ede35a17819dfdb7aa621f02562c9cf55d5765285c497fdf2d56e44b716",
+        "position": "right"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "40",
+        "op_index": 25,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "new_revision": "c00fdeea7d238636094e395c2c1483034f71d5cae805867271dc9b391c6d551e"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "41",
+        "tool": "inspect_entity",
+        "entity": "demo.app.run"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "41",
+        "op_index": 26,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "module:demo.app/fn:run",
+          "revision": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+          "kind": "function",
+          "fields": {
+            "eff": [],
+            "name": "run",
+            "pure": true
+          },
+          "slots": {
+            "body": [
+              "8c4e802e4b7baa27606b8170b10549915b9d3f83fc20f51839a9075d825eff4e"
+            ],
+            "inv": [],
+            "params": [],
+            "post": [],
+            "pre": [],
+            "returns": [
+              "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "42",
+        "tool": "inspect_entity",
+        "entity": "8c4e802e4b7baa27606b8170b10549915b9d3f83fc20f51839a9075d825eff4e"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "42",
+        "op_index": 27,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "8c4e802e4b7baa27606b8170b10549915b9d3f83fc20f51839a9075d825eff4e",
+          "kind": "block",
+          "fields": {},
+          "slots": {
+            "steps": [
+              "1276870390d1935f3ca596d606ca3b797d848097e2bd91dd886d1dd94bb9affa"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "43",
+        "tool": "inspect_entity",
+        "entity": "1276870390d1935f3ca596d606ca3b797d848097e2bd91dd886d1dd94bb9affa"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "43",
+        "op_index": 28,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "1276870390d1935f3ca596d606ca3b797d848097e2bd91dd886d1dd94bb9affa",
+          "kind": "call",
+          "fields": {
+            "name": "demo.model.size_of"
+          },
+          "slots": {
+            "args": [
+              "d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "44",
+        "tool": "inspect_entity",
+        "entity": "d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "44",
+        "op_index": 29,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13",
+          "kind": "call",
+          "fields": {
+            "name": "demo.model.touch_size"
+          },
+          "slots": {
+            "args": [
+              "0530c423e9f1feba24b6da627514a42e924a631e249ed9de8f74065cf14e247f"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "45",
+        "tool": "inspect_entity",
+        "entity": "0530c423e9f1feba24b6da627514a42e924a631e249ed9de8f74065cf14e247f"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "45",
+        "op_index": 30,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "0530c423e9f1feba24b6da627514a42e924a631e249ed9de8f74065cf14e247f",
+          "kind": "call",
+          "fields": {
+            "name": "demo.model.make_meta"
+          },
+          "slots": {
+            "args": [
+              "655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d",
+              "29e679c3d99f9ee80a58d34e900c88b475c319a7e8ec747c203df5220b466c95",
+              "5b1d3d812ac8b7a075c8e13c18d505f255316174184b66f51ba30e7d96d4fdd8"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "46",
+        "tool": "inspect_entity",
+        "entity": "655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "46",
+        "op_index": 31,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d",
+          "kind": "literal",
+          "fields": {
+            "value": "a"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "47",
+        "tool": "inspect_entity",
+        "entity": "29e679c3d99f9ee80a58d34e900c88b475c319a7e8ec747c203df5220b466c95"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "47",
+        "op_index": 32,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "29e679c3d99f9ee80a58d34e900c88b475c319a7e8ec747c203df5220b466c95",
+          "kind": "literal",
+          "fields": {
+            "value": 5
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "48",
+        "tool": "inspect_entity",
+        "entity": "5b1d3d812ac8b7a075c8e13c18d505f255316174184b66f51ba30e7d96d4fdd8"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "48",
+        "op_index": 33,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "5b1d3d812ac8b7a075c8e13c18d505f255316174184b66f51ba30e7d96d4fdd8",
+          "kind": "literal",
+          "fields": {
+            "value": "e1"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "49",
+        "tool": "inspect_entity",
+        "entity": "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "49",
+        "op_index": 34,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "",
+          "revision": "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+          "kind": "type_expr",
+          "fields": {
+            "name": "i64",
+            "shape": "prim"
+          },
+          "slots": {}
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "50",
+        "tool": "create_literal",
+        "type": "i64",
+        "value": "1"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "50",
+        "op_index": 35,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "revision": "bd3f9f91e091b794904bd29178c07455593c27e0bd84418b1ef65e50c3ee3298"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "51",
+        "tool": "add_call_arg",
+        "call": "d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13",
+        "arg": "bd3f9f91e091b794904bd29178c07455593c27e0bd84418b1ef65e50c3ee3298"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "51",
+        "op_index": 36,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "revision": "d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "52",
+        "tool": "preview_semantic_diff"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "52",
+        "op_index": 37,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "diff": "CHANGED module demo.model\nCHANGED module demo.app\nCHANGED function demo.model.touch_size\nCHANGED function demo.app.run"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "53",
+        "tool": "check_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "53",
+        "op_index": 38,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "problems": []
+        },
+        "diagnostics": [],
+        "message": "check ok"
+      }
+    },
+    {
+      "session": "api-evolution",
+      "request": {
+        "request_id": "54",
+        "tool": "commit_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "54",
+        "op_index": 39,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "generation": 2,
+          "revision": "8a56d83a0c8f50b824c9d56a6fe0e1231abb4463398c925c74c878a5af686149"
+        },
+        "diagnostics": [],
+        "message": "committed"
+      }
+    },
+    {
+      "session": "stale-rename",
+      "request": {
+        "request_id": "55",
+        "tool": "commit_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "55",
+        "op_index": 4,
+        "ok": false,
+        "error_code": "E_AEP_CONFLICT",
+        "result": null,
+        "diagnostics": [],
+        "message": "E_AEP_CONFLICT: authoritative revision 8a56d83a0c8f50b824c9d56a6fe0e1231abb4463398c925c74c878a5af686149 != base c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863"
+      }
+    },
+    {
+      "session": "stale-rename",
+      "request": {
+        "request_id": "56",
+        "tool": "abort_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "56",
+        "op_index": 5,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "aborted": true
+        },
+        "diagnostics": [],
+        "message": "aborted"
+      }
+    },
+    {
+      "session": "reread-authority",
+      "request": {
+        "request_id": "57",
+        "tool": "begin_transaction",
+        "project": "<SCRATCH>\\structured\\alva.toml"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "57",
+        "op_index": 1,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "project_revision": "8a56d83a0c8f50b824c9d56a6fe0e1231abb4463398c925c74c878a5af686149"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "reread-authority",
+      "request": {
+        "request_id": "58",
+        "tool": "inspect_entity",
+        "entity": "demo.model.touch_size"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "58",
+        "op_index": 2,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "entity": "module:demo.model/fn:touch_size",
+          "revision": "7766379506a77dacb1888d600db841f9c81daeb8d03ec25519b8ed1a18f3a2d3",
+          "kind": "function",
+          "fields": {
+            "eff": [],
+            "name": "touch_size",
+            "pure": true
+          },
+          "slots": {
+            "body": [
+              "ad8d400beea57fdd4fffe53de369a4c73ede3b59488072d89b7b55b288886534"
+            ],
+            "inv": [],
+            "params": [
+              "306ac8475ba38c648b2e47668f7861d1a8191167d47926246662a9ff1de9a419",
+              "01923b24aaab4ca12d7467b1e1c37cabab75b994b185bc3f94b95a232857165f"
+            ],
+            "post": [],
+            "pre": [],
+            "returns": [
+              "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b"
+            ]
+          }
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "reread-authority",
+      "request": {
+        "request_id": "59",
+        "tool": "inspect_body",
+        "function": "demo.model.touch_size"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "59",
+        "op_index": 3,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "eff": "",
+          "pure": "true",
+          "body": "(block rev=ad8d400beea57fdd4fffe53de369a4c73ede3b59488072d89b7b55b288886534 steps:((record type=Meta rev=2a46ba5eb473cbd637ccce171ede3eeaa76cd33a1256e7265cf84c0ceae85334 fields:((record_field name=key rev=206e605ddb557accc2314cf6517da3968285c36815ed309ce16cceb23a771cd1 value:((field name=key rev=3adfb863b484448edadb6aa6142943fd3af9d1cfc407ba27d5a5f20dfb635ca0 value:((ref name=m rev=334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2)))))) fields:((record_field name=size rev=f71333dc95c4c20c7e73707322fba3b2cc3d03a87985fad3300e492c851de6f8 value:((binary rev=6f1e18eb9cc25b673f8534f13c22a5a8cb86d1883049fc216a1085baafe55932 left:((field name=size rev=4b82234f890472e573663722733db8075ab689703b487388cbdc4b9f8c40fbef value:((ref name=m rev=334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2)))) right:((ref name=delta rev=4c434ede35a17819dfdb7aa621f02562c9cf55d5765285c497fdf2d56e44b716)))))) fields:((record_field name=etag rev=711bdc67f5f2b157da7cbb2a884e72fc2a13b1a48f2a94a448dd978699ecb1f0 value:((field name=etag rev=28c44bdb2e316cb4eb1e6d68d6260a7eccff661cbbcc5a003707f9fa3d3d1db7 value:((ref name=m rev=334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2)))))))))"
+        },
+        "diagnostics": [],
+        "message": "ok"
+      }
+    },
+    {
+      "session": "reread-authority",
+      "request": {
+        "request_id": "60",
+        "tool": "abort_transaction"
+      },
+      "response": {
+        "protocol_version": "0.7-replication",
+        "request_id": "60",
+        "op_index": 4,
+        "ok": true,
+        "error_code": "ok",
+        "result": {
+          "aborted": true
+        },
+        "diagnostics": [],
+        "message": "aborted"
+      }
+    }
+  ],
+  "input_hashes": {
+    "feasibility/native_api/CASE.md": "81f4218511b8472fd7a8de0597afce890de975ad04c7bd4b8455fa7f71a34f97",
+    "feasibility/native_api/behavior.rs": "99ed1e5d203b8d5de4adc804204a5bd03783f8a70f76e735414f4675bb05d30c",
+    "feasibility/native_api/run.py": "989a56a866e403ca5388193ae15820612842bdb5a0b2fdfbdac503d005ddf520",
+    "tests/project/alva.toml": "bf6792c2111ef964f9507d3ba9bead9f3283080ec41e7b0671da418d6ce36971",
+    "tests/project/src/model.alva": "e154d90f0a7b29482a9f9e81366946f5d2fa8781f49af0235aa46870f9ef56e8",
+    "tests/project/src/app.alva": "9380838af5a47115f83bec27c9f2ed9b5cb94087df9d67d0169439bb13c21734"
+  },
+  "toolchain": {
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "python": "Python 3.14.0"
+  },
+  "initial_source": {
+    "app.alva": "9380838af5a47115f83bec27c9f2ed9b5cb94087df9d67d0169439bb13c21734",
+    "model.alva": "e154d90f0a7b29482a9f9e81366946f5d2fa8781f49af0235aa46870f9ef56e8"
+  },
+  "baseline_behavior": "PASS: unary +1, metadata, run=6",
+  "text_intermediate_invalid": true,
+  "text_behavior": "PASS",
+  "text_final_source": {
+    "app.alva": "e3cd3e03469a1d7016b0630bfc71a4e3281a7ac6a16dd2958240dc049ef78d5a",
+    "model.alva": "02550acac9b1219053f002596e640379d6f974d0c5a29be8cd2aac22f33ff58a"
+  },
+  "text_patch": {
+    "model.alva": {
+      "before": "(module\n  (name \"demo.model\")\n  (version \"0.1.0\")\n  (export Meta make_meta size_of touch_size)\n\n  (type Meta\n    (record\n      (field key (prim string))\n      (field size (prim i64))\n      (field etag (prim string))))\n\n  (fn make_meta\n    (params\n      (param key (prim string))\n      (param size (prim i64))\n      (param etag (prim string)))\n    (returns Meta)\n    (pure)\n    (body\n      (record Meta\n        (key (ref key))\n        (size (ref size))\n        (etag (ref etag)))))\n\n  (fn size_of\n    (params\n      (param m Meta))\n    (returns (prim i64))\n    (pure)\n    (body\n      (field (ref m) \"size\")))\n\n  (fn touch_size\n    (params\n      (param m Meta))\n    (returns Meta)\n    (pure)\n    (body\n      (record Meta\n        (key (field (ref m) \"key\"))\n        (size (+ (field (ref m) \"size\") (int 1)))\n        (etag (field (ref m) \"etag\"))))))\n",
+      "after": "(module\n  (name \"demo.model\")\n  (version \"0.1.0\")\n  (export Meta make_meta size_of touch_size)\n\n  (type Meta\n    (record\n      (field key (prim string))\n      (field size (prim i64))\n      (field etag (prim string))))\n\n  (fn make_meta\n    (params\n      (param key (prim string))\n      (param size (prim i64))\n      (param etag (prim string)))\n    (returns Meta)\n    (pure)\n    (body\n      (record Meta\n        (key (ref key))\n        (size (ref size))\n        (etag (ref etag)))))\n\n  (fn size_of\n    (params\n      (param m Meta))\n    (returns (prim i64))\n    (pure)\n    (body\n      (field (ref m) \"size\")))\n\n  (fn touch_size\n    (params\n      (param m Meta)\n      (param delta (prim i64)))\n    (returns Meta)\n    (pure)\n    (body\n      (record Meta\n        (key (field (ref m) \"key\"))\n        (size (+ (field (ref m) \"size\") (ref delta)))\n        (etag (field (ref m) \"etag\"))))))\n"
+    },
+    "app.alva": {
+      "before": "(module\n  (name \"demo.app\")\n  (version \"0.1.0\")\n  (dep \"demo.model\" \"0.1.0\")\n  (export run)\n\n  (fn run\n    (params)\n    (returns (prim i64))\n    (pure)\n    (body\n      (call demo.model.size_of\n        (call demo.model.touch_size\n          (call demo.model.make_meta (string \"a\") (int 5) (string \"e1\"))))))\n\n  (test run_works\n    (body\n      (== (call run) (int 6)))))\n",
+      "after": "(module\n  (name \"demo.app\")\n  (version \"0.1.0\")\n  (dep \"demo.model\" \"0.1.0\")\n  (export run)\n\n  (fn run\n    (params)\n    (returns (prim i64))\n    (pure)\n    (body\n      (call demo.model.size_of\n        (call demo.model.touch_size\n          (call demo.model.make_meta (string \"a\") (int 5) (string \"e1\")) (int 1)))))\n\n  (test run_works\n    (body\n      (== (call run) (int 6)))))\n"
+    }
+  },
+  "before_initial_commit": {},
+  "base_authority": {
+    "current": "f404816ff78754a146cb329823a3781211db9da05ea77a5360f23209dc3e7e2b",
+    "gen-1.air": "4a053b386a85b2a137d3d9f5ee875f9829b58a6b10f6c245e94efbd7f4cd7471"
+  },
+  "base_current": "1\nc55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863\n",
+  "invalid_commit_no_publication": true,
+  "preview": {
+    "diff": "CHANGED module demo.model\nCHANGED module demo.app\nCHANGED function demo.model.touch_size\nCHANGED function demo.app.run"
+  },
+  "committed_authority": {
+    "current": "75609377af14301310d1438c4699b6837d1807c820a55550526971c93c09689f",
+    "gen-1.air": "4a053b386a85b2a137d3d9f5ee875f9829b58a6b10f6c245e94efbd7f4cd7471",
+    "gen-2.air": "3947b739451a04da774c33028d4203c7a31c365f50356eead7d5ed907eb6cedb"
+  },
+  "committed_current": "2\n8a56d83a0c8f50b824c9d56a6fe0e1231abb4463398c925c74c878a5af686149\n",
+  "stale_commit": "REJECTED: E_AEP_CONFLICT; authority unchanged",
+  "reloaded_touch_size": {
+    "entity": "module:demo.model/fn:touch_size",
+    "revision": "7766379506a77dacb1888d600db841f9c81daeb8d03ec25519b8ed1a18f3a2d3",
+    "kind": "function",
+    "fields": {
+      "eff": [],
+      "name": "touch_size",
+      "pure": true
+    },
+    "slots": {
+      "body": [
+        "ad8d400beea57fdd4fffe53de369a4c73ede3b59488072d89b7b55b288886534"
+      ],
+      "inv": [],
+      "params": [
+        "306ac8475ba38c648b2e47668f7861d1a8191167d47926246662a9ff1de9a419",
+        "01923b24aaab4ca12d7467b1e1c37cabab75b994b185bc3f94b95a232857165f"
+      ],
+      "post": [],
+      "pre": [],
+      "returns": [
+        "384106f8243896bd90a31df55c68e1cc9b33129b297a7b3293759f3e5888ce4b"
+      ]
+    }
+  },
+  "reloaded_body": {
+    "eff": "",
+    "pure": "true",
+    "body": "(block rev=ad8d400beea57fdd4fffe53de369a4c73ede3b59488072d89b7b55b288886534 steps:((record type=Meta rev=2a46ba5eb473cbd637ccce171ede3eeaa76cd33a1256e7265cf84c0ceae85334 fields:((record_field name=key rev=206e605ddb557accc2314cf6517da3968285c36815ed309ce16cceb23a771cd1 value:((field name=key rev=3adfb863b484448edadb6aa6142943fd3af9d1cfc407ba27d5a5f20dfb635ca0 value:((ref name=m rev=334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2)))))) fields:((record_field name=size rev=f71333dc95c4c20c7e73707322fba3b2cc3d03a87985fad3300e492c851de6f8 value:((binary rev=6f1e18eb9cc25b673f8534f13c22a5a8cb86d1883049fc216a1085baafe55932 left:((field name=size rev=4b82234f890472e573663722733db8075ab689703b487388cbdc4b9f8c40fbef value:((ref name=m rev=334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2)))) right:((ref name=delta rev=4c434ede35a17819dfdb7aa621f02562c9cf55d5765285c497fdf2d56e44b716)))))) fields:((record_field name=etag rev=711bdc67f5f2b157da7cbb2a884e72fc2a13b1a48f2a94a448dd978699ecb1f0 value:((field name=etag rev=28c44bdb2e316cb4eb1e6d68d6260a7eccff661cbbcc5a003707f9fa3d3d1db7 value:((ref name=m rev=334f2c20491a2e3d65b7ae337eadfcb3287e0a0d1e03c93926d7390405d5d0d2)))))))))"
+  },
+  "structured_behavior": "PASS",
+  "source_projection_unchanged": true,
+  "repairable_invalid_staging": true
+}
