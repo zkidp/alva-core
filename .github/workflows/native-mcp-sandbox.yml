@@ -1,0 +1,64 @@
+name: Native MCP persistent sandbox (zero models)
+on:
+  pull_request:
+    paths:
+      - 'integrations/benchmark_runtime_v2/persistent.py'
+      - 'tests/benchmark_runtime_v2/persistent_probes.py'
+      - '.github/workflows/native-mcp-sandbox.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  linux-native-mcp:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision approved public Linux tools
+        run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - name: Build unchanged trusted ALVA SDK, not a candidate
+        run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Exact frozen-byte regression (no historical slots)
+        run: python tests/benchmark_runtime_v2/run_tests.py --output out/exact-bytes.json
+      - name: Real MCP sessions, AIR commit, isolated build and adversarial probes
+        run: |
+          python tests/benchmark_runtime_v2/persistent_probes.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/p23-linux.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p23-linux-zero-model-evidence
+          path: out/*.json
+  unsupported-platforms:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Must refuse without SDK lookup or host fallback
+        shell: bash
+        run: |
+          set +e
+          python tests/benchmark_runtime_v2/persistent_probes.py --output out/p23-unsupported.json
+          code=$?
+          set -e
+          test "$code" = 2
+          python -c 'import json; assert json.load(open("out/p23-unsupported.json"))["status"] == "UNSUPPORTED_FAIL_CLOSED"'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p23-${{ matrix.os }}-refusal
+          path: out/*.json

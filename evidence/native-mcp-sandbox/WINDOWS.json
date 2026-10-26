@@ -1,0 +1,10 @@
+{
+  "status": "UNSUPPORTED_FAIL_CLOSED",
+  "generation_calls": 0,
+  "input_token_calls": 0,
+  "platform": "win32",
+  "base": "6a0d238159b1f5987b5c8fd1fa1b94aef984eb7f",
+  "rows": [],
+  "rpc": [],
+  "reason": "UNSUPPORTED_PLATFORM: no native Windows/macOS execution backend; no fallback"
+}
