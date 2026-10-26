@@ -1,0 +1,383 @@
+{
+  "status": "PASS",
+  "generation_calls": 0,
+  "input_token_calls": 0,
+  "platform": "linux",
+  "base": "6a0d238159b1f5987b5c8fd1fa1b94aef984eb7f",
+  "rows": [
+    {
+      "test": "initialize_schemas_persistent_transaction_commit",
+      "status": "PASS"
+    },
+    {
+      "test": "new_process_reloads_committed_air",
+      "status": "PASS"
+    },
+    {
+      "test": "authority_build_independent_behavior_inside_boundary",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "INDEPENDENT_BEHAVIOR_PASS; SOURCE_UNCHANGED; AIR_USED\n",
+      "stderr": ""
+    },
+    {
+      "test": "native_mcp_paths_and_os_read_write_network_mount",
+      "status": "PASS",
+      "events": [
+        {
+          "kind": "read",
+          "errno": 2
+        },
+        {
+          "kind": "write",
+          "errno": 2
+        },
+        {
+          "kind": "read",
+          "errno": 2
+        },
+        {
+          "kind": "write",
+          "errno": 2
+        },
+        {
+          "kind": "read",
+          "errno": 2
+        },
+        {
+          "kind": "write",
+          "errno": 2
+        },
+        {
+          "kind": "readonly",
+          "errno": 30
+        },
+        {
+          "kind": "readonly",
+          "errno": 30
+        },
+        {
+          "kind": "readonly",
+          "errno": 30
+        },
+        {
+          "kind": "network",
+          "errno": 111
+        },
+        {
+          "kind": "network",
+          "errno": 101
+        },
+        {
+          "kind": "mount",
+          "errno": 1
+        }
+      ]
+    },
+    {
+      "test": "abnormal_exit",
+      "status": "PASS",
+      "failure": "ABNORMAL_EXIT:7; stderr="
+    },
+    {
+      "test": "wall_limit",
+      "status": "PASS",
+      "failure": "ABNORMAL_EXIT:-9; stderr="
+    },
+    {
+      "test": "output_limit",
+      "status": "PASS",
+      "failure": "SESSION_OUTPUT_LIMIT"
+    },
+    {
+      "test": "rpc_failure_terminates_no_replay",
+      "status": "PASS",
+      "failure": "INVALID_OR_FAILED_RPC:{'error': {'code': -32601, 'data': {'method': 'not/a/method'}, 'message': 'Method not found'}, 'id': 2, 'jsonrpc': '2.0'}"
+    },
+    {
+      "test": "idle_session_wall_watchdog",
+      "status": "PASS"
+    },
+    {
+      "test": "malformed_json",
+      "status": "PASS",
+      "failure": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "test": "wrong_rpc_id",
+      "status": "PASS",
+      "failure": "INVALID_OR_FAILED_RPC:{'jsonrpc': '2.0', 'id': 99, 'result': {}}"
+    },
+    {
+      "test": "early_eof",
+      "status": "PASS",
+      "failure": "MCP_EXIT_BEFORE_RESPONSE; outcome unknown"
+    },
+    {
+      "test": "rpc_timeout",
+      "status": "PASS",
+      "failure": "WALL_OR_RPC_LIMIT; no retry"
+    },
+    {
+      "test": "cleanup_unconfirmed_no_usable_result",
+      "status": "PASS",
+      "scope": "injected wait failure; not an unkillable-process claim"
+    }
+  ],
+  "rpc": [
+    {
+      "tool": "resolve_entity",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "display": "demo.app.run",
+        "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+        "kind": "function",
+        "module": "demo.app"
+      }
+    },
+    {
+      "tool": "applicable_operations",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "context_operations": [
+          "abort_transaction",
+          "begin_transaction",
+          "check_transaction",
+          "commit_transaction",
+          "construct_expression",
+          "describe_construction",
+          "describe_operation",
+          "inspect_project",
+          "preview_semantic_diff",
+          "resolve_entity"
+        ],
+        "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+        "inspection": [
+          "applicable_operations",
+          "inspect_body",
+          "inspect_entity"
+        ],
+        "kind": "function",
+        "mutation": [
+          "change_field"
+        ]
+      }
+    },
+    {
+      "tool": "describe_operation",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "aliases": [],
+        "arguments": [
+          {
+            "name": "entity",
+            "required": true,
+            "shape": "revision"
+          },
+          {
+            "name": "field",
+            "required": true,
+            "shape": "field"
+          },
+          {
+            "name": "value",
+            "required": false,
+            "shape": "string"
+          }
+        ],
+        "effects": "mutation",
+        "example": "change_field entity=<rev> field=pure value=true",
+        "gated": false,
+        "name": "change_field",
+        "preconditions": [
+          "transaction"
+        ],
+        "target_kinds": [
+          "any"
+        ]
+      }
+    },
+    {
+      "tool": "describe_construction",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "aliases": [],
+        "candidate_bindings": {
+          "items": [
+            {
+              "current_revision": "02dd43fcd9ae7669c74830dc052cc1113c53f616eaea76badd4cc456390b1c3b",
+              "kind": "param",
+              "name": "etag",
+              "semantic_handle": {
+                "expected_type": "string",
+                "scope": "demo.model.make_meta",
+                "symbol": "etag"
+              },
+              "type": "string"
+            },
+            {
+              "current_revision": "7cc93e8751cff98ccff8fbc3478fd4c315f06a5bcb6e35dc7ae7237e9b31e262",
+              "kind": "param",
+              "name": "key",
+              "semantic_handle": {
+                "expected_type": "string",
+                "scope": "demo.model.make_meta",
+                "symbol": "key"
+              },
+              "type": "string"
+            },
+            {
+              "current_revision": "306ac8475ba38c648b2e47668f7861d1a8191167d47926246662a9ff1de9a419",
+              "kind": "param",
+              "name": "m",
+              "semantic_handle": {
+                "expected_type": "Meta",
+                "scope": "demo.model.touch_size",
+                "symbol": "m"
+              },
+              "type": "Meta"
+            },
+            {
+              "current_revision": "3d694fe3d169db57450855a1eb20c85ad6890fc55135f10570032ceccb3ec8e5",
+              "kind": "param",
+              "name": "size",
+              "semantic_handle": {
+                "expected_type": "i64",
+                "scope": "demo.model.make_meta",
+                "symbol": "size"
+              },
+              "type": "i64"
+            }
+          ],
+          "returned": 4,
+          "total": 4,
+          "truncated": false
+        },
+        "canonical_kind": "field",
+        "example": "construct_expression kind=field name=\"valid\" value=<expr rev>",
+        "fields": [
+          {
+            "name": "name",
+            "required": true
+          }
+        ],
+        "note": "record field access: (field <value> \"name\")",
+        "optional_children": [],
+        "required_children": [
+          {
+            "multiple": false,
+            "name": "value",
+            "role": "expr"
+          }
+        ],
+        "result_type_rule": "field value expr \u7684\u7c7b\u578b\uff08\u53d6\u51b3\u4e8e record\uff1bv0.1 \u4e0d\u9759\u6001\u63a8\u5bfc\uff09"
+      }
+    },
+    {
+      "tool": "inspect_body",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "body": "(block rev=8c4e802e4b7baa27606b8170b10549915b9d3f83fc20f51839a9075d825eff4e steps:((call name=demo.model.size_of rev=1276870390d1935f3ca596d606ca3b797d848097e2bd91dd886d1dd94bb9affa args:((call name=demo.model.touch_size rev=d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13 args:((call name=demo.model.make_meta rev=0530c423e9f1feba24b6da627514a42e924a631e249ed9de8f74065cf14e247f args:((literal value=a rev=655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d)) args:((literal value=5 rev=29e679c3d99f9ee80a58d34e900c88b475c319a7e8ec747c203df5220b466c95)) args:((literal value=e1 rev=5b1d3d812ac8b7a075c8e13c18d505f255316174184b66f51ba30e7d96d4fdd8)))))))))",
+        "eff": "",
+        "pure": "true"
+      }
+    },
+    {
+      "tool": "inspect_entity",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "entity": "",
+        "fields": {
+          "value": "a"
+        },
+        "kind": "literal",
+        "revision": "655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d",
+        "slots": {}
+      }
+    },
+    {
+      "tool": "change_field",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "new_revision": "843d9a89341250841921aa1361f8640693cc26fafabc695c4e8dfe2425502e18"
+      }
+    },
+    {
+      "tool": "preview_semantic_diff",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "diff": "CHANGED module demo.app\nCHANGED function demo.app.run"
+      }
+    },
+    {
+      "tool": "check_transaction",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "problems": []
+      }
+    },
+    {
+      "tool": "commit_transaction",
+      "transaction_id": "tx_2_0000000000000001",
+      "result": {
+        "generation": 1,
+        "revision": "3f91f4a712b52c9e78d19a59f37d49fcaafe5d289b6582852732e01e47d5425d"
+      }
+    }
+  ],
+  "input_bundle_sha256": "6d33ce2de3d4f75863ee0e2a1cf19397af8615114608cbe1b1109127bc1dfc1b",
+  "binary_sha256": "6983900fc465c7bae927515774048e0b024f0dfd6ad3fcfdb187c4126067630d",
+  "python": "3.14.4 (main, Jun 18 2026, 14:25:02) [GCC 15.2.0]",
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)",
+  "tool_names": [
+    "abort_transaction",
+    "applicable_operations",
+    "begin_transaction",
+    "change_field",
+    "check_transaction",
+    "commit_transaction",
+    "construct_expression",
+    "describe_construction",
+    "describe_operation",
+    "inspect_body",
+    "inspect_entity",
+    "inspect_project",
+    "preview_semantic_diff",
+    "resolve_entity"
+  ],
+  "change_field_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "properties": {
+      "entity": {
+        "description": "revision",
+        "minLength": 1,
+        "type": "string"
+      },
+      "field": {
+        "description": "field",
+        "minLength": 1,
+        "type": "string"
+      },
+      "transaction_id": {
+        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+        "pattern": "^tx_[A-Za-z0-9_]+$",
+        "type": "string"
+      },
+      "value": {
+        "description": "string",
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "transaction_id",
+      "entity",
+      "field"
+    ],
+    "type": "object"
+  },
+  "first_transaction_id": "tx_2_0000000000000001",
+  "second_transaction_id": "tx_2_0000000000000001"
+}
