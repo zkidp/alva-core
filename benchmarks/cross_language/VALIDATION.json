@@ -6,6 +6,8 @@
   "infrastructure_holds": [],
   "all_terminal_confirmed": true,
   "all_interrupts_acknowledged": true,
+  "captured_python_outputs_recursive_type_audit_pass": true,
+  "frozen_python_comparator_limit": "Top-level type equality only; nested element-type equivalence is not enforced. Captured final outputs audited without reruns or score changes.",
   "model_generation_calls_in_analysis": 0,
   "input_token_api_calls": 0,
   "extra_replacement_slots": 0

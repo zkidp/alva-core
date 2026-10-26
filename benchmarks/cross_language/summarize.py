@@ -45,10 +45,22 @@ def main():
                       "ALVA_Text_vs_AEP":{a:by_arm.get(a,{}).get("correctness","NOT_STARTED") for a in "BC"}})
     save(HERE/"ANALYSIS.json",{"classification":"DESCRIPTIVE_DEVELOPMENTAL_ONLY","groups":groups,"rows":rows,"pairs":pairs})
     intact=all(sha((ROOT/name).read_bytes())==value for name,value in freeze["files"].items())
+    # Captured-output audit only; never change the frozen evaluator or scores.
+    def typed_equal(a,b):
+        if type(a) is not type(b):return False
+        if isinstance(a,list):return len(a)==len(b) and all(typed_equal(x,y) for x,y in zip(a,b))
+        return a==b
+    captured_types=[]
+    for slot in freeze["schedule"]:
+        path=RUNTIME/"slots"/slot["id"]/"result.json"
+        if slot["arm"]=="A" and path.exists():
+            captured_types.extend(typed_equal(t.get("actual"),t["expected"]) for t in load(path)["final"].get("tests",[]))
     save(HERE/"VALIDATION.json",{"frozen_files_unchanged":intact,"started_model_tasks":len(rows),"scheduled":12,
                                  "all_slots_closed":len(rows)==12,"infrastructure_holds":[r["slot"] for r in rows if r.get("infrastructure_hold")],
                                  "all_terminal_confirmed":all(r["terminal_status"] is not None for r in rows),
                                  "all_interrupts_acknowledged":all(not r["interrupt_requested"] or r["interrupt_ack"] for r in rows),
+                                 "captured_python_outputs_recursive_type_audit_pass":bool(captured_types) and all(captured_types),
+                                 "frozen_python_comparator_limit":"Top-level type equality only; nested element-type equivalence is not enforced. Captured final outputs audited without reruns or score changes.",
                                  "model_generation_calls_in_analysis":0,"input_token_api_calls":0,"extra_replacement_slots":0})
     print(json.dumps(groups,indent=2))
 

@@ -80,6 +80,13 @@ fail; no post-commit semantic-control benefit was exercised by these model runs.
 The end-to-end bridge workflow showed **no incremental completion signal**;
 effects conditional on successful staging/commit remain unevaluated.
 
+Oracle limitation disclosed at closure: the frozen Python comparator checks
+top-level return type plus value equality, not recursive list-element types
+(Python equates bool/int leaves). A read-only audit of the already captured
+final outputs confirms exact recursive types/values for every A vector, so no
+observed score changes. The evaluator/tests were not repaired or rerun to obtain
+this result; broader type-confusion sensitivity is not established.
+
 [ANALYSIS.json](ANALYSIS.json) reports every task/arm, first mutation callback
 ordinal, edit counts, AEP operation outcomes/rejections, checks/tests and
 termination. Callback ordinals are not provider generation ordinals. Filtered
