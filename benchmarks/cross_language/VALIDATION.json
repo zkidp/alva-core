@@ -1,0 +1,12 @@
+{
+  "frozen_files_unchanged": true,
+  "started_model_tasks": 12,
+  "scheduled": 12,
+  "all_slots_closed": true,
+  "infrastructure_holds": [],
+  "all_terminal_confirmed": true,
+  "all_interrupts_acknowledged": true,
+  "model_generation_calls_in_analysis": 0,
+  "input_token_api_calls": 0,
+  "extra_replacement_slots": 0
+}

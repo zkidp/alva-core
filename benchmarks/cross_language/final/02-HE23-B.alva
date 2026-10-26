@@ -1,0 +1,2 @@
+(module (name "bench") (version "0.1.0") (export solve)
+(fn solve (params (param s (prim string))) (returns (prim i64)) (pure) (body (len (ref s)))))
