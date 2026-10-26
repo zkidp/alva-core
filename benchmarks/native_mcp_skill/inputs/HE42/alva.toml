@@ -1,0 +1,4 @@
+[project]
+name="bench"
+[modules]
+"bench"="src/task.alva"

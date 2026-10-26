@@ -1,0 +1,14 @@
+{
+  "status": "DEVELOPMENT_SELECTION_BEFORE_GENERATION_NOT_EXECUTION_FREEZE",
+  "source": "https://github.com/openai/human-eval/tree/b9453e8f1865df0a0057a1383767caa400acfbcf",
+  "license": "MIT; existing benchmarks/cross_language/HUMANEVAL-LICENSE.txt retained unchanged",
+  "rule": "Reuse the four public adapted task types named in the P22 design; select all four before native capability qualification, without any new model outcomes. No replacements.",
+  "tasks": [
+    {"id":"HE41","origin":"HumanEval/41","type":"scalar_arithmetic","requirement":"Two sets of n cars move in opposite directions on an infinite straight road. Every pair from opposite sets meets once; cars continue unchanged. Return the collision count. n is an integer in [0,10000]."},
+    {"id":"HE23","origin":"HumanEval/23","type":"string_length","requirement":"Return the length of the input ASCII string s. Empty input has length zero. Inputs contain only ASCII characters and have length at most 64."},
+    {"id":"HE42","origin":"HumanEval/42","type":"vector_mapping","requirement":"Return a new list with each integer from xs incremented by one, preserving order and duplicates. Empty input returns empty. At most 16 integers, each in [-1000,1000]."},
+    {"id":"HE3","origin":"HumanEval/3","type":"prefix_state","requirement":"Starting with balance zero, apply the integer deposits/withdrawals xs in order. Return true if any running balance is negative, even if it later recovers; otherwise false. Empty input returns false. At most 16 integers, each in [-1000,1000]."}
+  ],
+  "reference_candidates_supplied": false,
+  "model_tasks_started": 0
+}
