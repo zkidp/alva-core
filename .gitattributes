@@ -1,0 +1,2 @@
+# Public pilot inputs/manifests are byte-bound across Linux and Windows.
+pilots/codex_guard/** -text

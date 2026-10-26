@@ -1,0 +1,13 @@
+diff --git a/more_itertools/more.py b/more_itertools/more.py
+index 9c56ab3..670bec5 100644
+--- a/more_itertools/more.py
++++ b/more_itertools/more.py
+@@ -4842,7 +4842,7 @@ def classify_unique(iterable, key=None):
+ 
+     for i, element in enumerate(iterable):
+         k = key(element) if use_key else element
+-        is_unique_justseen = not i or previous != k
++        is_unique_justseen = not i or (previous is not k and previous != k)
+         previous = k
+         is_unique_everseen = False
+         try:

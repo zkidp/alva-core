@@ -1,0 +1,13 @@
+diff --git a/more_itertools/more.py b/more_itertools/more.py
+index 9c56ab3..6e4a5e8 100644
+--- a/more_itertools/more.py
++++ b/more_itertools/more.py
+@@ -3902,6 +3902,8 @@ def _sample_weighted(iterator, k, weights, strict):
+     reservoir = take(k, zip(weight_keys, iterator))
+     if strict and len(reservoir) < k:
+         raise ValueError('Sample larger than population')
++    if not reservoir:
++        return []
+ 
+     heapify(reservoir)
+ 
