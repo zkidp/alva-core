@@ -1,0 +1,46 @@
+name: Native MCP Skill preflight (zero models)
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/native_mcp_skill/**'
+      - 'integrations/benchmark_runtime_v2/persistent.py'
+      - '.github/workflows/native-mcp-skill-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  linux-preflight:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision public isolation tools
+        run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - name: Build unchanged trusted SDK
+        run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Optional discovery and lifecycle regression, real sandbox and native MCP
+        run: |
+          python benchmarks/native_mcp_skill/test_integration.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/native-integration.json
+      - name: Assert observed native entry-point gap, not model outcomes
+        run: |
+          python benchmarks/native_mcp_skill/native_coverage.py \
+            --commit 12c13c1f6d6e272050949826f711431bb89e8064 \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/native-coverage.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-mcp-skill-zero-model
+          path: out/*.json

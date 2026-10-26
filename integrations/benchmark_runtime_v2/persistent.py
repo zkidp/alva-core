@@ -24,6 +24,13 @@ class Closed(RuntimeError):
     """Unusable workspace: execution outcome may be unknown. Never retry."""
 
 
+class UnsupportedDiscovery(RuntimeError):
+    """Original -32601 for optional read-only discovery; no semantic action."""
+    def __init__(self, error):
+        self.error = error
+        super().__init__(str(error))
+
+
 def _serialized(method):
     @wraps(method)
     def call(self, *args, **kwargs):
@@ -242,7 +249,7 @@ class NativeMCP:
             owner._fail(exc)
 
     @_serialized
-    def request(self, method, params=None):
+    def request(self, method, params=None, *, optional_discovery=False):
         if self.closed:
             raise Closed("SESSION_CLOSED")
         self.next_id += 1
@@ -262,11 +269,20 @@ class NativeMCP:
             line, _, rest = p.out.partition(b"\n")
             p.out = bytearray(rest)
             response = json.loads(line)
+            valid_id = (isinstance(response, dict) and response.get("jsonrpc") == "2.0"
+                        and type(response.get("id")) is int and response["id"] == self.next_id)
+            if (valid_id and optional_discovery
+                    and method in ("resources/list", "resources/templates/list", "prompts/list")
+                    and isinstance(response.get("error"), dict)
+                    and response["error"].get("code") == -32601 and "result" not in response):
+                raise UnsupportedDiscovery(response["error"])
             if (not isinstance(response, dict) or response.get("jsonrpc") != "2.0"
                     or type(response.get("id")) is not int or response["id"] != self.next_id
                     or "error" in response or "result" not in response):
                 raise Closed("INVALID_OR_FAILED_RPC:" + str(response)[:500])
             return response["result"]
+        except UnsupportedDiscovery:
+            raise
         except Exception as exc:
             self.closed = True
             self.owner._fail(exc)

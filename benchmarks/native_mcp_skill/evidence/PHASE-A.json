@@ -1,0 +1,1925 @@
+{
+  "status": "PASS",
+  "generation_calls": 0,
+  "input_token_calls": 0,
+  "base": "ca930db61823c8318f1126f5649d1863f10fcc37",
+  "skill_sha256": {
+    "SKILL.md": "bcfb0a2a80b5e703858c0501a0493cc574d8fe7d4a78c3062c8aa8a7de8fc223",
+    "references/diagnostics.md": "c6ae9dcd177b0c8b88d2b3243705ead4375f604821298409de335daadad04993",
+    "references/examples.md": "8a8b35ec4f0e22914ad1279cfdeb61012d31f543788cde005a0a0d62d5860113",
+    "references/workflow.md": "e955ce6ad739cb338a4f895ee4832906e9aac8bf7e6ac79ec21d8cbd9d223b59"
+  },
+  "calls": [
+    {
+      "operation": "begin_transaction",
+      "arguments": {
+        "project": "/work/project/tests/project/alva.toml"
+      },
+      "result": {
+        "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "transaction_id": "tx_2_0000000000000001"
+      }
+    },
+    {
+      "operation": "resolve_entity",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001",
+        "name": "demo.app.run",
+        "kind": "function"
+      },
+      "result": {
+        "display": "demo.app.run",
+        "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+        "kind": "function",
+        "module": "demo.app"
+      }
+    },
+    {
+      "operation": "applicable_operations",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001",
+        "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2"
+      },
+      "result": {
+        "context_operations": [
+          "abort_transaction",
+          "begin_transaction",
+          "check_transaction",
+          "commit_transaction",
+          "construct_expression",
+          "describe_construction",
+          "describe_operation",
+          "inspect_project",
+          "preview_semantic_diff",
+          "resolve_entity"
+        ],
+        "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+        "inspection": [
+          "applicable_operations",
+          "inspect_body",
+          "inspect_entity"
+        ],
+        "kind": "function",
+        "mutation": [
+          "change_field"
+        ]
+      }
+    },
+    {
+      "operation": "describe_operation",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001",
+        "name": "change_field"
+      },
+      "result": {
+        "aliases": [],
+        "arguments": [
+          {
+            "name": "entity",
+            "required": true,
+            "shape": "revision"
+          },
+          {
+            "name": "field",
+            "required": true,
+            "shape": "field"
+          },
+          {
+            "name": "value",
+            "required": false,
+            "shape": "string"
+          }
+        ],
+        "effects": "mutation",
+        "example": "change_field entity=<rev> field=pure value=true",
+        "gated": false,
+        "name": "change_field",
+        "preconditions": [
+          "transaction"
+        ],
+        "target_kinds": [
+          "any"
+        ]
+      }
+    },
+    {
+      "operation": "inspect_body",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001",
+        "function": "demo.app.run"
+      },
+      "result": {
+        "body": "(block rev=8c4e802e4b7baa27606b8170b10549915b9d3f83fc20f51839a9075d825eff4e steps:((call name=demo.model.size_of rev=1276870390d1935f3ca596d606ca3b797d848097e2bd91dd886d1dd94bb9affa args:((call name=demo.model.touch_size rev=d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13 args:((call name=demo.model.make_meta rev=0530c423e9f1feba24b6da627514a42e924a631e249ed9de8f74065cf14e247f args:((literal value=a rev=655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d)) args:((literal value=5 rev=29e679c3d99f9ee80a58d34e900c88b475c319a7e8ec747c203df5220b466c95)) args:((literal value=e1 rev=5b1d3d812ac8b7a075c8e13c18d505f255316174184b66f51ba30e7d96d4fdd8)))))))))",
+        "eff": "",
+        "pure": "true"
+      }
+    },
+    {
+      "operation": "change_field",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001",
+        "entity": "655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d",
+        "field": "value",
+        "value": "native-host-isolated"
+      },
+      "result": {
+        "new_revision": "a52a1a6114b75c927595cc1edc1699298e5f2789e73b614452acc8bd0e70e3ea"
+      }
+    },
+    {
+      "operation": "preview_semantic_diff",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001"
+      },
+      "result": {
+        "diff": "CHANGED module demo.app\nCHANGED function demo.app.run"
+      }
+    },
+    {
+      "operation": "check_transaction",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001"
+      },
+      "result": {
+        "problems": []
+      }
+    },
+    {
+      "operation": "commit_transaction",
+      "arguments": {
+        "transaction_id": "tx_2_0000000000000001"
+      },
+      "result": {
+        "generation": 1,
+        "revision": "3907cf70646c7792da34ab7dedc99b277472fa4450585078ad7b2ac1b89b3652"
+      }
+    }
+  ],
+  "bundle_id": "bce8b2ceb0dc4b1d4355d87a65c48642bd867a18fe0a255841a4c18b617fb943",
+  "tools": {
+    "change_field": {
+      "name": "change_field",
+      "description": "ALVA semantic operation. Example: change_field entity=<rev> field=pure value=true. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "description": "revision",
+            "minLength": 1,
+            "type": "string"
+          },
+          "field": {
+            "description": "field",
+            "minLength": 1,
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          },
+          "value": {
+            "description": "string",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "entity",
+          "field"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "describe_construction": {
+      "name": "describe_construction",
+      "description": "ALVA semantic operation. Example: describe_construction kind=fold. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "include_candidates": {
+            "description": "bool",
+            "type": "boolean"
+          },
+          "kind": {
+            "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+            "enum": [
+              "field",
+              "record",
+              "record_update",
+              "veclit",
+              "fold",
+              "match",
+              "ok",
+              "err",
+              "not",
+              "range"
+            ],
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "preview_semantic_diff": {
+      "name": "preview_semantic_diff",
+      "description": "ALVA semantic operation. Example: preview_semantic_diff. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "construct_expression": {
+      "name": "construct_expression",
+      "description": "ALVA semantic operation. Example: construct_expression kind=err value=<rev> expected_type=(result string string). This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": {
+          "description": "revision | type string | json array"
+        },
+        "properties": {
+          "expected_type": {
+            "description": "type string",
+            "minLength": 1,
+            "type": "string"
+          },
+          "kind": {
+            "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+            "enum": [
+              "field",
+              "record",
+              "record_update",
+              "veclit",
+              "fold",
+              "match",
+              "ok",
+              "err",
+              "not",
+              "range"
+            ],
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "describe_operation": {
+      "name": "describe_operation",
+      "description": "ALVA semantic operation. Example: describe_operation name=update_record_fields. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "description": "string",
+            "minLength": 1,
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "applicable_operations": {
+      "name": "applicable_operations",
+      "description": "ALVA semantic operation. Example: applicable_operations entity=Job. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "description": "entity-id|name",
+            "minLength": 1,
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "entity"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "inspect_entity": {
+      "name": "inspect_entity",
+      "description": "ALVA semantic operation. Example: inspect_entity entity=Job. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "description": "entity-id|name",
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "description": "string",
+            "minLength": 1,
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "entity"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "abort_transaction": {
+      "name": "abort_transaction",
+      "description": "ALVA semantic operation. Example: abort_transaction. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "begin_transaction": {
+      "name": "begin_transaction",
+      "description": "ALVA semantic operation. Example: begin_transaction project=/workspace/alva.toml. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "project": {
+            "description": "path to alva.toml",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "commit_transaction": {
+      "name": "commit_transaction",
+      "description": "ALVA semantic operation. Example: commit_transaction. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false
+      }
+    },
+    "inspect_project": {
+      "name": "inspect_project",
+      "description": "ALVA semantic operation. Example: inspect_project. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "inspect_body": {
+      "name": "inspect_body",
+      "description": "ALVA semantic operation. Example: inspect_body function=queue.engine.claim. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "function": {
+            "description": "entity-id|qualified fn",
+            "minLength": 1,
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "function"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "resolve_entity": {
+      "name": "resolve_entity",
+      "description": "ALVA semantic operation. Example: resolve_entity name=Job kind=record. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "description": "string(module|function|type|record|enum)",
+            "enum": [
+              "module",
+              "function",
+              "type",
+              "record",
+              "enum"
+            ],
+            "type": "string"
+          },
+          "module": {
+            "description": "string",
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "description": "string",
+            "minLength": 1,
+            "type": "string"
+          },
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    "check_transaction": {
+      "name": "check_transaction",
+      "description": "ALVA semantic operation. Example: check_transaction. This tool is part of plugin `ALVA`.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "transaction_id": {
+            "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+            "pattern": "^tx_[A-Za-z0-9_]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    }
+  },
+  "proxy": {
+    "status": "PASS",
+    "generation_calls": 0,
+    "sessions": [
+      {
+        "status": "CLOSED",
+        "calls": [
+          {
+            "method": "initialize",
+            "params": {
+              "protocolVersion": "2025-06-18",
+              "capabilities": {
+                "experimental": {
+                  "codex/auth-change": {}
+                },
+                "elicitation": {
+                  "form": {},
+                  "url": {}
+                }
+              },
+              "clientInfo": {
+                "name": "codex-mcp-client",
+                "title": "Codex",
+                "version": "0.163.0-alpha.11.2"
+              }
+            },
+            "result": {
+              "capabilities": {
+                "tools": {
+                  "listChanged": false
+                }
+              },
+              "instructions": "Use begin_transaction first, then pass its transaction_id to every ALVA semantic tool.",
+              "protocolVersion": "2025-06-18",
+              "serverInfo": {
+                "name": "alva",
+                "version": "0.14.1-preview.2"
+              }
+            }
+          },
+          {
+            "method": "tools/list",
+            "params": {
+              "_meta": {
+                "progressToken": 0
+              }
+            },
+            "result": {
+              "tools": [
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: begin_transaction project=/workspace/alva.toml",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "project": {
+                        "description": "path to alva.toml",
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "project"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "begin_transaction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: resolve_entity name=Job kind=record",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "kind": {
+                        "description": "string(module|function|type|record|enum)",
+                        "enum": [
+                          "module",
+                          "function",
+                          "type",
+                          "record",
+                          "enum"
+                        ],
+                        "type": "string"
+                      },
+                      "module": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "name"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "resolve_entity"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: applicable_operations entity=Job",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entity": {
+                        "description": "entity-id|name",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "entity"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "applicable_operations"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: describe_operation name=update_record_fields",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "name"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "describe_operation"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: inspect_project",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "inspect_project"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: inspect_entity entity=Job",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entity": {
+                        "description": "entity-id|name",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "entity"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "inspect_entity"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: inspect_body function=queue.engine.claim",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "function": {
+                        "description": "entity-id|qualified fn",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "function"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "inspect_body"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: describe_construction kind=fold",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "include_candidates": {
+                        "description": "bool",
+                        "type": "boolean"
+                      },
+                      "kind": {
+                        "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+                        "enum": [
+                          "field",
+                          "record",
+                          "record_update",
+                          "veclit",
+                          "fold",
+                          "match",
+                          "ok",
+                          "err",
+                          "not",
+                          "range"
+                        ],
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "kind"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "describe_construction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: construct_expression kind=err value=<rev> expected_type=(result string string)",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": {
+                      "description": "revision | type string | json array"
+                    },
+                    "properties": {
+                      "expected_type": {
+                        "description": "type string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "kind": {
+                        "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+                        "enum": [
+                          "field",
+                          "record",
+                          "record_update",
+                          "veclit",
+                          "fold",
+                          "match",
+                          "ok",
+                          "err",
+                          "not",
+                          "range"
+                        ],
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "kind"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "construct_expression"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: change_field entity=<rev> field=pure value=true",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entity": {
+                        "description": "revision",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "field": {
+                        "description": "field",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      },
+                      "value": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "entity",
+                      "field"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "change_field"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: preview_semantic_diff",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "preview_semantic_diff"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: check_transaction",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "check_transaction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": true,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: commit_transaction",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "commit_transaction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: abort_transaction",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "abort_transaction"
+                }
+              ]
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 1
+              },
+              "name": "begin_transaction",
+              "arguments": {
+                "project": "/work/project/tests/project/alva.toml"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"project_revision\":\"c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863\",\"transaction_id\":\"tx_2_0000000000000001\"}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+                "transaction_id": "tx_2_0000000000000001"
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 2
+              },
+              "name": "resolve_entity",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001",
+                "name": "demo.app.run",
+                "kind": "function"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"display\":\"demo.app.run\",\"entity\":\"9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2\",\"kind\":\"function\",\"module\":\"demo.app\"}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "display": "demo.app.run",
+                "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+                "kind": "function",
+                "module": "demo.app"
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 3
+              },
+              "name": "applicable_operations",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001",
+                "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"context_operations\":[\"abort_transaction\",\"begin_transaction\",\"check_transaction\",\"commit_transaction\",\"construct_expression\",\"describe_construction\",\"describe_operation\",\"inspect_project\",\"preview_semantic_diff\",\"resolve_entity\"],\"entity\":\"9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2\",\"inspection\":[\"applicable_operations\",\"inspect_body\",\"inspect_entity\"],\"kind\":\"function\",\"mutation\":[\"change_field\"]}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "context_operations": [
+                  "abort_transaction",
+                  "begin_transaction",
+                  "check_transaction",
+                  "commit_transaction",
+                  "construct_expression",
+                  "describe_construction",
+                  "describe_operation",
+                  "inspect_project",
+                  "preview_semantic_diff",
+                  "resolve_entity"
+                ],
+                "entity": "9b8600799773c4d3bf42b838e8c04162fef77ea9a9c38a54d6be73ae4cb339f2",
+                "inspection": [
+                  "applicable_operations",
+                  "inspect_body",
+                  "inspect_entity"
+                ],
+                "kind": "function",
+                "mutation": [
+                  "change_field"
+                ]
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 4
+              },
+              "name": "describe_operation",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001",
+                "name": "change_field"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"entity\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"field\",\"required\":true,\"shape\":\"field\"},{\"name\":\"value\",\"required\":false,\"shape\":\"string\"}],\"effects\":\"mutation\",\"example\":\"change_field entity=<rev> field=pure value=true\",\"gated\":false,\"name\":\"change_field\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "aliases": [],
+                "arguments": [
+                  {
+                    "name": "entity",
+                    "required": true,
+                    "shape": "revision"
+                  },
+                  {
+                    "name": "field",
+                    "required": true,
+                    "shape": "field"
+                  },
+                  {
+                    "name": "value",
+                    "required": false,
+                    "shape": "string"
+                  }
+                ],
+                "effects": "mutation",
+                "example": "change_field entity=<rev> field=pure value=true",
+                "gated": false,
+                "name": "change_field",
+                "preconditions": [
+                  "transaction"
+                ],
+                "target_kinds": [
+                  "any"
+                ]
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 5
+              },
+              "name": "inspect_body",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001",
+                "function": "demo.app.run"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"body\":\"(block rev=8c4e802e4b7baa27606b8170b10549915b9d3f83fc20f51839a9075d825eff4e steps:((call name=demo.model.size_of rev=1276870390d1935f3ca596d606ca3b797d848097e2bd91dd886d1dd94bb9affa args:((call name=demo.model.touch_size rev=d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13 args:((call name=demo.model.make_meta rev=0530c423e9f1feba24b6da627514a42e924a631e249ed9de8f74065cf14e247f args:((literal value=a rev=655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d)) args:((literal value=5 rev=29e679c3d99f9ee80a58d34e900c88b475c319a7e8ec747c203df5220b466c95)) args:((literal value=e1 rev=5b1d3d812ac8b7a075c8e13c18d505f255316174184b66f51ba30e7d96d4fdd8)))))))))\",\"eff\":\"\",\"pure\":\"true\"}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "body": "(block rev=8c4e802e4b7baa27606b8170b10549915b9d3f83fc20f51839a9075d825eff4e steps:((call name=demo.model.size_of rev=1276870390d1935f3ca596d606ca3b797d848097e2bd91dd886d1dd94bb9affa args:((call name=demo.model.touch_size rev=d7e4e5036391fe3531527b6ad28173d54af4e9efb58e7b91f390e24495c3fc13 args:((call name=demo.model.make_meta rev=0530c423e9f1feba24b6da627514a42e924a631e249ed9de8f74065cf14e247f args:((literal value=a rev=655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d)) args:((literal value=5 rev=29e679c3d99f9ee80a58d34e900c88b475c319a7e8ec747c203df5220b466c95)) args:((literal value=e1 rev=5b1d3d812ac8b7a075c8e13c18d505f255316174184b66f51ba30e7d96d4fdd8)))))))))",
+                "eff": "",
+                "pure": "true"
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 6
+              },
+              "name": "change_field",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001",
+                "entity": "655e8400ec3cfcfcf2bbb103f47e8cb6fc113a48cba92ecb54b9acbec0bf465d",
+                "field": "value",
+                "value": "native-host-isolated"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"new_revision\":\"a52a1a6114b75c927595cc1edc1699298e5f2789e73b614452acc8bd0e70e3ea\"}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "new_revision": "a52a1a6114b75c927595cc1edc1699298e5f2789e73b614452acc8bd0e70e3ea"
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 7
+              },
+              "name": "preview_semantic_diff",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"diff\":\"CHANGED module demo.app\\nCHANGED function demo.app.run\"}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "diff": "CHANGED module demo.app\nCHANGED function demo.app.run"
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 8
+              },
+              "name": "check_transaction",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"problems\":[]}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "problems": []
+              }
+            }
+          },
+          {
+            "method": "tools/call",
+            "params": {
+              "_meta": {
+                "threadId": "01a17a00-36b2-7ab2-9f17-4fd5f11b2b89",
+                "progressToken": 9
+              },
+              "name": "commit_transaction",
+              "arguments": {
+                "transaction_id": "tx_2_0000000000000001"
+              }
+            },
+            "result": {
+              "content": [
+                {
+                  "text": "{\"generation\":1,\"revision\":\"3907cf70646c7792da34ab7dedc99b277472fa4450585078ad7b2ac1b89b3652\"}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "structuredContent": {
+                "generation": 1,
+                "revision": "3907cf70646c7792da34ab7dedc99b277472fa4450585078ad7b2ac1b89b3652"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "status": "CLOSED",
+        "calls": [
+          {
+            "method": "initialize",
+            "params": {
+              "protocolVersion": "2025-06-18",
+              "capabilities": {
+                "elicitation": {
+                  "form": {},
+                  "url": {}
+                }
+              },
+              "clientInfo": {
+                "name": "codex-mcp-client",
+                "title": "Codex",
+                "version": "0.163.0-alpha.11.2"
+              }
+            },
+            "result": {
+              "capabilities": {
+                "tools": {
+                  "listChanged": false
+                }
+              },
+              "instructions": "Use begin_transaction first, then pass its transaction_id to every ALVA semantic tool.",
+              "protocolVersion": "2025-06-18",
+              "serverInfo": {
+                "name": "alva",
+                "version": "0.14.1-preview.2"
+              }
+            }
+          },
+          {
+            "method": "tools/list",
+            "params": {
+              "_meta": {
+                "progressToken": 0
+              }
+            },
+            "result": {
+              "tools": [
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: begin_transaction project=/workspace/alva.toml",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "project": {
+                        "description": "path to alva.toml",
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "project"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "begin_transaction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: resolve_entity name=Job kind=record",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "kind": {
+                        "description": "string(module|function|type|record|enum)",
+                        "enum": [
+                          "module",
+                          "function",
+                          "type",
+                          "record",
+                          "enum"
+                        ],
+                        "type": "string"
+                      },
+                      "module": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "name"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "resolve_entity"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: applicable_operations entity=Job",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entity": {
+                        "description": "entity-id|name",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "entity"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "applicable_operations"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: describe_operation name=update_record_fields",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "name"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "describe_operation"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: inspect_project",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "inspect_project"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: inspect_entity entity=Job",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entity": {
+                        "description": "entity-id|name",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "entity"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "inspect_entity"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: inspect_body function=queue.engine.claim",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "function": {
+                        "description": "entity-id|qualified fn",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "function"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "inspect_body"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: describe_construction kind=fold",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "include_candidates": {
+                        "description": "bool",
+                        "type": "boolean"
+                      },
+                      "kind": {
+                        "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+                        "enum": [
+                          "field",
+                          "record",
+                          "record_update",
+                          "veclit",
+                          "fold",
+                          "match",
+                          "ok",
+                          "err",
+                          "not",
+                          "range"
+                        ],
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "kind"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "describe_construction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: construct_expression kind=err value=<rev> expected_type=(result string string)",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": {
+                      "description": "revision | type string | json array"
+                    },
+                    "properties": {
+                      "expected_type": {
+                        "description": "type string",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "kind": {
+                        "description": "string(field|record|record_update|veclit|fold|match|ok|err|not|range)",
+                        "enum": [
+                          "field",
+                          "record",
+                          "record_update",
+                          "veclit",
+                          "fold",
+                          "match",
+                          "ok",
+                          "err",
+                          "not",
+                          "range"
+                        ],
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "kind"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "construct_expression"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: change_field entity=<rev> field=pure value=true",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entity": {
+                        "description": "revision",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "field": {
+                        "description": "field",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      },
+                      "value": {
+                        "description": "string",
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id",
+                      "entity",
+                      "field"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "change_field"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": true
+                  },
+                  "description": "ALVA semantic operation. Example: preview_semantic_diff",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "preview_semantic_diff"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: check_transaction",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "check_transaction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": true,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: commit_transaction",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "commit_transaction"
+                },
+                {
+                  "annotations": {
+                    "destructiveHint": false,
+                    "openWorldHint": false,
+                    "readOnlyHint": false
+                  },
+                  "description": "ALVA semantic operation. Example: abort_transaction",
+                  "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "additionalProperties": false,
+                    "properties": {
+                      "transaction_id": {
+                        "description": "Explicit ALVA transaction handle returned by begin_transaction.",
+                        "pattern": "^tx_[A-Za-z0-9_]+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "transaction_id"
+                    ],
+                    "type": "object"
+                  },
+                  "name": "abort_transaction"
+                }
+              ]
+            }
+          },
+          {
+            "method": "resources/templates/list",
+            "unsupported_optional_discovery": {
+              "code": -32601,
+              "data": {
+                "method": "resources/templates/list"
+              },
+              "message": "Method not found"
+            }
+          },
+          {
+            "method": "resources/list",
+            "unsupported_optional_discovery": {
+              "code": -32601,
+              "data": {
+                "method": "resources/list"
+              },
+              "message": "Method not found"
+            }
+          }
+        ]
+      }
+    ],
+    "independent_build": {
+      "exit": 0,
+      "stdout": "BUILD_BEHAVIOR_PASS; AIR_USED; SOURCE_UNCHANGED\n",
+      "stderr": ""
+    }
+  },
+  "codex": "codex-cli 0.163.0-alpha.11.2"
+}
