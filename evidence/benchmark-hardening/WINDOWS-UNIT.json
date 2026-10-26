@@ -1,0 +1,9 @@
+{
+  "platform": "win32",
+  "tests": 4,
+  "passed": true,
+  "log": "test_actual_lf_crlf_checkouts_produce_identical_exact_bundle (test_freeze.FreezeTests.test_actual_lf_crlf_checkouts_produce_identical_exact_bundle) ... ok\ntest_missing_linux_backend_never_falls_back (test_freeze.FreezeTests.test_missing_linux_backend_never_falls_back) ... ok\ntest_transport_tamper_and_runtime_extra_file_reject (test_freeze.FreezeTests.test_transport_tamper_and_runtime_extra_file_reject) ... ok\ntest_unsupported_windows_never_launches (test_freeze.FreezeTests.test_unsupported_windows_never_launches) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 1.196s\n\nOK\n",
+  "bundle_sha256": "ae5d191236d2886385b03a4f5a72ab7064519f201be4dee571668a7fbe58cd66",
+  "generation_calls": 0,
+  "input_token_calls": 0
+}

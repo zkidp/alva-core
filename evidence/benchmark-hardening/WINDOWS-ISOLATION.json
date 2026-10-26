@@ -1,0 +1,9 @@
+{
+  "schema": "benchmark-runtime-v2-probes",
+  "platform": "win32",
+  "model_generation_calls": 0,
+  "input_token_calls": 0,
+  "rows": [],
+  "status": "UNSUPPORTED_FAIL_CLOSED",
+  "reason": "UNSUPPORTED_PLATFORM: no native Windows/macOS execution backend; no fallback"
+}
