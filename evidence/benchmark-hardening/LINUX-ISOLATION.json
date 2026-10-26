@@ -1,0 +1,72 @@
+{
+  "schema": "benchmark-runtime-v2-probes",
+  "platform": "linux",
+  "model_generation_calls": 0,
+  "input_token_calls": 0,
+  "rows": [
+    {
+      "probe": "python_os_read_write_network_environment",
+      "status": "PASS",
+      "events": [
+        {
+          "kind": "read",
+          "errno": 2
+        },
+        {
+          "kind": "write",
+          "errno": 2
+        },
+        {
+          "kind": "read",
+          "errno": 2
+        },
+        {
+          "kind": "write",
+          "errno": 2
+        },
+        {
+          "kind": "read",
+          "errno": 2
+        },
+        {
+          "kind": "write",
+          "errno": 2
+        },
+        {
+          "kind": "write_readonly",
+          "errno": 30
+        },
+        {
+          "kind": "write_readonly",
+          "errno": 30
+        },
+        {
+          "kind": "write_readonly",
+          "errno": 30
+        },
+        {
+          "kind": "network",
+          "errno": 111
+        },
+        {
+          "kind": "network",
+          "errno": 101
+        }
+      ]
+    },
+    {
+      "probe": "wall_cleanup",
+      "status": "PASS"
+    },
+    {
+      "probe": "output_limit",
+      "status": "PASS"
+    },
+    {
+      "probe": "alva_check_build_rust_build_script_and_generated_test",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS",
+  "boundary": "actual OS namespaces; outside reads ENOENT, writes EROFS/ENOENT, network unreachable/refused"
+}

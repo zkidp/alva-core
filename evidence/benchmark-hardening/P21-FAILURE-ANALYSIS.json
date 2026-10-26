@@ -1,0 +1,1424 @@
+{
+  "base": "ecadfea51ccd147f99f58ec5e891869744bc664c",
+  "model_generation_calls": 0,
+  "input_token_calls": 0,
+  "historical_evaluator_replays": 0,
+  "text": [
+    {
+      "slot": "05-HE41-B",
+      "first_edit_callback": 2,
+      "first_edit_source": "(module (name \"bench\") (version \"0.1.0\") (export solve)\n(fn solve (params (param n (prim i64))) (returns (prim i64)) (pure) (body (mul (var n) (var n)))))\n",
+      "first_edit_sha256": "093c3be075d4b8a878d1a8f7635f791baf8e1412151339b64452ea05c2f983b0",
+      "usage_before_first_edit": {
+        "total": {
+          "totalTokens": 10830,
+          "inputTokens": 10763,
+          "cachedInputTokens": 0,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 67,
+          "reasoningOutputTokens": 0
+        },
+        "last": {
+          "totalTokens": 10830,
+          "inputTokens": 10763,
+          "cachedInputTokens": 0,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 67,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 258400
+      },
+      "checks": [
+        {
+          "callback_ordinal": 3,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "unknown expression tag 'mul'"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 5,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "unknown expression tag 'binary'"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 8,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "unknown expression tag 'binop'"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 10,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "(call name args...) requires a function name"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        }
+      ],
+      "diagnostic_repetitions": {
+        "unknown expression tag 'mul'": 1,
+        "fn 'solve' requires a (body ...) with at least one expression": 4,
+        "unknown expression tag 'binary'": 1,
+        "unknown expression tag 'binop'": 1,
+        "(call name args...) requires a function name": 1
+      },
+      "final_status": "COMPILE_FAIL",
+      "final_diagnostics": [
+        {
+          "code": "E_DIAG",
+          "message": "unknown expression tag 'var'"
+        },
+        {
+          "code": "E_DIAG",
+          "message": "unknown expression tag 'var'"
+        },
+        {
+          "code": "E_DIAG",
+          "message": "fn 'solve' requires a (body ...) with at least one expression"
+        }
+      ],
+      "stop": "TOKEN_OBSERVATION_LIMIT",
+      "terminal": "interrupted",
+      "categories": [
+        "UNSUPPORTED_GENERATED_SYNTAX_NOT_MISSING_LANGUAGE_CAPABILITY",
+        "DIAGNOSTICS_NOT_CLOSED_BEFORE_STOP"
+      ],
+      "capability_basis": "Frozen qualification has Text and AEP witnesses for this exact bounded task."
+    },
+    {
+      "slot": "06-HE3-B",
+      "first_edit_callback": 5,
+      "first_edit_source": "(module (name \"bench\") (version \"0.1.0\") (export solve)\n(fn solve (params (param xs (vec (prim i64)))) (returns (prim bool)) (pure)\n  (body\n    (let (binding balance (i64 0))\n      (for (binding x (iter xs))\n        (set balance (add balance x))\n        (if (lt balance (i64 0)) (return (bool true))))\n      (bool false))))\n)\n",
+      "first_edit_sha256": "ec828b2f9133138eae7f8e8e554b4577c227e18ea32a75dda138ed52f5d68d2d",
+      "usage_before_first_edit": {
+        "total": {
+          "totalTokens": 44803,
+          "inputTokens": 44133,
+          "cachedInputTokens": 32256,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 670,
+          "reasoningOutputTokens": 342
+        },
+        "last": {
+          "totalTokens": 11616,
+          "inputTokens": 11318,
+          "cachedInputTokens": 10880,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 298,
+          "reasoningOutputTokens": 107
+        },
+        "modelContextWindow": 258400
+      },
+      "checks": [
+        {
+          "callback_ordinal": 2,
+          "status": "PASS",
+          "diagnostics": []
+        },
+        {
+          "callback_ordinal": 6,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "(let name ...) requires a symbol name"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 8,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "(let name [type] value body) expected; wrap multiple statements in (block ...)"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "unknown expression tag 'for'"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 10,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "unknown expression tag 'lt'"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        }
+      ],
+      "diagnostic_repetitions": {
+        "(let name ...) requires a symbol name": 1,
+        "fn 'solve' requires a (body ...) with at least one expression": 3,
+        "(let name [type] value body) expected; wrap multiple statements in (block ...)": 1,
+        "unknown expression tag 'for'": 1,
+        "unknown expression tag 'lt'": 1
+      },
+      "final_status": "COMPILE_FAIL",
+      "final_diagnostics": [
+        {
+          "code": "E_DIAG",
+          "message": "unknown expression tag 'binary'"
+        },
+        {
+          "code": "E_DIAG",
+          "message": "fn 'solve' requires a (body ...) with at least one expression"
+        }
+      ],
+      "stop": "TOKEN_OBSERVATION_LIMIT",
+      "terminal": "interrupted",
+      "categories": [
+        "UNSUPPORTED_GENERATED_SYNTAX_NOT_MISSING_LANGUAGE_CAPABILITY",
+        "DIAGNOSTICS_NOT_CLOSED_BEFORE_STOP"
+      ],
+      "capability_basis": "Frozen qualification has Text and AEP witnesses for this exact bounded task."
+    },
+    {
+      "slot": "07-HE42-B",
+      "first_edit_callback": 4,
+      "first_edit_source": "(module (name \"bench\") (version \"0.1.0\") (export solve)\n(fn solve (params (param xs (vec (prim i64)))) (returns (vec (prim i64))) (pure)\n  (body (map xs (fn (params (param x (prim i64))) (returns (prim i64)) (pure) (body (add x 1)))))))\n",
+      "first_edit_sha256": "1dadfae0645352f67e2510c4ea7da1e7e5e79d7f57b506f76b9b5fc13d058bb2",
+      "usage_before_first_edit": {
+        "total": {
+          "totalTokens": 33301,
+          "inputTokens": 32885,
+          "cachedInputTokens": 29440,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 416,
+          "reasoningOutputTokens": 283
+        },
+        "last": {
+          "totalTokens": 11344,
+          "inputTokens": 11152,
+          "cachedInputTokens": 10752,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 192,
+          "reasoningOutputTokens": 155
+        },
+        "modelContextWindow": 258400
+      },
+      "checks": [
+        {
+          "callback_ordinal": 2,
+          "status": "PASS",
+          "diagnostics": []
+        },
+        {
+          "callback_ordinal": 5,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "expected (prim ...), (vec ...), (map ...), (result ...) or a type name"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 7,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "expected an expression, found bare symbol 'foo'"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 9,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "unknown expression tag 'foo'"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        },
+        {
+          "callback_ordinal": 11,
+          "status": "COMPILE_FAIL",
+          "diagnostics": [
+            {
+              "code": "E_DIAG",
+              "message": "(call name args...) requires a function name"
+            },
+            {
+              "code": "E_DIAG",
+              "message": "fn 'solve' requires a (body ...) with at least one expression"
+            }
+          ]
+        }
+      ],
+      "diagnostic_repetitions": {
+        "expected (prim ...), (vec ...), (map ...), (result ...) or a type name": 1,
+        "fn 'solve' requires a (body ...) with at least one expression": 4,
+        "expected an expression, found bare symbol 'foo'": 1,
+        "unknown expression tag 'foo'": 1,
+        "(call name args...) requires a function name": 1
+      },
+      "final_status": "COMPILE_FAIL",
+      "final_diagnostics": [
+        {
+          "code": "E_DIAG",
+          "message": "(call name args...) requires a function name"
+        },
+        {
+          "code": "E_DIAG",
+          "message": "fn 'solve' requires a (body ...) with at least one expression"
+        }
+      ],
+      "stop": "TOKEN_OBSERVATION_LIMIT",
+      "terminal": "interrupted",
+      "categories": [
+        "UNSUPPORTED_GENERATED_SYNTAX_NOT_MISSING_LANGUAGE_CAPABILITY",
+        "DIAGNOSTICS_NOT_CLOSED_BEFORE_STOP"
+      ],
+      "capability_basis": "Frozen qualification has Text and AEP witnesses for this exact bounded task."
+    }
+  ],
+  "aep": [
+    {
+      "slot": "04-HE23-C",
+      "interface": "THIN_JSON_BRIDGE_NOT_NATIVE_MCP_SKILL",
+      "progress": [
+        {
+          "ordinal": 1,
+          "tool": "begin_transaction",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 2,
+          "tool": "discovery",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 3,
+          "tool": "discover",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 4,
+          "tool": "list_tools",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 5,
+          "tool": "capabilities",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 6,
+          "tool": "get_capabilities",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 7,
+          "tool": "describe_tools",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 8,
+          "tool": "list_operations",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 9,
+          "tool": "list_capabilities",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 10,
+          "tool": "describe_capability",
+          "argument_keys": [
+            "capability"
+          ],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 11,
+          "tool": "describe_construction",
+          "argument_keys": [],
+          "missing_fields": [
+            "kind"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+          "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+        },
+        {
+          "ordinal": 12,
+          "tool": "describe_capability",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "len",
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 13,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "operation"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 14,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "replace_expression",
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 15,
+          "tool": "list_candidates",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_OP",
+          "message": "hole not found"
+        },
+        {
+          "ordinal": 16,
+          "tool": "construct_expression",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+          "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+        },
+        {
+          "ordinal": 17,
+          "tool": "create_expression",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 18,
+          "tool": "make_expression",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+          "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+        },
+        {
+          "ordinal": 19,
+          "tool": "add_expression",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 20,
+          "tool": "construct_call",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 21,
+          "tool": "create_call",
+          "argument_keys": [],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": true,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 22,
+          "tool": "make_call",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 23,
+          "tool": "add_call",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 24,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "create_call",
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 25,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "create_var",
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 26,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "create_identifier",
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 27,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "add_call_arg",
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 28,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "replace_expression",
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 29,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "check",
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 30,
+          "tool": "describe_operation",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "commit",
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        }
+      ],
+      "schemas": [
+        {
+          "operation": "replace_expression",
+          "ordinal": 14,
+          "later_invoked": false
+        },
+        {
+          "operation": "create_call",
+          "ordinal": 24,
+          "later_invoked": false
+        },
+        {
+          "operation": "add_call_arg",
+          "ordinal": 27,
+          "later_invoked": false
+        },
+        {
+          "operation": "replace_expression",
+          "ordinal": 28,
+          "later_invoked": false
+        }
+      ],
+      "transaction_begun": true,
+      "successful_target_edits": 0,
+      "detached_call_nodes": 1,
+      "transaction_checks": 0,
+      "commit_attempts": 0,
+      "successful_commits": 0,
+      "stop": "TOKEN_OBSERVATION_LIMIT",
+      "classification": "DISCOVERY_ARGUMENT_USE_NOT_CLOSED; NO_COMMITTED_CANDIDATE",
+      "target_unsupported": false,
+      "basis": "Frozen AEP qualification witness passed; this trace does not reach commit."
+    },
+    {
+      "slot": "08-HE42-C",
+      "interface": "THIN_JSON_BRIDGE_NOT_NATIVE_MCP_SKILL",
+      "progress": [
+        {
+          "ordinal": 1,
+          "tool": "begin_transaction",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 2,
+          "tool": "discovery",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 3,
+          "tool": "get_capabilities",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 4,
+          "tool": "discover",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 5,
+          "tool": "list_tools",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 6,
+          "tool": "get_schema",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 7,
+          "tool": "list_capabilities",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 8,
+          "tool": "list_candidates",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_OP",
+          "message": "hole not found"
+        },
+        {
+          "ordinal": 9,
+          "tool": "inspect",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 10,
+          "tool": "get_module",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 11,
+          "tool": "list_modules",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 12,
+          "tool": "get_ast",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 13,
+          "tool": "read_expression",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 14,
+          "tool": "find_nodes",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 15,
+          "tool": "inspect_project",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 16,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "function",
+            "module"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "ordinal": 17,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "entity"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "ordinal": 18,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "function_id"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "ordinal": 19,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "bench.solve",
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 20,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "target"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "ordinal": 21,
+          "tool": "inspect_entity",
+          "argument_keys": [
+            "entity"
+          ],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 22,
+          "tool": "inspect_entity",
+          "argument_keys": [
+            "target"
+          ],
+          "missing_fields": [
+            "entity"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "ordinal": 23,
+          "tool": "list_capabilities",
+          "argument_keys": [
+            "category"
+          ],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_BAD_REQUEST",
+          "message": "E_AEP_BAD_REQUEST: unknown capability category"
+        },
+        {
+          "ordinal": 24,
+          "tool": "list_capabilities",
+          "argument_keys": [
+            "limit"
+          ],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 25,
+          "tool": "list_candidates",
+          "argument_keys": [
+            "hole"
+          ],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_OP",
+          "message": "hole not found"
+        },
+        {
+          "ordinal": 26,
+          "tool": "create_loop",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 27,
+          "tool": "create_for",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 28,
+          "tool": "create_vec",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 29,
+          "tool": "create_variable",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 30,
+          "tool": "create_ref",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 31,
+          "tool": "create_index",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        }
+      ],
+      "schemas": [],
+      "transaction_begun": true,
+      "successful_target_edits": 0,
+      "detached_call_nodes": 0,
+      "transaction_checks": 0,
+      "commit_attempts": 0,
+      "successful_commits": 0,
+      "stop": "TOKEN_OBSERVATION_LIMIT",
+      "classification": "DISCOVERY_ARGUMENT_USE_NOT_CLOSED; NO_COMMITTED_CANDIDATE",
+      "target_unsupported": false,
+      "basis": "Frozen AEP qualification witness passed; this trace does not reach commit."
+    },
+    {
+      "slot": "10-HE3-C",
+      "interface": "THIN_JSON_BRIDGE_NOT_NATIVE_MCP_SKILL",
+      "progress": [
+        {
+          "ordinal": 1,
+          "tool": "begin_transaction",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 2,
+          "tool": "discovery",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 3,
+          "tool": "discover",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 4,
+          "tool": "list_tools",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 5,
+          "tool": "list_capabilities",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 6,
+          "tool": "list_candidates",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_OP",
+          "message": "hole not found"
+        },
+        {
+          "ordinal": 7,
+          "tool": "inspect",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 8,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "function",
+            "module"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "ordinal": 9,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "name"
+          ],
+          "missing_fields": [],
+          "requested_name": "bench.solve",
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 10,
+          "tool": "construct",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        }
+      ],
+      "schemas": [],
+      "transaction_begun": true,
+      "successful_target_edits": 0,
+      "detached_call_nodes": 0,
+      "transaction_checks": 0,
+      "commit_attempts": 0,
+      "successful_commits": 0,
+      "stop": "TOKEN_OBSERVATION_LIMIT",
+      "classification": "DISCOVERY_ARGUMENT_USE_NOT_CLOSED; NO_COMMITTED_CANDIDATE",
+      "target_unsupported": false,
+      "basis": "Frozen AEP qualification witness passed; this trace does not reach commit."
+    },
+    {
+      "slot": "12-HE41-C",
+      "interface": "THIN_JSON_BRIDGE_NOT_NATIVE_MCP_SKILL",
+      "progress": [
+        {
+          "ordinal": 1,
+          "tool": "begin_transaction",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 2,
+          "tool": "discovery",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 3,
+          "tool": "discover",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 4,
+          "tool": "list_tools",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 5,
+          "tool": "list_capabilities",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 6,
+          "tool": "list_candidates",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "ORDINARY_AEP_REJECTION",
+          "error_code": "E_AEP_OP",
+          "message": "hole not found"
+        },
+        {
+          "ordinal": 7,
+          "tool": "inspect",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": false,
+          "category": "OPERATION_NAME_GUESS_FAILED",
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "ordinal": 8,
+          "tool": "inspect_project",
+          "argument_keys": [],
+          "missing_fields": [],
+          "requested_name": null,
+          "ok": true,
+          "category": "SUCCESS",
+          "error_code": "ok",
+          "message": "ok"
+        },
+        {
+          "ordinal": 9,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "function",
+            "module"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "ordinal": 10,
+          "tool": "inspect_function",
+          "argument_keys": [
+            "entity"
+          ],
+          "missing_fields": [
+            "name"
+          ],
+          "requested_name": null,
+          "ok": false,
+          "category": "MISSING_REQUIRED_FIELD_OR_WRONG_PARAMETER_KEY",
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        }
+      ],
+      "schemas": [],
+      "transaction_begun": true,
+      "successful_target_edits": 0,
+      "detached_call_nodes": 0,
+      "transaction_checks": 0,
+      "commit_attempts": 0,
+      "successful_commits": 0,
+      "stop": "TOKEN_OBSERVATION_LIMIT",
+      "classification": "DISCOVERY_ARGUMENT_USE_NOT_CLOSED; NO_COMMITTED_CANDIDATE",
+      "target_unsupported": false,
+      "basis": "Frozen AEP qualification witness passed; this trace does not reach commit."
+    }
+  ],
+  "newline": [
+    {
+      "path": "tests/integrations/codex_native_test.py",
+      "git_blob_sha256": "b38cdf19e1bee0986d9412fd922b7f2a4df9fba713b18d5a66064fe365c47f10",
+      "git_blob_bytes": 9819,
+      "crlf_sha256": "4f0c01c6f6f78997c7532cd282820849091569da87586e089dfcd45ebd5829a4",
+      "crlf_bytes": 10017,
+      "lf_count": 198,
+      "historical_sha256": "4f0c01c6f6f78997c7532cd282820849091569da87586e089dfcd45ebd5829a4",
+      "historical_matches_git_blob": false,
+      "historical_matches_crlf": true
+    },
+    {
+      "path": "feasibility/native_api/run.py",
+      "git_blob_sha256": "989a56a866e403ca5388193ae15820612842bdb5a0b2fdfbdac503d005ddf520",
+      "git_blob_bytes": 12278,
+      "crlf_sha256": "ad0bfbce7f92dc6fd5c1ae8be40836ef69319cc9cac0929175c6b4fa1946947b",
+      "crlf_bytes": 12553,
+      "lf_count": 275,
+      "historical_sha256": "ad0bfbce7f92dc6fd5c1ae8be40836ef69319cc9cac0929175c6b4fa1946947b",
+      "historical_matches_git_blob": false,
+      "historical_matches_crlf": true
+    }
+  ],
+  "historical_execution_finding": {
+    "direct_host_subprocess": true,
+    "python_isolated_interpreter_not_os_sandbox": true
+  },
+  "archive_status": "SHA256_VERIFIED",
+  "archive_sha256": "ba357cbaff787c3a514266fd439707b787eb7fb7ee5ba33efe63b4fb223edb3c",
+  "archive_entries": 58
+}

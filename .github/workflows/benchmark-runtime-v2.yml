@@ -1,0 +1,68 @@
+name: Benchmark runtime v2 (no models)
+on:
+  pull_request:
+    paths:
+      - 'integrations/benchmark_runtime_v2/**'
+      - 'tests/benchmark_runtime_v2/**'
+      - 'scripts/analyze_p21_failures.py'
+      - 'evidence/benchmark-hardening/**'
+      - 'docs/cross-language-failure-analysis.md'
+      - 'docs/native-mcp-benchmark-design.md'
+      - '.github/workflows/benchmark-runtime-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-freeze:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tests/benchmark_runtime_v2/run_tests.py --output out/freeze-unit.json
+      - name: Native Windows must refuse execution, not fall back
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python tests/benchmark_runtime_v2/linux_probes.py --output out/windows-isolation.json
+          if ($LASTEXITCODE -ne 2) { throw 'Expected fail-closed exit 2' }
+          $probeResult = Get-Content out/windows-isolation.json -Raw | ConvertFrom-Json
+          if ($probeResult.status -ne 'UNSUPPORTED_FAIL_CLOSED') { throw 'Unexpected native backend' }
+          exit 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freeze-${{ matrix.os }}
+          path: out/*.json
+  linux-os-boundary:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision public Linux sandbox tools
+        run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - name: Build trusted ALVA SDK (not candidate execution)
+        run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Real Python, ALVA compilation, build-script and generated-code OS probes
+        run: |
+          python tests/benchmark_runtime_v2/linux_probes.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/linux-isolation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-isolation
+          path: out/*.json
