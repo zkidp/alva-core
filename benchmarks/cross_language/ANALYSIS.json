@@ -1,0 +1,2965 @@
+{
+  "classification": "DESCRIPTIVE_DEVELOPMENTAL_ONLY",
+  "groups": {
+    "A": {
+      "executed": 4,
+      "passed": 4,
+      "compile_fail": 0,
+      "test_fail": 0
+    },
+    "B": {
+      "executed": 4,
+      "passed": 1,
+      "compile_fail": 3,
+      "test_fail": 0
+    },
+    "C": {
+      "executed": 4,
+      "passed": 0,
+      "compile_fail": 0,
+      "test_fail": 4
+    }
+  },
+  "rows": [
+    {
+      "slot": "01-HE3-A",
+      "task": 3,
+      "arm": "A",
+      "correctness": "PASS",
+      "terminal_status": "completed",
+      "stop_reason": "NATURAL_COMPLETED",
+      "infrastructure_hold": null,
+      "tools": 5,
+      "actions": {
+        "read": 1,
+        "edit": 1,
+        "check": 1,
+        "test": 1,
+        "finish": 1
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 1,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 2,
+      "elapsed_seconds": 13.799,
+      "last_reported_provider_usage": {
+        "totalTokens": 55221,
+        "inputTokens": 54978,
+        "cachedInputTokens": 31872,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 243,
+        "reasoningOutputTokens": 0
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": false,
+      "interrupt_ack": false,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "02-HE23-B",
+      "task": 23,
+      "arm": "B",
+      "correctness": "PASS",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 11,
+      "actions": {
+        "read": 1,
+        "check": 5,
+        "aep": 1,
+        "edit": 4
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 4,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 4,
+      "elapsed_seconds": 33.531,
+      "last_reported_provider_usage": {
+        "totalTokens": 129081,
+        "inputTokens": 128015,
+        "cachedInputTokens": 113792,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1066,
+        "reasoningOutputTokens": 438
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "03-HE42-A",
+      "task": 42,
+      "arm": "A",
+      "correctness": "PASS",
+      "terminal_status": "completed",
+      "stop_reason": "NATURAL_COMPLETED",
+      "infrastructure_hold": null,
+      "tools": 5,
+      "actions": {
+        "read": 1,
+        "edit": 1,
+        "check": 1,
+        "test": 1,
+        "finish": 1
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 1,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 2,
+      "elapsed_seconds": 14.782,
+      "last_reported_provider_usage": {
+        "totalTokens": 55619,
+        "inputTokens": 55370,
+        "cachedInputTokens": 43136,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 249,
+        "reasoningOutputTokens": 0
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": false,
+      "interrupt_ack": false,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "04-HE23-C",
+      "task": 23,
+      "arm": "C",
+      "correctness": "TEST_FAIL",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 31,
+      "actions": {
+        "read": 1,
+        "aep": 30
+      },
+      "aep_operations": {
+        "begin_transaction": 1,
+        "discovery": 1,
+        "discover": 1,
+        "list_tools": 1,
+        "capabilities": 1,
+        "get_capabilities": 1,
+        "describe_tools": 1,
+        "list_operations": 1,
+        "list_capabilities": 1,
+        "describe_capability": 2,
+        "describe_construction": 1,
+        "describe_operation": 9,
+        "list_candidates": 1,
+        "construct_expression": 1,
+        "create_expression": 1,
+        "make_expression": 1,
+        "add_expression": 1,
+        "construct_call": 1,
+        "create_call": 1,
+        "make_call": 1,
+        "add_call": 1
+      },
+      "aep_rejections": [
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "2",
+          "op_index": 2,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discovery",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "3",
+          "op_index": 3,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discover",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "4",
+          "op_index": 4,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "list_tools",
+            "candidates": [
+              "list_candidates",
+              "list_capabilities"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "5",
+          "op_index": 5,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "capabilities",
+            "candidates": [
+              "add_cap",
+              "describe_capability",
+              "list_capabilities"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "6",
+          "op_index": 6,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "get_capabilities",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "7",
+          "op_index": 7,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "describe_tools",
+            "candidates": [
+              "describe_capability",
+              "describe_construction",
+              "describe_operation"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "8",
+          "op_index": 8,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "list_operations",
+            "candidates": [
+              "list_candidates",
+              "list_capabilities"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "11",
+          "op_index": 11,
+          "ok": false,
+          "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+          "result": {
+            "requested": "",
+            "candidates": [
+              "ok",
+              "err",
+              "not",
+              "fold",
+              "field",
+              "match"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "13",
+          "op_index": 13,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "",
+            "candidates": [
+              "abort_transaction",
+              "add_call_arg",
+              "add_cap",
+              "add_field",
+              "add_function",
+              "add_param"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "15",
+          "op_index": 15,
+          "ok": false,
+          "error_code": "E_AEP_OP",
+          "result": null,
+          "diagnostics": [],
+          "message": "hole not found"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "16",
+          "op_index": 16,
+          "ok": false,
+          "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+          "result": {
+            "requested": "",
+            "candidates": [
+              "ok",
+              "err",
+              "not",
+              "fold",
+              "field",
+              "match"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "17",
+          "op_index": 17,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_expression",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "18",
+          "op_index": 18,
+          "ok": false,
+          "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+          "result": {
+            "requested": "",
+            "candidates": [
+              "ok",
+              "err",
+              "not",
+              "fold",
+              "field",
+              "match"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "19",
+          "op_index": 19,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "add_expression",
+            "candidates": [
+              "add_call_arg",
+              "add_cap",
+              "add_field",
+              "add_function",
+              "add_param",
+              "add_record_field"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "20",
+          "op_index": 20,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "construct_call",
+            "candidates": [
+              "construct_expression",
+              "describe_construction"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "22",
+          "op_index": 22,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "make_call",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "23",
+          "op_index": 23,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "add_call",
+            "candidates": [
+              "add_call_arg",
+              "add_cap",
+              "add_field",
+              "add_function",
+              "add_param",
+              "add_record_field"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "25",
+          "op_index": 25,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_var",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "26",
+          "op_index": 26,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_identifier",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "29",
+          "op_index": 29,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "check",
+            "candidates": [
+              "check_transaction"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "30",
+          "op_index": 30,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "commit",
+            "candidates": [
+              "commit_transaction"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        }
+      ],
+      "successful_aep_operations": {
+        "begin_transaction": 1,
+        "list_capabilities": 1,
+        "describe_capability": 2,
+        "describe_operation": 4,
+        "create_call": 1
+      },
+      "accepted_source_edits": 0,
+      "commits": 0,
+      "first_mutation_callback_ordinal": null,
+      "elapsed_seconds": 30.566,
+      "last_reported_provider_usage": {
+        "totalTokens": 133447,
+        "inputTokens": 132664,
+        "cachedInputTokens": 103680,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 783,
+        "reasoningOutputTokens": 164
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "05-HE41-B",
+      "task": 41,
+      "arm": "B",
+      "correctness": "COMPILE_FAIL",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 11,
+      "actions": {
+        "read": 1,
+        "edit": 5,
+        "check": 4,
+        "aep": 1
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 5,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 2,
+      "elapsed_seconds": 30.506,
+      "last_reported_provider_usage": {
+        "totalTokens": 130139,
+        "inputTokens": 129026,
+        "cachedInputTokens": 114432,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1113,
+        "reasoningOutputTokens": 377
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "06-HE3-B",
+      "task": 3,
+      "arm": "B",
+      "correctness": "COMPILE_FAIL",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 11,
+      "actions": {
+        "read": 1,
+        "check": 4,
+        "aep": 1,
+        "edit": 5
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 4,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 5,
+      "elapsed_seconds": 39.619,
+      "last_reported_provider_usage": {
+        "totalTokens": 132489,
+        "inputTokens": 130857,
+        "cachedInputTokens": 103040,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1632,
+        "reasoningOutputTokens": 711
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "07-HE42-B",
+      "task": 42,
+      "arm": "B",
+      "correctness": "COMPILE_FAIL",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 11,
+      "actions": {
+        "read": 1,
+        "check": 5,
+        "aep": 1,
+        "edit": 4
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 4,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 4,
+      "elapsed_seconds": 42.761,
+      "last_reported_provider_usage": {
+        "totalTokens": 132641,
+        "inputTokens": 131210,
+        "cachedInputTokens": 124288,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1431,
+        "reasoningOutputTokens": 759
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "08-HE42-C",
+      "task": 42,
+      "arm": "C",
+      "correctness": "TEST_FAIL",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 31,
+      "actions": {
+        "aep": 31
+      },
+      "aep_operations": {
+        "begin_transaction": 1,
+        "discovery": 1,
+        "get_capabilities": 1,
+        "discover": 1,
+        "list_tools": 1,
+        "get_schema": 1,
+        "list_capabilities": 3,
+        "list_candidates": 2,
+        "inspect": 1,
+        "get_module": 1,
+        "list_modules": 1,
+        "get_ast": 1,
+        "read_expression": 1,
+        "find_nodes": 1,
+        "inspect_project": 1,
+        "inspect_function": 5,
+        "inspect_entity": 2,
+        "create_loop": 1,
+        "create_for": 1,
+        "create_vec": 1,
+        "create_variable": 1,
+        "create_ref": 1,
+        "create_index": 1
+      },
+      "aep_rejections": [
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "2",
+          "op_index": 2,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discovery",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "3",
+          "op_index": 3,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "get_capabilities",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "4",
+          "op_index": 4,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discover",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "5",
+          "op_index": 5,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "list_tools",
+            "candidates": [
+              "list_candidates",
+              "list_capabilities"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "6",
+          "op_index": 6,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "get_schema",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "8",
+          "op_index": 8,
+          "ok": false,
+          "error_code": "E_AEP_OP",
+          "result": null,
+          "diagnostics": [],
+          "message": "hole not found"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "9",
+          "op_index": 9,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "inspect",
+            "candidates": [
+              "inspect_body",
+              "inspect_entity",
+              "inspect_function",
+              "inspect_module",
+              "inspect_project",
+              "inspect_test"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "10",
+          "op_index": 10,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "get_module",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "11",
+          "op_index": 11,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "list_modules",
+            "candidates": [
+              "list_candidates",
+              "list_capabilities"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "12",
+          "op_index": 12,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "get_ast",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "13",
+          "op_index": 13,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "read_expression",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "14",
+          "op_index": 14,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "find_nodes",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "16",
+          "op_index": 16,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "17",
+          "op_index": 17,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "18",
+          "op_index": 18,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "20",
+          "op_index": 20,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "22",
+          "op_index": 22,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "23",
+          "op_index": 23,
+          "ok": false,
+          "error_code": "E_AEP_BAD_REQUEST",
+          "result": {
+            "requested_category": "collection",
+            "allowed": [
+              "builtin",
+              "operator",
+              "all"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_BAD_REQUEST: unknown capability category"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "25",
+          "op_index": 25,
+          "ok": false,
+          "error_code": "E_AEP_OP",
+          "result": null,
+          "diagnostics": [],
+          "message": "hole not found"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "26",
+          "op_index": 26,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_loop",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "27",
+          "op_index": 27,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_for",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "28",
+          "op_index": 28,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_vec",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "29",
+          "op_index": 29,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_variable",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "30",
+          "op_index": 30,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_ref",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "31",
+          "op_index": 31,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "create_index",
+            "candidates": [
+              "create_binary",
+              "create_binding",
+              "create_block",
+              "create_call",
+              "create_if",
+              "create_literal"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        }
+      ],
+      "successful_aep_operations": {
+        "begin_transaction": 1,
+        "list_capabilities": 2,
+        "inspect_project": 1,
+        "inspect_function": 1,
+        "inspect_entity": 1
+      },
+      "accepted_source_edits": 0,
+      "commits": 0,
+      "first_mutation_callback_ordinal": null,
+      "elapsed_seconds": 27.099,
+      "last_reported_provider_usage": {
+        "totalTokens": 124544,
+        "inputTokens": 123660,
+        "cachedInputTokens": 109824,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 884,
+        "reasoningOutputTokens": 188
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "09-HE23-A",
+      "task": 23,
+      "arm": "A",
+      "correctness": "PASS",
+      "terminal_status": "completed",
+      "stop_reason": "NATURAL_COMPLETED",
+      "infrastructure_hold": null,
+      "tools": 5,
+      "actions": {
+        "read": 1,
+        "edit": 1,
+        "check": 1,
+        "test": 1,
+        "finish": 1
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 1,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 2,
+      "elapsed_seconds": 13.4,
+      "last_reported_provider_usage": {
+        "totalTokens": 54824,
+        "inputTokens": 54619,
+        "cachedInputTokens": 50816,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 205,
+        "reasoningOutputTokens": 0
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": false,
+      "interrupt_ack": false,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "10-HE3-C",
+      "task": 3,
+      "arm": "C",
+      "correctness": "TEST_FAIL",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 11,
+      "actions": {
+        "read": 1,
+        "aep": 10
+      },
+      "aep_operations": {
+        "begin_transaction": 1,
+        "discovery": 1,
+        "discover": 1,
+        "list_tools": 1,
+        "list_capabilities": 1,
+        "list_candidates": 1,
+        "inspect": 1,
+        "inspect_function": 2,
+        "construct": 1
+      },
+      "aep_rejections": [
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "2",
+          "op_index": 2,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discovery",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "3",
+          "op_index": 3,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discover",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "4",
+          "op_index": 4,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "list_tools",
+            "candidates": [
+              "list_candidates",
+              "list_capabilities"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "6",
+          "op_index": 6,
+          "ok": false,
+          "error_code": "E_AEP_OP",
+          "result": null,
+          "diagnostics": [],
+          "message": "hole not found"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "7",
+          "op_index": 7,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "inspect",
+            "candidates": [
+              "inspect_body",
+              "inspect_entity",
+              "inspect_function",
+              "inspect_module",
+              "inspect_project",
+              "inspect_test"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "8",
+          "op_index": 8,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "10",
+          "op_index": 10,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "construct",
+            "candidates": [
+              "construct_expression",
+              "describe_construction"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        }
+      ],
+      "successful_aep_operations": {
+        "begin_transaction": 1,
+        "list_capabilities": 1,
+        "inspect_function": 1
+      },
+      "accepted_source_edits": 0,
+      "commits": 0,
+      "first_mutation_callback_ordinal": null,
+      "elapsed_seconds": 21.101,
+      "last_reported_provider_usage": {
+        "totalTokens": 128734,
+        "inputTokens": 128133,
+        "cachedInputTokens": 107008,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 601,
+        "reasoningOutputTokens": 139
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "11-HE41-A",
+      "task": 41,
+      "arm": "A",
+      "correctness": "PASS",
+      "terminal_status": "completed",
+      "stop_reason": "NATURAL_COMPLETED",
+      "infrastructure_hold": null,
+      "tools": 5,
+      "actions": {
+        "read": 1,
+        "edit": 1,
+        "check": 1,
+        "test": 1,
+        "finish": 1
+      },
+      "aep_operations": {},
+      "aep_rejections": [],
+      "successful_aep_operations": {},
+      "accepted_source_edits": 1,
+      "commits": 0,
+      "first_mutation_callback_ordinal": 2,
+      "elapsed_seconds": 9.523,
+      "last_reported_provider_usage": {
+        "totalTokens": 55122,
+        "inputTokens": 54872,
+        "cachedInputTokens": 50944,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 250,
+        "reasoningOutputTokens": 11
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": false,
+      "interrupt_ack": false,
+      "unauthorized_items": []
+    },
+    {
+      "slot": "12-HE41-C",
+      "task": 41,
+      "arm": "C",
+      "correctness": "TEST_FAIL",
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null,
+      "tools": 11,
+      "actions": {
+        "read": 1,
+        "aep": 10
+      },
+      "aep_operations": {
+        "begin_transaction": 1,
+        "discovery": 1,
+        "discover": 1,
+        "list_tools": 1,
+        "list_capabilities": 1,
+        "list_candidates": 1,
+        "inspect": 1,
+        "inspect_project": 1,
+        "inspect_function": 2
+      },
+      "aep_rejections": [
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "2",
+          "op_index": 2,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discovery",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "3",
+          "op_index": 3,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "discover",
+            "candidates": []
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "4",
+          "op_index": 4,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "list_tools",
+            "candidates": [
+              "list_candidates",
+              "list_capabilities"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "6",
+          "op_index": 6,
+          "ok": false,
+          "error_code": "E_AEP_OP",
+          "result": null,
+          "diagnostics": [],
+          "message": "hole not found"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "7",
+          "op_index": 7,
+          "ok": false,
+          "error_code": "E_AEP_UNKNOWN_TOOL",
+          "result": {
+            "requested": "inspect",
+            "candidates": [
+              "inspect_body",
+              "inspect_entity",
+              "inspect_function",
+              "inspect_module",
+              "inspect_project",
+              "inspect_test"
+            ]
+          },
+          "diagnostics": [],
+          "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "9",
+          "op_index": 9,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        },
+        {
+          "protocol_version": "0.7-replication",
+          "request_id": "10",
+          "op_index": 10,
+          "ok": false,
+          "error_code": "E_AEP_ENTITY_NOT_FOUND",
+          "result": null,
+          "diagnostics": [],
+          "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+        }
+      ],
+      "successful_aep_operations": {
+        "begin_transaction": 1,
+        "list_capabilities": 1,
+        "inspect_project": 1
+      },
+      "accepted_source_edits": 0,
+      "commits": 0,
+      "first_mutation_callback_ordinal": null,
+      "elapsed_seconds": 24.019,
+      "last_reported_provider_usage": {
+        "totalTokens": 128724,
+        "inputTokens": 128092,
+        "cachedInputTokens": 117632,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 632,
+        "reasoningOutputTokens": 169
+      },
+      "usage_complete_per_host_terminal": true,
+      "provider_generation_requests": null,
+      "dollar_cost": null,
+      "interrupt_requested": true,
+      "interrupt_ack": true,
+      "unauthorized_items": []
+    }
+  ],
+  "pairs": [
+    {
+      "task": 41,
+      "arms": {
+        "B": {
+          "slot": "05-HE41-B",
+          "task": 41,
+          "arm": "B",
+          "correctness": "COMPILE_FAIL",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 11,
+          "actions": {
+            "read": 1,
+            "edit": 5,
+            "check": 4,
+            "aep": 1
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 5,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 2,
+          "elapsed_seconds": 30.506,
+          "last_reported_provider_usage": {
+            "totalTokens": 130139,
+            "inputTokens": 129026,
+            "cachedInputTokens": 114432,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 1113,
+            "reasoningOutputTokens": 377
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        },
+        "A": {
+          "slot": "11-HE41-A",
+          "task": 41,
+          "arm": "A",
+          "correctness": "PASS",
+          "terminal_status": "completed",
+          "stop_reason": "NATURAL_COMPLETED",
+          "infrastructure_hold": null,
+          "tools": 5,
+          "actions": {
+            "read": 1,
+            "edit": 1,
+            "check": 1,
+            "test": 1,
+            "finish": 1
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 1,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 2,
+          "elapsed_seconds": 9.523,
+          "last_reported_provider_usage": {
+            "totalTokens": 55122,
+            "inputTokens": 54872,
+            "cachedInputTokens": 50944,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 250,
+            "reasoningOutputTokens": 11
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": false,
+          "interrupt_ack": false,
+          "unauthorized_items": []
+        },
+        "C": {
+          "slot": "12-HE41-C",
+          "task": 41,
+          "arm": "C",
+          "correctness": "TEST_FAIL",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 11,
+          "actions": {
+            "read": 1,
+            "aep": 10
+          },
+          "aep_operations": {
+            "begin_transaction": 1,
+            "discovery": 1,
+            "discover": 1,
+            "list_tools": 1,
+            "list_capabilities": 1,
+            "list_candidates": 1,
+            "inspect": 1,
+            "inspect_project": 1,
+            "inspect_function": 2
+          },
+          "aep_rejections": [
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "2",
+              "op_index": 2,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discovery",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "3",
+              "op_index": 3,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discover",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "4",
+              "op_index": 4,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "list_tools",
+                "candidates": [
+                  "list_candidates",
+                  "list_capabilities"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "6",
+              "op_index": 6,
+              "ok": false,
+              "error_code": "E_AEP_OP",
+              "result": null,
+              "diagnostics": [],
+              "message": "hole not found"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "7",
+              "op_index": 7,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "inspect",
+                "candidates": [
+                  "inspect_body",
+                  "inspect_entity",
+                  "inspect_function",
+                  "inspect_module",
+                  "inspect_project",
+                  "inspect_test"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "9",
+              "op_index": 9,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "10",
+              "op_index": 10,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            }
+          ],
+          "successful_aep_operations": {
+            "begin_transaction": 1,
+            "list_capabilities": 1,
+            "inspect_project": 1
+          },
+          "accepted_source_edits": 0,
+          "commits": 0,
+          "first_mutation_callback_ordinal": null,
+          "elapsed_seconds": 24.019,
+          "last_reported_provider_usage": {
+            "totalTokens": 128724,
+            "inputTokens": 128092,
+            "cachedInputTokens": 117632,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 632,
+            "reasoningOutputTokens": 169
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        }
+      },
+      "Python_vs_ALVA_Text": {
+        "A": "PASS",
+        "B": "COMPILE_FAIL"
+      },
+      "ALVA_Text_vs_AEP": {
+        "B": "COMPILE_FAIL",
+        "C": "TEST_FAIL"
+      }
+    },
+    {
+      "task": 23,
+      "arms": {
+        "B": {
+          "slot": "02-HE23-B",
+          "task": 23,
+          "arm": "B",
+          "correctness": "PASS",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 11,
+          "actions": {
+            "read": 1,
+            "check": 5,
+            "aep": 1,
+            "edit": 4
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 4,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 4,
+          "elapsed_seconds": 33.531,
+          "last_reported_provider_usage": {
+            "totalTokens": 129081,
+            "inputTokens": 128015,
+            "cachedInputTokens": 113792,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 1066,
+            "reasoningOutputTokens": 438
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        },
+        "C": {
+          "slot": "04-HE23-C",
+          "task": 23,
+          "arm": "C",
+          "correctness": "TEST_FAIL",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 31,
+          "actions": {
+            "read": 1,
+            "aep": 30
+          },
+          "aep_operations": {
+            "begin_transaction": 1,
+            "discovery": 1,
+            "discover": 1,
+            "list_tools": 1,
+            "capabilities": 1,
+            "get_capabilities": 1,
+            "describe_tools": 1,
+            "list_operations": 1,
+            "list_capabilities": 1,
+            "describe_capability": 2,
+            "describe_construction": 1,
+            "describe_operation": 9,
+            "list_candidates": 1,
+            "construct_expression": 1,
+            "create_expression": 1,
+            "make_expression": 1,
+            "add_expression": 1,
+            "construct_call": 1,
+            "create_call": 1,
+            "make_call": 1,
+            "add_call": 1
+          },
+          "aep_rejections": [
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "2",
+              "op_index": 2,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discovery",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "3",
+              "op_index": 3,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discover",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "4",
+              "op_index": 4,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "list_tools",
+                "candidates": [
+                  "list_candidates",
+                  "list_capabilities"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "5",
+              "op_index": 5,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "capabilities",
+                "candidates": [
+                  "add_cap",
+                  "describe_capability",
+                  "list_capabilities"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "6",
+              "op_index": 6,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "get_capabilities",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "7",
+              "op_index": 7,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "describe_tools",
+                "candidates": [
+                  "describe_capability",
+                  "describe_construction",
+                  "describe_operation"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "8",
+              "op_index": 8,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "list_operations",
+                "candidates": [
+                  "list_candidates",
+                  "list_capabilities"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "11",
+              "op_index": 11,
+              "ok": false,
+              "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+              "result": {
+                "requested": "",
+                "candidates": [
+                  "ok",
+                  "err",
+                  "not",
+                  "fold",
+                  "field",
+                  "match"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "13",
+              "op_index": 13,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "",
+                "candidates": [
+                  "abort_transaction",
+                  "add_call_arg",
+                  "add_cap",
+                  "add_field",
+                  "add_function",
+                  "add_param"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "15",
+              "op_index": 15,
+              "ok": false,
+              "error_code": "E_AEP_OP",
+              "result": null,
+              "diagnostics": [],
+              "message": "hole not found"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "16",
+              "op_index": 16,
+              "ok": false,
+              "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+              "result": {
+                "requested": "",
+                "candidates": [
+                  "ok",
+                  "err",
+                  "not",
+                  "fold",
+                  "field",
+                  "match"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "17",
+              "op_index": 17,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_expression",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "18",
+              "op_index": 18,
+              "ok": false,
+              "error_code": "E_AEP_CONSTRUCTION_UNKNOWN_KIND",
+              "result": {
+                "requested": "",
+                "candidates": [
+                  "ok",
+                  "err",
+                  "not",
+                  "fold",
+                  "field",
+                  "match"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_CONSTRUCTION_UNKNOWN_KIND: unknown construction kind"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "19",
+              "op_index": 19,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "add_expression",
+                "candidates": [
+                  "add_call_arg",
+                  "add_cap",
+                  "add_field",
+                  "add_function",
+                  "add_param",
+                  "add_record_field"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "20",
+              "op_index": 20,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "construct_call",
+                "candidates": [
+                  "construct_expression",
+                  "describe_construction"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "22",
+              "op_index": 22,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "make_call",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "23",
+              "op_index": 23,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "add_call",
+                "candidates": [
+                  "add_call_arg",
+                  "add_cap",
+                  "add_field",
+                  "add_function",
+                  "add_param",
+                  "add_record_field"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "25",
+              "op_index": 25,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_var",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "26",
+              "op_index": 26,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_identifier",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "29",
+              "op_index": 29,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "check",
+                "candidates": [
+                  "check_transaction"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "30",
+              "op_index": 30,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "commit",
+                "candidates": [
+                  "commit_transaction"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            }
+          ],
+          "successful_aep_operations": {
+            "begin_transaction": 1,
+            "list_capabilities": 1,
+            "describe_capability": 2,
+            "describe_operation": 4,
+            "create_call": 1
+          },
+          "accepted_source_edits": 0,
+          "commits": 0,
+          "first_mutation_callback_ordinal": null,
+          "elapsed_seconds": 30.566,
+          "last_reported_provider_usage": {
+            "totalTokens": 133447,
+            "inputTokens": 132664,
+            "cachedInputTokens": 103680,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 783,
+            "reasoningOutputTokens": 164
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        },
+        "A": {
+          "slot": "09-HE23-A",
+          "task": 23,
+          "arm": "A",
+          "correctness": "PASS",
+          "terminal_status": "completed",
+          "stop_reason": "NATURAL_COMPLETED",
+          "infrastructure_hold": null,
+          "tools": 5,
+          "actions": {
+            "read": 1,
+            "edit": 1,
+            "check": 1,
+            "test": 1,
+            "finish": 1
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 1,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 2,
+          "elapsed_seconds": 13.4,
+          "last_reported_provider_usage": {
+            "totalTokens": 54824,
+            "inputTokens": 54619,
+            "cachedInputTokens": 50816,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 205,
+            "reasoningOutputTokens": 0
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": false,
+          "interrupt_ack": false,
+          "unauthorized_items": []
+        }
+      },
+      "Python_vs_ALVA_Text": {
+        "A": "PASS",
+        "B": "PASS"
+      },
+      "ALVA_Text_vs_AEP": {
+        "B": "PASS",
+        "C": "TEST_FAIL"
+      }
+    },
+    {
+      "task": 42,
+      "arms": {
+        "A": {
+          "slot": "03-HE42-A",
+          "task": 42,
+          "arm": "A",
+          "correctness": "PASS",
+          "terminal_status": "completed",
+          "stop_reason": "NATURAL_COMPLETED",
+          "infrastructure_hold": null,
+          "tools": 5,
+          "actions": {
+            "read": 1,
+            "edit": 1,
+            "check": 1,
+            "test": 1,
+            "finish": 1
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 1,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 2,
+          "elapsed_seconds": 14.782,
+          "last_reported_provider_usage": {
+            "totalTokens": 55619,
+            "inputTokens": 55370,
+            "cachedInputTokens": 43136,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 249,
+            "reasoningOutputTokens": 0
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": false,
+          "interrupt_ack": false,
+          "unauthorized_items": []
+        },
+        "B": {
+          "slot": "07-HE42-B",
+          "task": 42,
+          "arm": "B",
+          "correctness": "COMPILE_FAIL",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 11,
+          "actions": {
+            "read": 1,
+            "check": 5,
+            "aep": 1,
+            "edit": 4
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 4,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 4,
+          "elapsed_seconds": 42.761,
+          "last_reported_provider_usage": {
+            "totalTokens": 132641,
+            "inputTokens": 131210,
+            "cachedInputTokens": 124288,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 1431,
+            "reasoningOutputTokens": 759
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        },
+        "C": {
+          "slot": "08-HE42-C",
+          "task": 42,
+          "arm": "C",
+          "correctness": "TEST_FAIL",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 31,
+          "actions": {
+            "aep": 31
+          },
+          "aep_operations": {
+            "begin_transaction": 1,
+            "discovery": 1,
+            "get_capabilities": 1,
+            "discover": 1,
+            "list_tools": 1,
+            "get_schema": 1,
+            "list_capabilities": 3,
+            "list_candidates": 2,
+            "inspect": 1,
+            "get_module": 1,
+            "list_modules": 1,
+            "get_ast": 1,
+            "read_expression": 1,
+            "find_nodes": 1,
+            "inspect_project": 1,
+            "inspect_function": 5,
+            "inspect_entity": 2,
+            "create_loop": 1,
+            "create_for": 1,
+            "create_vec": 1,
+            "create_variable": 1,
+            "create_ref": 1,
+            "create_index": 1
+          },
+          "aep_rejections": [
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "2",
+              "op_index": 2,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discovery",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "3",
+              "op_index": 3,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "get_capabilities",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "4",
+              "op_index": 4,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discover",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "5",
+              "op_index": 5,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "list_tools",
+                "candidates": [
+                  "list_candidates",
+                  "list_capabilities"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "6",
+              "op_index": 6,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "get_schema",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "8",
+              "op_index": 8,
+              "ok": false,
+              "error_code": "E_AEP_OP",
+              "result": null,
+              "diagnostics": [],
+              "message": "hole not found"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "9",
+              "op_index": 9,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "inspect",
+                "candidates": [
+                  "inspect_body",
+                  "inspect_entity",
+                  "inspect_function",
+                  "inspect_module",
+                  "inspect_project",
+                  "inspect_test"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "10",
+              "op_index": 10,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "get_module",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "11",
+              "op_index": 11,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "list_modules",
+                "candidates": [
+                  "list_candidates",
+                  "list_capabilities"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "12",
+              "op_index": 12,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "get_ast",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "13",
+              "op_index": 13,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "read_expression",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "14",
+              "op_index": 14,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "find_nodes",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "16",
+              "op_index": 16,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "17",
+              "op_index": 17,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "18",
+              "op_index": 18,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "20",
+              "op_index": 20,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "22",
+              "op_index": 22,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "23",
+              "op_index": 23,
+              "ok": false,
+              "error_code": "E_AEP_BAD_REQUEST",
+              "result": {
+                "requested_category": "collection",
+                "allowed": [
+                  "builtin",
+                  "operator",
+                  "all"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_BAD_REQUEST: unknown capability category"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "25",
+              "op_index": 25,
+              "ok": false,
+              "error_code": "E_AEP_OP",
+              "result": null,
+              "diagnostics": [],
+              "message": "hole not found"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "26",
+              "op_index": 26,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_loop",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "27",
+              "op_index": 27,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_for",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "28",
+              "op_index": 28,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_vec",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "29",
+              "op_index": 29,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_variable",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "30",
+              "op_index": 30,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_ref",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "31",
+              "op_index": 31,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "create_index",
+                "candidates": [
+                  "create_binary",
+                  "create_binding",
+                  "create_block",
+                  "create_call",
+                  "create_if",
+                  "create_literal"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            }
+          ],
+          "successful_aep_operations": {
+            "begin_transaction": 1,
+            "list_capabilities": 2,
+            "inspect_project": 1,
+            "inspect_function": 1,
+            "inspect_entity": 1
+          },
+          "accepted_source_edits": 0,
+          "commits": 0,
+          "first_mutation_callback_ordinal": null,
+          "elapsed_seconds": 27.099,
+          "last_reported_provider_usage": {
+            "totalTokens": 124544,
+            "inputTokens": 123660,
+            "cachedInputTokens": 109824,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 884,
+            "reasoningOutputTokens": 188
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        }
+      },
+      "Python_vs_ALVA_Text": {
+        "A": "PASS",
+        "B": "COMPILE_FAIL"
+      },
+      "ALVA_Text_vs_AEP": {
+        "B": "COMPILE_FAIL",
+        "C": "TEST_FAIL"
+      }
+    },
+    {
+      "task": 3,
+      "arms": {
+        "A": {
+          "slot": "01-HE3-A",
+          "task": 3,
+          "arm": "A",
+          "correctness": "PASS",
+          "terminal_status": "completed",
+          "stop_reason": "NATURAL_COMPLETED",
+          "infrastructure_hold": null,
+          "tools": 5,
+          "actions": {
+            "read": 1,
+            "edit": 1,
+            "check": 1,
+            "test": 1,
+            "finish": 1
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 1,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 2,
+          "elapsed_seconds": 13.799,
+          "last_reported_provider_usage": {
+            "totalTokens": 55221,
+            "inputTokens": 54978,
+            "cachedInputTokens": 31872,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 243,
+            "reasoningOutputTokens": 0
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": false,
+          "interrupt_ack": false,
+          "unauthorized_items": []
+        },
+        "B": {
+          "slot": "06-HE3-B",
+          "task": 3,
+          "arm": "B",
+          "correctness": "COMPILE_FAIL",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 11,
+          "actions": {
+            "read": 1,
+            "check": 4,
+            "aep": 1,
+            "edit": 5
+          },
+          "aep_operations": {},
+          "aep_rejections": [],
+          "successful_aep_operations": {},
+          "accepted_source_edits": 4,
+          "commits": 0,
+          "first_mutation_callback_ordinal": 5,
+          "elapsed_seconds": 39.619,
+          "last_reported_provider_usage": {
+            "totalTokens": 132489,
+            "inputTokens": 130857,
+            "cachedInputTokens": 103040,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 1632,
+            "reasoningOutputTokens": 711
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        },
+        "C": {
+          "slot": "10-HE3-C",
+          "task": 3,
+          "arm": "C",
+          "correctness": "TEST_FAIL",
+          "terminal_status": "interrupted",
+          "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+          "infrastructure_hold": null,
+          "tools": 11,
+          "actions": {
+            "read": 1,
+            "aep": 10
+          },
+          "aep_operations": {
+            "begin_transaction": 1,
+            "discovery": 1,
+            "discover": 1,
+            "list_tools": 1,
+            "list_capabilities": 1,
+            "list_candidates": 1,
+            "inspect": 1,
+            "inspect_function": 2,
+            "construct": 1
+          },
+          "aep_rejections": [
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "2",
+              "op_index": 2,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discovery",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "3",
+              "op_index": 3,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "discover",
+                "candidates": []
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "4",
+              "op_index": 4,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "list_tools",
+                "candidates": [
+                  "list_candidates",
+                  "list_capabilities"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "6",
+              "op_index": 6,
+              "ok": false,
+              "error_code": "E_AEP_OP",
+              "result": null,
+              "diagnostics": [],
+              "message": "hole not found"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "7",
+              "op_index": 7,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "inspect",
+                "candidates": [
+                  "inspect_body",
+                  "inspect_entity",
+                  "inspect_function",
+                  "inspect_module",
+                  "inspect_project",
+                  "inspect_test"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "8",
+              "op_index": 8,
+              "ok": false,
+              "error_code": "E_AEP_ENTITY_NOT_FOUND",
+              "result": null,
+              "diagnostics": [],
+              "message": "E_AEP_ENTITY_NOT_FOUND: ; candidates=bench, bench.solve"
+            },
+            {
+              "protocol_version": "0.7-replication",
+              "request_id": "10",
+              "op_index": 10,
+              "ok": false,
+              "error_code": "E_AEP_UNKNOWN_TOOL",
+              "result": {
+                "requested": "construct",
+                "candidates": [
+                  "construct_expression",
+                  "describe_construction"
+                ]
+              },
+              "diagnostics": [],
+              "message": "E_AEP_UNKNOWN_TOOL: unknown operation"
+            }
+          ],
+          "successful_aep_operations": {
+            "begin_transaction": 1,
+            "list_capabilities": 1,
+            "inspect_function": 1
+          },
+          "accepted_source_edits": 0,
+          "commits": 0,
+          "first_mutation_callback_ordinal": null,
+          "elapsed_seconds": 21.101,
+          "last_reported_provider_usage": {
+            "totalTokens": 128734,
+            "inputTokens": 128133,
+            "cachedInputTokens": 107008,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 601,
+            "reasoningOutputTokens": 139
+          },
+          "usage_complete_per_host_terminal": true,
+          "provider_generation_requests": null,
+          "dollar_cost": null,
+          "interrupt_requested": true,
+          "interrupt_ack": true,
+          "unauthorized_items": []
+        }
+      },
+      "Python_vs_ALVA_Text": {
+        "A": "PASS",
+        "B": "COMPILE_FAIL"
+      },
+      "ALVA_Text_vs_AEP": {
+        "B": "COMPILE_FAIL",
+        "C": "TEST_FAIL"
+      }
+    }
+  ]
+}

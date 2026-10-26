@@ -1,0 +1,2 @@
+(module (name "bench") (version "0.1.0") (export solve)
+(fn solve (params (param xs (vec (prim i64)))) (returns (vec (prim i64))) (pure) (body (call "foo" xs))))

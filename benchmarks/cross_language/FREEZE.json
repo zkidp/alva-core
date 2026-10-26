@@ -1,0 +1,177 @@
+{
+  "status": "FROZEN_BEFORE_GENERATION",
+  "base_commit": "7ca5f44e8c4b01d24c416cef838c429f79046345",
+  "config": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "effort": "low",
+    "wall_observation_seconds": 480,
+    "tool_callback_limit": 80,
+    "token_observation_threshold": 120000,
+    "interrupt_grace_seconds": 20,
+    "hard_provider_token_cap": false,
+    "concurrency": 1,
+    "model_turns_per_slot": 1,
+    "provider_generation_requests": null,
+    "dollar_cost": null
+  },
+  "files": {
+    "benchmarks/cross_language/common.py": "ab1af9a353cfc4a0ca9f858197f89281382e8bcaec770c50ee2343f5e31dcae4",
+    "benchmarks/cross_language/CONFIG.json": "e5abb6b61f80396b87e0c1148c16cb462aac411eabf5ab10641e7e5b2adfe091",
+    "benchmarks/cross_language/controller.py": "aeed97208f81e528a38e46c982206f8b8f51e8de5a260183bb307316050e145e",
+    "benchmarks/cross_language/execute.py": "80ef9da024a52772abef3dd7207ba489ae6aa4a517ec83bf8e1fb50c5e087474",
+    "benchmarks/cross_language/HUMANEVAL-LICENSE.txt": "fc262f9be764e73a1481711b45ae4b991c39c6b12ff7dfbe7a89354491d1d531",
+    "benchmarks/cross_language/PREFLIGHT.json": "78c16f4a3f5adbd96a001f9cd0fbb2ce16d69e16152091827567bb6c0599c326",
+    "benchmarks/cross_language/PREPARATION.md": "30dea553d2c7da487ffb85c99fe6d03760bb1dbd6857eaedc5f5b707ecf241ff",
+    "benchmarks/cross_language/prepare.py": "a63329bf925387f129bf2e2223669abf86138480ad7603bf4359c90671c9a913",
+    "benchmarks/cross_language/PROVENANCE.json": "57f1e1b6329f1f8cf11ac9cbae7d1a401635c1ed87cb74a69bd53204f71e8d02",
+    "benchmarks/cross_language/QUALIFICATION.json": "e682ee92113d68241b9fa1c8d20256235319161f089b1bd51b75d87f958014d0",
+    "benchmarks/cross_language/SCHEDULE.json": "ced5cafab3b840cb53c6fb7a8c20cdf34939049ec2afd1fd8394a616e8f4b1ae",
+    "benchmarks/cross_language/SELECTION.md": "113c9ea7b722a7bd9cf3186c6eefd7548bacc70105dad4bb7f4f52c8c8c903a5",
+    "benchmarks/cross_language/tasks.py": "19a508c133260a17a4659f83191a77c1eb0cf6ae440a8b44323ec8eaf54dea79",
+    "benchmarks/cross_language/test_controller.py": "a512f20d9cfe4ec897697c76c4c2cc9e94a8178f0770beec0fe713cdef22bd62",
+    "benchmarks/cross_language/TOOLS.json": "9dc694d8a617875bea6ee72ff144763b73b6fbfa883155fc31812013d5b9f5fc",
+    "benchmarks/cross_language/inputs/01-HE3-A.json": "79bb096183673cd9a43fd092453dcb6fd64bd19f0c42fdbe4f86ebf18034d8a6",
+    "benchmarks/cross_language/inputs/02-HE23-B.json": "526d719797d949d4cde681cc085cb66a244c7d49ae5db42540bde62ec3ecc3d6",
+    "benchmarks/cross_language/inputs/03-HE42-A.json": "aac3197677d339c632c304c56b2e11c43102faad44e57a03a71e1026691635b8",
+    "benchmarks/cross_language/inputs/04-HE23-C.json": "d891ed37467b3f327e3be550db68233f944c48460fc1a25be62b62835fb473ea",
+    "benchmarks/cross_language/inputs/05-HE41-B.json": "09728847fb733a7aff6f256194f8b847fb990c5fcc841b866e013e5e3532b672",
+    "benchmarks/cross_language/inputs/06-HE3-B.json": "aac8004e732322d55b7c78aab78957828d99ee3d63283a37a33f2a0e4b0e7361",
+    "benchmarks/cross_language/inputs/07-HE42-B.json": "4f71e99057e5e9f63bdd087c4b993d3eb14a45d6b147ace8b2d5667f357e5db9",
+    "benchmarks/cross_language/inputs/08-HE42-C.json": "6c2b96a4cf10c5b2ebd3a68fb5060c4fc222e3b98e39b59d435f79c7ab701a76",
+    "benchmarks/cross_language/inputs/09-HE23-A.json": "51f2e7d5a44925e5c419bdf3f465d5c18eb7309fd3b6f6360469b6eb61f9f22a",
+    "benchmarks/cross_language/inputs/10-HE3-C.json": "64672b8a256e6f7f222b134fb5e9304ff00733f8f389d42c5ba6df5a6e1948df",
+    "benchmarks/cross_language/inputs/11-HE41-A.json": "c885272c057011678e87ecbb8209aa09cc27ecddfa0ed4d45a7c5a7ce079cf65",
+    "benchmarks/cross_language/inputs/12-HE41-C.json": "a31f7b9f056914091d6b4919e8ec8191f4b91eab8320eaee450369418fe4e812",
+    "tests/integrations/codex_native_test.py": "4f0c01c6f6f78997c7532cd282820849091569da87586e089dfcd45ebd5829a4",
+    "feasibility/native_api/run.py": "ad0bfbce7f92dc6fd5c1ae8be40836ef69319cc9cac0929175c6b4fa1946947b"
+  },
+  "binary_sha256": "c8f5e89a19c4a0cd81ecbadb7d837d2eec8bd5661a3686ebb8ca22036c003d61",
+  "schedule": [
+    {
+      "task": 3,
+      "arm": "A",
+      "id": "01-HE3-A",
+      "input_sha256": "79bb096183673cd9a43fd092453dcb6fd64bd19f0c42fdbe4f86ebf18034d8a6",
+      "initial_files": {
+        "program.py": "e8e05417dd7dc009cc4d46e33bf3dc3defde796ebf8dd7718d889460b8301278"
+      }
+    },
+    {
+      "task": 23,
+      "arm": "B",
+      "id": "02-HE23-B",
+      "input_sha256": "526d719797d949d4cde681cc085cb66a244c7d49ae5db42540bde62ec3ecc3d6",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "d6469095bdd1d73bae8c8f3bca4caedf850230f9759586d7cb86ffb7664a49f8"
+      }
+    },
+    {
+      "task": 42,
+      "arm": "A",
+      "id": "03-HE42-A",
+      "input_sha256": "aac3197677d339c632c304c56b2e11c43102faad44e57a03a71e1026691635b8",
+      "initial_files": {
+        "program.py": "c40a1daaa7aee785794a9890dbc862049c0f5869257138aaeaeed7cd6625eb64"
+      }
+    },
+    {
+      "task": 23,
+      "arm": "C",
+      "id": "04-HE23-C",
+      "input_sha256": "d891ed37467b3f327e3be550db68233f944c48460fc1a25be62b62835fb473ea",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "d6469095bdd1d73bae8c8f3bca4caedf850230f9759586d7cb86ffb7664a49f8"
+      }
+    },
+    {
+      "task": 41,
+      "arm": "B",
+      "id": "05-HE41-B",
+      "input_sha256": "09728847fb733a7aff6f256194f8b847fb990c5fcc841b866e013e5e3532b672",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "b4ae7954c1f75f051f25c9c0e135635ae1167863b04a3fb80b53a0830a6ac559"
+      }
+    },
+    {
+      "task": 3,
+      "arm": "B",
+      "id": "06-HE3-B",
+      "input_sha256": "aac8004e732322d55b7c78aab78957828d99ee3d63283a37a33f2a0e4b0e7361",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "54e41babc224b30c51499254bd06690d259757b8a45327ca291b0b9faf8b47c7"
+      }
+    },
+    {
+      "task": 42,
+      "arm": "B",
+      "id": "07-HE42-B",
+      "input_sha256": "4f71e99057e5e9f63bdd087c4b993d3eb14a45d6b147ace8b2d5667f357e5db9",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "6923a95d0a8828c2e15c6bdb74d9a5b89aee8c01b8daa03edccfc739d6f9028c"
+      }
+    },
+    {
+      "task": 42,
+      "arm": "C",
+      "id": "08-HE42-C",
+      "input_sha256": "6c2b96a4cf10c5b2ebd3a68fb5060c4fc222e3b98e39b59d435f79c7ab701a76",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "6923a95d0a8828c2e15c6bdb74d9a5b89aee8c01b8daa03edccfc739d6f9028c"
+      }
+    },
+    {
+      "task": 23,
+      "arm": "A",
+      "id": "09-HE23-A",
+      "input_sha256": "51f2e7d5a44925e5c419bdf3f465d5c18eb7309fd3b6f6360469b6eb61f9f22a",
+      "initial_files": {
+        "program.py": "884f4f290444ecc559e52aba1a3d358f87c03065d9dd1e851332b0b28a1245ee"
+      }
+    },
+    {
+      "task": 3,
+      "arm": "C",
+      "id": "10-HE3-C",
+      "input_sha256": "64672b8a256e6f7f222b134fb5e9304ff00733f8f389d42c5ba6df5a6e1948df",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "54e41babc224b30c51499254bd06690d259757b8a45327ca291b0b9faf8b47c7"
+      }
+    },
+    {
+      "task": 41,
+      "arm": "A",
+      "id": "11-HE41-A",
+      "input_sha256": "c885272c057011678e87ecbb8209aa09cc27ecddfa0ed4d45a7c5a7ce079cf65",
+      "initial_files": {
+        "program.py": "252e95c74e3930f3ca660941de8c58f33575453a0189d655226f7a2c2134aa6c"
+      }
+    },
+    {
+      "task": 41,
+      "arm": "C",
+      "id": "12-HE41-C",
+      "input_sha256": "a31f7b9f056914091d6b4919e8ec8191f4b91eab8320eaee450369418fe4e812",
+      "initial_files": {
+        "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+        "src/task.alva": "b4ae7954c1f75f051f25c9c0e135635ae1167863b04a3fb80b53a0830a6ac559"
+      }
+    }
+  ],
+  "preflight": "PASS",
+  "codex": "codex-cli 0.163.0-alpha.11.2",
+  "python": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+  "model_generation_calls_before_freeze": 0,
+  "toolchain_environment_keys": [
+    "USERPROFILE",
+    "ProgramFiles",
+    "ProgramFiles(x86)"
+  ]
+}

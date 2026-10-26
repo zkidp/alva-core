@@ -1,0 +1,70 @@
+[
+  {
+    "task": 41,
+    "feature": "scalar_arithmetic",
+    "supported": true,
+    "A": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "B": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "C": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    }
+  },
+  {
+    "task": 23,
+    "feature": "string_length",
+    "supported": true,
+    "A": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "B": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "C": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    }
+  },
+  {
+    "task": 42,
+    "feature": "vector_mapping",
+    "supported": true,
+    "A": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "B": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "C": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    }
+  },
+  {
+    "task": 3,
+    "feature": "prefix_state",
+    "supported": true,
+    "A": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "B": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    },
+    "C": {
+      "baseline": "TEST_FAIL",
+      "reference": "PASS"
+    }
+  }
+]

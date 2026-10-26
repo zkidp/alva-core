@@ -1,0 +1,30 @@
+[
+  {
+    "name": "study",
+    "description": "Read/edit the candidate, run its check/test, or invoke public AEP. Only this tool is authorized. Arguments is a JSON-encoded object. read/edit: {path,content?}. aep: any native request with tool; project is host-bound. finish: {}. No shell/network/reference access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "read",
+            "edit",
+            "check",
+            "test",
+            "aep",
+            "finish"
+          ]
+        },
+        "arguments": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "arguments"
+      ],
+      "additionalProperties": false
+    }
+  }
+]

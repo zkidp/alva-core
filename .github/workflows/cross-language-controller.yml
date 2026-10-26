@@ -1,0 +1,43 @@
+name: Cross-language pilot controller
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/cross_language/**'
+      - '.github/workflows/cross-language-controller.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  no-model-controller:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s benchmarks/cross_language -p test_controller.py -v
+  final-code-replay:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Reproduce all published final-code dispositions without models
+        run: |
+          binary=alva/target/debug/alva
+          if [[ "$RUNNER_OS" == "Windows" ]]; then binary="$binary.exe"; fi
+          python benchmarks/cross_language/replay.py "$binary"

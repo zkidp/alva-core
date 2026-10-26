@@ -1,0 +1,118 @@
+[
+  {
+    "task": 3,
+    "arm": "A",
+    "id": "01-HE3-A",
+    "input_sha256": "79bb096183673cd9a43fd092453dcb6fd64bd19f0c42fdbe4f86ebf18034d8a6",
+    "initial_files": {
+      "program.py": "e8e05417dd7dc009cc4d46e33bf3dc3defde796ebf8dd7718d889460b8301278"
+    }
+  },
+  {
+    "task": 23,
+    "arm": "B",
+    "id": "02-HE23-B",
+    "input_sha256": "526d719797d949d4cde681cc085cb66a244c7d49ae5db42540bde62ec3ecc3d6",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "d6469095bdd1d73bae8c8f3bca4caedf850230f9759586d7cb86ffb7664a49f8"
+    }
+  },
+  {
+    "task": 42,
+    "arm": "A",
+    "id": "03-HE42-A",
+    "input_sha256": "aac3197677d339c632c304c56b2e11c43102faad44e57a03a71e1026691635b8",
+    "initial_files": {
+      "program.py": "c40a1daaa7aee785794a9890dbc862049c0f5869257138aaeaeed7cd6625eb64"
+    }
+  },
+  {
+    "task": 23,
+    "arm": "C",
+    "id": "04-HE23-C",
+    "input_sha256": "d891ed37467b3f327e3be550db68233f944c48460fc1a25be62b62835fb473ea",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "d6469095bdd1d73bae8c8f3bca4caedf850230f9759586d7cb86ffb7664a49f8"
+    }
+  },
+  {
+    "task": 41,
+    "arm": "B",
+    "id": "05-HE41-B",
+    "input_sha256": "09728847fb733a7aff6f256194f8b847fb990c5fcc841b866e013e5e3532b672",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "b4ae7954c1f75f051f25c9c0e135635ae1167863b04a3fb80b53a0830a6ac559"
+    }
+  },
+  {
+    "task": 3,
+    "arm": "B",
+    "id": "06-HE3-B",
+    "input_sha256": "aac8004e732322d55b7c78aab78957828d99ee3d63283a37a33f2a0e4b0e7361",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "54e41babc224b30c51499254bd06690d259757b8a45327ca291b0b9faf8b47c7"
+    }
+  },
+  {
+    "task": 42,
+    "arm": "B",
+    "id": "07-HE42-B",
+    "input_sha256": "4f71e99057e5e9f63bdd087c4b993d3eb14a45d6b147ace8b2d5667f357e5db9",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "6923a95d0a8828c2e15c6bdb74d9a5b89aee8c01b8daa03edccfc739d6f9028c"
+    }
+  },
+  {
+    "task": 42,
+    "arm": "C",
+    "id": "08-HE42-C",
+    "input_sha256": "6c2b96a4cf10c5b2ebd3a68fb5060c4fc222e3b98e39b59d435f79c7ab701a76",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "6923a95d0a8828c2e15c6bdb74d9a5b89aee8c01b8daa03edccfc739d6f9028c"
+    }
+  },
+  {
+    "task": 23,
+    "arm": "A",
+    "id": "09-HE23-A",
+    "input_sha256": "51f2e7d5a44925e5c419bdf3f465d5c18eb7309fd3b6f6360469b6eb61f9f22a",
+    "initial_files": {
+      "program.py": "884f4f290444ecc559e52aba1a3d358f87c03065d9dd1e851332b0b28a1245ee"
+    }
+  },
+  {
+    "task": 3,
+    "arm": "C",
+    "id": "10-HE3-C",
+    "input_sha256": "64672b8a256e6f7f222b134fb5e9304ff00733f8f389d42c5ba6df5a6e1948df",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "54e41babc224b30c51499254bd06690d259757b8a45327ca291b0b9faf8b47c7"
+    }
+  },
+  {
+    "task": 41,
+    "arm": "A",
+    "id": "11-HE41-A",
+    "input_sha256": "c885272c057011678e87ecbb8209aa09cc27ecddfa0ed4d45a7c5a7ce079cf65",
+    "initial_files": {
+      "program.py": "252e95c74e3930f3ca660941de8c58f33575453a0189d655226f7a2c2134aa6c"
+    }
+  },
+  {
+    "task": 41,
+    "arm": "C",
+    "id": "12-HE41-C",
+    "input_sha256": "a31f7b9f056914091d6b4919e8ec8191f4b91eab8320eaee450369418fe4e812",
+    "initial_files": {
+      "alva.toml": "7630bd08dbbe44c6ce088b6a01f99aa0882e32eb355aabb5ddf554b27dbe4e89",
+      "src/task.alva": "b4ae7954c1f75f051f25c9c0e135635ae1167863b04a3fb80b53a0830a6ac559"
+    }
+  }
+]

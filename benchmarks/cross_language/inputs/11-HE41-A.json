@@ -1,0 +1,34 @@
+{
+  "task": "Two sets of n cars move in opposite directions on an infinite straight road. Every pair from opposite sets meets once; cars continue unchanged. Return the collision count. n is an integer in [0,10000].",
+  "signature": "solve(n)",
+  "language": "Python",
+  "condition": "Ordinary source edit is available; use read/edit/check/test.",
+  "examples": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "initial_files": {
+    "program.py": "def solve(n):\n    return 0\n"
+  },
+  "limits": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "effort": "low",
+    "wall_observation_seconds": 480,
+    "tool_callback_limit": 80,
+    "token_observation_threshold": 120000,
+    "interrupt_grace_seconds": 20,
+    "hard_provider_token_cap": false,
+    "concurrency": 1,
+    "model_turns_per_slot": 1,
+    "provider_generation_requests": null,
+    "dollar_cost": null
+  },
+  "common": "Use only the study tool; do not use shell, native file tools, internet, other sessions, delegation, or references. Implement solve for all supported inputs, not only examples. Checks/tests execute host-owned code. You may iterate within the fixed limits, then finish. No automatic source publishing or Git operations."
+}
