@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "test": "optional_metadata_returns_original_error_session_survives",
+      "status": "PASS"
+    },
+    {
+      "test": "strict_default_and_nonwhitelisted_errors_still_fail_closed",
+      "status": "PASS"
+    },
+    {
+      "test": "parallel_metadata_contexts_one_commit_isolated_reopen_build",
+      "status": "PASS",
+      "independent_build": {
+        "exit": 0,
+        "stdout": "BUILD_BEHAVIOR_PASS; AIR_USED; SOURCE_UNCHANGED\n",
+        "stderr": ""
+      }
+    }
+  ],
+  "generation_calls": 0,
+  "input_token_calls": 0,
+  "scope": "Synthetic transport peer plus real native MCP/OS boundary; not actual Codex Host acceptance."
+}

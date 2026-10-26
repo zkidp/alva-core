@@ -1,0 +1,17 @@
+{
+  "phase_a": "PASS",
+  "phase_b": "BLOCKED_NATIVE_MCP_OPERATION_COVERAGE",
+  "planned_maximum_model_tasks": 12,
+  "model_tasks_started": 0,
+  "model_tasks_completed": 0,
+  "generation_calls": 0,
+  "input_token_api_calls": 0,
+  "scientific_execution_freeze": "NOT_CREATED",
+  "scientific_sessions": "ALL_NOT_STARTED",
+  "model_candidates": "NONE",
+  "model_air_authorities": "NONE",
+  "performance_comparison": "NOT_AVAILABLE",
+  "stop_rule": "Concrete common native MCP operation-exposure blocker; no operation-set expansion authorized",
+  "core_or_native_api_changed": false,
+  "historical_evidence_changed": false
+}

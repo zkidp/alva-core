@@ -1,0 +1,2855 @@
+{
+  "status": "NATIVE_MCP_ENTRY_POINT_GAP_OBSERVED",
+  "generation_calls": 0,
+  "input_token_calls": 0,
+  "input_commit": "12c13c1f6d6e272050949826f711431bb89e8064",
+  "binary_sha256": "6983900fc465c7bae927515774048e0b024f0dfd6ad3fcfdb187c4126067630d",
+  "input_bundle_sha256": "15e4b928dc82683052f0d81a4c4050ea618282d0528203b399c124698aa56e4f",
+  "rows": [
+    {
+      "task": "HE41",
+      "calls": [
+        {
+          "name": "begin_transaction",
+          "arguments": {
+            "project": "/work/project/benchmarks/native_mcp_skill/inputs/HE41/alva.toml"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"project_revision\":\"fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531\",\"transaction_id\":\"tx_2_0000000000000001\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+              "transaction_id": "tx_2_0000000000000001"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "inspect_entity",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"entity\":\"module:bench/fn:solve\",\"fields\":{\"eff\":[],\"name\":\"solve\",\"pure\":true},\"kind\":\"function\",\"revision\":\"f6ce24cf207524e5457836574db5d0dbc44fa306178e0899e04e24a27f5b3975\",\"slots\":{\"body\":[\"8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575\"],\"inv\":[],\"params\":[\"10962420004aa04d56c5c15421b43fc191da88428634f7a39ad5bc9555b4dee6\"],\"post\":[],\"pre\":[],\"returns\":[\"3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4\"]}}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "entity": "module:bench/fn:solve",
+              "fields": {
+                "eff": [],
+                "name": "solve",
+                "pure": true
+              },
+              "kind": "function",
+              "revision": "f6ce24cf207524e5457836574db5d0dbc44fa306178e0899e04e24a27f5b3975",
+              "slots": {
+                "body": [
+                  "8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575"
+                ],
+                "inv": [],
+                "params": [
+                  "10962420004aa04d56c5c15421b43fc191da88428634f7a39ad5bc9555b4dee6"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "applicable_operations",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"context_operations\":[\"abort_transaction\",\"begin_transaction\",\"check_transaction\",\"commit_transaction\",\"construct_expression\",\"describe_construction\",\"describe_operation\",\"inspect_project\",\"preview_semantic_diff\",\"resolve_entity\"],\"entity\":\"f6ce24cf207524e5457836574db5d0dbc44fa306178e0899e04e24a27f5b3975\",\"inspection\":[\"applicable_operations\",\"inspect_body\",\"inspect_entity\"],\"kind\":\"function\",\"mutation\":[\"change_field\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "context_operations": [
+                "abort_transaction",
+                "begin_transaction",
+                "check_transaction",
+                "commit_transaction",
+                "construct_expression",
+                "describe_construction",
+                "describe_operation",
+                "inspect_project",
+                "preview_semantic_diff",
+                "resolve_entity"
+              ],
+              "entity": "f6ce24cf207524e5457836574db5d0dbc44fa306178e0899e04e24a27f5b3975",
+              "inspection": [
+                "applicable_operations",
+                "inspect_body",
+                "inspect_entity"
+              ],
+              "kind": "function",
+              "mutation": [
+                "change_field"
+              ]
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_reference"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"symbol\"}],\"effects\":\"mutation\",\"example\":\"create_reference name=root\",\"gated\":false,\"name\":\"create_reference\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "symbol"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_reference name=root",
+              "gated": false,
+              "name": "create_reference",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_reference",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_literal"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"type\",\"required\":true,\"shape\":\"string|i64|bool|bytes|nil\"},{\"name\":\"value\",\"required\":true,\"shape\":\"string\"}],\"effects\":\"mutation\",\"example\":\"create_literal type=i64 value=42\",\"gated\":false,\"name\":\"create_literal\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "type",
+                  "required": true,
+                  "shape": "string|i64|bool|bytes|nil"
+                },
+                {
+                  "name": "value",
+                  "required": true,
+                  "shape": "string"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_literal type=i64 value=42",
+              "gated": false,
+              "name": "create_literal",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_literal",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_binary"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"op\",\"required\":true,\"shape\":\"==|+|...\"},{\"name\":\"left\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"right\",\"required\":true,\"shape\":\"revision\"}],\"effects\":\"mutation\",\"example\":\"create_binary op== left=<rev> right=<rev>\",\"gated\":false,\"name\":\"create_binary\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "op",
+                  "required": true,
+                  "shape": "==|+|..."
+                },
+                {
+                  "name": "left",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "right",
+                  "required": true,
+                  "shape": "revision"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_binary op== left=<rev> right=<rev>",
+              "gated": false,
+              "name": "create_binary",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_binary",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_call"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"qualified fn or builtin\"},{\"name\":\"args\",\"required\":false,\"shape\":\"revisions (repeatable)\"}],\"effects\":\"mutation\",\"example\":\"create_call name=queue.fs.read_string args=<rev>\",\"gated\":false,\"name\":\"create_call\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "qualified fn or builtin"
+                },
+                {
+                  "name": "args",
+                  "required": false,
+                  "shape": "revisions (repeatable)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_call name=queue.fs.read_string args=<rev>",
+              "gated": false,
+              "name": "create_call",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_call",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "replace_expression"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"replace_expr\"],\"arguments\":[{\"name\":\"parent\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"child\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"position\",\"required\":true,\"shape\":\"kind-dependent slot position (see describe_operation expected_positions)\"}],\"effects\":\"mutation\",\"example\":\"replace_expression parent=<rev> child=<rev> position=step\",\"expected_positions\":[\"value\",\"body\",\"cond\",\"then\",\"else\",\"left\",\"right\",\"step\",\"arg\",\"collection\",\"predicate\",\"start\",\"end\",\"init\",\"cond2\",\"catch\",\"scrutinee\",\"range_start\",\"range_end\",\"acc_init\"],\"gated\":false,\"name\":\"replace_expression\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "replace_expr"
+              ],
+              "arguments": [
+                {
+                  "name": "parent",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "child",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "position",
+                  "required": true,
+                  "shape": "kind-dependent slot position (see describe_operation expected_positions)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "replace_expression parent=<rev> child=<rev> position=step",
+              "expected_positions": [
+                "value",
+                "body",
+                "cond",
+                "then",
+                "else",
+                "left",
+                "right",
+                "step",
+                "arg",
+                "collection",
+                "predicate",
+                "start",
+                "end",
+                "init",
+                "cond2",
+                "catch",
+                "scrutinee",
+                "range_start",
+                "range_end",
+                "acc_init"
+              ],
+              "gated": false,
+              "name": "replace_expression",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "replace_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'"
+            }
+          }
+        },
+        {
+          "name": "describe_construction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "include_candidates": true
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"10962420004aa04d56c5c15421b43fc191da88428634f7a39ad5bc9555b4dee6\",\"kind\":\"param\",\"name\":\"n\",\"semantic_handle\":{\"expected_type\":\"i64\",\"scope\":\"bench.solve\",\"symbol\":\"n\"},\"type\":\"i64\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "vec_lit",
+                "veclist"
+              ],
+              "candidate_bindings": {
+                "items": [
+                  {
+                    "current_revision": "10962420004aa04d56c5c15421b43fc191da88428634f7a39ad5bc9555b4dee6",
+                    "kind": "param",
+                    "name": "n",
+                    "semantic_handle": {
+                      "expected_type": "i64",
+                      "scope": "bench.solve",
+                      "symbol": "n"
+                    },
+                    "type": "i64"
+                  }
+                ],
+                "returned": 1,
+                "total": 1,
+                "truncated": false
+              },
+              "canonical_kind": "veclit",
+              "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+              "fields": [],
+              "note": "vector literal: (vec <elem_type> item...)",
+              "optional_children": [
+                {
+                  "multiple": true,
+                  "name": "items",
+                  "role": "expr"
+                }
+              ],
+              "required_children": [
+                {
+                  "multiple": false,
+                  "name": "elem_type",
+                  "role": "type_expr"
+                }
+              ],
+              "result_type_rule": "(vec <elem_type>)"
+            }
+          }
+        },
+        {
+          "name": "construct_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "elem_type": "(prim i64)",
+            "items": []
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "kind": "veclit",
+              "result_type": "vec ?",
+              "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+            }
+          }
+        },
+        {
+          "name": "change_field",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "f6ce24cf207524e5457836574db5d0dbc44fa306178e0899e04e24a27f5b3975",
+            "field": "body",
+            "value": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "check_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"problems\":[]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "problems": []
+            }
+          }
+        },
+        {
+          "name": "abort_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aborted\":true}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aborted": true
+            }
+          }
+        }
+      ],
+      "initial_project_check": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "advertised_names": [
+        "abort_transaction",
+        "applicable_operations",
+        "begin_transaction",
+        "change_field",
+        "check_transaction",
+        "commit_transaction",
+        "construct_expression",
+        "describe_construction",
+        "describe_operation",
+        "inspect_body",
+        "inspect_entity",
+        "inspect_project",
+        "preview_semantic_diff",
+        "resolve_entity"
+      ],
+      "veclit_description": {
+        "content": [
+          {
+            "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"10962420004aa04d56c5c15421b43fc191da88428634f7a39ad5bc9555b4dee6\",\"kind\":\"param\",\"name\":\"n\",\"semantic_handle\":{\"expected_type\":\"i64\",\"scope\":\"bench.solve\",\"symbol\":\"n\"},\"type\":\"i64\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "aliases": [
+            "vec_lit",
+            "veclist"
+          ],
+          "candidate_bindings": {
+            "items": [
+              {
+                "current_revision": "10962420004aa04d56c5c15421b43fc191da88428634f7a39ad5bc9555b4dee6",
+                "kind": "param",
+                "name": "n",
+                "semantic_handle": {
+                  "expected_type": "i64",
+                  "scope": "bench.solve",
+                  "symbol": "n"
+                },
+                "type": "i64"
+              }
+            ],
+            "returned": 1,
+            "total": 1,
+            "truncated": false
+          },
+          "canonical_kind": "veclit",
+          "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+          "fields": [],
+          "note": "vector literal: (vec <elem_type> item...)",
+          "optional_children": [
+            {
+              "multiple": true,
+              "name": "items",
+              "role": "expr"
+            }
+          ],
+          "required_children": [
+            {
+              "multiple": false,
+              "name": "elem_type",
+              "role": "type_expr"
+            }
+          ],
+          "result_type_rule": "(vec <elem_type>)"
+        }
+      },
+      "detached": {
+        "content": [
+          {
+            "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "kind": "veclit",
+          "result_type": "vec ?",
+          "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+        }
+      },
+      "field_is_not_slot_replacement": {
+        "content": [
+          {
+            "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+            "type": "text"
+          }
+        ],
+        "isError": true,
+        "structuredContent": {
+          "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+        }
+      },
+      "body_unchanged": true,
+      "commits": 0
+    },
+    {
+      "task": "HE23",
+      "calls": [
+        {
+          "name": "begin_transaction",
+          "arguments": {
+            "project": "/work/project/benchmarks/native_mcp_skill/inputs/HE23/alva.toml"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"project_revision\":\"b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159\",\"transaction_id\":\"tx_2_0000000000000001\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+              "transaction_id": "tx_2_0000000000000001"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "inspect_entity",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"entity\":\"module:bench/fn:solve\",\"fields\":{\"eff\":[],\"name\":\"solve\",\"pure\":true},\"kind\":\"function\",\"revision\":\"9c20f04dd1e14d609282eb52015ddeac0d90b29452e0f12b5f1e886fa74a4e7b\",\"slots\":{\"body\":[\"8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575\"],\"inv\":[],\"params\":[\"afb7cfca3aa854cc1d3ab4363783231959e5fc30d739b84682b74f544a35d948\"],\"post\":[],\"pre\":[],\"returns\":[\"3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4\"]}}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "entity": "module:bench/fn:solve",
+              "fields": {
+                "eff": [],
+                "name": "solve",
+                "pure": true
+              },
+              "kind": "function",
+              "revision": "9c20f04dd1e14d609282eb52015ddeac0d90b29452e0f12b5f1e886fa74a4e7b",
+              "slots": {
+                "body": [
+                  "8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575"
+                ],
+                "inv": [],
+                "params": [
+                  "afb7cfca3aa854cc1d3ab4363783231959e5fc30d739b84682b74f544a35d948"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "applicable_operations",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"context_operations\":[\"abort_transaction\",\"begin_transaction\",\"check_transaction\",\"commit_transaction\",\"construct_expression\",\"describe_construction\",\"describe_operation\",\"inspect_project\",\"preview_semantic_diff\",\"resolve_entity\"],\"entity\":\"9c20f04dd1e14d609282eb52015ddeac0d90b29452e0f12b5f1e886fa74a4e7b\",\"inspection\":[\"applicable_operations\",\"inspect_body\",\"inspect_entity\"],\"kind\":\"function\",\"mutation\":[\"change_field\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "context_operations": [
+                "abort_transaction",
+                "begin_transaction",
+                "check_transaction",
+                "commit_transaction",
+                "construct_expression",
+                "describe_construction",
+                "describe_operation",
+                "inspect_project",
+                "preview_semantic_diff",
+                "resolve_entity"
+              ],
+              "entity": "9c20f04dd1e14d609282eb52015ddeac0d90b29452e0f12b5f1e886fa74a4e7b",
+              "inspection": [
+                "applicable_operations",
+                "inspect_body",
+                "inspect_entity"
+              ],
+              "kind": "function",
+              "mutation": [
+                "change_field"
+              ]
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_reference"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"symbol\"}],\"effects\":\"mutation\",\"example\":\"create_reference name=root\",\"gated\":false,\"name\":\"create_reference\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "symbol"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_reference name=root",
+              "gated": false,
+              "name": "create_reference",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_reference",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_literal"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"type\",\"required\":true,\"shape\":\"string|i64|bool|bytes|nil\"},{\"name\":\"value\",\"required\":true,\"shape\":\"string\"}],\"effects\":\"mutation\",\"example\":\"create_literal type=i64 value=42\",\"gated\":false,\"name\":\"create_literal\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "type",
+                  "required": true,
+                  "shape": "string|i64|bool|bytes|nil"
+                },
+                {
+                  "name": "value",
+                  "required": true,
+                  "shape": "string"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_literal type=i64 value=42",
+              "gated": false,
+              "name": "create_literal",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_literal",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_binary"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"op\",\"required\":true,\"shape\":\"==|+|...\"},{\"name\":\"left\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"right\",\"required\":true,\"shape\":\"revision\"}],\"effects\":\"mutation\",\"example\":\"create_binary op== left=<rev> right=<rev>\",\"gated\":false,\"name\":\"create_binary\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "op",
+                  "required": true,
+                  "shape": "==|+|..."
+                },
+                {
+                  "name": "left",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "right",
+                  "required": true,
+                  "shape": "revision"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_binary op== left=<rev> right=<rev>",
+              "gated": false,
+              "name": "create_binary",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_binary",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_call"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"qualified fn or builtin\"},{\"name\":\"args\",\"required\":false,\"shape\":\"revisions (repeatable)\"}],\"effects\":\"mutation\",\"example\":\"create_call name=queue.fs.read_string args=<rev>\",\"gated\":false,\"name\":\"create_call\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "qualified fn or builtin"
+                },
+                {
+                  "name": "args",
+                  "required": false,
+                  "shape": "revisions (repeatable)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_call name=queue.fs.read_string args=<rev>",
+              "gated": false,
+              "name": "create_call",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_call",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "replace_expression"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"replace_expr\"],\"arguments\":[{\"name\":\"parent\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"child\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"position\",\"required\":true,\"shape\":\"kind-dependent slot position (see describe_operation expected_positions)\"}],\"effects\":\"mutation\",\"example\":\"replace_expression parent=<rev> child=<rev> position=step\",\"expected_positions\":[\"value\",\"body\",\"cond\",\"then\",\"else\",\"left\",\"right\",\"step\",\"arg\",\"collection\",\"predicate\",\"start\",\"end\",\"init\",\"cond2\",\"catch\",\"scrutinee\",\"range_start\",\"range_end\",\"acc_init\"],\"gated\":false,\"name\":\"replace_expression\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "replace_expr"
+              ],
+              "arguments": [
+                {
+                  "name": "parent",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "child",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "position",
+                  "required": true,
+                  "shape": "kind-dependent slot position (see describe_operation expected_positions)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "replace_expression parent=<rev> child=<rev> position=step",
+              "expected_positions": [
+                "value",
+                "body",
+                "cond",
+                "then",
+                "else",
+                "left",
+                "right",
+                "step",
+                "arg",
+                "collection",
+                "predicate",
+                "start",
+                "end",
+                "init",
+                "cond2",
+                "catch",
+                "scrutinee",
+                "range_start",
+                "range_end",
+                "acc_init"
+              ],
+              "gated": false,
+              "name": "replace_expression",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "replace_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'"
+            }
+          }
+        },
+        {
+          "name": "describe_construction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "include_candidates": true
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"afb7cfca3aa854cc1d3ab4363783231959e5fc30d739b84682b74f544a35d948\",\"kind\":\"param\",\"name\":\"s\",\"semantic_handle\":{\"expected_type\":\"string\",\"scope\":\"bench.solve\",\"symbol\":\"s\"},\"type\":\"string\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "vec_lit",
+                "veclist"
+              ],
+              "candidate_bindings": {
+                "items": [
+                  {
+                    "current_revision": "afb7cfca3aa854cc1d3ab4363783231959e5fc30d739b84682b74f544a35d948",
+                    "kind": "param",
+                    "name": "s",
+                    "semantic_handle": {
+                      "expected_type": "string",
+                      "scope": "bench.solve",
+                      "symbol": "s"
+                    },
+                    "type": "string"
+                  }
+                ],
+                "returned": 1,
+                "total": 1,
+                "truncated": false
+              },
+              "canonical_kind": "veclit",
+              "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+              "fields": [],
+              "note": "vector literal: (vec <elem_type> item...)",
+              "optional_children": [
+                {
+                  "multiple": true,
+                  "name": "items",
+                  "role": "expr"
+                }
+              ],
+              "required_children": [
+                {
+                  "multiple": false,
+                  "name": "elem_type",
+                  "role": "type_expr"
+                }
+              ],
+              "result_type_rule": "(vec <elem_type>)"
+            }
+          }
+        },
+        {
+          "name": "construct_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "elem_type": "(prim i64)",
+            "items": []
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "kind": "veclit",
+              "result_type": "vec ?",
+              "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+            }
+          }
+        },
+        {
+          "name": "change_field",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "9c20f04dd1e14d609282eb52015ddeac0d90b29452e0f12b5f1e886fa74a4e7b",
+            "field": "body",
+            "value": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=8eaf4a52832468d6169c8ba8ad06d489709775ff2f0856b6c7d941b49add5575 steps:((literal value=0 rev=113eaf4de5696c46dd4ff15c147494d15ea4a5061e93ff98efbdbc5fa1317d89)))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "check_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"problems\":[]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "problems": []
+            }
+          }
+        },
+        {
+          "name": "abort_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aborted\":true}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aborted": true
+            }
+          }
+        }
+      ],
+      "initial_project_check": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "advertised_names": [
+        "abort_transaction",
+        "applicable_operations",
+        "begin_transaction",
+        "change_field",
+        "check_transaction",
+        "commit_transaction",
+        "construct_expression",
+        "describe_construction",
+        "describe_operation",
+        "inspect_body",
+        "inspect_entity",
+        "inspect_project",
+        "preview_semantic_diff",
+        "resolve_entity"
+      ],
+      "veclit_description": {
+        "content": [
+          {
+            "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"afb7cfca3aa854cc1d3ab4363783231959e5fc30d739b84682b74f544a35d948\",\"kind\":\"param\",\"name\":\"s\",\"semantic_handle\":{\"expected_type\":\"string\",\"scope\":\"bench.solve\",\"symbol\":\"s\"},\"type\":\"string\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "aliases": [
+            "vec_lit",
+            "veclist"
+          ],
+          "candidate_bindings": {
+            "items": [
+              {
+                "current_revision": "afb7cfca3aa854cc1d3ab4363783231959e5fc30d739b84682b74f544a35d948",
+                "kind": "param",
+                "name": "s",
+                "semantic_handle": {
+                  "expected_type": "string",
+                  "scope": "bench.solve",
+                  "symbol": "s"
+                },
+                "type": "string"
+              }
+            ],
+            "returned": 1,
+            "total": 1,
+            "truncated": false
+          },
+          "canonical_kind": "veclit",
+          "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+          "fields": [],
+          "note": "vector literal: (vec <elem_type> item...)",
+          "optional_children": [
+            {
+              "multiple": true,
+              "name": "items",
+              "role": "expr"
+            }
+          ],
+          "required_children": [
+            {
+              "multiple": false,
+              "name": "elem_type",
+              "role": "type_expr"
+            }
+          ],
+          "result_type_rule": "(vec <elem_type>)"
+        }
+      },
+      "detached": {
+        "content": [
+          {
+            "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "kind": "veclit",
+          "result_type": "vec ?",
+          "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+        }
+      },
+      "field_is_not_slot_replacement": {
+        "content": [
+          {
+            "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+            "type": "text"
+          }
+        ],
+        "isError": true,
+        "structuredContent": {
+          "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+        }
+      },
+      "body_unchanged": true,
+      "commits": 0
+    },
+    {
+      "task": "HE42",
+      "calls": [
+        {
+          "name": "begin_transaction",
+          "arguments": {
+            "project": "/work/project/benchmarks/native_mcp_skill/inputs/HE42/alva.toml"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"project_revision\":\"f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b\",\"transaction_id\":\"tx_2_0000000000000001\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+              "transaction_id": "tx_2_0000000000000001"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=3c528909daa6cd29ba85ef08728da419207fed5710a5539b4e09e08f22b1f8dd steps:((veclit rev=4c80006829d989e87c150f6e37daeba2fea7ca06b36c32b1513026cd43aac5a4 elem_type:((type_expr name=i64 rev=3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4)))))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=3c528909daa6cd29ba85ef08728da419207fed5710a5539b4e09e08f22b1f8dd steps:((veclit rev=4c80006829d989e87c150f6e37daeba2fea7ca06b36c32b1513026cd43aac5a4 elem_type:((type_expr name=i64 rev=3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4)))))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "inspect_entity",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"entity\":\"module:bench/fn:solve\",\"fields\":{\"eff\":[],\"name\":\"solve\",\"pure\":true},\"kind\":\"function\",\"revision\":\"6dd29de2684636878af5f4dbd42b3459f01f7f135f1b09c61d4a1bde10088f94\",\"slots\":{\"body\":[\"3c528909daa6cd29ba85ef08728da419207fed5710a5539b4e09e08f22b1f8dd\"],\"inv\":[],\"params\":[\"0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca\"],\"post\":[],\"pre\":[],\"returns\":[\"ed51e2c378dcf809c778c4ebde2e9a7669b48e5856cb000ec18f3755573e85ef\"]}}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "entity": "module:bench/fn:solve",
+              "fields": {
+                "eff": [],
+                "name": "solve",
+                "pure": true
+              },
+              "kind": "function",
+              "revision": "6dd29de2684636878af5f4dbd42b3459f01f7f135f1b09c61d4a1bde10088f94",
+              "slots": {
+                "body": [
+                  "3c528909daa6cd29ba85ef08728da419207fed5710a5539b4e09e08f22b1f8dd"
+                ],
+                "inv": [],
+                "params": [
+                  "0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "ed51e2c378dcf809c778c4ebde2e9a7669b48e5856cb000ec18f3755573e85ef"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "applicable_operations",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"context_operations\":[\"abort_transaction\",\"begin_transaction\",\"check_transaction\",\"commit_transaction\",\"construct_expression\",\"describe_construction\",\"describe_operation\",\"inspect_project\",\"preview_semantic_diff\",\"resolve_entity\"],\"entity\":\"6dd29de2684636878af5f4dbd42b3459f01f7f135f1b09c61d4a1bde10088f94\",\"inspection\":[\"applicable_operations\",\"inspect_body\",\"inspect_entity\"],\"kind\":\"function\",\"mutation\":[\"change_field\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "context_operations": [
+                "abort_transaction",
+                "begin_transaction",
+                "check_transaction",
+                "commit_transaction",
+                "construct_expression",
+                "describe_construction",
+                "describe_operation",
+                "inspect_project",
+                "preview_semantic_diff",
+                "resolve_entity"
+              ],
+              "entity": "6dd29de2684636878af5f4dbd42b3459f01f7f135f1b09c61d4a1bde10088f94",
+              "inspection": [
+                "applicable_operations",
+                "inspect_body",
+                "inspect_entity"
+              ],
+              "kind": "function",
+              "mutation": [
+                "change_field"
+              ]
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_reference"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"symbol\"}],\"effects\":\"mutation\",\"example\":\"create_reference name=root\",\"gated\":false,\"name\":\"create_reference\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "symbol"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_reference name=root",
+              "gated": false,
+              "name": "create_reference",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_reference",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_literal"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"type\",\"required\":true,\"shape\":\"string|i64|bool|bytes|nil\"},{\"name\":\"value\",\"required\":true,\"shape\":\"string\"}],\"effects\":\"mutation\",\"example\":\"create_literal type=i64 value=42\",\"gated\":false,\"name\":\"create_literal\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "type",
+                  "required": true,
+                  "shape": "string|i64|bool|bytes|nil"
+                },
+                {
+                  "name": "value",
+                  "required": true,
+                  "shape": "string"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_literal type=i64 value=42",
+              "gated": false,
+              "name": "create_literal",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_literal",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_binary"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"op\",\"required\":true,\"shape\":\"==|+|...\"},{\"name\":\"left\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"right\",\"required\":true,\"shape\":\"revision\"}],\"effects\":\"mutation\",\"example\":\"create_binary op== left=<rev> right=<rev>\",\"gated\":false,\"name\":\"create_binary\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "op",
+                  "required": true,
+                  "shape": "==|+|..."
+                },
+                {
+                  "name": "left",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "right",
+                  "required": true,
+                  "shape": "revision"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_binary op== left=<rev> right=<rev>",
+              "gated": false,
+              "name": "create_binary",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_binary",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_call"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"qualified fn or builtin\"},{\"name\":\"args\",\"required\":false,\"shape\":\"revisions (repeatable)\"}],\"effects\":\"mutation\",\"example\":\"create_call name=queue.fs.read_string args=<rev>\",\"gated\":false,\"name\":\"create_call\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "qualified fn or builtin"
+                },
+                {
+                  "name": "args",
+                  "required": false,
+                  "shape": "revisions (repeatable)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_call name=queue.fs.read_string args=<rev>",
+              "gated": false,
+              "name": "create_call",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_call",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "replace_expression"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"replace_expr\"],\"arguments\":[{\"name\":\"parent\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"child\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"position\",\"required\":true,\"shape\":\"kind-dependent slot position (see describe_operation expected_positions)\"}],\"effects\":\"mutation\",\"example\":\"replace_expression parent=<rev> child=<rev> position=step\",\"expected_positions\":[\"value\",\"body\",\"cond\",\"then\",\"else\",\"left\",\"right\",\"step\",\"arg\",\"collection\",\"predicate\",\"start\",\"end\",\"init\",\"cond2\",\"catch\",\"scrutinee\",\"range_start\",\"range_end\",\"acc_init\"],\"gated\":false,\"name\":\"replace_expression\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "replace_expr"
+              ],
+              "arguments": [
+                {
+                  "name": "parent",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "child",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "position",
+                  "required": true,
+                  "shape": "kind-dependent slot position (see describe_operation expected_positions)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "replace_expression parent=<rev> child=<rev> position=step",
+              "expected_positions": [
+                "value",
+                "body",
+                "cond",
+                "then",
+                "else",
+                "left",
+                "right",
+                "step",
+                "arg",
+                "collection",
+                "predicate",
+                "start",
+                "end",
+                "init",
+                "cond2",
+                "catch",
+                "scrutinee",
+                "range_start",
+                "range_end",
+                "acc_init"
+              ],
+              "gated": false,
+              "name": "replace_expression",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "replace_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'"
+            }
+          }
+        },
+        {
+          "name": "describe_construction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "include_candidates": true
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca\",\"kind\":\"param\",\"name\":\"xs\",\"semantic_handle\":{\"expected_type\":\"?\",\"scope\":\"bench.solve\",\"symbol\":\"xs\"},\"type\":\"?\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "vec_lit",
+                "veclist"
+              ],
+              "candidate_bindings": {
+                "items": [
+                  {
+                    "current_revision": "0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca",
+                    "kind": "param",
+                    "name": "xs",
+                    "semantic_handle": {
+                      "expected_type": "?",
+                      "scope": "bench.solve",
+                      "symbol": "xs"
+                    },
+                    "type": "?"
+                  }
+                ],
+                "returned": 1,
+                "total": 1,
+                "truncated": false
+              },
+              "canonical_kind": "veclit",
+              "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+              "fields": [],
+              "note": "vector literal: (vec <elem_type> item...)",
+              "optional_children": [
+                {
+                  "multiple": true,
+                  "name": "items",
+                  "role": "expr"
+                }
+              ],
+              "required_children": [
+                {
+                  "multiple": false,
+                  "name": "elem_type",
+                  "role": "type_expr"
+                }
+              ],
+              "result_type_rule": "(vec <elem_type>)"
+            }
+          }
+        },
+        {
+          "name": "construct_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "elem_type": "(prim i64)",
+            "items": []
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "kind": "veclit",
+              "result_type": "vec ?",
+              "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+            }
+          }
+        },
+        {
+          "name": "change_field",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "6dd29de2684636878af5f4dbd42b3459f01f7f135f1b09c61d4a1bde10088f94",
+            "field": "body",
+            "value": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=3c528909daa6cd29ba85ef08728da419207fed5710a5539b4e09e08f22b1f8dd steps:((veclit rev=4c80006829d989e87c150f6e37daeba2fea7ca06b36c32b1513026cd43aac5a4 elem_type:((type_expr name=i64 rev=3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4)))))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=3c528909daa6cd29ba85ef08728da419207fed5710a5539b4e09e08f22b1f8dd steps:((veclit rev=4c80006829d989e87c150f6e37daeba2fea7ca06b36c32b1513026cd43aac5a4 elem_type:((type_expr name=i64 rev=3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4)))))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "check_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"problems\":[]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "problems": []
+            }
+          }
+        },
+        {
+          "name": "abort_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aborted\":true}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aborted": true
+            }
+          }
+        }
+      ],
+      "initial_project_check": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "advertised_names": [
+        "abort_transaction",
+        "applicable_operations",
+        "begin_transaction",
+        "change_field",
+        "check_transaction",
+        "commit_transaction",
+        "construct_expression",
+        "describe_construction",
+        "describe_operation",
+        "inspect_body",
+        "inspect_entity",
+        "inspect_project",
+        "preview_semantic_diff",
+        "resolve_entity"
+      ],
+      "veclit_description": {
+        "content": [
+          {
+            "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca\",\"kind\":\"param\",\"name\":\"xs\",\"semantic_handle\":{\"expected_type\":\"?\",\"scope\":\"bench.solve\",\"symbol\":\"xs\"},\"type\":\"?\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "aliases": [
+            "vec_lit",
+            "veclist"
+          ],
+          "candidate_bindings": {
+            "items": [
+              {
+                "current_revision": "0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca",
+                "kind": "param",
+                "name": "xs",
+                "semantic_handle": {
+                  "expected_type": "?",
+                  "scope": "bench.solve",
+                  "symbol": "xs"
+                },
+                "type": "?"
+              }
+            ],
+            "returned": 1,
+            "total": 1,
+            "truncated": false
+          },
+          "canonical_kind": "veclit",
+          "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+          "fields": [],
+          "note": "vector literal: (vec <elem_type> item...)",
+          "optional_children": [
+            {
+              "multiple": true,
+              "name": "items",
+              "role": "expr"
+            }
+          ],
+          "required_children": [
+            {
+              "multiple": false,
+              "name": "elem_type",
+              "role": "type_expr"
+            }
+          ],
+          "result_type_rule": "(vec <elem_type>)"
+        }
+      },
+      "detached": {
+        "content": [
+          {
+            "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "kind": "veclit",
+          "result_type": "vec ?",
+          "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+        }
+      },
+      "field_is_not_slot_replacement": {
+        "content": [
+          {
+            "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+            "type": "text"
+          }
+        ],
+        "isError": true,
+        "structuredContent": {
+          "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+        }
+      },
+      "body_unchanged": true,
+      "commits": 0
+    },
+    {
+      "task": "HE3",
+      "calls": [
+        {
+          "name": "begin_transaction",
+          "arguments": {
+            "project": "/work/project/benchmarks/native_mcp_skill/inputs/HE3/alva.toml"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"project_revision\":\"e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab\",\"transaction_id\":\"tx_2_0000000000000001\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+              "transaction_id": "tx_2_0000000000000001"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=06a975e5d742a68836afaf9843cc1928cc381f228a50723037f3fff831f05a5c steps:((literal value=false rev=511324a78197aa0b860be5648d76cefdee7e366af0cadd960702e353180323ea)))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=06a975e5d742a68836afaf9843cc1928cc381f228a50723037f3fff831f05a5c steps:((literal value=false rev=511324a78197aa0b860be5648d76cefdee7e366af0cadd960702e353180323ea)))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "inspect_entity",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"entity\":\"module:bench/fn:solve\",\"fields\":{\"eff\":[],\"name\":\"solve\",\"pure\":true},\"kind\":\"function\",\"revision\":\"39b0b4d050e5a1c7f37accaaabe3929a2dd393c66dc5a82fbd12681a3a300373\",\"slots\":{\"body\":[\"06a975e5d742a68836afaf9843cc1928cc381f228a50723037f3fff831f05a5c\"],\"inv\":[],\"params\":[\"0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca\"],\"post\":[],\"pre\":[],\"returns\":[\"f2ae5286f996faadcff7c8064de91c6866b7f8bf42c7ca4ceed81738a1ba0505\"]}}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "entity": "module:bench/fn:solve",
+              "fields": {
+                "eff": [],
+                "name": "solve",
+                "pure": true
+              },
+              "kind": "function",
+              "revision": "39b0b4d050e5a1c7f37accaaabe3929a2dd393c66dc5a82fbd12681a3a300373",
+              "slots": {
+                "body": [
+                  "06a975e5d742a68836afaf9843cc1928cc381f228a50723037f3fff831f05a5c"
+                ],
+                "inv": [],
+                "params": [
+                  "0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "f2ae5286f996faadcff7c8064de91c6866b7f8bf42c7ca4ceed81738a1ba0505"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "applicable_operations",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"context_operations\":[\"abort_transaction\",\"begin_transaction\",\"check_transaction\",\"commit_transaction\",\"construct_expression\",\"describe_construction\",\"describe_operation\",\"inspect_project\",\"preview_semantic_diff\",\"resolve_entity\"],\"entity\":\"39b0b4d050e5a1c7f37accaaabe3929a2dd393c66dc5a82fbd12681a3a300373\",\"inspection\":[\"applicable_operations\",\"inspect_body\",\"inspect_entity\"],\"kind\":\"function\",\"mutation\":[\"change_field\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "context_operations": [
+                "abort_transaction",
+                "begin_transaction",
+                "check_transaction",
+                "commit_transaction",
+                "construct_expression",
+                "describe_construction",
+                "describe_operation",
+                "inspect_project",
+                "preview_semantic_diff",
+                "resolve_entity"
+              ],
+              "entity": "39b0b4d050e5a1c7f37accaaabe3929a2dd393c66dc5a82fbd12681a3a300373",
+              "inspection": [
+                "applicable_operations",
+                "inspect_body",
+                "inspect_entity"
+              ],
+              "kind": "function",
+              "mutation": [
+                "change_field"
+              ]
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_reference"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"symbol\"}],\"effects\":\"mutation\",\"example\":\"create_reference name=root\",\"gated\":false,\"name\":\"create_reference\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "symbol"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_reference name=root",
+              "gated": false,
+              "name": "create_reference",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_reference",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_literal"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"type\",\"required\":true,\"shape\":\"string|i64|bool|bytes|nil\"},{\"name\":\"value\",\"required\":true,\"shape\":\"string\"}],\"effects\":\"mutation\",\"example\":\"create_literal type=i64 value=42\",\"gated\":false,\"name\":\"create_literal\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "type",
+                  "required": true,
+                  "shape": "string|i64|bool|bytes|nil"
+                },
+                {
+                  "name": "value",
+                  "required": true,
+                  "shape": "string"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_literal type=i64 value=42",
+              "gated": false,
+              "name": "create_literal",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_literal",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_binary"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"op\",\"required\":true,\"shape\":\"==|+|...\"},{\"name\":\"left\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"right\",\"required\":true,\"shape\":\"revision\"}],\"effects\":\"mutation\",\"example\":\"create_binary op== left=<rev> right=<rev>\",\"gated\":false,\"name\":\"create_binary\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "op",
+                  "required": true,
+                  "shape": "==|+|..."
+                },
+                {
+                  "name": "left",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "right",
+                  "required": true,
+                  "shape": "revision"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_binary op== left=<rev> right=<rev>",
+              "gated": false,
+              "name": "create_binary",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_binary",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "create_call"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[],\"arguments\":[{\"name\":\"name\",\"required\":true,\"shape\":\"qualified fn or builtin\"},{\"name\":\"args\",\"required\":false,\"shape\":\"revisions (repeatable)\"}],\"effects\":\"mutation\",\"example\":\"create_call name=queue.fs.read_string args=<rev>\",\"gated\":false,\"name\":\"create_call\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [],
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "shape": "qualified fn or builtin"
+                },
+                {
+                  "name": "args",
+                  "required": false,
+                  "shape": "revisions (repeatable)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "create_call name=queue.fs.read_string args=<rev>",
+              "gated": false,
+              "name": "create_call",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "create_call",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'"
+            }
+          }
+        },
+        {
+          "name": "describe_operation",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "name": "replace_expression"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"replace_expr\"],\"arguments\":[{\"name\":\"parent\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"child\",\"required\":true,\"shape\":\"revision\"},{\"name\":\"position\",\"required\":true,\"shape\":\"kind-dependent slot position (see describe_operation expected_positions)\"}],\"effects\":\"mutation\",\"example\":\"replace_expression parent=<rev> child=<rev> position=step\",\"expected_positions\":[\"value\",\"body\",\"cond\",\"then\",\"else\",\"left\",\"right\",\"step\",\"arg\",\"collection\",\"predicate\",\"start\",\"end\",\"init\",\"cond2\",\"catch\",\"scrutinee\",\"range_start\",\"range_end\",\"acc_init\"],\"gated\":false,\"name\":\"replace_expression\",\"preconditions\":[\"transaction\"],\"target_kinds\":[\"any\"]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "replace_expr"
+              ],
+              "arguments": [
+                {
+                  "name": "parent",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "child",
+                  "required": true,
+                  "shape": "revision"
+                },
+                {
+                  "name": "position",
+                  "required": true,
+                  "shape": "kind-dependent slot position (see describe_operation expected_positions)"
+                }
+              ],
+              "effects": "mutation",
+              "example": "replace_expression parent=<rev> child=<rev> position=step",
+              "expected_positions": [
+                "value",
+                "body",
+                "cond",
+                "then",
+                "else",
+                "left",
+                "right",
+                "step",
+                "arg",
+                "collection",
+                "predicate",
+                "start",
+                "end",
+                "init",
+                "cond2",
+                "catch",
+                "scrutinee",
+                "range_start",
+                "range_end",
+                "acc_init"
+              ],
+              "gated": false,
+              "name": "replace_expression",
+              "preconditions": [
+                "transaction"
+              ],
+              "target_kinds": [
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "name": "replace_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'"
+            }
+          }
+        },
+        {
+          "name": "describe_construction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "include_candidates": true
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca\",\"kind\":\"param\",\"name\":\"xs\",\"semantic_handle\":{\"expected_type\":\"?\",\"scope\":\"bench.solve\",\"symbol\":\"xs\"},\"type\":\"?\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aliases": [
+                "vec_lit",
+                "veclist"
+              ],
+              "candidate_bindings": {
+                "items": [
+                  {
+                    "current_revision": "0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca",
+                    "kind": "param",
+                    "name": "xs",
+                    "semantic_handle": {
+                      "expected_type": "?",
+                      "scope": "bench.solve",
+                      "symbol": "xs"
+                    },
+                    "type": "?"
+                  }
+                ],
+                "returned": 1,
+                "total": 1,
+                "truncated": false
+              },
+              "canonical_kind": "veclit",
+              "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+              "fields": [],
+              "note": "vector literal: (vec <elem_type> item...)",
+              "optional_children": [
+                {
+                  "multiple": true,
+                  "name": "items",
+                  "role": "expr"
+                }
+              ],
+              "required_children": [
+                {
+                  "multiple": false,
+                  "name": "elem_type",
+                  "role": "type_expr"
+                }
+              ],
+              "result_type_rule": "(vec <elem_type>)"
+            }
+          }
+        },
+        {
+          "name": "construct_expression",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "kind": "veclit",
+            "elem_type": "(prim i64)",
+            "items": []
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "kind": "veclit",
+              "result_type": "vec ?",
+              "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+            }
+          }
+        },
+        {
+          "name": "change_field",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "entity": "39b0b4d050e5a1c7f37accaaabe3929a2dd393c66dc5a82fbd12681a3a300373",
+            "field": "body",
+            "value": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+                "type": "text"
+              }
+            ],
+            "isError": true,
+            "structuredContent": {
+              "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+            }
+          }
+        },
+        {
+          "name": "inspect_body",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001",
+            "function": "bench.solve"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"body\":\"(block rev=06a975e5d742a68836afaf9843cc1928cc381f228a50723037f3fff831f05a5c steps:((literal value=false rev=511324a78197aa0b860be5648d76cefdee7e366af0cadd960702e353180323ea)))\",\"eff\":\"\",\"pure\":\"true\"}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "body": "(block rev=06a975e5d742a68836afaf9843cc1928cc381f228a50723037f3fff831f05a5c steps:((literal value=false rev=511324a78197aa0b860be5648d76cefdee7e366af0cadd960702e353180323ea)))",
+              "eff": "",
+              "pure": "true"
+            }
+          }
+        },
+        {
+          "name": "check_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"problems\":[]}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "problems": []
+            }
+          }
+        },
+        {
+          "name": "abort_transaction",
+          "arguments": {
+            "transaction_id": "tx_2_0000000000000001"
+          },
+          "response": {
+            "content": [
+              {
+                "text": "{\"aborted\":true}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "structuredContent": {
+              "aborted": true
+            }
+          }
+        }
+      ],
+      "initial_project_check": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "advertised_names": [
+        "abort_transaction",
+        "applicable_operations",
+        "begin_transaction",
+        "change_field",
+        "check_transaction",
+        "commit_transaction",
+        "construct_expression",
+        "describe_construction",
+        "describe_operation",
+        "inspect_body",
+        "inspect_entity",
+        "inspect_project",
+        "preview_semantic_diff",
+        "resolve_entity"
+      ],
+      "veclit_description": {
+        "content": [
+          {
+            "text": "{\"aliases\":[\"vec_lit\",\"veclist\"],\"candidate_bindings\":{\"items\":[{\"current_revision\":\"0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca\",\"kind\":\"param\",\"name\":\"xs\",\"semantic_handle\":{\"expected_type\":\"?\",\"scope\":\"bench.solve\",\"symbol\":\"xs\"},\"type\":\"?\"}],\"returned\":1,\"total\":1,\"truncated\":false},\"canonical_kind\":\"veclit\",\"example\":\"construct_expression kind=veclit elem_type=\\\"(prim i64)\\\" items=[<rev>, ...]\",\"fields\":[],\"note\":\"vector literal: (vec <elem_type> item...)\",\"optional_children\":[{\"multiple\":true,\"name\":\"items\",\"role\":\"expr\"}],\"required_children\":[{\"multiple\":false,\"name\":\"elem_type\",\"role\":\"type_expr\"}],\"result_type_rule\":\"(vec <elem_type>)\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "aliases": [
+            "vec_lit",
+            "veclist"
+          ],
+          "candidate_bindings": {
+            "items": [
+              {
+                "current_revision": "0e7681ee1d4e200fa02a21b55fd11da4e0bb301aedfa303931327eb09550caca",
+                "kind": "param",
+                "name": "xs",
+                "semantic_handle": {
+                  "expected_type": "?",
+                  "scope": "bench.solve",
+                  "symbol": "xs"
+                },
+                "type": "?"
+              }
+            ],
+            "returned": 1,
+            "total": 1,
+            "truncated": false
+          },
+          "canonical_kind": "veclit",
+          "example": "construct_expression kind=veclit elem_type=\"(prim i64)\" items=[<rev>, ...]",
+          "fields": [],
+          "note": "vector literal: (vec <elem_type> item...)",
+          "optional_children": [
+            {
+              "multiple": true,
+              "name": "items",
+              "role": "expr"
+            }
+          ],
+          "required_children": [
+            {
+              "multiple": false,
+              "name": "elem_type",
+              "role": "type_expr"
+            }
+          ],
+          "result_type_rule": "(vec <elem_type>)"
+        }
+      },
+      "detached": {
+        "content": [
+          {
+            "text": "{\"kind\":\"veclit\",\"result_type\":\"vec ?\",\"revision\":\"3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "kind": "veclit",
+          "result_type": "vec ?",
+          "revision": "3c7309b00e5abe3aebb0a7e6f3ca5a71b98147fda0c49979a9ae877769de97b2"
+        }
+      },
+      "field_is_not_slot_replacement": {
+        "content": [
+          {
+            "text": "{\"error\":\"E_AEP_002: node kind 'function' does not allow field 'body'\"}",
+            "type": "text"
+          }
+        ],
+        "isError": true,
+        "structuredContent": {
+          "error": "E_AEP_002: node kind 'function' does not allow field 'body'"
+        }
+      },
+      "body_unchanged": true,
+      "commits": 0
+    }
+  ],
+  "scope": "Observed callable surface and attempted slot attachment; not a proof about every imaginable program, and not an ALVA language expressibility failure."
+}
