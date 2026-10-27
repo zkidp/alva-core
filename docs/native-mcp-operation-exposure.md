@@ -87,8 +87,11 @@ The fixture records:
 - Actual RPC arguments/responses, compiler/test output, AIR hashes, exact input
   bundle identity, SDK binary hash, driver hash and Rust/Cargo versions.
 
-Public local evidence: `evidence/native-mcp-operation-exposure/LINUX.json` and
-`WINDOWS.json`. Linux was explicitly run under WSL2 Ubuntu with the public
+Captured execution output is not tracked in Git (AGENTS.md). The dedicated
+GitHub Actions workflow uploads `p25-linux-closure` and platform-refusal
+artifacts, including actual RPC/build/test logs. For local reproduction use an
+ignored `out/` destination, never commit its output. Linux was explicitly run
+under WSL2 Ubuntu with the public
 approved SDK; that is **Linux execution**, not a Windows sandbox backend.
 The dedicated CI publishes fresh Ubuntu results and asserts native
 Windows/macOS `UNSUPPORTED_FAIL_CLOSED`. Existing Core CI supplies broader
