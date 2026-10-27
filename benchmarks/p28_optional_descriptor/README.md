@@ -53,3 +53,10 @@ and monetary costs unavailable from this transport remain unknown.
 This is one analysis-informed task and one observation per condition. Neither
 an improved nor a failed pair establishes general causality or superiority.
 P26/P27 and earlier frozen records remain unchanged. STOP after the two slots.
+
+After execution, `REPORT.md`, `RESULTS.json`, `ANALYSIS.json` and `VALIDATION.json`
+record the closed pair. `ci_exact_runtime.py` is a CI-only reader of the original
+freeze's exact runtime bytes, not a modified scientific runner. Use it for
+cross-platform frozen unit tests when Git checkout EOL differs from an inherited
+dependency's approved execution bytes. No normalization/hash alternatives are
+accepted, no repository files are overwritten and no model is called.

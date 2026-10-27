@@ -9,6 +9,7 @@ permissions:
 jobs:
   adapter:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -23,7 +24,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p out
-          python -m unittest benchmarks.p28_optional_descriptor.test_pilot -v > out/p28-unit.log 2>&1
+          python benchmarks/p28_optional_descriptor/ci_exact_runtime.py > out/p28-unit.log 2>&1
           cat out/p28-unit.log
       - uses: actions/upload-artifact@v4
         if: always()
