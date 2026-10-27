@@ -1,0 +1,65 @@
+name: Maintenance design (zero models)
+on:
+  pull_request:
+    paths:
+      - 'docs/research/p20-p28-evidence-synthesis.md'
+      - 'docs/research/semantic-maintenance-study-design.md'
+      - 'benchmarks/maintenance_design/**'
+      - '.github/workflows/maintenance-design.yml'
+permissions:
+  contents: read
+jobs:
+  provenance:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source and evidence boundaries; no model or old pilot execution
+        shell: bash
+        run: |
+          mkdir -p out
+          python -m unittest benchmarks.maintenance_design.test_design -v > out/maintenance-unit.log 2>&1
+          cat out/maintenance-unit.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: maintenance-provenance-${{ matrix.os }}
+          path: out/maintenance-unit.log
+  linux-candidates:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Trusted SDK and existing Linux isolation dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Three candidate-local engineering dispositions, not model outcomes
+        run: |
+          mkdir -p out
+          python benchmarks/maintenance_design/feasibility.py run \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/maintenance-engineering-raw.json > out/maintenance-summary.log
+          cp benchmarks/maintenance_design/FEASIBILITY.json out/maintenance-ci-summary.json
+          cat out/maintenance-summary.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: maintenance-linux-engineering
+          path: out/maintenance-*

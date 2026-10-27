@@ -1,0 +1,295 @@
+{
+  "schema": "alva-maintenance-design/v1",
+  "base": "e78162036c5a373a1a3f1f4644f6149478aac842",
+  "status": "DESIGN_AND_ZERO_MODEL_QUALIFICATION_ONLY",
+  "model_execution_authorized": false,
+  "candidate_selection_before_engineering_execution": [
+    "MM01",
+    "MM02",
+    "MM03"
+  ],
+  "no_substitution_for_unsupported_candidate": true,
+  "candidates": [
+    {
+      "id": "MM01",
+      "type": "record-update-policy",
+      "target": "demo.model.touch_size",
+      "crate": "demo",
+      "requirement": "For metadata with negative size, touch_size must return the original metadata unchanged. For nonnegative size retain increment-by-one. Preserve key/etag, size_of, make_meta and application run()==6. Bounded i64 inputs only; overflow policy is unchanged.",
+      "risk": [
+        "accidentally altering metadata key/etag",
+        "changing the accessor or application",
+        "overgeneralizing the negative-size rule"
+      ],
+      "operations": [
+        "create_literal",
+        "create_binary",
+        "create_reference",
+        "create_if",
+        "replace_expression"
+      ],
+      "functions": [
+        "demo.model.make_meta",
+        "demo.model.size_of",
+        "demo.model.touch_size",
+        "demo.app.run"
+      ],
+      "stale_probe": "Two transactions share the same initial base; publish the task change, then reject the old transaction's independent application-etag literal edit. Assert complete authority manifest unchanged after refusal. This is an engineering safety probe, not model recovery evidence.",
+      "source_commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+      "source_paths": [
+        "tests/project/alva.toml",
+        "tests/project/src/model.alva",
+        "tests/project/src/app.alva"
+      ],
+      "source_license": "Repository LICENSE at the source commit",
+      "adaptation": "Exact existing public two-module test project; no answer scaffold or original-source modification.",
+      "public_inputs": [
+        "alva.toml",
+        "src/app.alva",
+        "src/model.alva"
+      ],
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "98e1e21c4728fa928276c575ab452888df995eb1",
+                "mode": "100644"
+              },
+              "length": 95,
+              "sha256": "a88ef41a68aa9ace09bbd2d74ee6820b02bd09cedf2a617a9f6c0ace5acfd7c7",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAiZGVtbyIKClttb2R1bGVzXQoiZGVtby5tb2RlbCIgPSAic3JjL21vZGVsLmFsdmEiCiJkZW1vLmFwcCIgPSAic3JjL2FwcC5hbHZhIgo="
+            },
+            {
+              "path": "src/app.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "98f41e2dc83e177a7b8d160644db1be84b03e123",
+                "mode": "100644"
+              },
+              "length": 368,
+              "sha256": "3f81d9c42da8ae03e7923d1849385425dd2d5515c1ec85cb8765045a2b0cd72b",
+              "base64": "KG1vZHVsZQogIChuYW1lICJkZW1vLmFwcCIpCiAgKHZlcnNpb24gIjAuMS4wIikKICAoZGVwICJkZW1vLm1vZGVsIiAiMC4xLjAiKQogIChleHBvcnQgcnVuKQoKICAoZm4gcnVuCiAgICAocGFyYW1zKQogICAgKHJldHVybnMgKHByaW0gaTY0KSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGNhbGwgZGVtby5tb2RlbC5zaXplX29mCiAgICAgICAgKGNhbGwgZGVtby5tb2RlbC50b3VjaF9zaXplCiAgICAgICAgICAoY2FsbCBkZW1vLm1vZGVsLm1ha2VfbWV0YSAoc3RyaW5nICJhIikgKGludCA1KSAoc3RyaW5nICJlMSIpKSkpKSkKCiAgKHRlc3QgcnVuX3dvcmtzCiAgICAoYm9keQogICAgICAoPT0gKGNhbGwgcnVuKSAoaW50IDYpKSkpKQo="
+            },
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "acfbf2619a175d00140b465a3fccb73eb4c67904",
+                "mode": "100644"
+              },
+              "length": 846,
+              "sha256": "fdebc5e20734c37892614d33089ab2eab66f90b4dbb86b03feca0332d8cc82f0",
+              "base64": "KG1vZHVsZQogIChuYW1lICJkZW1vLm1vZGVsIikKICAodmVyc2lvbiAiMC4xLjAiKQogIChleHBvcnQgTWV0YSBtYWtlX21ldGEgc2l6ZV9vZiB0b3VjaF9zaXplKQoKICAodHlwZSBNZXRhCiAgICAocmVjb3JkCiAgICAgIChmaWVsZCBrZXkgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHNpemUgKHByaW0gaTY0KSkKICAgICAgKGZpZWxkIGV0YWcgKHByaW0gc3RyaW5nKSkpKQoKICAoZm4gbWFrZV9tZXRhCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBrZXkgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIHNpemUgKHByaW0gaTY0KSkKICAgICAgKHBhcmFtIGV0YWcgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBNZXRhKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAocmVjb3JkIE1ldGEKICAgICAgICAoa2V5IChyZWYga2V5KSkKICAgICAgICAoc2l6ZSAocmVmIHNpemUpKQogICAgICAgIChldGFnIChyZWYgZXRhZykpKSkpCgogIChmbiBzaXplX29mCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBtIE1ldGEpKQogICAgKHJldHVybnMgKHByaW0gaTY0KSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGZpZWxkIChyZWYgbSkgInNpemUiKSkpCgogIChmbiB0b3VjaF9zaXplCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBtIE1ldGEpKQogICAgKHJldHVybnMgTWV0YSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBNZXRhCiAgICAgICAgKGtleSAoZmllbGQgKHJlZiBtKSAia2V5IikpCiAgICAgICAgKHNpemUgKCsgKGZpZWxkIChyZWYgbSkgInNpemUiKSAoaW50IDEpKSkKICAgICAgICAoZXRhZyAoZmllbGQgKHJlZiBtKSAiZXRhZyIpKSkpKSkK"
+            }
+          ]
+        },
+        "payload_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090"
+      },
+      "non_model_material": [
+        "witnesses.py",
+        "engineering operation sequences",
+        "independent Rust goal/regression assertions",
+        "feasibility output/raw logs"
+      ],
+      "initial_source_is_full_existing_implementation": true,
+      "qualification_source": "FEASIBILITY.json; status not inferred from operation names alone"
+    },
+    {
+      "id": "MM02",
+      "type": "query-parsing-control-flow",
+      "target": "store.xml.parse_prefix",
+      "crate": "store",
+      "requirement": "parse_prefix must return the first nonempty URL-decoded prefix value in query order, ignoring later matches and empty decoded values. Preserve missing/empty-query behavior, parse_delimiter's current last-match behavior, XML rendering and response-record functions. Inputs use ordinary ASCII query strings and valid percent escapes; no new decoding policy.",
+      "risk": [
+        "global replacement changing parse_delimiter too",
+        "losing percent decoding",
+        "changing XML rendering or response records"
+      ],
+      "operations": [
+        "create_reference",
+        "create_literal",
+        "create_binary",
+        "create_if",
+        "replace_expression"
+      ],
+      "functions": [
+        "store.xml.parse_prefix",
+        "store.xml.parse_delimiter",
+        "store.xml.emit_common_prefix",
+        "store.xml.emit_leaf",
+        "store.xml.list_buckets_xml",
+        "store.xml.list_objects_xml",
+        "store.model.text_response",
+        "store.model.xml_response",
+        "store.model.xml_error"
+      ],
+      "stale_probe": null,
+      "source_commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+      "source_paths": [
+        "examples/store_split/src/model.alva",
+        "examples/store_split/src/xml.alva"
+      ],
+      "source_license": "Repository LICENSE at the source commit",
+      "adaptation": "Unchanged store.model/xml source blobs; explicit two-module component manifest. Not the full server/router/storage product.",
+      "public_inputs": [
+        "alva.toml",
+        "src/model.alva",
+        "src/xml.alva"
+      ],
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "6c065e9b365de743f50cecda45dfc4a87d90d246",
+                "mode": "100644"
+              },
+              "length": 1643,
+              "sha256": "2d79c372af1f62ae66309af8db0cb7540c6bd8301a296ac4d14bfc00b36c5a90",
+              "base64": "KG1vZHVsZQogIChuYW1lICJzdG9yZS5tb2RlbCIpCiAgKHZlcnNpb24gIjAuMS4wIikKICAoZXhwb3J0IEh0dHBSZXF1ZXN0IFJvdXRlUmVzdWx0IHRleHRfcmVzcG9uc2UgeG1sX3Jlc3BvbnNlIHhtbF9lcnJvcikKCiAgKHR5cGUgSHR0cFJlcXVlc3QKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIG1ldGhvZCAocHJpbSBzdHJpbmcpKQogICAgICAoZmllbGQgcGF0aCAocHJpbSBzdHJpbmcpKQogICAgICAoZmllbGQgcXVlcnkgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIGhlYWRlcnMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKQogICAgICAoZmllbGQgYm9keSAocHJpbSBieXRlcykpKSkKCiAgKHR5cGUgUm91dGVSZXN1bHQKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIHN0YXR1cyAocHJpbSBpNjQpKQogICAgICAoZmllbGQgY29udGVudF90eXBlIChwcmltIHN0cmluZykpCiAgICAgIChmaWVsZCBib2R5IChwcmltIGJ5dGVzKSkKICAgICAgKGZpZWxkIGhlYWRfY29udGVudF9sZW5ndGggKHByaW0gaTY0KSkpKQoKICAoZm4gdGV4dF9yZXNwb25zZQogICAgKHBhcmFtcwogICAgICAocGFyYW0gc3RhdHVzIChwcmltIGk2NCkpCiAgICAgIChwYXJhbSBib2R5IChwcmltIGJ5dGVzKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBSb3V0ZVJlc3VsdAogICAgICAgIChzdGF0dXMgKHJlZiBzdGF0dXMpKQogICAgICAgIChjb250ZW50X3R5cGUgKHN0cmluZyAidGV4dC9wbGFpbiIpKQogICAgICAgIChib2R5IChyZWYgYm9keSkpCiAgICAgICAgKGhlYWRfY29udGVudF9sZW5ndGggKGludCAwKSkpKSkKCiAgKGZuIHhtbF9yZXNwb25zZQogICAgKHBhcmFtcwogICAgICAocGFyYW0gc3RhdHVzIChwcmltIGk2NCkpCiAgICAgIChwYXJhbSBib2R5IChwcmltIGJ5dGVzKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBSb3V0ZVJlc3VsdAogICAgICAgIChzdGF0dXMgKHJlZiBzdGF0dXMpKQogICAgICAgIChjb250ZW50X3R5cGUgKHN0cmluZyAiYXBwbGljYXRpb24veG1sIikpCiAgICAgICAgKGJvZHkgKHJlZiBib2R5KSkKICAgICAgICAoaGVhZF9jb250ZW50X2xlbmd0aCAoaW50IDApKSkpKQoKICAoZm4geG1sX2Vycm9yCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzdGF0dXMgKHByaW0gaTY0KSkKICAgICAgKHBhcmFtIGNvZGUgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIG1lc3NhZ2UgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGNhbGwgeG1sX3Jlc3BvbnNlIChyZWYgc3RhdHVzKQogICAgICAgIChjYWxsIHRvLWJ5dGVzCiAgICAgICAgICAoY2FsbCBjb25jYXQKICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjw/eG1sIHZlcnNpb249XCIxLjBcIj8+PEVycm9yPjxDb2RlPiIpIChyZWYgY29kZSkpCiAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICI8L0NvZGU+PE1lc3NhZ2U+IikKICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiBtZXNzYWdlKSAoc3RyaW5nICI8L01lc3NhZ2U+PC9FcnJvcj4iKSkpKSkpKSkKKQo="
+            },
+            {
+              "path": "src/xml.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "9452451dcfdc6de73e3c344bcee36d34a18ab796",
+                "mode": "100644"
+              },
+              "length": 4965,
+              "sha256": "67a2cfb2bc81fa33727ef6bd2fd173f841aaf36859fba627d2e7947b9ebc5364",
+              "base64": "KG1vZHVsZQogIChuYW1lICJzdG9yZS54bWwiKQogICh2ZXJzaW9uICIwLjEuMCIpCiAgKGV4cG9ydCBwYXJzZV9wcmVmaXggcGFyc2VfZGVsaW1pdGVyIGxpc3RfYnVja2V0c194bWwgbGlzdF9vYmplY3RzX3htbCkKCiAgKGZuIHBhcnNlX3ByZWZpeAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcXVlcnkgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoaWYgKD09IChyZWYgcXVlcnkpIChzdHJpbmcgIiIpKQogICAgICAgIChzdHJpbmcgIiIpCiAgICAgICAgKGxldCBwYXJ0cyAoY2FsbCBzcGxpdCAocmVmIHF1ZXJ5KSAoc3RyaW5nICImIikpCiAgICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBhcnRzKSkpCiAgICAgICAgICAgIChhY2MgZm91bmQgKHByaW0gc3RyaW5nKSAoc3RyaW5nICIiKSkKICAgICAgICAgICAgKGxldCBwYXJ0IChjYWxsIGdldCAocmVmIHBhcnRzKSAocmVmIGkpKQogICAgICAgICAgICAgIChsZXQgcmVzdCAoY2FsbCBzdHJpcC1wcmVmaXggKHJlZiBwYXJ0KSAoc3RyaW5nICJwcmVmaXg9IikpCiAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYgcmVzdCkgKHJlZiBwYXJ0KSkKICAgICAgICAgICAgICAgICAgKHJlZiBmb3VuZCkKICAgICAgICAgICAgICAgICAgKGNhbGwgdXJsLWRlY29kZSAocmVmIHJlc3QpKSkpKSkpKSkpCgogIChmbiBwYXJzZV9kZWxpbWl0ZXIKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHF1ZXJ5IChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGlmICg9PSAocmVmIHF1ZXJ5KSAoc3RyaW5nICIiKSkKICAgICAgICAoc3RyaW5nICIiKQogICAgICAgIChsZXQgcGFydHMgKGNhbGwgc3BsaXQgKHJlZiBxdWVyeSkgKHN0cmluZyAiJiIpKQogICAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBwYXJ0cykpKQogICAgICAgICAgICAoYWNjIGZvdW5kIChwcmltIHN0cmluZykgKHN0cmluZyAiIikpCiAgICAgICAgICAgIChsZXQgcGFydCAoY2FsbCBnZXQgKHJlZiBwYXJ0cykgKHJlZiBpKSkKICAgICAgICAgICAgICAobGV0IHJlc3QgKGNhbGwgc3RyaXAtcHJlZml4IChyZWYgcGFydCkgKHN0cmluZyAiZGVsaW1pdGVyPSIpKQogICAgICAgICAgICAgICAgKGlmICg9PSAocmVmIHJlc3QpIChyZWYgcGFydCkpCiAgICAgICAgICAgICAgICAgIChyZWYgZm91bmQpCiAgICAgICAgICAgICAgICAgIChjYWxsIHVybC1kZWNvZGUgKHJlZiByZXN0KSkpKSkpKSkpKQoKICAoZm4gZW1pdF9jb21tb25fcHJlZml4CiAgICAocGFyYW1zCiAgICAgIChwYXJhbSB4bWwgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIGNwIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGlmIChjYWxsIGVuZHMtd2l0aCAocmVmIHhtbCkKICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAocmVmIGNwKSAoc3RyaW5nICI8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPiIpKSkKICAgICAgICAocmVmIHhtbCkKICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiB4bWwpCiAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPENvbW1vblByZWZpeGVzPjxQcmVmaXg+IikKICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgY3ApIChzdHJpbmcgIjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+IikpKSkpKSkKCiAgKGZuIGVtaXRfbGVhZgogICAgKHBhcmFtcwogICAgICAocGFyYW0geG1sIChwcmltIHN0cmluZykpCiAgICAgIChwYXJhbSBmaWVsZHMgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQgKHJlZiB4bWwpCiAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjxDb250ZW50cz48S2V5PiIpCiAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgZ2V0IChyZWYgZmllbGRzKSAoaW50IDEpKQogICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPC9LZXk+PExhc3RNb2RpZmllZD4iKQogICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBnZXQgKHJlZiBmaWVsZHMpIChpbnQgNCkpCiAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPC9MYXN0TW9kaWZpZWQ+PEVUYWc+IikKICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChjYWxsIGdldCAocmVmIGZpZWxkcykgKGludCAyKSkKICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPC9FVGFnPjxTaXplPiIpCiAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgZ2V0IChyZWYgZmllbGRzKSAoaW50IDMpKQogICAgICAgICAgICAgICAgICAgICAgICAoc3RyaW5nICI8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+IikpKSkpKSkpKSkpKQoKICAoZm4gbGlzdF9idWNrZXRzX3htbAogICAgKHBhcmFtcwogICAgICAocGFyYW0gYnVja2V0c19saW5lIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBuYW1lcyAoY2FsbCBzcGxpdCAocmVmIGJ1Y2tldHNfbGluZSkgKHN0cmluZyAiXG4iKSkKICAgICAgICAoY2FsbCBjb25jYXQKICAgICAgICAgIChzdHJpbmcgIjw/eG1sIHZlcnNpb249XCIxLjBcIj8+PExpc3RBbGxNeUJ1Y2tldHNSZXN1bHQ+PEJ1Y2tldHM+IikKICAgICAgICAgIChjYWxsIGNvbmNhdAogICAgICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIG5hbWVzKSkpCiAgICAgICAgICAgICAgKGFjYyB4bWwgKHByaW0gc3RyaW5nKSAoc3RyaW5nICIiKSkKICAgICAgICAgICAgICAobGV0IG5hbWUgKGNhbGwgZ2V0IChyZWYgbmFtZXMpIChyZWYgaSkpCiAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYgbmFtZSkgKHN0cmluZyAiIikpCiAgICAgICAgICAgICAgICAgIChyZWYgeG1sKQogICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiB4bWwpCiAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjxCdWNrZXQ+PE5hbWU+IikKICAgICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAocmVmIG5hbWUpIChzdHJpbmcgIjwvTmFtZT48Q3JlYXRpb25EYXRlPjIwMjYtMDEtMDVUMDA6MDA6MDBaPC9DcmVhdGlvbkRhdGU+PC9CdWNrZXQ+IikpKSkpKSkKICAgICAgICAgICAgKHN0cmluZyAiPC9CdWNrZXRzPjwvTGlzdEFsbE15QnVja2V0c1Jlc3VsdD4iKSkpKSkpCgogIChmbiBsaXN0X29iamVjdHNfeG1sCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBsaW5lcyAocHJpbSBzdHJpbmcpKQogICAgICAocGFyYW0gcHJlZml4IChwcmltIHN0cmluZykpCiAgICAgIChwYXJhbSBkZWxpbWl0ZXIgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgbGluZXMpIChzdHJpbmcgIlxuIikpCiAgICAgICAgKGNhbGwgY29uY2F0CiAgICAgICAgICAoc3RyaW5nICI8P3htbCB2ZXJzaW9uPVwiMS4wXCI/PjxMaXN0QnVja2V0UmVzdWx0PiIpCiAgICAgICAgICAoY2FsbCBjb25jYXQKICAgICAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBwYXJ0cykpKQogICAgICAgICAgICAgIChhY2MgeG1sIChwcmltIHN0cmluZykgKHN0cmluZyAiIikpCiAgICAgICAgICAgICAgKGxldCBsaW5lIChjYWxsIGdldCAocmVmIHBhcnRzKSAocmVmIGkpKQogICAgICAgICAgICAgICAgKGxldCBmaWVsZHMgKGNhbGwgc3BsaXQgKHJlZiBsaW5lKSAoc3RyaW5nICJcdCIpKQogICAgICAgICAgICAgICAgICAoaWYgKDwgKGNhbGwgbGVuIChyZWYgZmllbGRzKSkgKGludCAyKSkKICAgICAgICAgICAgICAgICAgICAocmVmIHhtbCkKICAgICAgICAgICAgICAgICAgICAobGV0IGtleSAoY2FsbCBnZXQgKHJlZiBmaWVsZHMpIChpbnQgMSkpCiAgICAgICAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYga2V5KSAoc3RyaW5nICIiKSkKICAgICAgICAgICAgICAgICAgICAgICAgKHJlZiB4bWwpCiAgICAgICAgICAgICAgICAgICAgICAgIChsZXQgcmVzdCAoY2FsbCBzdHJpcC1wcmVmaXggKHJlZiBrZXkpIChyZWYgcHJlZml4KSkKICAgICAgICAgICAgICAgICAgICAgICAgICAoaWYgKGFuZCAobm90ICg9PSAocmVmIHByZWZpeCkgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICg9PSAocmVmIHJlc3QpIChyZWYga2V5KSkpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAocmVmIHhtbCkKICAgICAgICAgICAgICAgICAgICAgICAgICAgIChpZiAoYW5kICg9PSAocmVmIGRlbGltaXRlcikgKHN0cmluZyAiLyIpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKG5vdCAoPT0gKGNhbGwgYmVmb3JlIChyZWYgcmVzdCkgKHN0cmluZyAiLyIpKSAocmVmIHJlc3QpKSkpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChjYWxsIGVtaXRfY29tbW9uX3ByZWZpeCAocmVmIHhtbCkKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiBwcmVmaXgpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgYmVmb3JlIChyZWYgcmVzdCkgKHN0cmluZyAiLyIpKSAoc3RyaW5nICIvIikpKSkKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgZW1pdF9sZWFmIChyZWYgeG1sKSAocmVmIGZpZWxkcykpKSkpKSkpKSkpCiAgICAgICAgICAgIChzdHJpbmcgIjwvTGlzdEJ1Y2tldFJlc3VsdD4iKSkpKSkpCikK"
+            },
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e51a6aa11898e3fdac9077071cb6315a92dc1933",
+                "oid": "e27f2ae292a67f0b7684620591721a465c023201",
+                "mode": "100644"
+              },
+              "length": 97,
+              "sha256": "5de3b03d8a9391a18cbfae11fb8ea1ceafdaeebcc5da4d538219426db2ad7ff5",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAic3RvcmUiClttb2R1bGVzXQoic3RvcmUubW9kZWwiID0gInNyYy9tb2RlbC5hbHZhIgoic3RvcmUueG1sIiA9ICJzcmMveG1sLmFsdmEiCg=="
+            }
+          ]
+        },
+        "payload_sha256": "352a8b6fa459942b8b1d5469a966a706498afa7a2abbc13c39c457dafb069faf"
+      },
+      "non_model_material": [
+        "witnesses.py",
+        "engineering operation sequences",
+        "independent Rust goal/regression assertions",
+        "feasibility output/raw logs"
+      ],
+      "initial_source_is_full_existing_implementation": true,
+      "qualification_source": "FEASIBILITY.json; status not inferred from operation names alone"
+    },
+    {
+      "id": "MM03",
+      "type": "cross-module-signature-and-caller",
+      "target": "demo.model.size_of",
+      "crate": "demo",
+      "requirement": "Evolve size_of(m) to size_of(m, fallback:i64): return fallback when metadata size is negative, otherwise size. No unary overload required. Update the existing application caller to pass 0 and preserve run()==6. Keep make_meta, touch_size and metadata fields unchanged. Bounded i64 inputs only.",
+      "risk": [
+        "caller arity left invalid",
+        "fallback applied to size==0",
+        "changing touch_size instead of size_of"
+      ],
+      "operations": [
+        "add_param",
+        "add_call_arg",
+        "create_reference",
+        "create_literal",
+        "create_if",
+        "replace_expression"
+      ],
+      "functions": [
+        "demo.model.make_meta",
+        "demo.model.size_of",
+        "demo.model.touch_size",
+        "demo.app.run"
+      ],
+      "stale_probe": null,
+      "source_commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+      "source_paths": [
+        "tests/project/alva.toml",
+        "tests/project/src/model.alva",
+        "tests/project/src/app.alva"
+      ],
+      "source_license": "Repository LICENSE at the source commit",
+      "adaptation": "Exact existing public two-module test project; no answer scaffold or original-source modification.",
+      "public_inputs": [
+        "alva.toml",
+        "src/app.alva",
+        "src/model.alva"
+      ],
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "98e1e21c4728fa928276c575ab452888df995eb1",
+                "mode": "100644"
+              },
+              "length": 95,
+              "sha256": "a88ef41a68aa9ace09bbd2d74ee6820b02bd09cedf2a617a9f6c0ace5acfd7c7",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAiZGVtbyIKClttb2R1bGVzXQoiZGVtby5tb2RlbCIgPSAic3JjL21vZGVsLmFsdmEiCiJkZW1vLmFwcCIgPSAic3JjL2FwcC5hbHZhIgo="
+            },
+            {
+              "path": "src/app.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "98f41e2dc83e177a7b8d160644db1be84b03e123",
+                "mode": "100644"
+              },
+              "length": 368,
+              "sha256": "3f81d9c42da8ae03e7923d1849385425dd2d5515c1ec85cb8765045a2b0cd72b",
+              "base64": "KG1vZHVsZQogIChuYW1lICJkZW1vLmFwcCIpCiAgKHZlcnNpb24gIjAuMS4wIikKICAoZGVwICJkZW1vLm1vZGVsIiAiMC4xLjAiKQogIChleHBvcnQgcnVuKQoKICAoZm4gcnVuCiAgICAocGFyYW1zKQogICAgKHJldHVybnMgKHByaW0gaTY0KSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGNhbGwgZGVtby5tb2RlbC5zaXplX29mCiAgICAgICAgKGNhbGwgZGVtby5tb2RlbC50b3VjaF9zaXplCiAgICAgICAgICAoY2FsbCBkZW1vLm1vZGVsLm1ha2VfbWV0YSAoc3RyaW5nICJhIikgKGludCA1KSAoc3RyaW5nICJlMSIpKSkpKSkKCiAgKHRlc3QgcnVuX3dvcmtzCiAgICAoYm9keQogICAgICAoPT0gKGNhbGwgcnVuKSAoaW50IDYpKSkpKQo="
+            },
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "acfbf2619a175d00140b465a3fccb73eb4c67904",
+                "mode": "100644"
+              },
+              "length": 846,
+              "sha256": "fdebc5e20734c37892614d33089ab2eab66f90b4dbb86b03feca0332d8cc82f0",
+              "base64": "KG1vZHVsZQogIChuYW1lICJkZW1vLm1vZGVsIikKICAodmVyc2lvbiAiMC4xLjAiKQogIChleHBvcnQgTWV0YSBtYWtlX21ldGEgc2l6ZV9vZiB0b3VjaF9zaXplKQoKICAodHlwZSBNZXRhCiAgICAocmVjb3JkCiAgICAgIChmaWVsZCBrZXkgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHNpemUgKHByaW0gaTY0KSkKICAgICAgKGZpZWxkIGV0YWcgKHByaW0gc3RyaW5nKSkpKQoKICAoZm4gbWFrZV9tZXRhCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBrZXkgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIHNpemUgKHByaW0gaTY0KSkKICAgICAgKHBhcmFtIGV0YWcgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBNZXRhKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAocmVjb3JkIE1ldGEKICAgICAgICAoa2V5IChyZWYga2V5KSkKICAgICAgICAoc2l6ZSAocmVmIHNpemUpKQogICAgICAgIChldGFnIChyZWYgZXRhZykpKSkpCgogIChmbiBzaXplX29mCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBtIE1ldGEpKQogICAgKHJldHVybnMgKHByaW0gaTY0KSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGZpZWxkIChyZWYgbSkgInNpemUiKSkpCgogIChmbiB0b3VjaF9zaXplCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBtIE1ldGEpKQogICAgKHJldHVybnMgTWV0YSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBNZXRhCiAgICAgICAgKGtleSAoZmllbGQgKHJlZiBtKSAia2V5IikpCiAgICAgICAgKHNpemUgKCsgKGZpZWxkIChyZWYgbSkgInNpemUiKSAoaW50IDEpKSkKICAgICAgICAoZXRhZyAoZmllbGQgKHJlZiBtKSAiZXRhZyIpKSkpKSkK"
+            }
+          ]
+        },
+        "payload_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090"
+      },
+      "non_model_material": [
+        "witnesses.py",
+        "engineering operation sequences",
+        "independent Rust goal/regression assertions",
+        "feasibility output/raw logs"
+      ],
+      "initial_source_is_full_existing_implementation": true,
+      "qualification_source": "FEASIBILITY.json; status not inferred from operation names alone"
+    }
+  ]
+}

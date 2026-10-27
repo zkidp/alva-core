@@ -1,0 +1,5 @@
+[project]
+name = "store"
+[modules]
+"store.model" = "src/model.alva"
+"store.xml" = "src/xml.alva"
