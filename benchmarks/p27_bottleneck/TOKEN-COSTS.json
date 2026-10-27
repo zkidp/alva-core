@@ -1,0 +1,488 @@
+{
+  "source": {
+    "baseline": "fac39867f32ab4b3b428ed08a4eaf28be08dafa9",
+    "archive_sha256": "b37b499ec63388824efde38c395c221a71ae04d1367b1ad8555309c3888c6dd2",
+    "public_source_sha256": {
+      "FREEZE.json": "f6df7b94d625ce8dbdf2b07be2dcdf9d789ddd9a09d0da945da1ab5e638a6eae",
+      "RESULTS.json": "43c3b25d99f3933d598b5a15cc507ea99b10741a16f5fefe4cad8b8c6a2fe442",
+      "ANALYSIS.json": "432a8bc6f2cefbba2ac73a1c147259164c0755609a401786f6580abce2030f0f",
+      "REPORT.md": "9b97642be6f1e652372c5f80cdf67a8bd65f6a8f5db34e59f19ddb2faba3d0d7",
+      "ARCHIVE.json": "354872c7d7a6cee4eb39d35df42b4363c687cc9070cca656f8f03dfa6a410e4c"
+    },
+    "public_source_byte_policy": "exact baseline Git blobs; no checkout EOL normalization"
+  },
+  "components": {
+    "SKILL.md": {
+      "utf8_bytes": 3723,
+      "sha256": "bcfb0a2a80b5e703858c0501a0493cc574d8fe7d4a78c3062c8aa8a7de8fc223",
+      "provider_component_tokens": null
+    },
+    "references/workflow.md": {
+      "utf8_bytes": 4415,
+      "sha256": "e955ce6ad739cb338a4f895ee4832906e9aac8bf7e6ac79ec21d8cbd9d223b59",
+      "provider_component_tokens": null
+    },
+    "references/diagnostics.md": {
+      "utf8_bytes": 2738,
+      "sha256": "c6ae9dcd177b0c8b88d2b3243705ead4375f604821298409de335daadad04993",
+      "provider_component_tokens": null
+    },
+    "references/examples.md": {
+      "utf8_bytes": 2524,
+      "sha256": "8a8b35ec4f0e22914ad1279cfdeb61012d31f543788cde005a0a0d62d5860113",
+      "provider_component_tokens": null
+    }
+  },
+  "documents_total_utf8_bytes": 13400,
+  "study_schema_canonical_json_bytes": 543,
+  "native_schemas_canonical_json_bytes": 13021,
+  "native_schema_serialization_is_not_provider_wire": true,
+  "provider_token_component_allocation": "UNAVAILABLE; no provider serialized request/token-span records",
+  "cached_tokens_not_a_unique_context_size_or_price": true,
+  "slots": [
+    {
+      "id": "P26-01-HE3-N",
+      "arm": "N",
+      "prompt_utf8_bytes": 14498,
+      "public_task_requirement_utf8_bytes": 241,
+      "skill_inline_occurrences": {
+        "SKILL.md": 1,
+        "references/workflow.md": 1,
+        "references/diagnostics.md": 1,
+        "references/examples.md": 1
+      },
+      "workspace_doc_availability": true,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 14190,
+      "final_totals": {
+        "totalTokens": 136828,
+        "inputTokens": 135821,
+        "cachedInputTokens": 111616,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1007,
+        "reasoningOutputTokens": 429
+      },
+      "usage_update_count_not_provider_request_count": 7,
+      "total_dispatched_call_duration_ms": 47,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 57,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 24.623,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 16828,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-02-HE41-T",
+      "arm": "T",
+      "prompt_utf8_bytes": 865,
+      "public_task_requirement_utf8_bytes": 201,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10228,
+      "final_totals": {
+        "totalTokens": 125298,
+        "inputTokens": 123616,
+        "cachedInputTokens": 108032,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1682,
+        "reasoningOutputTokens": 640
+      },
+      "usage_update_count_not_provider_request_count": 11,
+      "total_dispatched_call_duration_ms": 6792,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 124,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 48.611,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 5298,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-03-HE42-T",
+      "arm": "T",
+      "prompt_utf8_bytes": 852,
+      "public_task_requirement_utf8_bytes": 166,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10231,
+      "final_totals": {
+        "totalTokens": 125513,
+        "inputTokens": 123890,
+        "cachedInputTokens": 109312,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1623,
+        "reasoningOutputTokens": 827
+      },
+      "usage_update_count_not_provider_request_count": 11,
+      "total_dispatched_call_duration_ms": 2811,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 74,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 33.75,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 5513,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-04-HE23-T",
+      "arm": "T",
+      "prompt_utf8_bytes": 807,
+      "public_task_requirement_utf8_bytes": 140,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10213,
+      "final_totals": {
+        "totalTokens": 122645,
+        "inputTokens": 121660,
+        "cachedInputTokens": 104064,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 985,
+        "reasoningOutputTokens": 347
+      },
+      "usage_update_count_not_provider_request_count": 11,
+      "total_dispatched_call_duration_ms": 2897,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 74,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 31.07,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 2645,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-05-HE42-N",
+      "arm": "N",
+      "prompt_utf8_bytes": 14432,
+      "public_task_requirement_utf8_bytes": 166,
+      "skill_inline_occurrences": {
+        "SKILL.md": 1,
+        "references/workflow.md": 1,
+        "references/diagnostics.md": 1,
+        "references/examples.md": 1
+      },
+      "workspace_doc_availability": true,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 14183,
+      "final_totals": {
+        "totalTokens": 136636,
+        "inputTokens": 135736,
+        "cachedInputTokens": 119680,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 900,
+        "reasoningOutputTokens": 348
+      },
+      "usage_update_count_not_provider_request_count": 7,
+      "total_dispatched_call_duration_ms": 90,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 57,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 20.728,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 16636,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-06-HE23-N",
+      "arm": "N",
+      "prompt_utf8_bytes": 14387,
+      "public_task_requirement_utf8_bytes": 140,
+      "skill_inline_occurrences": {
+        "SKILL.md": 1,
+        "references/workflow.md": 1,
+        "references/diagnostics.md": 1,
+        "references/examples.md": 1
+      },
+      "workspace_doc_availability": true,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 14163,
+      "final_totals": {
+        "totalTokens": 121412,
+        "inputTokens": 120172,
+        "cachedInputTokens": 100608,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1240,
+        "reasoningOutputTokens": 593
+      },
+      "usage_update_count_not_provider_request_count": 7,
+      "total_dispatched_call_duration_ms": 510,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 55,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 30.634,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 1412,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-07-HE3-T",
+      "arm": "T",
+      "prompt_utf8_bytes": 918,
+      "public_task_requirement_utf8_bytes": 241,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10242,
+      "final_totals": {
+        "totalTokens": 125524,
+        "inputTokens": 123510,
+        "cachedInputTokens": 110464,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2014,
+        "reasoningOutputTokens": 774
+      },
+      "usage_update_count_not_provider_request_count": 10,
+      "total_dispatched_call_duration_ms": 19333,
+      "thresholds": {
+        "first_observed_trigger": "TOOL",
+        "token_cross_event_index": 278,
+        "tool_cross_event_index": 276,
+        "wall_elapsed_seconds": 65.947,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 5524,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-08-HE3-B",
+      "arm": "B",
+      "prompt_utf8_bytes": 918,
+      "public_task_requirement_utf8_bytes": 241,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10242,
+      "final_totals": {
+        "totalTokens": 129780,
+        "inputTokens": 128537,
+        "cachedInputTokens": 109824,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1243,
+        "reasoningOutputTokens": 568
+      },
+      "usage_update_count_not_provider_request_count": 11,
+      "total_dispatched_call_duration_ms": 4064,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 95,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 38.619,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 9780,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-09-HE41-N",
+      "arm": "N",
+      "prompt_utf8_bytes": 14445,
+      "public_task_requirement_utf8_bytes": 201,
+      "skill_inline_occurrences": {
+        "SKILL.md": 1,
+        "references/workflow.md": 1,
+        "references/diagnostics.md": 1,
+        "references/examples.md": 1
+      },
+      "workspace_doc_availability": true,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 14180,
+      "final_totals": {
+        "totalTokens": 123133,
+        "inputTokens": 121907,
+        "cachedInputTokens": 109952,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1226,
+        "reasoningOutputTokens": 545
+      },
+      "usage_update_count_not_provider_request_count": 7,
+      "total_dispatched_call_duration_ms": 61,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 53,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 28.199,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 3133,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-10-HE42-B",
+      "arm": "B",
+      "prompt_utf8_bytes": 852,
+      "public_task_requirement_utf8_bytes": 166,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10231,
+      "final_totals": {
+        "totalTokens": 123160,
+        "inputTokens": 121908,
+        "cachedInputTokens": 97664,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1252,
+        "reasoningOutputTokens": 569
+      },
+      "usage_update_count_not_provider_request_count": 11,
+      "total_dispatched_call_duration_ms": 2417,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 76,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 39.832,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 3160,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-11-HE41-B",
+      "arm": "B",
+      "prompt_utf8_bytes": 865,
+      "public_task_requirement_utf8_bytes": 201,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10227,
+      "final_totals": {
+        "totalTokens": 126861,
+        "inputTokens": 125582,
+        "cachedInputTokens": 100096,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1279,
+        "reasoningOutputTokens": 770
+      },
+      "usage_update_count_not_provider_request_count": 11,
+      "total_dispatched_call_duration_ms": 2377,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 71,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 49.82,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 6861,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    },
+    {
+      "id": "P26-12-HE23-B",
+      "arm": "B",
+      "prompt_utf8_bytes": 807,
+      "public_task_requirement_utf8_bytes": 140,
+      "skill_inline_occurrences": {
+        "SKILL.md": 0,
+        "references/workflow.md": 0,
+        "references/diagnostics.md": 0,
+        "references/examples.md": 0
+      },
+      "workspace_doc_availability": false,
+      "explicit_skill_input_item": false,
+      "automatic_skill_provider_injection_count": null,
+      "logged_user_message_copies_not_counted_as_separate_delivery": true,
+      "first_reported_input_tokens": 10214,
+      "final_totals": {
+        "totalTokens": 126011,
+        "inputTokens": 124505,
+        "cachedInputTokens": 114560,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1506,
+        "reasoningOutputTokens": 942
+      },
+      "usage_update_count_not_provider_request_count": 11,
+      "total_dispatched_call_duration_ms": 2707,
+      "thresholds": {
+        "first_observed_trigger": "TOKEN",
+        "token_cross_event_index": 76,
+        "tool_cross_event_index": null,
+        "wall_elapsed_seconds": 37.94,
+        "wall_threshold_seconds": 480,
+        "token_overshoot": 6011,
+        "terminal": "interrupted",
+        "interrupt_ack": true
+      }
+    }
+  ]
+}
