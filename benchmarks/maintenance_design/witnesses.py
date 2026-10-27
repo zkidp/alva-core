@@ -61,6 +61,7 @@ def mutate_native(task, c):
         m = c.call("create_reference", name="m")["revision"]
         branch = c.call("create_if", **{"cond": cond, "then": m, "else": original})["revision"]
         c.call("replace_expression", parent=block["revision"], child=branch, position="step")
+        return {"attachment_parent_revision": block["revision"]}
     elif task == "MM02":
         nodes = c.nodes("store.xml.parse_prefix")
         choices = []
@@ -81,6 +82,7 @@ def mutate_native(task, c):
         yes = c.call("create_literal", type="bool", value="true")["revision"]
         cond = c.call("create_if", **{"cond": unset, "then": target["slots"]["cond"][0], "else": yes})["revision"]
         c.call("replace_expression", parent=target["revision"], child=cond, position="cond")
+        return {"attachment_parent_revision": target["revision"]}
     else:
         raise ValueError("No native witness for unsupported signature candidate")
 

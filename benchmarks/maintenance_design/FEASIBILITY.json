@@ -1,0 +1,141 @@
+{
+  "status": "COMPLETE_WITH_CANDIDATE_LOCAL_LIMITATIONS",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "platform": "linux",
+  "authorship": "Codex-assisted engineering witnesses; not model-free development or controlled agent results",
+  "catalogue_sha256": "a2704cd0bd6aa5061ed3e5f2eb37f369c5cda7ed1c9ab939beaf525aaa918332",
+  "binary_sha256": "29e5abd692206876a3929112e471cb99ce457d478dcd81c50cb006aa3b958257",
+  "script_sha256": "7e56817bed4524fee214f81476fc841e57f5e2e5659ca15baecf0138a439dd06",
+  "witness_sha256": "fa81e534a486855d6ff4d60f1f5eefbc187a061ed95c1426d46e44f24662a756",
+  "raw_evidence_sha256": "09c8e55ded77c36e16007cb5b65a83e78df88f4e449740a39dc5ae310d9e57a0",
+  "rows": [
+    {
+      "id": "MM01",
+      "bundle_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090",
+      "model_generation_calls": 0,
+      "baseline_regression": "PASS",
+      "baseline_target": "EXPECTED_FAIL",
+      "baseline_failure_basis": "executed behavioral assertions",
+      "text": "SUPPORTED",
+      "text_independent_behavior": "PASS",
+      "text_changed_paths": [
+        "src/model.alva"
+      ],
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "changed_non_target_functions": [],
+      "stale_probe": {
+        "status": "NOT_EXECUTED_THIS_NODE",
+        "reason": "P20/P25 stale-rejection evidence retained; no historical gate rerun. A single MCP process permits only one active transaction; no Sandbox/transport redesign here.",
+        "recovery": "NOT_TESTED"
+      },
+      "native_operation_counts": {
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "create_binary": 1,
+        "create_if": 1,
+        "create_literal": 1,
+        "create_reference": 1,
+        "describe_operation": 5,
+        "inspect_body": 8,
+        "inspect_entity": 17,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1
+      },
+      "native": "SUPPORTED",
+      "native_independent_behavior": "PASS",
+      "native_target_only": "PASS",
+      "effective_target_changed": true,
+      "non_target_bodies_unchanged": true,
+      "private_staging_no_publication": true,
+      "source_projection_unchanged": true,
+      "fresh_authority_reread": "PASS",
+      "native_check_sha256": "aa390952e01e1064e20cc0c8f9c054cc264258d109f0166fcd62c8b11e4b7fc5",
+      "status": "PASS"
+    },
+    {
+      "id": "MM02",
+      "bundle_sha256": "352a8b6fa459942b8b1d5469a966a706498afa7a2abbc13c39c457dafb069faf",
+      "model_generation_calls": 0,
+      "baseline_regression": "PASS",
+      "baseline_target": "EXPECTED_FAIL",
+      "baseline_failure_basis": "executed behavioral assertions",
+      "text": "SUPPORTED",
+      "text_independent_behavior": "PASS",
+      "text_changed_paths": [
+        "src/xml.alva"
+      ],
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "scope_hazard": {
+        "attachment_parent_revision": "33ecf18b03c1348dd59bf91c15f66a73d06cba29dd757254c4e7917ed96beb5f",
+        "same_parent_in_initial_parse_delimiter": true,
+        "operation": "replace_expression cond on shared anonymous parent",
+        "executed_counterexample": {
+          "function": "store.xml.parse_delimiter",
+          "input": "delimiter=%2F&delimiter=%21",
+          "expected": "!",
+          "observed": "/",
+          "diagnostic_sha256": "95c9505543031276544e0e50261834022de6a9bc6e0565b88ef1844e0548e487"
+        }
+      },
+      "changed_non_target_functions": [
+        "store.xml.parse_delimiter"
+      ],
+      "native_operation_counts": {
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "create_binary": 1,
+        "create_if": 1,
+        "create_literal": 2,
+        "create_reference": 1,
+        "describe_operation": 5,
+        "inspect_body": 18,
+        "inspect_entity": 70,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1
+      },
+      "native": "FAILED_NON_TARGET_SCOPE",
+      "candidate_local": true,
+      "native_independent_behavior": "TEST_FAIL",
+      "native_target_only": "PASS",
+      "effective_target_changed": true,
+      "non_target_bodies_unchanged": false,
+      "private_staging_no_publication": true,
+      "source_projection_unchanged": true,
+      "fresh_authority_reread": "PASS",
+      "native_check_sha256": "aa390952e01e1064e20cc0c8f9c054cc264258d109f0166fcd62c8b11e4b7fc5",
+      "status": "CANDIDATE_LOCAL_SCOPE_FAILURE"
+    },
+    {
+      "id": "MM03",
+      "bundle_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090",
+      "model_generation_calls": 0,
+      "baseline_regression": "PASS",
+      "baseline_target": "EXPECTED_FAIL",
+      "baseline_failure_basis": "new API arity not implemented",
+      "text": "SUPPORTED",
+      "text_independent_behavior": "PASS",
+      "text_changed_paths": [
+        "src/app.alva",
+        "src/model.alva"
+      ],
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "native": "UNSUPPORTED_NATIVE_MCP",
+      "missing_operations": [
+        "add_param",
+        "add_call_arg"
+      ],
+      "candidate_local": true,
+      "native_authority_unchanged": true,
+      "native_operation_counts": {
+        "abort_transaction": 1,
+        "begin_transaction": 1,
+        "describe_operation": 2,
+        "inspect_body": 4
+      },
+      "status": "CANDIDATE_LOCAL_UNSUPPORTED"
+    }
+  ]
+}

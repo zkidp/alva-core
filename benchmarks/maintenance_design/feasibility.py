@@ -170,7 +170,6 @@ def run(args):
                 unmet = evaluate(box, task["crate"], witnesses.regressions(ident) + witnesses.goals(ident))
                 assert baseline["status"] == "PASS", baseline
                 assert unmet["status"] == "TEST_FAIL", unmet
-            from integrations.benchmark_runtime_v2.sandbox import LinuxSandbox
             changed = witnesses.text_change(ident, source)
             # A task-specific source patch, never an agent candidate or an answer input.
             payload = copy.deepcopy(bundle)
@@ -206,30 +205,25 @@ def run(args):
                     else:
                         for op in task["operations"]:
                             c.call("describe_operation", name=op)
-                        stale = None
-                        if ident == "MM01":
-                            stale = Client(native, operations)
-                            stale.begin()
-                            app_nodes = stale.nodes("demo.app.run")
-                            literal = next(n for n in app_nodes.values() if n["kind"] == "literal" and n["fields"].get("value") == "e1")
-                            stale.call("change_field", entity=literal["revision"], field="value", value="concurrent-etag")
-                            stale.call("check_transaction")
-                        witnesses.mutate_native(ident, c)
+                        other_nodes = c.nodes("store.xml.parse_delimiter") if ident == "MM02" else {}
+                        attachment = witnesses.mutate_native(ident, c)
+                        if ident == "MM02":
+                            row["scope_hazard"] = {**attachment,
+                                "same_parent_in_initial_parse_delimiter": attachment["attachment_parent_revision"] in other_nodes,
+                                "operation": "replace_expression cond on shared anonymous parent"}
                         staged = c.bodies(task["functions"])
                         assert staged[task["target"]] != before[task["target"]]
-                        assert all(staged[f] == before[f] for f in before if f != task["target"]), "Non-target body changed"
+                        changed_other = [f for f in before if f != task["target"] and staged[f] != before[f]]
+                        row["changed_non_target_functions"] = changed_other
                         assert files(box) == original, "Staging published program/source before commit"
                         c.call("preview_semantic_diff")
                         checked = c.call("check_transaction")
                         c.call("commit_transaction")
                         published = files(box)
-                        if stale:
-                            refusal = stale.raw("commit_transaction")
-                            assert refusal.get("isError") and "E_AEP_CONFLICT" in json.dumps(refusal), refusal
-                            assert files(box) == published
-                            stale.call("abort_transaction")
-                            row["stale_probe"] = {"result": "E_AEP_CONFLICT", "accepted_stale_write": False,
-                                "authority_unchanged_after_refusal": True, "recovery": "NOT_TESTED_LOSER_ABORTED"}
+                        if ident == "MM01":
+                            row["stale_probe"] = {"status": "NOT_EXECUTED_THIS_NODE",
+                                "reason": "P20/P25 stale-rejection evidence retained; no historical gate rerun. A single MCP process permits only one active transaction; no Sandbox/transport redesign here.",
+                                "recovery": "NOT_TESTED"}
                         assert all(published[p] == source[p] for p in source), "Source projection changed"
                     row["native_operation_counts"] = {op: sum(o["operation"] == op for o in operations) for op in sorted({o["operation"] for o in operations})}
                 if not missing:
@@ -240,19 +234,36 @@ def run(args):
                         assert reloaded.bodies(task["functions"]) == staged
                         reloaded.call("abort_transaction")
                     native_result = evaluate(box, task["crate"], witnesses.regressions(ident) + witnesses.goals(ident))
-                    assert native_result["status"] == "PASS", native_result
-                    row.update(native="SUPPORTED", native_independent_behavior="PASS", effective_target_changed=True,
-                        non_target_bodies_unchanged=True, private_staging_no_publication=True,
+                    goal_result = evaluate(box, task["crate"], witnesses.goals(ident))
+                    if changed_other:
+                        # Retain the failed path; do not reconstruct/restore another
+                        # function or expand operations just to obtain a positive.
+                        assert native_result["status"] == "TEST_FAIL", native_result
+                        row.update(native="FAILED_NON_TARGET_SCOPE", candidate_local=True)
+                        assert ident == "MM02" and changed_other == ["store.xml.parse_delimiter"]
+                        diagnostic = native_result.get("tests", {}).get("stdout", "")
+                        assert 'left: "/"' in diagnostic and 'right: "!"' in diagnostic, diagnostic
+                        row["scope_hazard"]["executed_counterexample"] = {
+                            "function": "store.xml.parse_delimiter", "input": "delimiter=%2F&delimiter=%21",
+                            "expected": "!", "observed": "/", "diagnostic_sha256": sha(diagnostic.encode())}
+                    else:
+                        assert native_result["status"] == "PASS", native_result
+                        row["native"] = "SUPPORTED"
+                    row.update(native_independent_behavior=native_result["status"], native_target_only=goal_result["status"], effective_target_changed=True,
+                        non_target_bodies_unchanged=not changed_other, private_staging_no_publication=True,
                         source_projection_unchanged=True, fresh_authority_reread="PASS", native_check_sha256=sha(canonical(checked)))
-            raw.append({"id": ident, "baseline": baseline, "unmet": unmet, "text": text_result, "operations": operations})
-            row["status"] = "PASS_WITH_CANDIDATE_LOCAL_UNSUPPORTED" if missing else "PASS"
+            raw.append({"id": ident, "baseline": baseline, "unmet": unmet, "text": text_result,
+                "native": native_result if not missing else None, "native_goal": goal_result if not missing else None, "operations": operations})
+            row["status"] = ("CANDIDATE_LOCAL_SCOPE_FAILURE" if row["native"] == "FAILED_NON_TARGET_SCOPE" else
+                             "CANDIDATE_LOCAL_UNSUPPORTED" if missing else "PASS")
         except Exception as exc:
             row.update(status="FAILED", error=str(exc))
             raw.append({"id": ident, "error": str(exc), "operations": operations})
         rows.append(row)
     # Machine-local raw output is never the public result file.
     save(args.output, raw)
-    summary = {"status": "PASS" if all(r["status"].startswith("PASS") for r in rows) else "FAILED",
+    complete = all(r["status"] != "FAILED" for r in rows)
+    summary = {"status": "COMPLETE_WITH_CANDIDATE_LOCAL_LIMITATIONS" if complete else "FAILED",
         "model_generation_calls": 0, "input_token_api_calls": 0, "platform": "linux",
         "authorship": "Codex-assisted engineering witnesses; not model-free development or controlled agent results",
         "catalogue_sha256": sha(CATALOGUE.read_bytes()), "binary_sha256": sha(sdk.alva.read_bytes()),
@@ -261,7 +272,7 @@ def run(args):
     # No stdout/stderr or raw RPC payloads in the public derived summary.
     save(HERE / "FEASIBILITY.json", summary)
     print(json.dumps(summary, indent=2))
-    return 0 if summary["status"] == "PASS" else 1
+    return 0 if complete else 1
 
 
 if __name__ == "__main__":
