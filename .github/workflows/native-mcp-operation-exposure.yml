@@ -1,0 +1,64 @@
+name: Native MCP operation closure (zero models)
+on:
+  pull_request:
+    paths:
+      - 'alva/src/mcp.rs'
+      - 'tests/mcp/coding_closure*.py'
+      - '.github/workflows/native-mcp-operation-exposure.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  linux-closure:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision approved Linux isolation tools
+        run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - name: Registry/MCP schema regressions and trusted SDK build
+        run: |
+          cargo test --locked --manifest-path alva/Cargo.toml mcp::tests
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Four real native MCP coding closures inside P23 OS isolation
+        run: |
+          python tests/mcp/coding_closure.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/p25-closure.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p25-linux-closure
+          path: out/*.json
+  unsupported-platforms:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No native host fallback
+        shell: bash
+        run: |
+          set +e
+          python tests/mcp/coding_closure.py --output out/unsupported.json
+          code=$?
+          set -e
+          test "$code" = 2
+          python -c 'import json; assert json.load(open("out/unsupported.json"))["status"] == "UNSUPPORTED_FAIL_CLOSED"'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p25-${{ matrix.os }}-refusal
+          path: out/*.json

@@ -22,6 +22,15 @@ const MCP_TOOLS: &[&str] = &[
     "inspect_body",
     "describe_construction",
     "construct_expression",
+    // Minimal existing-Gateway closure for the four fixed P24 coding stubs.
+    // Typed fold/vector construction already uses construct_expression; reuse
+    // the existing function body block, so no block/binding/append API is needed.
+    "create_reference",
+    "create_literal",
+    "create_binary",
+    "create_call",
+    "create_if",
+    "replace_expression",
     "change_field",
     "preview_semantic_diff",
     "check_transaction",
@@ -100,7 +109,7 @@ struct Gateway {
 
 impl Gateway {
     fn call_tool(&mut self, name: &str, arguments: &Value) -> Result<Value, String> {
-        if !MCP_TOOLS.contains(&name) {
+        if !operation_exposed(name) {
             return Err(format!("E_MCP_UNKNOWN_TOOL: unknown tool '{name}'"));
         }
         let args = arguments
@@ -152,6 +161,15 @@ impl Gateway {
         if active_id != transaction_id {
             return Err("E_MCP_TRANSACTION_NOT_FOUND: transaction_id is not active".to_string());
         }
+        if name == "describe_operation" {
+            if let Some(requested) = args.get("name").and_then(Value::as_str) {
+                if !operation_exposed(requested) {
+                    return Err(format!(
+                        "E_MCP_OPERATION_NOT_EXPOSED: '{requested}' is not callable through MCP; use tools/list"
+                    ));
+                }
+            }
+        }
         let mut forwarded = args.clone();
         forwarded.remove("transaction_id");
         forwarded.insert("request_id".to_string(), json!(format!("mcp-{name}")));
@@ -175,13 +193,15 @@ fn filter_applicable_operations(result: &mut Value) {
     };
     for key in ["inspection", "mutation", "context_operations"] {
         if let Some(operations) = object.get_mut(key).and_then(Value::as_array_mut) {
-            operations.retain(|operation| {
-                operation
-                    .as_str()
-                    .is_some_and(|name| MCP_TOOLS.contains(&name))
-            });
+            operations.retain(|operation| operation.as_str().is_some_and(operation_exposed));
         }
     }
+}
+
+fn operation_exposed(name: &str) -> bool {
+    MCP_TOOLS.contains(&name)
+        && crate::aep::lookup(name)
+            .is_some_and(|spec| spec.gate.is_none_or(crate::aep::gate_enabled))
 }
 
 fn ensure_agent_ok(response: &Value) -> Result<(), String> {
@@ -313,13 +333,10 @@ fn error(id: Value, code: i64, message: impl Into<String>, data: Option<Value>) 
 }
 
 fn tool_definition(name: &str) -> Option<Value> {
-    let spec = crate::aep::lookup(name)?;
-    if spec
-        .gate
-        .is_some_and(|gate| !crate::aep::gate_enabled(gate))
-    {
+    if !operation_exposed(name) {
         return None;
     }
+    let spec = crate::aep::lookup(name)?;
     let mut input_schema = crate::aep::operation_input_schema(spec);
     if name != "begin_transaction" {
         let object = input_schema.as_object_mut()?;
@@ -541,7 +558,7 @@ mod tests {
         let digest = format!("{:x}", Sha256::digest(encoded));
         assert_eq!(
             digest,
-            "7a972f59a9232b08f4e13740dc98853ce9262a5d21ab67fe98ccafacb8b93ed9"
+            "28aff2aba83255c2a9551a8a644fa6f7502427910562f05536cf980aaa86ba0b"
         );
     }
 
@@ -552,5 +569,51 @@ mod tests {
         assert!(tool["inputSchema"]["properties"]
             .get("...children")
             .is_none());
+    }
+
+    #[test]
+    fn coding_closure_is_bounded_and_registry_schemas_are_preserved() {
+        assert_eq!(MCP_TOOLS.len(), 20);
+        for name in MCP_TOOLS {
+            let mut schema = tool_definition(name).unwrap()["inputSchema"].clone();
+            if *name != "begin_transaction" {
+                schema["properties"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("transaction_id");
+                assert_eq!(
+                    schema["required"].as_array_mut().unwrap().remove(0),
+                    "transaction_id"
+                );
+            }
+            assert_eq!(
+                schema,
+                crate::aep::operation_input_schema(crate::aep::lookup(name).unwrap())
+            );
+        }
+        for closed in [
+            "create_block",
+            "append_step",
+            "create_binding",
+            "delete_entity",
+            "inspect_change_impact",
+            "inspect_schema_gaps",
+        ] {
+            assert!(!operation_exposed(closed));
+            assert!(tool_definition(closed).is_none());
+        }
+    }
+
+    #[test]
+    fn discovery_never_advertises_closed_operations() {
+        let mut discovery = json!({"inspection":["inspect_body","inspect_change_impact"],
+            "mutation":["create_binary","delete_entity"],
+            "context_operations":["replace_expression","append_step"]});
+        filter_applicable_operations(&mut discovery);
+        assert_eq!(
+            discovery,
+            json!({"inspection":["inspect_body"],
+            "mutation":["create_binary"],"context_operations":["replace_expression"]})
+        );
     }
 }
