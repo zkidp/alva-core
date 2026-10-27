@@ -1,0 +1,623 @@
+{
+  "status": "CLOSED_COMPLETE",
+  "freeze_commit": "11bcc73464769b40b93bfb1b82df393c65b34626",
+  "slots": [
+    {
+      "id": "P26-01-HE3-N",
+      "task": "HE3",
+      "arm": "N",
+      "model_tasks_started": 1,
+      "tool_calls": 13,
+      "usage": {
+        "total": {
+          "totalTokens": 136828,
+          "inputTokens": 135821,
+          "cachedInputTokens": 111616,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1007,
+          "reasoningOutputTokens": 429
+        },
+        "last": {
+          "totalTokens": 23364,
+          "inputTokens": 23040,
+          "cachedInputTokens": 20992,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 324,
+          "reasoningOutputTokens": 260
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 24.623,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "final_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "operation_counts": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_construction": 1,
+        "describe_operation": 7
+      },
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-02-HE41-T",
+      "task": "HE41",
+      "arm": "T",
+      "model_tasks_started": 1,
+      "tool_calls": 27,
+      "usage": {
+        "total": {
+          "totalTokens": 125298,
+          "inputTokens": 123616,
+          "cachedInputTokens": 108032,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1682,
+          "reasoningOutputTokens": 640
+        },
+        "last": {
+          "totalTokens": 14000,
+          "inputTokens": 13699,
+          "cachedInputTokens": 11776,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 301,
+          "reasoningOutputTokens": 76
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 48.611,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "operation_counts": {},
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "COMPILE_FAIL",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-03-HE42-T",
+      "task": "HE42",
+      "arm": "T",
+      "model_tasks_started": 1,
+      "tool_calls": 11,
+      "usage": {
+        "total": {
+          "totalTokens": 125513,
+          "inputTokens": 123890,
+          "cachedInputTokens": 109312,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1623,
+          "reasoningOutputTokens": 827
+        },
+        "last": {
+          "totalTokens": 12870,
+          "inputTokens": 12682,
+          "cachedInputTokens": 12288,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 188,
+          "reasoningOutputTokens": 48
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 33.75,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "operation_counts": {},
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "COMPILE_FAIL",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-04-HE23-T",
+      "task": "HE23",
+      "arm": "T",
+      "model_tasks_started": 1,
+      "tool_calls": 11,
+      "usage": {
+        "total": {
+          "totalTokens": 122645,
+          "inputTokens": 121660,
+          "cachedInputTokens": 104064,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 985,
+          "reasoningOutputTokens": 347
+        },
+        "last": {
+          "totalTokens": 12085,
+          "inputTokens": 12056,
+          "cachedInputTokens": 11264,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 29,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 31.07,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "operation_counts": {},
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "COMPILE_FAIL",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-05-HE42-N",
+      "task": "HE42",
+      "arm": "N",
+      "model_tasks_started": 1,
+      "tool_calls": 13,
+      "usage": {
+        "total": {
+          "totalTokens": 136636,
+          "inputTokens": 135736,
+          "cachedInputTokens": 119680,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 900,
+          "reasoningOutputTokens": 348
+        },
+        "last": {
+          "totalTokens": 23364,
+          "inputTokens": 23091,
+          "cachedInputTokens": 20992,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 273,
+          "reasoningOutputTokens": 185
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 20.728,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "final_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "operation_counts": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_construction": 2,
+        "describe_operation": 6
+      },
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-06-HE23-N",
+      "task": "HE23",
+      "arm": "N",
+      "model_tasks_started": 1,
+      "tool_calls": 10,
+      "usage": {
+        "total": {
+          "totalTokens": 121412,
+          "inputTokens": 120172,
+          "cachedInputTokens": 100608,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1240,
+          "reasoningOutputTokens": 593
+        },
+        "last": {
+          "totalTokens": 18645,
+          "inputTokens": 18472,
+          "cachedInputTokens": 17664,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 173,
+          "reasoningOutputTokens": 79
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 30.634,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "operation_counts": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_operation": 3
+      },
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-07-HE3-T",
+      "task": "HE3",
+      "arm": "T",
+      "model_tasks_started": 1,
+      "tool_calls": 80,
+      "usage": {
+        "total": {
+          "totalTokens": 125524,
+          "inputTokens": 123510,
+          "cachedInputTokens": 110464,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 2014,
+          "reasoningOutputTokens": 774
+        },
+        "last": {
+          "totalTokens": 19598,
+          "inputTokens": 19304,
+          "cachedInputTokens": 15616,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 294,
+          "reasoningOutputTokens": 36
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOOL_LIMIT",
+      "elapsed_seconds": 65.947,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "operation_counts": {},
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "COMPILE_FAIL",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-08-HE3-B",
+      "task": "HE3",
+      "arm": "B",
+      "model_tasks_started": 1,
+      "tool_calls": 18,
+      "usage": {
+        "total": {
+          "totalTokens": 129780,
+          "inputTokens": 128537,
+          "cachedInputTokens": 109824,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1243,
+          "reasoningOutputTokens": 568
+        },
+        "last": {
+          "totalTokens": 13586,
+          "inputTokens": 13510,
+          "cachedInputTokens": 13184,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 76,
+          "reasoningOutputTokens": 38
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 38.619,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "final_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "operation_counts": {
+        "begin_transaction": 1,
+        "read_file": 1,
+        "get_module": 1,
+        "help": 1,
+        "list_tools": 1,
+        "get_source": 1,
+        "inspect_project": 1,
+        "list_capabilities": 1,
+        "inspect_module": 2,
+        "inspect_function": 2,
+        "list_candidates": 1,
+        "inspect_entity": 3,
+        "create_": 1
+      },
+      "operation_errors": 11,
+      "successful_commits": 0,
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-09-HE41-N",
+      "task": "HE41",
+      "arm": "N",
+      "model_tasks_started": 1,
+      "tool_calls": 10,
+      "usage": {
+        "total": {
+          "totalTokens": 123133,
+          "inputTokens": 121907,
+          "cachedInputTokens": 109952,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1226,
+          "reasoningOutputTokens": 545
+        },
+        "last": {
+          "totalTokens": 18969,
+          "inputTokens": 18898,
+          "cachedInputTokens": 18432,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 71,
+          "reasoningOutputTokens": 7
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 28.199,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "operation_counts": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "applicable_operations": 1,
+        "inspect_body": 1,
+        "describe_operation": 3,
+        "create_reference": 2
+      },
+      "operation_errors": 0,
+      "successful_commits": 0,
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-10-HE42-B",
+      "task": "HE42",
+      "arm": "B",
+      "model_tasks_started": 1,
+      "tool_calls": 11,
+      "usage": {
+        "total": {
+          "totalTokens": 123160,
+          "inputTokens": 121908,
+          "cachedInputTokens": 97664,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1252,
+          "reasoningOutputTokens": 569
+        },
+        "last": {
+          "totalTokens": 12467,
+          "inputTokens": 12183,
+          "cachedInputTokens": 11648,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 284,
+          "reasoningOutputTokens": 176
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 39.832,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "final_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "operation_counts": {
+        "begin_transaction": 1,
+        "query": 1,
+        "create_query": 1,
+        "list": 1,
+        "list_capabilities": 1,
+        "list_candidates": 1,
+        "help": 1
+      },
+      "operation_errors": 5,
+      "successful_commits": 0,
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-11-HE41-B",
+      "task": "HE41",
+      "arm": "B",
+      "model_tasks_started": 1,
+      "tool_calls": 10,
+      "usage": {
+        "total": {
+          "totalTokens": 126861,
+          "inputTokens": 125582,
+          "cachedInputTokens": 100096,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1279,
+          "reasoningOutputTokens": 770
+        },
+        "last": {
+          "totalTokens": 12350,
+          "inputTokens": 12299,
+          "cachedInputTokens": 12032,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 51,
+          "reasoningOutputTokens": 8
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 49.82,
+      "authority_changed": false,
+      "authority_published": false,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "operation_counts": {
+        "begin_transaction": 1,
+        "get_project_state": 1,
+        "read": 1,
+        "create_binary": 1,
+        "inspect": 1,
+        "inspect_function": 3
+      },
+      "operation_errors": 6,
+      "successful_commits": 0,
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-12-HE23-B",
+      "task": "HE23",
+      "arm": "B",
+      "model_tasks_started": 1,
+      "tool_calls": 11,
+      "usage": {
+        "total": {
+          "totalTokens": 126011,
+          "inputTokens": 124505,
+          "cachedInputTokens": 114560,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1506,
+          "reasoningOutputTokens": 942
+        },
+        "last": {
+          "totalTokens": 12574,
+          "inputTokens": 12522,
+          "cachedInputTokens": 12160,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 52,
+          "reasoningOutputTokens": 9
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "interrupted",
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "elapsed_seconds": 37.94,
+      "authority_changed": false,
+      "authority_published": true,
+      "target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "operation_counts": {
+        "begin_transaction": 2,
+        "read_resource": 1,
+        "create_call": 1,
+        "commit_transaction": 1,
+        "list_tools": 1,
+        "list_capabilities": 1
+      },
+      "operation_errors": 3,
+      "successful_commits": 1,
+      "disposition": "TEST_FAIL",
+      "infrastructure_hold": null
+    }
+  ],
+  "scheduled": 12,
+  "executed": 12
+}
