@@ -1,0 +1,58 @@
+name: P28 observer and scoring (zero models)
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/p28_optional_descriptor/**'
+      - '.github/workflows/p28-optional-descriptor.yml'
+permissions:
+  contents: read
+jobs:
+  adapter:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Frozen input, observer and scoring tests only
+        shell: bash
+        run: |
+          mkdir -p out
+          python -m unittest benchmarks.p28_optional_descriptor.test_pilot -v > out/p28-unit.log 2>&1
+          cat out/p28-unit.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p28-unit-${{ matrix.os }}
+          path: out/p28-unit.log
+  linux-observer:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision existing isolation backend and trusted compiler
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Same-transaction observer purity and isolated toy evaluation
+        run: |
+          mkdir -p out
+          python benchmarks/p28_optional_descriptor/validate_linux.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" > out/p28-observer.json
+          cat out/p28-observer.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p28-linux-observer
+          path: out/p28-observer.json
