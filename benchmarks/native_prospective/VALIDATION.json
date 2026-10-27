@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "archive_sha256_verified": true,
+  "frozen_runtime_hashes_unchanged": true,
+  "native_schema_matches_freeze": true,
+  "actual_authority_current_crosscheck": true,
+  "actual_started_slots": 12,
+  "terminal_confirmed_slots": 12,
+  "acknowledged_interrupt_slots": 12,
+  "missing_usage_slots": 0,
+  "extra_slots": 0,
+  "model_generation_by_analysis": 0,
+  "raw_logs_in_git": false,
+  "core_modified": false,
+  "historical_frozen_artifacts_modified": false
+}

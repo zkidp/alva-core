@@ -1,0 +1,32 @@
+name: Prospective native pilot controller (zero models)
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/native_prospective/**'
+      - '.github/workflows/native-prospective-controller.yml'
+permissions:
+  contents: read
+jobs:
+  controller:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-model controller and input separation regression
+        shell: bash
+        run: |
+          mkdir -p out
+          python -m unittest benchmarks.native_prospective.test_pilot -v > out/controller.log 2>&1
+          cat out/controller.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p26-controller-${{ matrix.os }}
+          path: out/controller.log

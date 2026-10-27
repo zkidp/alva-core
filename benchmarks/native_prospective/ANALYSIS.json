@@ -1,0 +1,887 @@
+{
+  "schema": "p26-descriptive/v1",
+  "freeze_commit": "11bcc73464769b40b93bfb1b82df393c65b34626",
+  "slots": [
+    {
+      "id": "P26-01-HE3-N",
+      "task": "HE3",
+      "arm": "N",
+      "status": "NO_COMMITTED_CANDIDATE",
+      "schema_delivered": true,
+      "native_schema_sha256": "7a96b46f5c260bd68c29946f2cabbe97af913f1c71cdc56f0c08ae39845f7fa0",
+      "skill_and_references_in_frozen_prompt": true,
+      "successful_resolve_entity": 1,
+      "successful_describe_operation": 7,
+      "successful_applicable_operations": 1,
+      "operation_calls": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_construction": 1,
+        "describe_operation": 7
+      },
+      "successful_operations": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_construction": 1,
+        "describe_operation": 7
+      },
+      "operation_errors": [],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "final_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 0,
+      "model_directed_tests": 0,
+      "tool_calls": 13,
+      "usage": {
+        "totalTokens": 136828,
+        "inputTokens": 135821,
+        "cachedInputTokens": 111616,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1007,
+        "reasoningOutputTokens": 429
+      },
+      "elapsed_seconds": 24.623,
+      "token_threshold_overshoot": 16828,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-02-HE41-T",
+      "task": "HE41",
+      "arm": "T",
+      "status": "COMPILE_FAIL",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {},
+      "successful_operations": {},
+      "operation_errors": [],
+      "accepted_text_edits": 12,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "independent_final_status": "COMPILE_FAIL",
+      "final_check_pass": false,
+      "model_directed_checks": 12,
+      "model_directed_tests": 0,
+      "tool_calls": 27,
+      "usage": {
+        "totalTokens": 125298,
+        "inputTokens": 123616,
+        "cachedInputTokens": 108032,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1682,
+        "reasoningOutputTokens": 640
+      },
+      "elapsed_seconds": 48.611,
+      "token_threshold_overshoot": 5298,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-03-HE42-T",
+      "task": "HE42",
+      "arm": "T",
+      "status": "COMPILE_FAIL",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {},
+      "successful_operations": {},
+      "operation_errors": [],
+      "accepted_text_edits": 4,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "independent_final_status": "COMPILE_FAIL",
+      "final_check_pass": false,
+      "model_directed_checks": 4,
+      "model_directed_tests": 0,
+      "tool_calls": 11,
+      "usage": {
+        "totalTokens": 125513,
+        "inputTokens": 123890,
+        "cachedInputTokens": 109312,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1623,
+        "reasoningOutputTokens": 827
+      },
+      "elapsed_seconds": 33.75,
+      "token_threshold_overshoot": 5513,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-04-HE23-T",
+      "task": "HE23",
+      "arm": "T",
+      "status": "COMPILE_FAIL",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {},
+      "successful_operations": {},
+      "operation_errors": [],
+      "accepted_text_edits": 4,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "independent_final_status": "COMPILE_FAIL",
+      "final_check_pass": false,
+      "model_directed_checks": 4,
+      "model_directed_tests": 0,
+      "tool_calls": 11,
+      "usage": {
+        "totalTokens": 122645,
+        "inputTokens": 121660,
+        "cachedInputTokens": 104064,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 985,
+        "reasoningOutputTokens": 347
+      },
+      "elapsed_seconds": 31.07,
+      "token_threshold_overshoot": 2645,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-05-HE42-N",
+      "task": "HE42",
+      "arm": "N",
+      "status": "NO_COMMITTED_CANDIDATE",
+      "schema_delivered": true,
+      "native_schema_sha256": "7a96b46f5c260bd68c29946f2cabbe97af913f1c71cdc56f0c08ae39845f7fa0",
+      "skill_and_references_in_frozen_prompt": true,
+      "successful_resolve_entity": 1,
+      "successful_describe_operation": 6,
+      "successful_applicable_operations": 1,
+      "operation_calls": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_construction": 2,
+        "describe_operation": 6
+      },
+      "successful_operations": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_construction": 2,
+        "describe_operation": 6
+      },
+      "operation_errors": [],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "final_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 0,
+      "model_directed_tests": 0,
+      "tool_calls": 13,
+      "usage": {
+        "totalTokens": 136636,
+        "inputTokens": 135736,
+        "cachedInputTokens": 119680,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 900,
+        "reasoningOutputTokens": 348
+      },
+      "elapsed_seconds": 20.728,
+      "token_threshold_overshoot": 16636,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-06-HE23-N",
+      "task": "HE23",
+      "arm": "N",
+      "status": "NO_COMMITTED_CANDIDATE",
+      "schema_delivered": true,
+      "native_schema_sha256": "7a96b46f5c260bd68c29946f2cabbe97af913f1c71cdc56f0c08ae39845f7fa0",
+      "skill_and_references_in_frozen_prompt": true,
+      "successful_resolve_entity": 1,
+      "successful_describe_operation": 3,
+      "successful_applicable_operations": 1,
+      "operation_calls": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_operation": 3
+      },
+      "successful_operations": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 1,
+        "applicable_operations": 1,
+        "describe_operation": 3
+      },
+      "operation_errors": [],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 0,
+      "model_directed_tests": 0,
+      "tool_calls": 10,
+      "usage": {
+        "totalTokens": 121412,
+        "inputTokens": 120172,
+        "cachedInputTokens": 100608,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1240,
+        "reasoningOutputTokens": 593
+      },
+      "elapsed_seconds": 30.634,
+      "token_threshold_overshoot": 1412,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-07-HE3-T",
+      "task": "HE3",
+      "arm": "T",
+      "status": "COMPILE_FAIL",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {},
+      "successful_operations": {},
+      "operation_errors": [],
+      "accepted_text_edits": 38,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "final_authority": {
+        "unreadable": "KeyError"
+      },
+      "independent_final_status": "COMPILE_FAIL",
+      "final_check_pass": false,
+      "model_directed_checks": 39,
+      "model_directed_tests": 0,
+      "tool_calls": 80,
+      "usage": {
+        "totalTokens": 125524,
+        "inputTokens": 123510,
+        "cachedInputTokens": 110464,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2014,
+        "reasoningOutputTokens": 774
+      },
+      "elapsed_seconds": 65.947,
+      "token_threshold_overshoot": 5524,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOOL_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-08-HE3-B",
+      "task": "HE3",
+      "arm": "B",
+      "status": "NO_COMMITTED_CANDIDATE",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {
+        "begin_transaction": 1,
+        "read_file": 1,
+        "get_module": 1,
+        "help": 1,
+        "list_tools": 1,
+        "get_source": 1,
+        "inspect_project": 1,
+        "list_capabilities": 1,
+        "inspect_module": 2,
+        "inspect_function": 2,
+        "list_candidates": 1,
+        "inspect_entity": 3,
+        "create_": 1
+      },
+      "successful_operations": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "list_capabilities": 1,
+        "inspect_entity": 3
+      },
+      "operation_errors": [
+        {
+          "operation": "read_file",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "get_module",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "help",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "list_tools",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "get_source",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "inspect_module",
+          "code": "E_AEP_ENTITY_NOT_FOUND"
+        },
+        {
+          "operation": "inspect_function",
+          "code": "E_AEP_ENTITY_NOT_FOUND"
+        },
+        {
+          "operation": "list_candidates",
+          "code": "E_AEP_OP"
+        },
+        {
+          "operation": "inspect_module",
+          "code": "E_AEP_ENTITY_NOT_FOUND"
+        },
+        {
+          "operation": "inspect_function",
+          "code": "E_AEP_ENTITY_NOT_FOUND"
+        },
+        {
+          "operation": "create_",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        }
+      ],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "final_authority": {
+        "project_revision": "e4137a0dd1738987697f20080775c2314b09ed83f5810b59e75cf17e307968ab",
+        "body_sha256": "9dc5cb44cd89ae27a6256aae11c9878a38dadf80e46703cddb36e2d1ac091fc7"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 0,
+      "model_directed_tests": 0,
+      "tool_calls": 18,
+      "usage": {
+        "totalTokens": 129780,
+        "inputTokens": 128537,
+        "cachedInputTokens": 109824,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1243,
+        "reasoningOutputTokens": 568
+      },
+      "elapsed_seconds": 38.619,
+      "token_threshold_overshoot": 9780,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-09-HE41-N",
+      "task": "HE41",
+      "arm": "N",
+      "status": "NO_COMMITTED_CANDIDATE",
+      "schema_delivered": true,
+      "native_schema_sha256": "7a96b46f5c260bd68c29946f2cabbe97af913f1c71cdc56f0c08ae39845f7fa0",
+      "skill_and_references_in_frozen_prompt": true,
+      "successful_resolve_entity": 1,
+      "successful_describe_operation": 3,
+      "successful_applicable_operations": 1,
+      "operation_calls": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "applicable_operations": 1,
+        "inspect_body": 1,
+        "describe_operation": 3,
+        "create_reference": 2
+      },
+      "successful_operations": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "applicable_operations": 1,
+        "inspect_body": 1,
+        "describe_operation": 3,
+        "create_reference": 2
+      },
+      "operation_errors": [],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 2,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 0,
+      "model_directed_tests": 0,
+      "tool_calls": 10,
+      "usage": {
+        "totalTokens": 123133,
+        "inputTokens": 121907,
+        "cachedInputTokens": 109952,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1226,
+        "reasoningOutputTokens": 545
+      },
+      "elapsed_seconds": 28.199,
+      "token_threshold_overshoot": 3133,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-10-HE42-B",
+      "task": "HE42",
+      "arm": "B",
+      "status": "NO_COMMITTED_CANDIDATE",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {
+        "begin_transaction": 1,
+        "query": 1,
+        "create_query": 1,
+        "list": 1,
+        "list_capabilities": 1,
+        "list_candidates": 1,
+        "help": 1
+      },
+      "successful_operations": {
+        "begin_transaction": 1,
+        "list_capabilities": 1
+      },
+      "operation_errors": [
+        {
+          "operation": "query",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "create_query",
+          "code": "E_AEP_ENTITY_NOT_FOUND"
+        },
+        {
+          "operation": "list",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "list_candidates",
+          "code": "E_AEP_OP"
+        },
+        {
+          "operation": "help",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        }
+      ],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "final_authority": {
+        "project_revision": "f4667bcf74c663565c85192c19538682223d91a2ceb16c39421285ad83473e6b",
+        "body_sha256": "ec8ca45132f68f8aa2694438696330fc8238f98f9a2ff19704928ada49cedb5a"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 0,
+      "model_directed_tests": 0,
+      "tool_calls": 11,
+      "usage": {
+        "totalTokens": 123160,
+        "inputTokens": 121908,
+        "cachedInputTokens": 97664,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1252,
+        "reasoningOutputTokens": 569
+      },
+      "elapsed_seconds": 39.832,
+      "token_threshold_overshoot": 3160,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-11-HE41-B",
+      "task": "HE41",
+      "arm": "B",
+      "status": "NO_COMMITTED_CANDIDATE",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {
+        "begin_transaction": 1,
+        "get_project_state": 1,
+        "read": 1,
+        "create_binary": 1,
+        "inspect": 1,
+        "inspect_function": 3
+      },
+      "successful_operations": {
+        "begin_transaction": 1,
+        "inspect_function": 1
+      },
+      "operation_errors": [
+        {
+          "operation": "get_project_state",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "read",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "create_binary",
+          "code": "E_AEP_OP"
+        },
+        {
+          "operation": "inspect",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "inspect_function",
+          "code": "E_AEP_ENTITY_NOT_FOUND"
+        },
+        {
+          "operation": "inspect_function",
+          "code": "E_AEP_ENTITY_NOT_FOUND"
+        }
+      ],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 0,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 0,
+      "authority_current_exists": false,
+      "authority_current_sha256": null,
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "fe4761ac80b03db4202baa36ba61729b796fd965c89ff3b9de687c778683b531",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 1,
+      "model_directed_tests": 0,
+      "tool_calls": 10,
+      "usage": {
+        "totalTokens": 126861,
+        "inputTokens": 125582,
+        "cachedInputTokens": 100096,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1279,
+        "reasoningOutputTokens": 770
+      },
+      "elapsed_seconds": 49.82,
+      "token_threshold_overshoot": 6861,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    },
+    {
+      "id": "P26-12-HE23-B",
+      "task": "HE23",
+      "arm": "B",
+      "status": "TEST_FAIL",
+      "schema_delivered": false,
+      "native_schema_sha256": null,
+      "skill_and_references_in_frozen_prompt": false,
+      "successful_resolve_entity": 0,
+      "successful_describe_operation": 0,
+      "successful_applicable_operations": 0,
+      "operation_calls": {
+        "begin_transaction": 2,
+        "read_resource": 1,
+        "create_call": 1,
+        "commit_transaction": 1,
+        "list_tools": 1,
+        "list_capabilities": 1
+      },
+      "successful_operations": {
+        "begin_transaction": 2,
+        "create_call": 1,
+        "commit_transaction": 1
+      },
+      "operation_errors": [
+        {
+          "operation": "read_resource",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "list_tools",
+          "code": "E_AEP_UNKNOWN_TOOL"
+        },
+        {
+          "operation": "list_capabilities",
+          "code": "E_AEP_NO_TRANSACTION"
+        }
+      ],
+      "accepted_text_edits": 0,
+      "successful_node_construction_calls": 1,
+      "successful_attachment_calls": 0,
+      "nonempty_semantic_previews": 0,
+      "successful_transaction_checks": 0,
+      "successful_commit_calls": 1,
+      "authority_current_exists": true,
+      "authority_current_sha256": "08fb7b8836835876edf86f7f7cae3c2b512d34f1eed4fa5ea44563599dab6d67",
+      "fresh_process_target_body_changed": false,
+      "initial_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "final_authority": {
+        "project_revision": "b8f29ca0471100074c45541f01503902d82c3a270ae875250056188693c99159",
+        "body_sha256": "94e7eb3eeed9c8cbf46331ea6442147d29137dd44ddac832990850c193fbadde"
+      },
+      "independent_final_status": "TEST_FAIL",
+      "final_check_pass": true,
+      "model_directed_checks": 0,
+      "model_directed_tests": 0,
+      "tool_calls": 11,
+      "usage": {
+        "totalTokens": 126011,
+        "inputTokens": 124505,
+        "cachedInputTokens": 114560,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1506,
+        "reasoningOutputTokens": 942
+      },
+      "elapsed_seconds": 37.94,
+      "token_threshold_overshoot": 6011,
+      "terminal": "interrupted",
+      "interrupt_ack": true,
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "infrastructure_hold": null
+    }
+  ],
+  "arms": {
+    "T": {
+      "slots": 4,
+      "outcomes": {
+        "COMPILE_FAIL": 4
+      },
+      "operation_errors": 0,
+      "accepted_text_edits": 58,
+      "tools": 129,
+      "valid_resolve_slots": 0,
+      "attachment_slots": 0,
+      "commit_slots": 0,
+      "changed_target_slots": 0,
+      "usage_missing_slots": 0,
+      "known_total_tokens": 498980,
+      "elapsed_seconds": 179.378
+    },
+    "B": {
+      "slots": 4,
+      "outcomes": {
+        "NO_COMMITTED_CANDIDATE": 3,
+        "TEST_FAIL": 1
+      },
+      "operation_errors": 25,
+      "accepted_text_edits": 0,
+      "tools": 50,
+      "valid_resolve_slots": 0,
+      "attachment_slots": 0,
+      "commit_slots": 1,
+      "changed_target_slots": 0,
+      "usage_missing_slots": 0,
+      "known_total_tokens": 505812,
+      "elapsed_seconds": 166.211
+    },
+    "N": {
+      "slots": 4,
+      "outcomes": {
+        "NO_COMMITTED_CANDIDATE": 4
+      },
+      "operation_errors": 0,
+      "accepted_text_edits": 0,
+      "tools": 46,
+      "valid_resolve_slots": 4,
+      "attachment_slots": 0,
+      "commit_slots": 0,
+      "changed_target_slots": 0,
+      "usage_missing_slots": 0,
+      "known_total_tokens": 518009,
+      "elapsed_seconds": 104.184
+    }
+  },
+  "provider_request_count": null,
+  "dollar_cost": null,
+  "hard_token_budget": false,
+  "historical_results_pooled": false,
+  "significance_test": false
+}
