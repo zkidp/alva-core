@@ -1,0 +1,25 @@
+{
+  "status": "DESIGN_ONLY_NOT_EXECUTED_NOT_AUTHORIZED",
+  "hypothesis_id": "OPTIONAL_NATIVE_DESCRIPTOR_DISCOVERY",
+  "question": "With the same native schemas, complete Skill/reference corpus and P26 limits, does making describe_operation optional for already advertised native tools permit target-connected staging before interruption?",
+  "fixed_task": "HE41",
+  "task_source": "P26 FREEZE.json tasks.HE41; exact public requirement and original stub bundle only",
+  "task_selection": "Developmental, chosen after P26 because it reached reference construction; not held-out or independent task generalization",
+  "slots": [
+    {"id": "P28-DESIGN-C0", "condition": "Original P26 N discovery instruction", "fresh_session": true, "fresh_checkout": true},
+    {"id": "P28-DESIGN-C1", "condition": "Same N plus one descriptor-policy override", "fresh_session": true, "fresh_checkout": true}
+  ],
+  "execution_order_if_later_authorized": ["P28-DESIGN-C1", "P28-DESIGN-C0"],
+  "maximum_model_tasks": 2,
+  "extra_repetitions": 0,
+  "intervention_exact_developer_addendum": "For native MCP tools, use the advertised input schema for argument shape. The Skill instruction requiring describe_operation before mutation is optional in this condition: call describe_operation only when the advertised schema is insufficient or a concrete tool error needs clarification. Keep describe_construction and all remaining Skill rules unchanged, including real revision IDs, discovery needed to identify the target, transaction checking before commit, authority rules, and independent compilation and tests.",
+  "unchanged": ["HE41 public task and original source bytes", "all twenty P25 native tools and schemas", "full official Skill and all reference documents in initial input", "optional descriptor tool availability", "no task solution example or target-specific recipe", "P22/P23 Linux isolation and independent evaluator", "study callbacks and read/path contract", "gpt-5.6-sol / openai / low", "120000 observed total tokens, 80 dispatched tools, 480 seconds, 20-second interrupt grace", "same acknowledged interruption controller", "no hard provider token-cap claim"],
+  "primary": "Before the first frozen resource interruption, an actual changed bench.solve staged body is confirmed by a trusted read-only inspect_body observation in the same live transaction. No credit for detached nodes or ok:true alone.",
+  "observer": "If later implemented, add the same non-model-visible read-only body-hash observer to both arms after mutation, before process closure. Freeze/test it first; never feed hidden evaluator or reference content to the model. It may not repair, commit or generate next actions.",
+  "secondary": ["descriptor calls and enclosing usage intervals before first construction/attachment", "actual input/cached/output/reasoning-output totals without cache subtraction", "successful commit with changed fresh authoritative target", "independent final compile and behavior", "parameter errors and missing semantic-precondition failures"],
+  "fidelity": "Record delivery and actual describe_operation calls. If the optional policy does not change descriptor behavior, mark no behavioral uptake rather than evidence that descriptor content is useless.",
+  "falsifier": "If C1 reduces descriptor calls but still does not reach a changed connected target before interruption, this wave does not support the proposed stage-progress mechanism. If both reach it, no differentiating result. Attachment without compile/behavior closure is not utility.",
+  "interpretation_limit": "Two fresh developmental observations cannot establish a general effect or identify P26 root cause. The override adds a small amount of instruction text; report its bytes, do not compensate by removing documents or increasing budget.",
+  "before_any_future_generation": "Separate user authorization; implement only the shared read-only observer and bounded instruction toggle; mechanically validate the two inputs, isolation and terminal accounting; commit/push a new real execution freeze with exact SDK/controller/tool/docs/evaluator/prompt bytes and order. Do not use this design JSON as an execution-ready freeze.",
+  "stop": "Each slot once, no retry/replacement/third slot. Ordinary task failure retained; common infrastructure defect stops the remaining wave. No automatic launch from P27."
+}

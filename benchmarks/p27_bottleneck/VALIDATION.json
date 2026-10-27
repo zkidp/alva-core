@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "source": {
+    "baseline": "fac39867f32ab4b3b428ed08a4eaf28be08dafa9",
+    "archive_sha256": "b37b499ec63388824efde38c395c221a71ae04d1367b1ad8555309c3888c6dd2",
+    "public_source_sha256": {
+      "FREEZE.json": "f6df7b94d625ce8dbdf2b07be2dcdf9d789ddd9a09d0da945da1ab5e638a6eae",
+      "RESULTS.json": "43c3b25d99f3933d598b5a15cc507ea99b10741a16f5fefe4cad8b8c6a2fe442",
+      "ANALYSIS.json": "432a8bc6f2cefbba2ac73a1c147259164c0755609a401786f6580abce2030f0f",
+      "REPORT.md": "9b97642be6f1e652372c5f80cdf67a8bd65f6a8f5db34e59f19ddb2faba3d0d7",
+      "ARCHIVE.json": "354872c7d7a6cee4eb39d35df42b4363c687cc9070cca656f8f03dfa6a410e4c"
+    },
+    "public_source_byte_policy": "exact baseline Git blobs; no checkout EOL normalization"
+  },
+  "slots": 12,
+  "archive_entries": 50,
+  "native_calls_joined_to_real_dispatch": true,
+  "usage_totals_reconcile": true,
+  "initial_prompts_match_freeze": true,
+  "call_counts_reconcile": true,
+  "trigger_order_crosschecked": true,
+  "provider_calls": 0,
+  "candidate_code_executions": 0,
+  "raw_transcripts_copied_to_git": false,
+  "historical_inputs_modified": false,
+  "known": {
+    "T": {
+      "slots": 4,
+      "calls": 129,
+      "total_tokens": 498980,
+      "schema_discovery_calls": 0,
+      "repeat_calls": 55
+    },
+    "B": {
+      "slots": 4,
+      "calls": 50,
+      "total_tokens": 505812,
+      "schema_discovery_calls": 3,
+      "repeat_calls": 1
+    },
+    "N": {
+      "slots": 4,
+      "calls": 46,
+      "total_tokens": 518009,
+      "schema_discovery_calls": 22,
+      "repeat_calls": 1
+    }
+  },
+  "limits": [
+    "No serialized provider inputs",
+    "No hidden reasoning used",
+    "No causal root-cause identification",
+    "All slots censored"
+  ]
+}
