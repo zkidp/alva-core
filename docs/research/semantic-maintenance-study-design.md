@@ -113,6 +113,11 @@ mandatory, not replaced by check/commit.
 
 Primary slot result: separately report effective target change, final task
 PASS/FAIL/UNKNOWN, regression PASS/FAIL/UNKNOWN and scope PASS/FAIL/UNKNOWN.
+Scope follows the frozen user-approved editable/protected paths, declarations
+and public non-target invariants, not a gold reference edit set. A different
+correct implementation is not rejected merely for differing from the engineering
+patch. Changed-body hashes are observations; benign alternative edits and
+unresolved scope questions must remain distinguishable from behavioral regressions.
 `COMPLETED_CORRECT_MAINTENANCE` requires all four to pass and usable terminal
 evidence; S additionally needs changed committed authority, not detached staging
 or a no-op commit. The primary paired table shows all components, not just this
@@ -126,6 +131,12 @@ publication, actual non-target declaration changes, unrelated regression impact,
 and recovery completion **only if exercised**. Transient invalid private Text or
 AIR working state is not invalid published integration. Stale rejection is not
 recovery success or correct task intent. Unexercised properties remain N/A, not 0.
+For the conflict-free pilot, S publication means an actual AIR commit. T handoff
+means an explicit finish of the candidate source tree, not each intermediate
+edit. A resource-stopped Text tree is still scored for final task correctness,
+but is not retroactively labeled an intentional publication. Publication-safety
+counts with unmatched publication opportunities are descriptive, not an arm
+success-rate comparison. Neither path writes the real source repository.
 
 Secondary effort: actual input/cached/output/reasoning/total tokens, model tools,
 observer/host-only calls separately, first effective change, construction and
