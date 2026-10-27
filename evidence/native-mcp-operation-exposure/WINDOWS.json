@@ -1,0 +1,5 @@
+{
+  "status": "UNSUPPORTED_FAIL_CLOSED",
+  "reason": "UNSUPPORTED_PLATFORM: no native Windows/macOS execution backend; no fallback",
+  "generation_calls": 0
+}
