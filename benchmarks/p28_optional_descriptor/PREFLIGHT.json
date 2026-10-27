@@ -1,0 +1,53 @@
+{
+  "controller": {
+    "status": "PASS",
+    "thread_turn_identity": true,
+    "rpc_errors_fail_closed": true,
+    "terminal_confirmation": true,
+    "missing_usage_is_null": true,
+    "model_generation_calls": 0
+  },
+  "generation_calls": 0,
+  "linux_observer": {
+    "status": "PASS",
+    "platform": "linux",
+    "generation_calls": 0,
+    "input_token_calls": 0,
+    "fixture_sha256": "fdfde428bda80d6617b6b5b3eb8cbbe4d067ff01895c390ea2186d0d0a3ffe84",
+    "same_transaction_reads": "PASS",
+    "staged_project_diff_source_authority_unchanged_by_reads": true,
+    "detached_node_excluded": true,
+    "connected_change_detected": true,
+    "no_publication_before_commit": true,
+    "check_commit_fresh_reload": "PASS",
+    "isolated_compile_behavior": "PASS",
+    "observer_calls": 5,
+    "check_result_sha256": "aa390952e01e1064e20cc0c8f9c054cc264258d109f0166fcd62c8b11e4b7fc5",
+    "model_feedback_rewritten": false
+  },
+  "C1": {
+    "native_schema_skill": "PASS",
+    "begin_abort": "PASS",
+    "isolated_compile_behavior": "PASS (original stub expected behavioral FAIL)",
+    "authority_unchanged": true,
+    "model": "gpt-5.6-sol",
+    "generation_calls": 0
+  },
+  "C0": {
+    "native_schema_skill": "PASS",
+    "begin_abort": "PASS",
+    "isolated_compile_behavior": "PASS (original stub expected behavioral FAIL)",
+    "authority_unchanged": true,
+    "model": "gpt-5.6-sol",
+    "generation_calls": 0
+  },
+  "real_service_observer_relay": {
+    "status": "PASS",
+    "observer_calls": 1,
+    "model_envelopes": 3,
+    "observer_not_counted_as_model": true,
+    "feedback_unchanged": true
+  },
+  "input_identity_except_exact_override": "PASS",
+  "status": "PASS"
+}

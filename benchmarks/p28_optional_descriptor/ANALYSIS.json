@@ -1,0 +1,84 @@
+{
+  "status": "CLOSED_COMPLETE",
+  "classification": "DESCRIPTOR_CALLS_REDUCED_NO_OBSERVED_STAGE_PROGRESS_BENEFIT",
+  "descriptor_calls_reduced": true,
+  "primary_unit": "one HE41 observation per condition",
+  "order": [
+    "C1",
+    "C0"
+  ],
+  "archive_sha256": "1b92ee8b09e3c85ee763d05899fce837961f342f07d95e1d508e3de0cc76534f",
+  "no_causal_or_generalization_claim": true,
+  "comparison": [
+    {
+      "condition": "C1",
+      "describe_operation_calls": 1,
+      "first_construction_tool_ordinal": null,
+      "first_connected_tool_ordinal": null,
+      "staged_target_changed_before_interrupt": false,
+      "successful_commits": 0,
+      "fresh_authority_target_changed": false,
+      "independent_final_status": "TEST_FAIL",
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "tool_calls": 8,
+      "usage": {
+        "total": {
+          "totalTokens": 136603,
+          "inputTokens": 135593,
+          "cachedInputTokens": 113408,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 1010,
+          "reasoningOutputTokens": 358
+        },
+        "last": {
+          "totalTokens": 22040,
+          "inputTokens": 21931,
+          "cachedInputTokens": 21504,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 109,
+          "reasoningOutputTokens": 57
+        },
+        "modelContextWindow": 258400
+      },
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "interrupt_ack": true,
+      "observer_calls": 1,
+      "observer_elapsed_seconds": 0.000869222
+    },
+    {
+      "condition": "C0",
+      "describe_operation_calls": 3,
+      "first_construction_tool_ordinal": 9,
+      "first_connected_tool_ordinal": null,
+      "staged_target_changed_before_interrupt": false,
+      "successful_commits": 0,
+      "fresh_authority_target_changed": false,
+      "independent_final_status": "TEST_FAIL",
+      "disposition": "NO_COMMITTED_CANDIDATE",
+      "tool_calls": 10,
+      "usage": {
+        "total": {
+          "totalTokens": 124780,
+          "inputTokens": 123783,
+          "cachedInputTokens": 104064,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 997,
+          "reasoningOutputTokens": 355
+        },
+        "last": {
+          "totalTokens": 19728,
+          "inputTokens": 19592,
+          "cachedInputTokens": 19328,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 136,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 258400
+      },
+      "stop_reason": "TOKEN_OBSERVATION_LIMIT",
+      "interrupt_ack": true,
+      "observer_calls": 3,
+      "observer_elapsed_seconds": 0.001980628
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "archive_sha256": "PASS",
+  "derived_results_recomputed": "PASS",
+  "actual_prompt_and_developer_binding": "PASS",
+  "maximum_model_tasks": 2,
+  "model_tasks_started": 2,
+  "fresh_thread_ids": true,
+  "fresh_sandbox_workspaces": "separate P23 instances per slot",
+  "observer_associations_complete": true,
+  "terminal_statuses": [
+    "interrupted",
+    "interrupted"
+  ],
+  "interrupt_acknowledgments": [
+    true,
+    true
+  ],
+  "no_hard_provider_token_cap_claim": true,
+  "generation_calls_in_analysis": 0,
+  "historical_frozen_artifacts_modified": false
+}
