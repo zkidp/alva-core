@@ -24,11 +24,12 @@ def scoped_server(command, args, *, enabled_tools):
 def toml_value(value):
     """Render only JSON scalars/lists plus explicit TOML inline tables."""
     if isinstance(value, dict):
-        return "{" + ",".join(json.dumps(k, ensure_ascii=False) + "=" + toml_value(v) for k, v in value.items()) + "}"
+        return "{" + ",".join(json.dumps(k, ensure_ascii=False).replace("\x7f", "\\u007f") + "=" + toml_value(v) for k, v in value.items()) + "}"
     if isinstance(value, list):
         return "[" + ",".join(toml_value(v) for v in value) + "]"
     if isinstance(value, (str, int, float, bool)):
-        return json.dumps(value, ensure_ascii=False)
+        # Unlike JSON, TOML forbids a literal DEL even with Unicode preserved.
+        return json.dumps(value, ensure_ascii=False).replace("\x7f", "\\u007f")
     raise ValueError("Unsupported config value")
 
 
