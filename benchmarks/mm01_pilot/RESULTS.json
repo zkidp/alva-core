@@ -1,0 +1,181 @@
+{
+  "status": "CLOSED_COMPLETE",
+  "freeze_commit": "87ba3b82aaf26d9825fdf65f76e11d84b0d59639",
+  "scheduled": 2,
+  "executed": 2,
+  "slots": [
+    {
+      "model_tasks_started": 1,
+      "freeze_commit": "87ba3b82aaf26d9825fdf65f76e11d84b0d59639",
+      "tool_calls": 10,
+      "usage": {
+        "total": {
+          "totalTokens": 128024,
+          "inputTokens": 127100,
+          "cachedInputTokens": 105216,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 924,
+          "reasoningOutputTokens": 75
+        },
+        "last": {
+          "totalTokens": 21733,
+          "inputTokens": 21645,
+          "cachedInputTokens": 21376,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 88,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "completed",
+      "stop_reason": "NATURAL_COMPLETED",
+      "interrupt_ack": false,
+      "elapsed_seconds": 27.501,
+      "infrastructure_hold": null,
+      "first_interrupt_event_boundary": null,
+      "id": "MM01-T",
+      "condition": "T",
+      "target_changed": true,
+      "task_correctness": "PASS",
+      "regression_correctness": "PASS",
+      "scope_status": "PASS",
+      "independent_status": "PASS",
+      "check": "PASS",
+      "build": "PASS",
+      "initial_authority": {
+        "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "final_authority": {
+        "project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "a376fbce88b0528ad8f5f1f3edd7a95162d274181a21a308759a02a9c71042d5",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "changed_files": [
+        "src/model.alva"
+      ],
+      "changed_bodies": [
+        "demo.model.touch_size"
+      ],
+      "native_commits": 0,
+      "native_operation_counts": {},
+      "native_operation_errors": 0,
+      "air_authority_published": false,
+      "fresh_process_authority_reread": true,
+      "source_projection_unchanged": false,
+      "text_evaluable_final_source": true,
+      "explicit_finish": true,
+      "staged_target_change_observed": false,
+      "observer_calls": 0,
+      "observer_is_model_feedback": false,
+      "stale_write": "NOT_EXERCISED",
+      "recovery": "NOT_EXERCISED",
+      "provider_requests": null,
+      "dollar_cost": null,
+      "hard_provider_token_cap": false,
+      "disposition": "COMPLETED_CORRECT_MAINTENANCE"
+    },
+    {
+      "model_tasks_started": 1,
+      "freeze_commit": "87ba3b82aaf26d9825fdf65f76e11d84b0d59639",
+      "tool_calls": 21,
+      "usage": {
+        "total": {
+          "totalTokens": 343287,
+          "inputTokens": 341252,
+          "cachedInputTokens": 315264,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 2035,
+          "reasoningOutputTokens": 675
+        },
+        "last": {
+          "totalTokens": 25252,
+          "inputTokens": 25181,
+          "cachedInputTokens": 24960,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 71,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 258400
+      },
+      "usage_complete": true,
+      "terminal_status": "completed",
+      "stop_reason": "NATURAL_COMPLETED",
+      "interrupt_ack": false,
+      "elapsed_seconds": 63.677,
+      "infrastructure_hold": null,
+      "first_interrupt_event_boundary": null,
+      "id": "MM01-S",
+      "condition": "S",
+      "target_changed": false,
+      "task_correctness": "FAIL",
+      "regression_correctness": "PASS",
+      "scope_status": "PASS",
+      "independent_status": "TEST_FAIL",
+      "check": "PASS",
+      "build": "PASS",
+      "initial_authority": {
+        "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "final_authority": {
+        "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "changed_files": [],
+      "changed_bodies": [],
+      "native_commits": 0,
+      "native_operation_counts": {
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "resolve_entity": 1,
+        "inspect_body": 2,
+        "applicable_operations": 1,
+        "describe_operation": 5,
+        "create_literal": 1,
+        "create_binary": 1,
+        "create_reference": 1,
+        "create_if": 1,
+        "replace_expression": 1,
+        "preview_semantic_diff": 1,
+        "check_transaction": 1,
+        "abort_transaction": 1
+      },
+      "native_operation_errors": 0,
+      "air_authority_published": false,
+      "fresh_process_authority_reread": true,
+      "source_projection_unchanged": true,
+      "text_evaluable_final_source": false,
+      "explicit_finish": true,
+      "staged_target_change_observed": true,
+      "observer_calls": 6,
+      "observer_is_model_feedback": false,
+      "stale_write": "NOT_EXERCISED",
+      "recovery": "NOT_EXERCISED",
+      "provider_requests": null,
+      "dollar_cost": null,
+      "hard_provider_token_cap": false,
+      "disposition": "NO_COMMITTED_CANDIDATE"
+    }
+  ]
+}
