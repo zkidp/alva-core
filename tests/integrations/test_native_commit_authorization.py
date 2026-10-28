@@ -27,6 +27,23 @@ class PolicyTests(unittest.TestCase):
         self.assertEqual(p["tools"], {"commit_transaction": {"approval_mode": "approve"}})
         self.assertEqual(p["default_tools_approval_mode"], "auto")
 
+    def test_non_bmp_command_round_trip(self):
+        command = "C:\\Users\\\U0001f600\\ALVA\\launcher.exe"
+        s = scoped_server(command, ["--stdio"], enabled_tools=["commit_transaction"])
+        rendered = server_override(s)
+        self.assertIn("\U0001f600", rendered)
+        self.assertEqual(tomllib.loads(rendered)["mcp_servers"]["alva"], s)
+        self.assertEqual(tomllib.loads(host_options(s)[-1])["mcp_servers"]["alva"], s)
+
+    def test_non_bmp_args_round_trip(self):
+        args = ["--config", "C:\\work\\\U0001f4c1\\config.toml", 'label \U0001f9ea "quoted" \\ path']
+        s = scoped_server("trusted-launcher", args, enabled_tools=["commit_transaction"])
+        rendered = server_override(s)
+        self.assertIn("\U0001f4c1", rendered)
+        self.assertIn("\U0001f9ea", rendered)
+        self.assertEqual(tomllib.loads(rendered)["mcp_servers"]["alva"], s)
+        self.assertEqual(tomllib.loads(host_options(s)[-1])["mcp_servers"]["alva"], s)
+
     def test_no_mutation_and_no_unsafe_host_expansion(self):
         s = self.server()
         old = copy.deepcopy(s)
