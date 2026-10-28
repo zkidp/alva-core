@@ -1,0 +1,1514 @@
+{
+  "archive_sha256": "0ed04b131cf0d7fc2fe89d7d182fbfd589942e4bfca9d04e9ce5769bf7e52295",
+  "slots": [
+    {
+      "id": "MM01-T",
+      "dynamic_action_counts": {
+        "revision": 1,
+        "read": 3,
+        "doc": 1,
+        "edit": 1,
+        "diff": 1,
+        "check": 1,
+        "test": 1,
+        "finish": 1
+      },
+      "source_edit_attempts": 1,
+      "accepted_source_edits": 1,
+      "rejected_source_edits": 0,
+      "sequence": [
+        {
+          "model_tool_ordinal": 1,
+          "operation": null,
+          "action": "revision",
+          "stage": "OTHER_EXPLORATION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 0,
+            "after_usage_ordinal": 1,
+            "cumulative_before": null,
+            "before_is_observed_usage": false,
+            "unobserved_before_uses_turn_origin_for_interval_only": true,
+            "cumulative_after": {
+              "totalTokens": 10421,
+              "inputTokens": 10350,
+              "cachedInputTokens": 0,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 71,
+              "reasoningOutputTokens": 0
+            },
+            "enclosing_increment": {
+              "totalTokens": 10421,
+              "inputTokens": 10350,
+              "cachedInputTokens": 0,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 71,
+              "reasoningOutputTokens": 0
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 2,
+          "operation": null,
+          "action": "read",
+          "stage": "SOURCE_INSPECTION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 1,
+            "after_usage_ordinal": 2,
+            "cumulative_before": {
+              "totalTokens": 10421,
+              "inputTokens": 10350,
+              "cachedInputTokens": 0,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 71,
+              "reasoningOutputTokens": 0
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 21141,
+              "inputTokens": 20859,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 282,
+              "reasoningOutputTokens": 17
+            },
+            "enclosing_increment": {
+              "totalTokens": 10720,
+              "inputTokens": 10509,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 211,
+              "reasoningOutputTokens": 17
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 3,
+          "operation": null,
+          "action": "read",
+          "stage": "SOURCE_INSPECTION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 1,
+            "after_usage_ordinal": 2,
+            "cumulative_before": {
+              "totalTokens": 10421,
+              "inputTokens": 10350,
+              "cachedInputTokens": 0,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 71,
+              "reasoningOutputTokens": 0
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 21141,
+              "inputTokens": 20859,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 282,
+              "reasoningOutputTokens": 17
+            },
+            "enclosing_increment": {
+              "totalTokens": 10720,
+              "inputTokens": 10509,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 211,
+              "reasoningOutputTokens": 17
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 4,
+          "operation": null,
+          "action": "read",
+          "stage": "SOURCE_INSPECTION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 1,
+            "after_usage_ordinal": 2,
+            "cumulative_before": {
+              "totalTokens": 10421,
+              "inputTokens": 10350,
+              "cachedInputTokens": 0,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 71,
+              "reasoningOutputTokens": 0
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 21141,
+              "inputTokens": 20859,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 282,
+              "reasoningOutputTokens": 17
+            },
+            "enclosing_increment": {
+              "totalTokens": 10720,
+              "inputTokens": 10509,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 211,
+              "reasoningOutputTokens": 17
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 5,
+          "operation": null,
+          "action": "doc",
+          "stage": "OTHER_EXPLORATION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 1,
+            "after_usage_ordinal": 2,
+            "cumulative_before": {
+              "totalTokens": 10421,
+              "inputTokens": 10350,
+              "cachedInputTokens": 0,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 71,
+              "reasoningOutputTokens": 0
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 21141,
+              "inputTokens": 20859,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 282,
+              "reasoningOutputTokens": 17
+            },
+            "enclosing_increment": {
+              "totalTokens": 10720,
+              "inputTokens": 10509,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 211,
+              "reasoningOutputTokens": 17
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 6,
+          "operation": null,
+          "action": "edit",
+          "stage": "SOURCE_EDIT",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 2,
+            "after_usage_ordinal": 3,
+            "cumulative_before": {
+              "totalTokens": 21141,
+              "inputTokens": 20859,
+              "cachedInputTokens": 10240,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 282,
+              "reasoningOutputTokens": 17
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 42043,
+              "inputTokens": 41466,
+              "cachedInputTokens": 20736,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 577,
+              "reasoningOutputTokens": 42
+            },
+            "enclosing_increment": {
+              "totalTokens": 20902,
+              "inputTokens": 20607,
+              "cachedInputTokens": 10496,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 295,
+              "reasoningOutputTokens": 25
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 7,
+          "operation": null,
+          "action": "diff",
+          "stage": "OTHER_EXPLORATION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 3,
+            "after_usage_ordinal": 4,
+            "cumulative_before": {
+              "totalTokens": 42043,
+              "inputTokens": 41466,
+              "cachedInputTokens": 20736,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 577,
+              "reasoningOutputTokens": 42
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 63150,
+              "inputTokens": 62448,
+              "cachedInputTokens": 41472,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 702,
+              "reasoningOutputTokens": 61
+            },
+            "enclosing_increment": {
+              "totalTokens": 21107,
+              "inputTokens": 20982,
+              "cachedInputTokens": 20736,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 125,
+              "reasoningOutputTokens": 19
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 8,
+          "operation": null,
+          "action": "check",
+          "stage": "CHECK",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 3,
+            "after_usage_ordinal": 4,
+            "cumulative_before": {
+              "totalTokens": 42043,
+              "inputTokens": 41466,
+              "cachedInputTokens": 20736,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 577,
+              "reasoningOutputTokens": 42
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 63150,
+              "inputTokens": 62448,
+              "cachedInputTokens": 41472,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 702,
+              "reasoningOutputTokens": 61
+            },
+            "enclosing_increment": {
+              "totalTokens": 21107,
+              "inputTokens": 20982,
+              "cachedInputTokens": 20736,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 125,
+              "reasoningOutputTokens": 19
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 9,
+          "operation": null,
+          "action": "test",
+          "stage": "MODEL_INDEPENDENT_TEST",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 4,
+            "after_usage_ordinal": 5,
+            "cumulative_before": {
+              "totalTokens": 63150,
+              "inputTokens": 62448,
+              "cachedInputTokens": 41472,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 702,
+              "reasoningOutputTokens": 61
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 84674,
+              "inputTokens": 83876,
+              "cachedInputTokens": 62464,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 798,
+              "reasoningOutputTokens": 68
+            },
+            "enclosing_increment": {
+              "totalTokens": 21524,
+              "inputTokens": 21428,
+              "cachedInputTokens": 20992,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 96,
+              "reasoningOutputTokens": 7
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 10,
+          "operation": null,
+          "action": "finish",
+          "stage": "OTHER_EXPLORATION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 5,
+            "after_usage_ordinal": 6,
+            "cumulative_before": {
+              "totalTokens": 84674,
+              "inputTokens": 83876,
+              "cachedInputTokens": 62464,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 798,
+              "reasoningOutputTokens": 68
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 106291,
+              "inputTokens": 105455,
+              "cachedInputTokens": 83840,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 836,
+              "reasoningOutputTokens": 75
+            },
+            "enclosing_increment": {
+              "totalTokens": 21617,
+              "inputTokens": 21579,
+              "cachedInputTokens": 21376,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 38,
+              "reasoningOutputTokens": 7
+            },
+            "individual_call_token_charge": null
+          }
+        }
+      ],
+      "readonly_staging_observations": [],
+      "appserver_native_commit_attempts": 0,
+      "appserver_native_errors": 0,
+      "appserver_native_parameter_errors": 0,
+      "native_check_responses": [],
+      "active_turn_terminal": "completed",
+      "resources": {
+        "totalTokens": 128024,
+        "inputTokens": 127100,
+        "cachedInputTokens": 105216,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 924,
+        "reasoningOutputTokens": 75
+      },
+      "token_observation_threshold_reached": false,
+      "tool_limit_reached": false,
+      "wall_observation_limit_reached": false,
+      "final_evaluator_outputs_sha256": "b322b63b2ec55b3740d33b8c403782c5be9741d06cd6cd8e07f14cde918a7cfb"
+    },
+    {
+      "id": "MM01-S",
+      "dynamic_action_counts": {
+        "finish": 1
+      },
+      "source_edit_attempts": 0,
+      "accepted_source_edits": 0,
+      "rejected_source_edits": 0,
+      "sequence": [
+        {
+          "model_tool_ordinal": 1,
+          "operation": "begin_transaction",
+          "action": "native",
+          "stage": "SESSION_BEGIN",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "e81a62bde42f79d3d540947523c339b37f2b16570c70785de840b128d13197e2",
+          "response_sha256": "489700b7bc58db236c0804443cb52b29a085c7e173b448b33d7f30901ecc85dd",
+          "usage_interval": {
+            "before_usage_ordinal": 1,
+            "after_usage_ordinal": 2,
+            "cumulative_before": {
+              "totalTokens": 14428,
+              "inputTokens": 14286,
+              "cachedInputTokens": 0,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 142,
+              "reasoningOutputTokens": 37
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 31852,
+              "inputTokens": 31654,
+              "cachedInputTokens": 14208,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 198,
+              "reasoningOutputTokens": 54
+            },
+            "enclosing_increment": {
+              "totalTokens": 17424,
+              "inputTokens": 17368,
+              "cachedInputTokens": 14208,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 56,
+              "reasoningOutputTokens": 17
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 2,
+          "operation": "resolve_entity",
+          "action": "native",
+          "stage": "ENTITY_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "d4c160bf69e7912d0e9a91d433d2648220273484113fe1b58cdc8630eea15a96",
+          "response_sha256": "066d821f5019edccfbea7883ad9116ea067d782bbf3e26e4aede72deca199714",
+          "usage_interval": {
+            "before_usage_ordinal": 2,
+            "after_usage_ordinal": 3,
+            "cumulative_before": {
+              "totalTokens": 31852,
+              "inputTokens": 31654,
+              "cachedInputTokens": 14208,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 198,
+              "reasoningOutputTokens": 54
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 49545,
+              "inputTokens": 49238,
+              "cachedInputTokens": 31488,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 307,
+              "reasoningOutputTokens": 77
+            },
+            "enclosing_increment": {
+              "totalTokens": 17693,
+              "inputTokens": 17584,
+              "cachedInputTokens": 17280,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 109,
+              "reasoningOutputTokens": 23
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 3,
+          "operation": "inspect_project",
+          "action": "native",
+          "stage": "ENTITY_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "43155cecebaa9e54017daba3eb3817b0257537e1c845632bbccafac7019f67d7",
+          "response_sha256": "e995d1185e03ff8bc69e7e95e7f3f8788842369c446e987237de2f7a41613c46",
+          "usage_interval": {
+            "before_usage_ordinal": 2,
+            "after_usage_ordinal": 3,
+            "cumulative_before": {
+              "totalTokens": 31852,
+              "inputTokens": 31654,
+              "cachedInputTokens": 14208,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 198,
+              "reasoningOutputTokens": 54
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 49545,
+              "inputTokens": 49238,
+              "cachedInputTokens": 31488,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 307,
+              "reasoningOutputTokens": 77
+            },
+            "enclosing_increment": {
+              "totalTokens": 17693,
+              "inputTokens": 17584,
+              "cachedInputTokens": 17280,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 109,
+              "reasoningOutputTokens": 23
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 4,
+          "operation": "inspect_body",
+          "action": "native",
+          "stage": "ENTITY_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "193f58a044e67f55a2aab834ba877dfa0bb85f9deeb9611dfb9b0af86bfa9cc2",
+          "response_sha256": "8d9c29c3f25554ed45495f455bb24eca43a753d7260a1a31f08d911942ab1338",
+          "usage_interval": {
+            "before_usage_ordinal": 3,
+            "after_usage_ordinal": 4,
+            "cumulative_before": {
+              "totalTokens": 49545,
+              "inputTokens": 49238,
+              "cachedInputTokens": 31488,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 307,
+              "reasoningOutputTokens": 77
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 67783,
+              "inputTokens": 67376,
+              "cachedInputTokens": 49024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 407,
+              "reasoningOutputTokens": 85
+            },
+            "enclosing_increment": {
+              "totalTokens": 18238,
+              "inputTokens": 18138,
+              "cachedInputTokens": 17536,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 100,
+              "reasoningOutputTokens": 8
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 5,
+          "operation": "applicable_operations",
+          "action": "native",
+          "stage": "ENTITY_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "9103544fadb8ab1e16d31670d8521b52bf05ddda164756bd7809c806de750a24",
+          "response_sha256": "8f4e5a1a079113cb897e5ae0a4ad7c6f57ab7471075b7129d93e1a7e05e0a502",
+          "usage_interval": {
+            "before_usage_ordinal": 3,
+            "after_usage_ordinal": 4,
+            "cumulative_before": {
+              "totalTokens": 49545,
+              "inputTokens": 49238,
+              "cachedInputTokens": 31488,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 307,
+              "reasoningOutputTokens": 77
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 67783,
+              "inputTokens": 67376,
+              "cachedInputTokens": 49024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 407,
+              "reasoningOutputTokens": 85
+            },
+            "enclosing_increment": {
+              "totalTokens": 18238,
+              "inputTokens": 18138,
+              "cachedInputTokens": 17536,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 100,
+              "reasoningOutputTokens": 8
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 6,
+          "operation": "describe_operation",
+          "action": "native",
+          "stage": "SCHEMA_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "ad932f3b91998920fb1c16c1b10a4d3d69efee9386470156d7f78d0e16c44516",
+          "response_sha256": "da86b5479db0af1bb241df71f0ca958b4ceecd09fe2ca5f7ef49544588608fb3",
+          "usage_interval": {
+            "before_usage_ordinal": 4,
+            "after_usage_ordinal": 5,
+            "cumulative_before": {
+              "totalTokens": 67783,
+              "inputTokens": 67376,
+              "cachedInputTokens": 49024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 407,
+              "reasoningOutputTokens": 85
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 87727,
+              "inputTokens": 87165,
+              "cachedInputTokens": 67072,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 562,
+              "reasoningOutputTokens": 150
+            },
+            "enclosing_increment": {
+              "totalTokens": 19944,
+              "inputTokens": 19789,
+              "cachedInputTokens": 18048,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 155,
+              "reasoningOutputTokens": 65
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 7,
+          "operation": "describe_operation",
+          "action": "native",
+          "stage": "SCHEMA_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "4899b473380ca3c83d0337222e18e570561867eb071f7719e22be524b4b5668b",
+          "response_sha256": "5b59ef1924fd9b281422ddf76efdfc9e03d65ebfa38e3f85303612bc9d7e7ebe",
+          "usage_interval": {
+            "before_usage_ordinal": 4,
+            "after_usage_ordinal": 5,
+            "cumulative_before": {
+              "totalTokens": 67783,
+              "inputTokens": 67376,
+              "cachedInputTokens": 49024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 407,
+              "reasoningOutputTokens": 85
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 87727,
+              "inputTokens": 87165,
+              "cachedInputTokens": 67072,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 562,
+              "reasoningOutputTokens": 150
+            },
+            "enclosing_increment": {
+              "totalTokens": 19944,
+              "inputTokens": 19789,
+              "cachedInputTokens": 18048,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 155,
+              "reasoningOutputTokens": 65
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 8,
+          "operation": "describe_operation",
+          "action": "native",
+          "stage": "SCHEMA_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "a68b39fd2424c9d1bda64acfdaa234945e2cd3fb35368607c743f04ca09d0e84",
+          "response_sha256": "41fa8978c00a610533e37b90740ca039057aa316f02119d9ae7c340dec696b6e",
+          "usage_interval": {
+            "before_usage_ordinal": 4,
+            "after_usage_ordinal": 5,
+            "cumulative_before": {
+              "totalTokens": 67783,
+              "inputTokens": 67376,
+              "cachedInputTokens": 49024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 407,
+              "reasoningOutputTokens": 85
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 87727,
+              "inputTokens": 87165,
+              "cachedInputTokens": 67072,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 562,
+              "reasoningOutputTokens": 150
+            },
+            "enclosing_increment": {
+              "totalTokens": 19944,
+              "inputTokens": 19789,
+              "cachedInputTokens": 18048,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 155,
+              "reasoningOutputTokens": 65
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 9,
+          "operation": "describe_operation",
+          "action": "native",
+          "stage": "SCHEMA_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "99a1f584e9d8c35e699686be252742eab4b86bfa13ef9e3b74ee8298b60b2002",
+          "response_sha256": "6ac93c3eb7b7264711b8ca82ebf413c0fdab7e8a0b4a44dac90f78e42e9a8aa8",
+          "usage_interval": {
+            "before_usage_ordinal": 4,
+            "after_usage_ordinal": 5,
+            "cumulative_before": {
+              "totalTokens": 67783,
+              "inputTokens": 67376,
+              "cachedInputTokens": 49024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 407,
+              "reasoningOutputTokens": 85
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 87727,
+              "inputTokens": 87165,
+              "cachedInputTokens": 67072,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 562,
+              "reasoningOutputTokens": 150
+            },
+            "enclosing_increment": {
+              "totalTokens": 19944,
+              "inputTokens": 19789,
+              "cachedInputTokens": 18048,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 155,
+              "reasoningOutputTokens": 65
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 10,
+          "operation": "describe_operation",
+          "action": "native",
+          "stage": "SCHEMA_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "7743d6f1f4879a2d83619ad2f6cfb69f5c83c61df0800aba04856d342da97887",
+          "response_sha256": "2b82d10ae6faac3e420593e3ef7a5316d8cbdcb3e1d1d2858ebf701943080fa2",
+          "usage_interval": {
+            "before_usage_ordinal": 4,
+            "after_usage_ordinal": 5,
+            "cumulative_before": {
+              "totalTokens": 67783,
+              "inputTokens": 67376,
+              "cachedInputTokens": 49024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 407,
+              "reasoningOutputTokens": 85
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 87727,
+              "inputTokens": 87165,
+              "cachedInputTokens": 67072,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 562,
+              "reasoningOutputTokens": 150
+            },
+            "enclosing_increment": {
+              "totalTokens": 19944,
+              "inputTokens": 19789,
+              "cachedInputTokens": 18048,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 155,
+              "reasoningOutputTokens": 65
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 11,
+          "operation": "create_literal",
+          "action": "native",
+          "stage": "NODE_CONSTRUCTION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "a2b40767cfb16add8cc7b38098bc8968afcf81be3816e04e114f35f45fed1f5d",
+          "response_sha256": "60000255b318833fd7de78b5ae75f7ec24ba9a032b9d92c0ad3cb29f17a07865",
+          "usage_interval": {
+            "before_usage_ordinal": 5,
+            "after_usage_ordinal": 6,
+            "cumulative_before": {
+              "totalTokens": 87727,
+              "inputTokens": 87165,
+              "cachedInputTokens": 67072,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 562,
+              "reasoningOutputTokens": 150
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 108966,
+              "inputTokens": 108221,
+              "cachedInputTokens": 86784,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 745,
+              "reasoningOutputTokens": 277
+            },
+            "enclosing_increment": {
+              "totalTokens": 21239,
+              "inputTokens": 21056,
+              "cachedInputTokens": 19712,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 183,
+              "reasoningOutputTokens": 127
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 12,
+          "operation": "create_binary",
+          "action": "native",
+          "stage": "NODE_CONSTRUCTION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "fcdccf863762608dc89264911893e787fbe341eb5df427c8bc2d706fad230fc5",
+          "response_sha256": "2a2b4dd5c9ccc5a61575de8468cbaba556c6593134997989af6c51c8a5aff44f",
+          "usage_interval": {
+            "before_usage_ordinal": 6,
+            "after_usage_ordinal": 7,
+            "cumulative_before": {
+              "totalTokens": 108966,
+              "inputTokens": 108221,
+              "cachedInputTokens": 86784,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 745,
+              "reasoningOutputTokens": 277
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 130449,
+              "inputTokens": 129584,
+              "cachedInputTokens": 107904,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 865,
+              "reasoningOutputTokens": 277
+            },
+            "enclosing_increment": {
+              "totalTokens": 21483,
+              "inputTokens": 21363,
+              "cachedInputTokens": 21120,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 120,
+              "reasoningOutputTokens": 0
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 13,
+          "operation": "create_reference",
+          "action": "native",
+          "stage": "NODE_CONSTRUCTION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "7e908fcb3aaf65416433922d076a8b8bd5d72e3548809a5bb18732b5c6e94e14",
+          "response_sha256": "2ca10dbfdcd937cd68ca708c01afc89a7e9123188f613091b4eda40b0cf1e83d",
+          "usage_interval": {
+            "before_usage_ordinal": 7,
+            "after_usage_ordinal": 8,
+            "cumulative_before": {
+              "totalTokens": 130449,
+              "inputTokens": 129584,
+              "cachedInputTokens": 107904,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 865,
+              "reasoningOutputTokens": 277
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 152097,
+              "inputTokens": 151187,
+              "cachedInputTokens": 129152,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 910,
+              "reasoningOutputTokens": 277
+            },
+            "enclosing_increment": {
+              "totalTokens": 21648,
+              "inputTokens": 21603,
+              "cachedInputTokens": 21248,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 45,
+              "reasoningOutputTokens": 0
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 14,
+          "operation": "create_if",
+          "action": "native",
+          "stage": "NODE_CONSTRUCTION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "fa533b007cdac0f7fd88c56cc95865963569cc5c2aa89222880d903b795c1a4f",
+          "response_sha256": "9726e1e29a74202d528cba959e028afa9986e9fb89524001ce3a3f32314e4cf6",
+          "usage_interval": {
+            "before_usage_ordinal": 8,
+            "after_usage_ordinal": 9,
+            "cumulative_before": {
+              "totalTokens": 152097,
+              "inputTokens": 151187,
+              "cachedInputTokens": 129152,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 910,
+              "reasoningOutputTokens": 277
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 174058,
+              "inputTokens": 172971,
+              "cachedInputTokens": 150656,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1087,
+              "reasoningOutputTokens": 292
+            },
+            "enclosing_increment": {
+              "totalTokens": 21961,
+              "inputTokens": 21784,
+              "cachedInputTokens": 21504,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 177,
+              "reasoningOutputTokens": 15
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 15,
+          "operation": "replace_expression",
+          "action": "native",
+          "stage": "TARGET_ATTACHMENT",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "cb05b6d799c11ab260ca598e43b61f183eca9281869dd70f35eb0eafd8c532df",
+          "response_sha256": "bc59037ccc97866350d20285fabda9f431f3691d4dac695cc06c86cfe9683c96",
+          "usage_interval": {
+            "before_usage_ordinal": 9,
+            "after_usage_ordinal": 10,
+            "cumulative_before": {
+              "totalTokens": 174058,
+              "inputTokens": 172971,
+              "cachedInputTokens": 150656,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1087,
+              "reasoningOutputTokens": 292
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 196305,
+              "inputTokens": 195068,
+              "cachedInputTokens": 172416,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1237,
+              "reasoningOutputTokens": 304
+            },
+            "enclosing_increment": {
+              "totalTokens": 22247,
+              "inputTokens": 22097,
+              "cachedInputTokens": 21760,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 150,
+              "reasoningOutputTokens": 12
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 16,
+          "operation": "inspect_body",
+          "action": "native",
+          "stage": "ENTITY_DISCOVERY",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "46f70bef5f831c1fccb84ccd0f4c272d7839040927d17040a23133ec27b483ef",
+          "response_sha256": "30204e2e241c30bb6571c6a94b93c3e659a9314918936b7babef2084645a24de",
+          "usage_interval": {
+            "before_usage_ordinal": 10,
+            "after_usage_ordinal": 11,
+            "cumulative_before": {
+              "totalTokens": 196305,
+              "inputTokens": 195068,
+              "cachedInputTokens": 172416,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1237,
+              "reasoningOutputTokens": 304
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 218792,
+              "inputTokens": 217455,
+              "cachedInputTokens": 194432,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1337,
+              "reasoningOutputTokens": 320
+            },
+            "enclosing_increment": {
+              "totalTokens": 22487,
+              "inputTokens": 22387,
+              "cachedInputTokens": 22016,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 100,
+              "reasoningOutputTokens": 16
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 17,
+          "operation": "preview_semantic_diff",
+          "action": "native",
+          "stage": "OTHER_EXPLORATION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "412b8ba9341956afb66204586b0922d5ad4807a83bc6c5aa9d5ae68609ad5c42",
+          "response_sha256": "3fde22971836a3ceaa982cc2c85440d42ad0815f2756dce9350f06c13d497a10",
+          "usage_interval": {
+            "before_usage_ordinal": 10,
+            "after_usage_ordinal": 11,
+            "cumulative_before": {
+              "totalTokens": 196305,
+              "inputTokens": 195068,
+              "cachedInputTokens": 172416,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1237,
+              "reasoningOutputTokens": 304
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 218792,
+              "inputTokens": 217455,
+              "cachedInputTokens": 194432,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1337,
+              "reasoningOutputTokens": 320
+            },
+            "enclosing_increment": {
+              "totalTokens": 22487,
+              "inputTokens": 22387,
+              "cachedInputTokens": 22016,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 100,
+              "reasoningOutputTokens": 16
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 18,
+          "operation": "check_transaction",
+          "action": "native",
+          "stage": "CHECK",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "785086ad89a3f3b9f86b8e7d5c86835e66f506834b2740fd9b41244ebccc9e53",
+          "response_sha256": "f7b367a75d786a0a56d0528fbbe5075e504ce055d3c62406f9df1399a87eb54a",
+          "usage_interval": {
+            "before_usage_ordinal": 11,
+            "after_usage_ordinal": 12,
+            "cumulative_before": {
+              "totalTokens": 218792,
+              "inputTokens": 217455,
+              "cachedInputTokens": 194432,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1337,
+              "reasoningOutputTokens": 320
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 243258,
+              "inputTokens": 241822,
+              "cachedInputTokens": 216704,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1436,
+              "reasoningOutputTokens": 327
+            },
+            "enclosing_increment": {
+              "totalTokens": 24466,
+              "inputTokens": 24367,
+              "cachedInputTokens": 22272,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 99,
+              "reasoningOutputTokens": 7
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 19,
+          "operation": "commit_transaction",
+          "action": "native",
+          "stage": "COMMIT",
+          "failed_envelope": true,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": false,
+          "host_commit_denied": true,
+          "host_error_sha256": "554ead599db5938bff0210e503c82c2a69e3ffc93fd27af0585bfc383706b64d",
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 12,
+            "after_usage_ordinal": 13,
+            "cumulative_before": {
+              "totalTokens": 243258,
+              "inputTokens": 241822,
+              "cachedInputTokens": 216704,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1436,
+              "reasoningOutputTokens": 327
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 267826,
+              "inputTokens": 266341,
+              "cachedInputTokens": 241024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1485,
+              "reasoningOutputTokens": 333
+            },
+            "enclosing_increment": {
+              "totalTokens": 24568,
+              "inputTokens": 24519,
+              "cachedInputTokens": 24320,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 49,
+              "reasoningOutputTokens": 6
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 20,
+          "operation": "abort_transaction",
+          "action": "native",
+          "stage": "OTHER_EXPLORATION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": true,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": "496f594aa175ff701b3bdf32acc15dc9fb8fa47af4db22cb29783b026ad5058b",
+          "response_sha256": "7f3ab29ec5f06c71ebb724235c6879e3b86c447a5e47c1bb52e8d8b8c2890e2c",
+          "usage_interval": {
+            "before_usage_ordinal": 13,
+            "after_usage_ordinal": 14,
+            "cumulative_before": {
+              "totalTokens": 267826,
+              "inputTokens": 266341,
+              "cachedInputTokens": 241024,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1485,
+              "reasoningOutputTokens": 333
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 292882,
+              "inputTokens": 290961,
+              "cachedInputTokens": 265472,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1921,
+              "reasoningOutputTokens": 662
+            },
+            "enclosing_increment": {
+              "totalTokens": 25056,
+              "inputTokens": 24620,
+              "cachedInputTokens": 24448,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 436,
+              "reasoningOutputTokens": 329
+            },
+            "individual_call_token_charge": null
+          }
+        },
+        {
+          "model_tool_ordinal": 21,
+          "operation": null,
+          "action": "finish",
+          "stage": "OTHER_EXPLORATION",
+          "failed_envelope": false,
+          "structured_ok": null,
+          "diagnostics": [],
+          "native_dispatched": null,
+          "host_commit_denied": false,
+          "host_error_sha256": null,
+          "request_sha256": null,
+          "response_sha256": null,
+          "usage_interval": {
+            "before_usage_ordinal": 14,
+            "after_usage_ordinal": 15,
+            "cumulative_before": {
+              "totalTokens": 292882,
+              "inputTokens": 290961,
+              "cachedInputTokens": 265472,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1921,
+              "reasoningOutputTokens": 662
+            },
+            "before_is_observed_usage": true,
+            "unobserved_before_uses_turn_origin_for_interval_only": false,
+            "cumulative_after": {
+              "totalTokens": 318035,
+              "inputTokens": 316071,
+              "cachedInputTokens": 290304,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 1964,
+              "reasoningOutputTokens": 675
+            },
+            "enclosing_increment": {
+              "totalTokens": 25153,
+              "inputTokens": 25110,
+              "cachedInputTokens": 24832,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 43,
+              "reasoningOutputTokens": 13
+            },
+            "individual_call_token_charge": null
+          }
+        }
+      ],
+      "readonly_staging_observations": [
+        {
+          "after_operation": "begin_transaction",
+          "baseline": true,
+          "body_sha256": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "observer_calls": 1,
+          "changed_from_transaction_start": false,
+          "elapsed_ns": 1397359
+        },
+        {
+          "after_operation": "create_literal",
+          "baseline": false,
+          "body_sha256": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "observer_calls": 1,
+          "changed_from_transaction_start": false,
+          "elapsed_ns": 406698
+        },
+        {
+          "after_operation": "create_binary",
+          "baseline": false,
+          "body_sha256": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "observer_calls": 1,
+          "changed_from_transaction_start": false,
+          "elapsed_ns": 285742
+        },
+        {
+          "after_operation": "create_reference",
+          "baseline": false,
+          "body_sha256": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "observer_calls": 1,
+          "changed_from_transaction_start": false,
+          "elapsed_ns": 1096912
+        },
+        {
+          "after_operation": "create_if",
+          "baseline": false,
+          "body_sha256": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "observer_calls": 1,
+          "changed_from_transaction_start": false,
+          "elapsed_ns": 833597
+        },
+        {
+          "after_operation": "replace_expression",
+          "baseline": false,
+          "body_sha256": "a376fbce88b0528ad8f5f1f3edd7a95162d274181a21a308759a02a9c71042d5",
+          "observer_calls": 1,
+          "changed_from_transaction_start": true,
+          "elapsed_ns": 285979
+        }
+      ],
+      "appserver_native_commit_attempts": 1,
+      "appserver_native_errors": 1,
+      "appserver_native_parameter_errors": 0,
+      "native_check_responses": [
+        {
+          "structured_ok": null,
+          "problems_count": 0,
+          "diagnostics": [],
+          "response_sha256": "f7b367a75d786a0a56d0528fbbe5075e504ce055d3c62406f9df1399a87eb54a"
+        }
+      ],
+      "active_turn_terminal": "completed",
+      "resources": {
+        "totalTokens": 343287,
+        "inputTokens": 341252,
+        "cachedInputTokens": 315264,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2035,
+        "reasoningOutputTokens": 675
+      },
+      "token_observation_threshold_reached": false,
+      "tool_limit_reached": false,
+      "wall_observation_limit_reached": false,
+      "final_evaluator_outputs_sha256": "d7d52c05f31e1c47c7c29ccce25c4fc6a4ff079ad6a440ebf16f0748741302c0"
+    }
+  ]
+}

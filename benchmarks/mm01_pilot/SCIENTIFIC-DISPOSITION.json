@@ -1,0 +1,29 @@
+{
+  "execution_record": "CLOSED_COMPLETE",
+  "model_tasks_executed": 2,
+  "repeat_or_replacement": false,
+  "scientific_disposition": "NATIVE_COMMIT_HOST_AUTHORIZATION_BLOCKER",
+  "host_blockers": [
+    {
+      "id": "MM01-S",
+      "model_tool_ordinal": 19,
+      "code": "HOST_APPROVAL_NEVER_COMMIT_DENIED_BEFORE_NATIVE_DISPATCH",
+      "message": "MCP tool call requires approval, but approval policy is never",
+      "event_index": 87,
+      "request_reached_isolated_native_mcp": false
+    }
+  ],
+  "clean_paired_utility_comparison": false,
+  "text_completed_correct_maintenance": true,
+  "native_staged_target_change_observed": true,
+  "native_effective_commit": false,
+  "native_uncommitted_behavior": "NOT_INDEPENDENTLY_EVALUATED",
+  "no_claim": [
+    "native inability to attach target",
+    "native behavioral incorrectness of staged candidate",
+    "Text superiority",
+    "intrinsic language causality",
+    "agent correctness increment"
+  ],
+  "next_action": "STOP_FOR_REVIEW; no permission repair, additional slot or rerun in this node"
+}

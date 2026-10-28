@@ -1,0 +1,17 @@
+name: MM01 pilot provenance
+on:
+  pull_request:
+  push:
+    branches: [codex/mm01-maintenance-model-pilot]
+jobs:
+  zero-model:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python benchmarks/mm01_pilot/ci_exact_runtime.py

@@ -1,0 +1,47 @@
+{
+  "status": "EVIDENCE_VALIDATED_WITH_NATIVE_COMMIT_HOST_BLOCKER",
+  "model_tasks_executed": 2,
+  "provider_generation_requests": null,
+  "input_counter_calls": 0,
+  "extra_tasks": 0,
+  "freeze_commit": "87ba3b82aaf26d9825fdf65f76e11d84b0d59639",
+  "freeze_unchanged": true,
+  "archive_sha256_verified": true,
+  "archive_member_hashes": {
+    "MM01-S/config.json": "effc953f2431ae628b007089a8c697fc12007a7197ac3d41385bbd295871197b",
+    "MM01-S/linux.json": "caf9c9ed3c7008b98b8fc4fa1285b714373e8c0cbc690fd807e711448810aa06",
+    "MM01-S/observer.jsonl": "854b48697c36a54156d1dd5cdbbdbef03981f2d6aaa769b1bc638536c1d539dc",
+    "MM01-S/ready.json": "41bc160efff3f9c8deec477fb24616c21ef0f4d9e7dd7f2f54cc91b21053838f",
+    "MM01-S/record.json": "aae9cfa8e272f740bd17d37c8fa0fd33bd8c2789616aeba39b3d92d947fe94fb",
+    "MM01-S/thread-start.json": "f15511001dd16b2df0cbca4a6f0130d1632a7387de1d7c1a124c2b4294afbf92",
+    "MM01-S/turn-start.json": "1d8afd3170e4bc9548e10586e4cae6379bd1c3073e21cbb29069b33e46e53161",
+    "MM01-T/config.json": "ba9f88cc2d4d053ebb76c4b887ac36882eeb739fd2a6a961b5caaf450b50fb71",
+    "MM01-T/linux.json": "6294012725184659b581dea0e428dc38af80d1a08ce5dbbaf86f43d1067fe73f",
+    "MM01-T/ready.json": "fb5eb6a5ffcb5953a35648eb580c8c2c3b170a4136ae01bc6d29f5ba709b4c32",
+    "MM01-T/record.json": "a9d239a7a0204ff96fc1b28a2e07134fd2ba582f99bce5abe9e32dfb6ca49454",
+    "MM01-T/thread-start.json": "299d0e4670aeaf338325d4309f7fa140a3200de9840f4fce3c6c53c9a5a96a5e",
+    "MM01-T/turn-start.json": "f2d4c814b4e49c96b05f47d236ad277d8ad1006b2eb6c8ea31709f0885069d34",
+    "progress.json": "fe5c24b8d05e1668e7a4189f8e5f8656442874b6f224f82fd266959be8128e92",
+    "STARTED.json": "0b561b2328637a6cef33468b19f13d531888e76318d0f9ac4601db34d3a1bd2b"
+  },
+  "actual_inputs_match_freeze": true,
+  "fresh_thread_and_turn_ids": true,
+  "independent_task_and_regression_scores_recomputed": true,
+  "candidate_execution": "existing Linux OS namespaces only",
+  "raw_data_in_git": false,
+  "core_aep_mcp_skill_changed": false,
+  "historical_frozen_artifacts_changed": false,
+  "analysis_provider_calls": 0,
+  "unexercised_stale_recovery": "NOT_APPLICABLE",
+  "preflight_gap": "begin/inspect/abort passed but AppServer commit authorization was not exercised",
+  "host_blockers": [
+    {
+      "id": "MM01-S",
+      "model_tool_ordinal": 19,
+      "code": "HOST_APPROVAL_NEVER_COMMIT_DENIED_BEFORE_NATIVE_DISPATCH",
+      "message": "MCP tool call requires approval, but approval policy is never",
+      "event_index": 87,
+      "request_reached_isolated_native_mcp": false
+    }
+  ]
+}
