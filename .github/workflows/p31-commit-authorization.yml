@@ -1,0 +1,20 @@
+name: P31 scoped commit authorization
+on:
+  pull_request:
+  push:
+    branches: [codex/p31-native-commit-authorization]
+jobs:
+  policy-and-synthetic-protocol:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Scoped policy and loopback protocol (no model)
+        run: python tests/integrations/test_native_commit_authorization.py -v
+      - name: Existing controller terminal and RPC regression (no model)
+        run: python -c "from benchmarks.cross_language.controller import simulated_validation; assert simulated_validation()['status'] == 'PASS'"
