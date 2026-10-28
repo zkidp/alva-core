@@ -1,0 +1,34 @@
+{
+  "controller": {
+    "status": "PASS",
+    "thread_turn_identity": true,
+    "rpc_errors_fail_closed": true,
+    "terminal_confirmation": true,
+    "missing_usage_is_null": true,
+    "model_generation_calls": 0
+  },
+  "generation_calls": 0,
+  "T": {
+    "status": "PASS",
+    "actual_appserver": true,
+    "model": "gpt-5.6-sol",
+    "native_tools": 0,
+    "authority_unchanged": true,
+    "baseline_check_build_regression": "PASS",
+    "baseline_goal_expected_fail": true,
+    "fresh_namespace": true,
+    "generation_calls": 0
+  },
+  "S": {
+    "status": "PASS",
+    "actual_appserver": true,
+    "model": "gpt-5.6-sol",
+    "native_tools": 20,
+    "authority_unchanged": true,
+    "baseline_check_build_regression": "PASS",
+    "baseline_goal_expected_fail": true,
+    "fresh_namespace": true,
+    "generation_calls": 0
+  },
+  "status": "PASS"
+}
