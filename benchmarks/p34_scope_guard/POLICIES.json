@@ -1,0 +1,125 @@
+{
+  "MM02_SHARED": {
+    "policy": {
+      "schema": "fixed-component-body-scope/v1",
+      "authorized_functions": [
+        "store.xml.parse_prefix"
+      ],
+      "modules": {
+        "store.model": {
+          "functions": [
+            "text_response",
+            "xml_response",
+            "xml_error"
+          ],
+          "types": [
+            "HttpRequest",
+            "RouteResult"
+          ]
+        },
+        "store.xml": {
+          "functions": [
+            "parse_prefix",
+            "parse_delimiter",
+            "emit_common_prefix",
+            "emit_leaf",
+            "list_buckets_xml",
+            "list_objects_xml"
+          ],
+          "types": []
+        }
+      }
+    },
+    "bundle_sha256": "352a8b6fa459942b8b1d5469a966a706498afa7a2abbc13c39c457dafb069faf",
+    "expected_scope": "SCOPE_VIOLATION"
+  },
+  "MM02_NONSHARED": {
+    "policy": {
+      "schema": "fixed-component-body-scope/v1",
+      "authorized_functions": [
+        "store.xml.parse_prefix"
+      ],
+      "modules": {
+        "store.model": {
+          "functions": [
+            "text_response",
+            "xml_response",
+            "xml_error"
+          ],
+          "types": [
+            "HttpRequest",
+            "RouteResult"
+          ]
+        },
+        "store.xml": {
+          "functions": [
+            "parse_prefix",
+            "parse_delimiter",
+            "emit_common_prefix",
+            "emit_leaf",
+            "list_buckets_xml",
+            "list_objects_xml"
+          ],
+          "types": []
+        }
+      }
+    },
+    "bundle_sha256": "767909e827a72102db3968e0c0e241530d8a5a84351366eb39d1a964c1223ee4",
+    "expected_scope": "SCOPE_ALLOWED"
+  },
+  "MM01_VALID": {
+    "policy": {
+      "schema": "fixed-component-body-scope/v1",
+      "authorized_functions": [
+        "demo.model.touch_size"
+      ],
+      "modules": {
+        "demo.model": {
+          "functions": [
+            "make_meta",
+            "size_of",
+            "touch_size"
+          ],
+          "types": [
+            "Meta"
+          ]
+        },
+        "demo.app": {
+          "functions": [
+            "run"
+          ],
+          "types": []
+        }
+      }
+    },
+    "bundle_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090",
+    "expected_scope": "SCOPE_ALLOWED"
+  },
+  "UNKNOWN_COVERAGE": {
+    "policy": {
+      "schema": "fixed-component-body-scope/v1",
+      "authorized_functions": [
+        "demo.model.touch_size"
+      ],
+      "modules": {
+        "demo.model": {
+          "functions": [
+            "make_meta",
+            "touch_size"
+          ],
+          "types": [
+            "Meta"
+          ]
+        },
+        "demo.app": {
+          "functions": [
+            "run"
+          ],
+          "types": []
+        }
+      }
+    },
+    "bundle_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090",
+    "expected_scope": "SCOPE_UNVERIFIED"
+  }
+}

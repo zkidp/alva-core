@@ -1,0 +1,326 @@
+{
+  "status": "PASS",
+  "base": "46f5398c0ea591674df6f1c9604a0c983af426bc",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "model_approval_path": "REAL_APPSERVER_SYNTHETIC_RESPONSES_NO_MODEL",
+  "codex": "codex-cli 0.163.0-alpha.11.2",
+  "codex_binary_sha256": "c81ed464e5e7cafd09a5fa26af390c480bed8e9fab2a87a54b285fbd56e7122a",
+  "sdk_identity": {
+    "binary": {
+      "sha256": "2169d8e575162aec227af3c3b1f77be88f03802992e47149bbf83076e32f5073",
+      "files": 1
+    },
+    "toolchain": {
+      "sha256": "44b122e9df641e6e512e6012192c15a575f20d87947152e166b8e5b986e2e903",
+      "files": 153
+    },
+    "registry": {
+      "sha256": "3ba0030742890ac472fcf33ef179f69ce205aa5b495ee15db255631f0854b73b",
+      "files": 708
+    },
+    "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+    "bwrap": "bubblewrap 0.11.1"
+  },
+  "executed_file_sha256": {
+    "benchmarks/maintenance_design/TASK-CANDIDATES.json": "a2704cd0bd6aa5061ed3e5f2eb37f369c5cda7ed1c9ab939beaf525aaa918332",
+    "benchmarks/maintenance_design/witnesses.py": "fa81e534a486855d6ff4d60f1f5eefbc187a061ed95c1426d46e44f24662a756",
+    "benchmarks/native_prospective/pilot.py": "ec83509d9bd0ddda2c390b2161ee3ca2f9f363ed3524820bde3ebda2b4ed67ad",
+    "benchmarks/native_prospective/service.py": "a58f7b9dd610eb8ba862caab84205f5ce61153b966ecd386b9409a7871d88f23",
+    "benchmarks/p34_scope_guard/cases.py": "7e64dd0a4d3fae4a91372d7d9610cc3f3019d8da26984babdb70ed62a92ad33d",
+    "benchmarks/p34_scope_guard/publish.py": "b7171843d9fbb8dbb03414d9233e7a5a6a7f0cdae2293836fc596208ca32a144",
+    "benchmarks/p34_scope_guard/service.py": "7161ce441e50dbbd80ff111003374011c47fd5a74606a2bb50974a41d5719983",
+    "benchmarks/p34_scope_guard/verify_host.py": "a7f6e4a65287f8399b0cde47632be9bc6abf465466808b182cdad1b8f5ab7978",
+    "benchmarks/p34_scope_guard/verify_native.py": "4c0d2f7a65ac12a1446f7fbba6ed893e15af0c6afaf439acccafc691d3d25885",
+    "integrations/benchmark_runtime_v2/persistent.py": "71fd2e1d4c1b438583c3972242984f23213267f4781337278c0e7ed3f9d12421",
+    "integrations/benchmark_runtime_v2/sandbox.py": "8e50592d4b6101aff446138e2f6a52b0fce973b5bbcf11256017c1fa5e9d3d51",
+    "integrations/codex/native_commit_authorization.py": "2245883e17cb16dc592b849b50eaec15c6998aaaa810af200e8d969c48398cf6",
+    "integrations/codex/precommit_scope_guard.py": "54a23a1377f1fd0c7dbfb65f40e5109836d00a50796a6630f2811799b8d76b0e",
+    "tests/integrations/native_commit_authorization_test.py": "ffcef9844f3bae4d3cdcd426310cac905a4a7302dd44558c65de7cd0f69fb1b7",
+    "tests/integrations/p31_synthetic_provider.py": "8b5d993b3b2dc5b9b33467629e82eab23aeda01f6ef47cf8879ff49b064d96ab"
+  },
+  "rows": [
+    {
+      "id": "MM02_SHARED",
+      "authorized_functions": [
+        "store.xml.parse_prefix"
+      ],
+      "attachment": {
+        "attachment_parent_revision": "33ecf18b03c1348dd59bf91c15f66a73d06cba29dd757254c4e7917ed96beb5f"
+      },
+      "changed_functions": [
+        "store.xml.parse_prefix",
+        "store.xml.parse_delimiter"
+      ],
+      "preview": {
+        "diff": "CHANGED module store.xml\nCHANGED function store.xml.parse_prefix\nCHANGED function store.xml.parse_delimiter"
+      },
+      "check_transaction": {
+        "problems": []
+      },
+      "scope_decision": {
+        "status": "SCOPE_VIOLATION",
+        "changed_functions": [
+          "store.xml.parse_delimiter",
+          "store.xml.parse_prefix"
+        ],
+        "unauthorized_functions": [
+          "store.xml.parse_delimiter"
+        ],
+        "authorized_functions": [
+          "store.xml.parse_prefix"
+        ],
+        "baseline_sha256": "ce374870a53a4f284e78d35691a807b3508344d9954defc935b9776cec271712",
+        "staged_sha256": "b86d43c39881b4d289ab3f8574efcfc4d740e88a08b13a63b73dbdf9e287b38f",
+        "baseline_project_revision": "6bafc7d00f250d86e90714dd04aa033c3940937199f29fdf36980bba3e6e7c09",
+        "staged_project_revision": "08bd952ecf68d1f09c27cda496337bede0bf00c0eb6d72135e1b43fb0f1cc293",
+        "coverage_nodes": 196,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "authority_unchanged_when_denied": true,
+      "commit_appserver_call_id": "exec-25a9ec94-1c71-4a3a-8148-48d8970b5558",
+      "model_tool_approval_error": null,
+      "raw_commit_endpoint_unavailable": true,
+      "model_generation_calls": 0,
+      "native_commit_dispatches": 0,
+      "denied_commits": 1,
+      "baseline_attempted_before_mutation": true,
+      "baseline_valid": true,
+      "initial_authority": {
+        "project_revision": "6bafc7d00f250d86e90714dd04aa033c3940937199f29fdf36980bba3e6e7c09",
+        "bodies": {
+          "store.xml.parse_prefix": "408419da030d7f5d100eb9c57be22a5f65f9f741295242a93af3d3622af2396d",
+          "store.xml.parse_delimiter": "c130192cff8ef3a31b1f6472294697793c5a8fdaa19cf24d59ed86426ee2458f",
+          "store.xml.emit_common_prefix": "736634d6db774c8c44a5050b30058700137cc123325cd3e905788339432a227a",
+          "store.xml.emit_leaf": "46fd642557314c936d04845b646089f8e090c95f824138fc1887c6a54b148735",
+          "store.xml.list_buckets_xml": "d443d4e8a2b01c74ec9d804e8d92a261581042c3bb98ec135e64f3173e8714fe",
+          "store.xml.list_objects_xml": "e7892127ce4f7ca85cbea01bb43275fd6d93bfe02689b7fb8e597dcb86179b54",
+          "store.model.text_response": "ee42a757f3044a0449e875a27ddba03098c5c0337cc174e06fb670b59248ffb9",
+          "store.model.xml_response": "061ef0d2a4b2b159ad3d6278d50efd11e751abfa605fb0e1c515f972a6c0c2ff",
+          "store.model.xml_error": "7ecdb7ab91e2974580820810687cc74b50e6069d98a6a4880e3b91d25bc46071"
+        }
+      },
+      "final_authority": {
+        "project_revision": "6bafc7d00f250d86e90714dd04aa033c3940937199f29fdf36980bba3e6e7c09",
+        "bodies": {
+          "store.xml.parse_prefix": "408419da030d7f5d100eb9c57be22a5f65f9f741295242a93af3d3622af2396d",
+          "store.xml.parse_delimiter": "c130192cff8ef3a31b1f6472294697793c5a8fdaa19cf24d59ed86426ee2458f",
+          "store.xml.emit_common_prefix": "736634d6db774c8c44a5050b30058700137cc123325cd3e905788339432a227a",
+          "store.xml.emit_leaf": "46fd642557314c936d04845b646089f8e090c95f824138fc1887c6a54b148735",
+          "store.xml.list_buckets_xml": "d443d4e8a2b01c74ec9d804e8d92a261581042c3bb98ec135e64f3173e8714fe",
+          "store.xml.list_objects_xml": "e7892127ce4f7ca85cbea01bb43275fd6d93bfe02689b7fb8e597dcb86179b54",
+          "store.model.text_response": "ee42a757f3044a0449e875a27ddba03098c5c0337cc174e06fb670b59248ffb9",
+          "store.model.xml_response": "061ef0d2a4b2b159ad3d6278d50efd11e751abfa605fb0e1c515f972a6c0c2ff",
+          "store.model.xml_error": "7ecdb7ab91e2974580820810687cc74b50e6069d98a6a4880e3b91d25bc46071"
+        }
+      },
+      "fresh_process_authority_reread": true,
+      "independent_task": "TEST_FAIL",
+      "independent_regression": "PASS",
+      "source_projection_unchanged": true,
+      "guard_evidence_sha256": "ae5f3f2a2607d080e6cb5e270c4da4a8df747d829ec7af1698b99430b2a74089",
+      "native_evidence_sha256": "84cc5867e3ece2ec0930e615d2d7c8f838791c3d43da8efe1862f1592cb15aab"
+    },
+    {
+      "id": "MM02_NONSHARED",
+      "authorized_functions": [
+        "store.xml.parse_prefix"
+      ],
+      "attachment": {
+        "attachment_parent_revision": "33ecf18b03c1348dd59bf91c15f66a73d06cba29dd757254c4e7917ed96beb5f"
+      },
+      "changed_functions": [
+        "store.xml.parse_prefix"
+      ],
+      "preview": {
+        "diff": "CHANGED module store.xml\nCHANGED function store.xml.parse_prefix"
+      },
+      "check_transaction": {
+        "problems": []
+      },
+      "scope_decision": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.xml.parse_prefix"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.xml.parse_prefix"
+        ],
+        "baseline_sha256": "cfa6c10dfcf73ce412daa6e5a51868c5124bac2b4b92dd1f4e15939692d354f4",
+        "staged_sha256": "218546747d20f1fbb98a4880aa062e17879c2487a50732be6eb33268be8f4e7c",
+        "baseline_project_revision": "dd9b52378cee85f6b117bc4005b2015a8b953433aecb13b4c2f96cf6a8fbe136",
+        "staged_project_revision": "094dad2996a2f4a5d48cd71fa3b1d9ef6f69c46d94058f3b1083e082681c7c93",
+        "coverage_nodes": 198,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "authority_unchanged_when_denied": false,
+      "commit_appserver_call_id": "exec-6fab9823-de50-4c61-a75f-b4cd654cc058",
+      "model_tool_approval_error": null,
+      "raw_commit_endpoint_unavailable": true,
+      "model_generation_calls": 0,
+      "native_commit_dispatches": 1,
+      "denied_commits": 0,
+      "baseline_attempted_before_mutation": true,
+      "baseline_valid": true,
+      "initial_authority": {
+        "project_revision": "dd9b52378cee85f6b117bc4005b2015a8b953433aecb13b4c2f96cf6a8fbe136",
+        "bodies": {
+          "store.xml.parse_prefix": "408419da030d7f5d100eb9c57be22a5f65f9f741295242a93af3d3622af2396d",
+          "store.xml.parse_delimiter": "762deb709b2e00eafef85cc12105d38e1293bcf66ee2d747396d3b5acbd020d4",
+          "store.xml.emit_common_prefix": "736634d6db774c8c44a5050b30058700137cc123325cd3e905788339432a227a",
+          "store.xml.emit_leaf": "46fd642557314c936d04845b646089f8e090c95f824138fc1887c6a54b148735",
+          "store.xml.list_buckets_xml": "d443d4e8a2b01c74ec9d804e8d92a261581042c3bb98ec135e64f3173e8714fe",
+          "store.xml.list_objects_xml": "e7892127ce4f7ca85cbea01bb43275fd6d93bfe02689b7fb8e597dcb86179b54",
+          "store.model.text_response": "ee42a757f3044a0449e875a27ddba03098c5c0337cc174e06fb670b59248ffb9",
+          "store.model.xml_response": "061ef0d2a4b2b159ad3d6278d50efd11e751abfa605fb0e1c515f972a6c0c2ff",
+          "store.model.xml_error": "7ecdb7ab91e2974580820810687cc74b50e6069d98a6a4880e3b91d25bc46071"
+        }
+      },
+      "final_authority": {
+        "project_revision": "094dad2996a2f4a5d48cd71fa3b1d9ef6f69c46d94058f3b1083e082681c7c93",
+        "bodies": {
+          "store.xml.parse_prefix": "bc2a3499315b61ca88ffa31b8573e9db5e200d92f53bbac2f5be68df4769a537",
+          "store.xml.parse_delimiter": "762deb709b2e00eafef85cc12105d38e1293bcf66ee2d747396d3b5acbd020d4",
+          "store.xml.emit_common_prefix": "736634d6db774c8c44a5050b30058700137cc123325cd3e905788339432a227a",
+          "store.xml.emit_leaf": "46fd642557314c936d04845b646089f8e090c95f824138fc1887c6a54b148735",
+          "store.xml.list_buckets_xml": "d443d4e8a2b01c74ec9d804e8d92a261581042c3bb98ec135e64f3173e8714fe",
+          "store.xml.list_objects_xml": "e7892127ce4f7ca85cbea01bb43275fd6d93bfe02689b7fb8e597dcb86179b54",
+          "store.model.text_response": "ee42a757f3044a0449e875a27ddba03098c5c0337cc174e06fb670b59248ffb9",
+          "store.model.xml_response": "061ef0d2a4b2b159ad3d6278d50efd11e751abfa605fb0e1c515f972a6c0c2ff",
+          "store.model.xml_error": "7ecdb7ab91e2974580820810687cc74b50e6069d98a6a4880e3b91d25bc46071"
+        }
+      },
+      "fresh_process_authority_reread": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS",
+      "source_projection_unchanged": true,
+      "guard_evidence_sha256": "55ce2ad2aea2477ad0d699cc8afc28e1fedcb56e1b3c85ddc55c7c9b1792196d",
+      "native_evidence_sha256": "26ed76e7fa2eda7134d4c585a8eae09e597d581a0769b5737fb5c5a64c94cd2b"
+    },
+    {
+      "id": "MM01_VALID",
+      "authorized_functions": [
+        "demo.model.touch_size"
+      ],
+      "attachment": {
+        "attachment_parent_revision": "3a08de4d5ccca3e864ff07da1b6c7121d1075db6f1b29870b68cbb18b3c5ea6f"
+      },
+      "changed_functions": [
+        "demo.model.touch_size"
+      ],
+      "preview": {
+        "diff": "CHANGED module demo.model\nCHANGED function demo.model.touch_size"
+      },
+      "check_transaction": {
+        "problems": []
+      },
+      "scope_decision": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "demo.model.touch_size"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "demo.model.touch_size"
+        ],
+        "baseline_sha256": "a48f6bfc2e58bc1d98bba77e3928f3e5568ceee2e5ed23610ea4f7ffdcd3c510",
+        "staged_sha256": "50d40a4146234d203a191ebd3124e59ea687f593bfc990d145312ef5f15f5064",
+        "baseline_project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "staged_project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "coverage_nodes": 51,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "authority_unchanged_when_denied": false,
+      "commit_appserver_call_id": "exec-2d2d5ab2-f65c-491b-8d44-fe34c2b783c0",
+      "model_tool_approval_error": null,
+      "raw_commit_endpoint_unavailable": true,
+      "model_generation_calls": 0,
+      "native_commit_dispatches": 1,
+      "denied_commits": 0,
+      "baseline_attempted_before_mutation": true,
+      "baseline_valid": true,
+      "initial_authority": {
+        "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "final_authority": {
+        "project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "a376fbce88b0528ad8f5f1f3edd7a95162d274181a21a308759a02a9c71042d5",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "fresh_process_authority_reread": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS",
+      "source_projection_unchanged": true,
+      "guard_evidence_sha256": "6dd22c49919d77b7f4b4cdc751dcdf8e08ce61cad63dcb0ff1a171adb12e6be5",
+      "native_evidence_sha256": "3d60352be8be4ee5c67d47bd9fa6e7a499996fa3e55cc38c165a7d3254b32946"
+    },
+    {
+      "id": "UNKNOWN_COVERAGE",
+      "authorized_functions": [
+        "demo.model.touch_size"
+      ],
+      "attachment": {
+        "attachment_parent_revision": "3a08de4d5ccca3e864ff07da1b6c7121d1075db6f1b29870b68cbb18b3c5ea6f"
+      },
+      "changed_functions": [
+        "demo.model.touch_size"
+      ],
+      "preview": {
+        "diff": "CHANGED module demo.model\nCHANGED function demo.model.touch_size"
+      },
+      "check_transaction": {
+        "problems": []
+      },
+      "scope_decision": {
+        "status": "SCOPE_UNVERIFIED",
+        "reason": "Unverified:FUNCTION_COVERAGE_MISMATCH:demo.model"
+      },
+      "authority_unchanged_when_denied": true,
+      "commit_appserver_call_id": "exec-77c161e4-0fb8-4b1f-8c55-f80175c2c6a2",
+      "model_tool_approval_error": null,
+      "raw_commit_endpoint_unavailable": true,
+      "model_generation_calls": 0,
+      "native_commit_dispatches": 0,
+      "denied_commits": 1,
+      "baseline_attempted_before_mutation": true,
+      "baseline_valid": false,
+      "initial_authority": {
+        "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "final_authority": {
+        "project_revision": "c55248b6f4e36aa61a0c84cdbdb2d5c64f6827497e7d747cd7ae437090de9863",
+        "bodies": {
+          "demo.model.make_meta": "115296d4139d1daf64c4c88a5939a5c2ed90b8665518d9c762525dc6d225a9f4",
+          "demo.model.size_of": "d26c809075bb6af99b3be64190c273b1c74dd9a25fc43f62e2b162628f9b39b2",
+          "demo.model.touch_size": "1252782e3bda2e4bdb6c66788a1da1276b910e66fca5378d97e98c2b3c15410d",
+          "demo.app.run": "9a129194533433187a343a3f8ed83474c92b575d667818fcdd2758999f51e1be"
+        }
+      },
+      "fresh_process_authority_reread": true,
+      "independent_task": "TEST_FAIL",
+      "independent_regression": "PASS",
+      "source_projection_unchanged": true,
+      "guard_evidence_sha256": "9f6f868c5e298e7d22fb99ad1a8a139aee34188df07ef8b6bf8aea0a23ca1cda",
+      "native_evidence_sha256": "fc3ec234978390f355f26416aee3e41499b9df93dd5ba1ae14c94c542fdfa27d"
+    }
+  ],
+  "native_commit_dispatches": 2,
+  "denied_commits": 2
+}
