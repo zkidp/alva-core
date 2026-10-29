@@ -1,0 +1,46 @@
+name: P33 shared-node scope (zero models)
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/p33_shared_scope/**'
+      - 'docs/research/p33-shared-node-mutation-scope.md'
+      - '.github/workflows/p33-shared-scope.yml'
+permissions:
+  contents: read
+jobs:
+  evidence:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest benchmarks.p33_shared_scope.test_scope -v
+  isolated-mm02:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Trusted SDK and existing isolation dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Original MM02 plus alpha control; no models, no historical output writes
+        run: |
+          python benchmarks/p33_shared_scope/reproduce.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/p33-reproduction
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p33-linux-engineering-evidence
+          path: out/p33-reproduction/*.json
