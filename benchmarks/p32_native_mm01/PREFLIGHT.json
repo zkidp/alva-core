@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "generation_calls": 0,
+  "controller": {
+    "status": "PASS",
+    "thread_turn_identity": true,
+    "rpc_errors_fail_closed": true,
+    "terminal_confirmation": true,
+    "missing_usage_is_null": true,
+    "model_generation_calls": 0
+  },
+  "model_tool_approval_path": {
+    "status": "PASS",
+    "summary_sha256": "75ba760380392bf4c5572c0fe53386bf66fe8d70dda1e13872ca29c448e694b7",
+    "model_approval_path": "VERIFIED_WITH_LOCAL_SYNTHETIC_RESPONSES_NO_MODEL",
+    "files": {
+      "tests/integrations/native_commit_authorization_test.py": "ffcef9844f3bae4d3cdcd426310cac905a4a7302dd44558c65de7cd0f69fb1b7",
+      "tests/integrations/p31_synthetic_provider.py": "8b5d993b3b2dc5b9b33467629e82eab23aeda01f6ef47cf8879ff49b064d96ab"
+    }
+  },
+  "actual_p32_policy": "PASS",
+  "native_tools": 20,
+  "schemas_identical_to_p30": true,
+  "public_input_skill_evaluator_identical_to_p30": true,
+  "authority_unchanged": true,
+  "baseline_check_build_regression": "PASS",
+  "baseline_goal_expected_fail": true,
+  "linux_isolation": "P22/P23; unchanged",
+  "historical_artifacts_modified": false
+}
