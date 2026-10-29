@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "archive_hash_and_size": true,
+  "derived_result_reproduced": true,
+  "exact_pre_execution_freeze_preserved": true,
+  "exact_runtime_preserved": true,
+  "actual_prompt_skill_tools_and_policy_bound": true,
+  "scheduled": 1,
+  "model_tasks_started": 1,
+  "no_rerun_or_replacement": true,
+  "historical_artifacts_modified": false,
+  "analysis_model_generation_calls": 0,
+  "independent_evaluation": "Linux OS isolation, frozen P30 evaluator",
+  "raw_evidence_in_git": false,
+  "historical_T_pooling": false
+}

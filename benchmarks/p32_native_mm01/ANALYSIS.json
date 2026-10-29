@@ -1,0 +1,205 @@
+{
+  "schema": "p32-derived-analysis/v1",
+  "archive_sha256": "6b1f8bac0074ae82eb3234f42ee4d4a5f185d442b1e6ea1bb18939115fba4ab1",
+  "stages": [
+    {
+      "native_dispatch_ordinal": 1,
+      "native_model_tool_ordinal": 1,
+      "call_id": "exec-c2b9ce0e-17ab-43cd-9224-ae7fc9266146",
+      "operation": "begin_transaction",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 2,
+      "native_model_tool_ordinal": 2,
+      "call_id": "exec-93ef33b9-bd48-45ba-9f08-5edb079242cd",
+      "operation": "resolve_entity",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 3,
+      "native_model_tool_ordinal": 3,
+      "call_id": "exec-2e21322f-6d4d-415d-97d4-48b7de97c0a2",
+      "operation": "inspect_project",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 4,
+      "native_model_tool_ordinal": 4,
+      "call_id": "exec-5ca3ea73-5c52-440b-a916-b9c420465455",
+      "operation": "inspect_body",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 5,
+      "native_model_tool_ordinal": 5,
+      "call_id": "exec-b8d473ab-68ac-404b-9d30-f5fe931b63bf",
+      "operation": "applicable_operations",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 6,
+      "native_model_tool_ordinal": 6,
+      "call_id": "exec-c4e8b361-8f5e-43d2-b304-7165621bef53",
+      "operation": "describe_operation",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 7,
+      "native_model_tool_ordinal": 7,
+      "call_id": "exec-71c858c3-dcf1-40a2-9a0c-01f1cf4a2ade",
+      "operation": "describe_operation",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 8,
+      "native_model_tool_ordinal": 8,
+      "call_id": "exec-c78236a5-49de-4a39-aed6-6fbc2b96156a",
+      "operation": "describe_operation",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 9,
+      "native_model_tool_ordinal": 9,
+      "call_id": "exec-06a77357-68c3-4819-b095-6b416eb11123",
+      "operation": "describe_operation",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 10,
+      "native_model_tool_ordinal": 10,
+      "call_id": "exec-6c67735d-f008-4cbc-93d1-56392ebdb7b6",
+      "operation": "create_literal",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 11,
+      "native_model_tool_ordinal": 11,
+      "call_id": "exec-8a1d3593-00a0-4c10-b43c-144e36f2a5ff",
+      "operation": "create_binary",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 12,
+      "native_model_tool_ordinal": 12,
+      "call_id": "exec-2c66208c-266d-4d82-86f6-fe754f18605f",
+      "operation": "create_if",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 13,
+      "native_model_tool_ordinal": 13,
+      "call_id": "exec-00310ffb-f174-4e0d-b016-8be5c58850d4",
+      "operation": "replace_expression",
+      "isError": false,
+      "target_change_after_operation": true
+    },
+    {
+      "native_dispatch_ordinal": 14,
+      "native_model_tool_ordinal": 14,
+      "call_id": "exec-0d44d3da-16cb-4c58-9591-167ea899bacd",
+      "operation": "preview_semantic_diff",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 15,
+      "native_model_tool_ordinal": 15,
+      "call_id": "exec-7267c40e-fa33-46a2-aea3-e67fcbbc2ef4",
+      "operation": "check_transaction",
+      "isError": false,
+      "target_change_after_operation": false
+    },
+    {
+      "native_dispatch_ordinal": 16,
+      "native_model_tool_ordinal": 16,
+      "call_id": "exec-2726498e-2f7f-4cc8-81e9-461e5ef9252b",
+      "operation": "commit_transaction",
+      "isError": false,
+      "target_change_after_operation": false
+    }
+  ],
+  "transaction_checks": [
+    {
+      "operation": "check_transaction",
+      "problems": [],
+      "isError": false
+    }
+  ],
+  "commit_results": [
+    {
+      "generation": 1,
+      "revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252"
+    }
+  ],
+  "independent_evaluation": {
+    "check": {
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build": {
+      "exit": 0,
+      "stdout_sha256": "ab3e2f383445b3e41d72d09cb24a91f4e115a3a4c8bcae201b2ce1950cd08ffb",
+      "stderr_sha256": "800b21e157317c5ee2b528d7dc5b4e98bcef3814f8eef2446c832fe85a46d530"
+    },
+    "regression": {
+      "exit": 0,
+      "stdout_sha256": "1d5f8fb05999a4875295590999b0632349cf2e362df7fa36b1f1d29378cf6b1c",
+      "stderr_sha256": "7e10393c8e7e75c695c76bc6bb8a5072fd0ac3bd4212cf75a923e35c4e9b95e3"
+    },
+    "goal": {
+      "exit": 0,
+      "stdout_sha256": "8ee69c2828ee7ff24af81d99892c5eeebb2328b25aa0c33e2ac493dbb696884c",
+      "stderr_sha256": "d16db382c74f37b132dbe9504d668afdc03de02a31801bf490146d75dad4e53f"
+    }
+  },
+  "final_file_hashes": {
+    "alva.toml": "a88ef41a68aa9ace09bbd2d74ee6820b02bd09cedf2a617a9f6c0ace5acfd7c7",
+    "alva-air/current": "fc6e702e14387cec47054df106cdeefda37b1a9401f4985dff9851e22b5fb8e3",
+    "alva-air/gen-1.air": "1a368954645d4ea758d4a78db6c27b5c9b8d828d750b54f7694502df79f5be8f",
+    "src/model.alva": "fdebc5e20734c37892614d33089ab2eab66f90b4dbb86b03feca0332d8cc82f0",
+    "src/app.alva": "3f81d9c42da8ae03e7923d1849385425dd2d5515c1ec85cb8765045a2b0cd72b"
+  },
+  "fresh_process_authority_matches_commit_revision": true,
+  "non_target_bodies_preserved": true,
+  "first_connected_target_native_ordinal": 13,
+  "observer_calls": 5,
+  "observer_is_model_feedback": false,
+  "terminal_status": "completed",
+  "stop_reason": "NATURAL_COMPLETED",
+  "usage": {
+    "total": {
+      "totalTokens": 275011,
+      "inputTokens": 273563,
+      "cachedInputTokens": 251904,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 1448,
+      "reasoningOutputTokens": 229
+    },
+    "last": {
+      "totalTokens": 20520,
+      "inputTokens": 20443,
+      "cachedInputTokens": 20224,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 77,
+      "reasoningOutputTokens": 0
+    },
+    "modelContextWindow": 258400
+  },
+  "elapsed_seconds": 35.872,
+  "historical_T_pooling": false,
+  "analysis_model_generation_calls": 0
+}
