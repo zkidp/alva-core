@@ -1,0 +1,48 @@
+name: P34 Host precommit scope guard (zero models)
+on:
+  pull_request:
+    paths:
+      - 'integrations/codex/precommit_scope_guard.py'
+      - 'tests/integrations/test_precommit_scope_guard.py'
+      - 'benchmarks/p34_scope_guard/**'
+      - 'docs/research/p34-host-owned-scope-guard.md'
+      - '.github/workflows/p34-scope-guard.yml'
+permissions:
+  contents: read
+jobs:
+  policy:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest tests.integrations.test_precommit_scope_guard -v
+  linux-native:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Trusted SDK and existing isolation dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Four actual Native scope-guard cases; no provider
+        run: |
+          python benchmarks/p34_scope_guard/verify_native.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/p34-native
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p34-native-engineering-evidence
+          path: out/p34-native/*.json

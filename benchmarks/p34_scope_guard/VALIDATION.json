@@ -1,0 +1,16 @@
+{
+  "HOST_GUARD_INTEGRATED": "PASS",
+  "MM02_SHARED_SPILL_BLOCKED": "PASS",
+  "MM02_NONSHARED_COMMIT_ALLOWED": "PASS",
+  "MM01_VALID_COMMIT_ALLOWED": "PASS",
+  "UNKNOWN_SCOPE_FAIL_CLOSED": "PASS",
+  "INDEPENDENT_BEHAVIOR": {
+    "allowed_cases": "task/regression PASS",
+    "denied_cases": "unchanged baseline; new task expected FAIL; regression PASS"
+  },
+  "archive_sha256_verified": true,
+  "appserver_native_call_ids_matched": true,
+  "historical_artifacts_modified": false,
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0
+}
