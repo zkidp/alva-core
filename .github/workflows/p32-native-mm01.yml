@@ -14,4 +14,4 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python benchmarks/p32_native_mm01/ci_exact_runtime.py
+      - run: python benchmarks/p32_native_mm01/ci_portable.py

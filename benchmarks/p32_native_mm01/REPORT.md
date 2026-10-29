@@ -120,6 +120,7 @@ the native commit revision, without running a model or executing a candidate.
 ```text
 python -m unittest benchmarks.p32_native_mm01.test_pilot -v
 python benchmarks/p32_native_mm01/ci_exact_runtime.py
+python benchmarks/p32_native_mm01/ci_portable.py
 python tests/integrations/test_native_commit_authorization.py -v
 python benchmarks/p32_native_mm01/analyze.py <controlled-P32-RAW.zip>
 ```
@@ -128,6 +129,15 @@ Local: four P32 tests PASS, exact-byte consumer PASS, seven P31 policy/protocol
 tests PASS; real approval and P32 baseline preflight PASS. CI executes portable
 provenance tests on Linux/Windows plus existing relevant repository workflows;
 it does not claim to rerun the model or proprietary desktop AppServer probe.
+
+The first Linux CI run exposed a CI-only fixture mismatch: the policy unit test
+passed its POSIX temporary directory to the intentionally Windows-to-WSL-only
+transport mapper. An additive `ci_portable.py` consumer retains exact frozen
+runtime/test bytes and supplies an explicit mapper stub **only for that pure
+policy test on POSIX**; a separate test confirms the real mapper still rejects
+POSIX Host paths. Windows tests use the real mapper. This is not a new supported
+Host backend, a relaxed byte validator or a model/runtime repair. Original
+FREEZE.json, execution code, tests and results remain unchanged; no slot rerun.
 
 All P30/P31 frozen records and implementation files are unchanged. No merge or
 main update. **STOP for independent reviewer; no additional experiment.**
