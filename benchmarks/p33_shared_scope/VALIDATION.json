@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "model_generation_calls": 0,
+  "input_token_calls": 0,
+  "p29_original_result_reproduced": true,
+  "historical_inputs_modified": false,
+  "raw_hash_verified": true,
+  "parent_content_hash_recomputed": true,
+  "initial_and_staged_reference_paths_verified": true,
+  "preview_lists_all_observed_changed_functions_in_this_component": true,
+  "nonshared_control": "ESTABLISHED_FOR_THIS_PARENT; other descendant nodes may still be shared",
+  "no_core_or_interface_change": true
+}
