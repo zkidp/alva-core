@@ -1,0 +1,17 @@
+name: P32 Native MM01 provenance
+on:
+  pull_request:
+  push:
+    branches: [codex/p32-native-mm01-maintenance]
+jobs:
+  zero-model:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python benchmarks/p32_native_mm01/ci_exact_runtime.py
