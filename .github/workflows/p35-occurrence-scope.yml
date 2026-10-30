@@ -1,0 +1,39 @@
+name: P35 original MM02 occurrence scope (zero models)
+on:
+  push:
+    branches: [codex/p35-occurrence-scope-feasibility]
+  pull_request:
+    paths:
+      - 'benchmarks/p35_occurrence_scope/**'
+      - 'docs/research/p35-occurrence-scope-feasibility.md'
+      - '.github/workflows/p35-occurrence-scope.yml'
+permissions:
+  contents: read
+jobs:
+  linux-native:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Trusted SDK and existing isolation dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Guard regressions
+        run: python -m unittest tests.integrations.test_precommit_scope_guard -v
+      - name: Original MM02 actual Native operations, guard and independent behavior
+        run: |
+          python benchmarks/p35_occurrence_scope/reproduce.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/p35-native
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p35-native-engineering-evidence
+          path: out/p35-native/*.json
