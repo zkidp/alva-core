@@ -90,6 +90,17 @@ def main(args):
                 assert files(box) == original, "staging must not publish"
                 decision, commit = None, None
                 if route == "detached_only":
+                    refusals = {name: c.raw("describe_operation", name=name) for name in
+                                ("create_binding", "create_block", "append_step")}
+                    assert all(r.get("isError") and "E_MCP_OPERATION_NOT_EXPOSED" in json.dumps(r)
+                               for r in refusals.values())
+                    root_revision = c.call("inspect_entity", entity=TARGET)["revision"]
+                    root_attempt = c.raw("replace_expression", parent=root_revision,
+                                         child=plan["replacement"], position="body")
+                    assert root_attempt.get("isError") and "invalid position" in json.dumps(root_attempt)
+                    assert body_roots(c, task["functions"]) == before
+                    diagnostics["unexposed_operation_refusals"] = refusals
+                    diagnostics["direct_function_body_refusal"] = root_attempt
                     c.call("abort_transaction")
                 else:
                     commit = c.raw("commit_transaction")
@@ -110,6 +121,9 @@ def main(args):
                 r.call("abort_transaction")
             allowed = route == "prefix_binding_reconnection"
             assert final == (staged if allowed else before)
+            if allowed:
+                assert not commit.get("isError")
+                assert final_project["project_revision"] == commit["structuredContent"]["revision"]
             assert (final_project != initial_project) == allowed
             assert bool(set(published) - set(original)) == allowed, "AIR must publish only on allowed route"
             goal = prior.evaluate(box, task["crate"], witnesses.goals("MM02"))
@@ -122,6 +136,7 @@ def main(args):
                    "fresh_body_revisions": final, "changed_functions": changed, "preview": preview,
                    "check": checked, "guard": decision, "actual_native_commits": len(dispatches),
                    "initial_project": initial_project, "fresh_project": final_project,
+                   "commit": commit["structuredContent"] if commit else None,
                    "task": goal["status"], "regression": regression["status"],
                    "scope": "PASS" if allowed else "NO_SUCCESS_CREDIT", "diagnostics": diagnostics,
                    "original_input_bytes_unchanged": True, "air_published": allowed}
@@ -132,7 +147,9 @@ def main(args):
             rows.append(row)
     result = {"disposition": "EXISTING_NATIVE_OCCURRENCE_SCOPE_FEASIBLE", "model_generation_calls": 0,
               "input_token_api_calls": 0, "bundle_sha256": bundle["payload_sha256"],
-              "binary_sha256": sha(Path(args.alva).read_bytes()), "policy": fixed["policy"], "rows": rows}
+              "binary_sha256": sha(Path(args.alva).read_bytes()),
+              "driver_sha256": sha(Path(__file__).read_bytes()),
+              "policy": fixed["policy"], "rows": rows}
     prior.save(args.output / "RESULTS.json", result)
     print(json.dumps(result, indent=2))
 
