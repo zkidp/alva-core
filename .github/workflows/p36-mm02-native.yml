@@ -1,0 +1,22 @@
+name: P36 MM02 frozen provenance (zero models)
+on:
+  push:
+    branches: [codex/p36-mm02-native-autonomous-maintenance]
+  pull_request:
+    paths:
+      - 'benchmarks/p36_mm02_native_model/**'
+      - '.github/workflows/p36-mm02-native.yml'
+permissions:
+  contents: read
+jobs:
+  provenance:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python benchmarks/p36_mm02_native_model/validate.py
