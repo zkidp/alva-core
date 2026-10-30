@@ -1,0 +1,16 @@
+{
+  "id": "MM04",
+  "target": "build.model.topo_order",
+  "requirement": "Return Err when any package cannot be ordered because of a cycle or an unresolved dependency; never return a successful partial order. Keep the existing deterministic dependency-before-dependent, lexicographic same-wave ordering for valid unique-name graphs, including empty input.",
+  "authorized_functions": [
+    "build.model.topo_order"
+  ],
+  "editable_files": [
+    "src/model.alva"
+  ],
+  "protected": [
+    "alva.toml",
+    "all other declarations, signatures, types, exports and module structure"
+  ],
+  "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+}

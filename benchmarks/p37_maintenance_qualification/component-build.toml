@@ -1,0 +1,4 @@
+[project]
+name = "buildq"
+[modules]
+"build.model" = "src/model.alva"
