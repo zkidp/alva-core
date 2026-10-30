@@ -1,0 +1,56 @@
+name: P37 prospective maintenance qualification (zero models)
+on:
+  push:
+    branches: [codex/p37-prospective-maintenance-qualification]
+  pull_request:
+    paths:
+      - 'benchmarks/p37_maintenance_qualification/**'
+      - '.github/workflows/p37-maintenance-qualification.yml'
+permissions:
+  contents: read
+jobs:
+  provenance:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest benchmarks.p37_maintenance_qualification.test_qualification -v
+  linux-wave:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Trusted SDK and unchanged public Rust baseline
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          cargo fmt --manifest-path alva/Cargo.toml --check
+          cargo clippy --locked --manifest-path alva/Cargo.toml -- -D warnings
+          cargo test --locked --manifest-path alva/Cargo.toml
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Four registered candidates, separate Text/Native and independent evaluators
+        run: |
+          python benchmarks/p37_maintenance_qualification/qualification.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/p37-wave
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p37-engineering-wave-evidence
+          path: out/p37-wave/*
