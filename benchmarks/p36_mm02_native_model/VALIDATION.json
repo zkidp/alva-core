@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "generation_freeze_commit": "822951be0edc2b49b0b9c7db71ace5fdcca342c1",
+  "derived_results_exactly_recomputed": true,
+  "archive_sha256_matches": true,
+  "archive_zip_integrity": "PASS",
+  "archive_entries": 9,
+  "credential_files_excluded": true,
+  "controlled_raw_only": true,
+  "frozen_runtime_bytes_unchanged": true,
+  "fresh_body_roots_match_last_staged_observation": true,
+  "same_actual_formal_prompt_as_freeze": true,
+  "same_actual_developer_instructions_as_freeze": true,
+  "observer_writes_to_candidate": 0,
+  "host_rescue_commits": 0,
+  "extra_model_turns": 0,
+  "ci_model_generation_calls": 0
+}

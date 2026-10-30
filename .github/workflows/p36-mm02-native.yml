@@ -1,0 +1,39 @@
+name: P36 MM02 frozen provenance (zero models)
+on:
+  push:
+    branches: [codex/p36-mm02-native-autonomous-maintenance]
+  pull_request:
+    paths:
+      - 'benchmarks/p36_mm02_native_model/**'
+      - '.github/workflows/p36-mm02-native.yml'
+permissions:
+  contents: read
+jobs:
+  provenance:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python benchmarks/p36_mm02_native_model/validate.py
+      - run: python benchmarks/p36_mm02_native_model/verify_postrun.py
+      - name: Post-run startup cleanup units (current code, no models)
+        run: python -m unittest benchmarks.p36_mm02_native_model.test_startup_cleanup.Startup -v
+  startup-processes:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Real Linux owned-process simulation, not remote SSH verification
+        run: |
+          unshare -Ur --pid --fork --kill-child=KILL true
+          python -m unittest benchmarks.p36_mm02_native_model.test_startup_cleanup.LinuxOwnership -v

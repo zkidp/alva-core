@@ -1,0 +1,208 @@
+{
+  "schema": "alva-p36-result/v1",
+  "freeze_commit": "822951be0edc2b49b0b9c7db71ace5fdcca342c1",
+  "disposition": "COMPLETED_CORRECT_MAINTENANCE",
+  "model_slots_started": 1,
+  "model_turns": 1,
+  "model_tool_calls": 18,
+  "native_operation_counts": {
+    "begin_transaction": 1,
+    "resolve_entity": 1,
+    "inspect_body": 2,
+    "applicable_operations": 1,
+    "describe_operation": 4,
+    "create_binary": 1,
+    "create_if": 1,
+    "replace_expression": 1,
+    "preview_semantic_diff": 1,
+    "check_transaction": 1,
+    "commit_transaction": 1
+  },
+  "usage": {
+    "total": {
+      "totalTokens": 268974,
+      "inputTokens": 267370,
+      "cachedInputTokens": 217216,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 1604,
+      "reasoningOutputTokens": 397
+    },
+    "last": {
+      "totalTokens": 25073,
+      "inputTokens": 24986,
+      "cachedInputTokens": 24832,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 87,
+      "reasoningOutputTokens": 0
+    },
+    "modelContextWindow": 258400
+  },
+  "usage_complete": true,
+  "provider_requests": null,
+  "dollar_cost": null,
+  "cached_tokens_subtracted": false,
+  "hard_provider_token_cap": false,
+  "elapsed_seconds": 36.093,
+  "terminal_status": "completed",
+  "stop_reason": "NATURAL_COMPLETED",
+  "interrupt_ack": false,
+  "infrastructure_hold": null,
+  "initial_authority": {
+    "project_revision": "6bafc7d00f250d86e90714dd04aa033c3940937199f29fdf36980bba3e6e7c09",
+    "bodies": {
+      "store.xml.parse_prefix": "14a972cff2d1b88cd843e80c5fab0a8c19d80db7f2936fd3a724016c3b6168d9",
+      "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+      "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+      "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+      "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+      "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+      "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+      "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+      "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+    }
+  },
+  "final_authority": {
+    "project_revision": "3f6821c2d9286bcbb1857cfed40fa7d93ada54111271f4977cf7d8f60c275695",
+    "bodies": {
+      "store.xml.parse_prefix": "503bf4f268bc428850f998b6c4d45c79a97ce93a9cbcd3f48bfdfc9ec9cdd4a8",
+      "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+      "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+      "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+      "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+      "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+      "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+      "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+      "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+    }
+  },
+  "changed_bodies": [
+    "store.xml.parse_prefix"
+  ],
+  "target_changed": true,
+  "source_projection_unchanged": true,
+  "air_published": true,
+  "authoritative_candidate_correct": true,
+  "fresh_revision_matches_commit": true,
+  "task": "PASS",
+  "regression": "PASS",
+  "scope": "PASS",
+  "independent_project_check": 0,
+  "independent_project_build": 0,
+  "guard_allowed": 1,
+  "guard_denied": 0,
+  "native_commit_dispatches": 1,
+  "successful_native_commits": 1,
+  "commit_attempts": [
+    {
+      "appserver_call_id": "exec-bc96dcc6-89c6-4574-b4e8-fe10a70a6694",
+      "appserver_status": "completed",
+      "appserver_error": null,
+      "decision": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.xml.parse_prefix"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.xml.parse_prefix"
+        ],
+        "baseline_sha256": "ce374870a53a4f284e78d35691a807b3508344d9954defc935b9776cec271712",
+        "staged_sha256": "77df34dd89a083d104d7f67b3353ed5447290527ec1ebc54880bc18f5c311a2a",
+        "baseline_project_revision": "6bafc7d00f250d86e90714dd04aa033c3940937199f29fdf36980bba3e6e7c09",
+        "staged_project_revision": "3f6821c2d9286bcbb1857cfed40fa7d93ada54111271f4977cf7d8f60c275695",
+        "coverage_nodes": 195,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "native_dispatches": 1,
+      "native_is_error": false,
+      "native_commit": {
+        "generation": 1,
+        "revision": "3f6821c2d9286bcbb1857cfed40fa7d93ada54111271f4977cf7d8f60c275695"
+      }
+    }
+  ],
+  "staged_target_change_observed": true,
+  "observer_reads": 36,
+  "observer_feedback_to_model": false,
+  "staged_observations": [
+    {
+      "call_id": "exec-f93e2e95-c2b7-4566-a82e-9f0fa976c24d",
+      "transaction_id": "tx_2_0000000000000001",
+      "after_operation": "begin_transaction",
+      "baseline": true,
+      "body_revisions": {
+        "store.xml.parse_prefix": "14a972cff2d1b88cd843e80c5fab0a8c19d80db7f2936fd3a724016c3b6168d9",
+        "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+        "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+        "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+        "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+        "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+        "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+        "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+        "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+      },
+      "changed_functions": []
+    },
+    {
+      "call_id": "exec-e8ca6a6e-8efc-4cef-84c5-ca0758a2df55",
+      "transaction_id": "tx_2_0000000000000001",
+      "after_operation": "create_binary",
+      "baseline": false,
+      "body_revisions": {
+        "store.xml.parse_prefix": "14a972cff2d1b88cd843e80c5fab0a8c19d80db7f2936fd3a724016c3b6168d9",
+        "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+        "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+        "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+        "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+        "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+        "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+        "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+        "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+      },
+      "changed_functions": []
+    },
+    {
+      "call_id": "exec-c3d5332e-5fbf-4cac-86fb-c5a277476bc5",
+      "transaction_id": "tx_2_0000000000000001",
+      "after_operation": "create_if",
+      "baseline": false,
+      "body_revisions": {
+        "store.xml.parse_prefix": "14a972cff2d1b88cd843e80c5fab0a8c19d80db7f2936fd3a724016c3b6168d9",
+        "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+        "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+        "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+        "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+        "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+        "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+        "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+        "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+      },
+      "changed_functions": []
+    },
+    {
+      "call_id": "exec-51ed1607-e856-44fe-a84d-bb4c8305754d",
+      "transaction_id": "tx_2_0000000000000001",
+      "after_operation": "replace_expression",
+      "baseline": false,
+      "body_revisions": {
+        "store.xml.parse_prefix": "503bf4f268bc428850f998b6c4d45c79a97ce93a9cbcd3f48bfdfc9ec9cdd4a8",
+        "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+        "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+        "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+        "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+        "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+        "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+        "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+        "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+      },
+      "changed_functions": [
+        "store.xml.parse_prefix"
+      ]
+    }
+  ],
+  "native_operation_errors": 0,
+  "raw_record_canonical_sha256": "0558b0d461d3e94ea240609577d42f81c0edb4b51f4c4cd19b0938cdbf6bd824",
+  "raw_evidence_canonical_sha256": "1d3fec5d8db08083968c07e40cb1c5c8164e99e1bd5bd9a6f1101511c7811f81",
+  "historical_T_pooling": false,
+  "engineering_witness_counted_as_model_success": false
+}

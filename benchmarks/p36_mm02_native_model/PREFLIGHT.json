@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "model_generation_calls": 0,
+  "baseline_regression": "PASS",
+  "baseline_task": "EXPECTED_FAIL",
+  "authority_unchanged": true,
+  "actual_host_policy": "PASS",
+  "real_guard_baseline": true,
+  "runtime_bytes_match_remote": true,
+  "native_tools": 20,
+  "candidate_solution_preflight": "NOT_PERFORMED",
+  "isolation": "unchanged P22/P23 Linux namespaces"
+}

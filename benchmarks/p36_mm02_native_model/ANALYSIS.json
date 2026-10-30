@@ -1,0 +1,148 @@
+{
+  "native_operation_sequence": [
+    {
+      "native_ordinal": 1,
+      "operation": "begin_transaction",
+      "appserver_call_id": "exec-f93e2e95-c2b7-4566-a82e-9f0fa976c24d",
+      "arguments_sha256": "f7ecec45841fdb770bb2f28b957fba45d3abe5e0d7e47d9e4f4c8d6af8010511",
+      "response_sha256": "7badbac2ee16d923ecea51514aa695f0bdd19ec7a4602401032bdc984cd93aa7",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 2,
+      "operation": "resolve_entity",
+      "appserver_call_id": "exec-7cacc8d7-2499-4919-bfca-7201dd9f257e",
+      "arguments_sha256": "09d89afc649835798af787f728f68b2aab9a5178a6e3ccdd9db43a7ebfd01acf",
+      "response_sha256": "e3b70f06ba961358363e10fc4c250f5dd7791846b34097b8bc57957001f4bb16",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 3,
+      "operation": "inspect_body",
+      "appserver_call_id": "exec-4a6e8ff5-a002-4980-a813-75c90bb4b81f",
+      "arguments_sha256": "99be6390acb79a20d57525cc2ac1f7f00e736f39286a233066e98dea40ad577a",
+      "response_sha256": "1a9cda8ac41925e4d9bd980d3d369999a5fc3fe643ada590904f8966a39335ce",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 4,
+      "operation": "applicable_operations",
+      "appserver_call_id": "exec-a7b9c34e-e39c-4be7-a6a6-c5ffb76a092f",
+      "arguments_sha256": "beffcbd078a3cd938ad575e8669616c66e21bf43a83914e62bc60f316687cb87",
+      "response_sha256": "17a1d1f2fd05375755454d2fa124e7e7b44a01d4d57d77a82860478ea0c58c60",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 5,
+      "operation": "describe_operation",
+      "appserver_call_id": "exec-5c579ada-f4e9-45d6-92cd-17a005a8979c",
+      "arguments_sha256": "a6cc94db08b2665e51d4c3234f0fbd4e4c71a83c8c74807a56a88369a75db0e4",
+      "response_sha256": "5b59ef1924fd9b281422ddf76efdfc9e03d65ebfa38e3f85303612bc9d7e7ebe",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 6,
+      "operation": "describe_operation",
+      "appserver_call_id": "exec-b1cd6b3f-da25-49a7-a0a2-6e48e07d79c4",
+      "arguments_sha256": "4626b5917645680ca77de05c2f8edecc567665c5118aca225b98ffbea67e7d76",
+      "response_sha256": "396e438787ef5596488a8499ca5aaa810448055fda5734c578dd675c4babdae4",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 7,
+      "operation": "describe_operation",
+      "appserver_call_id": "exec-d13e52aa-9016-47e4-9d61-e232832ce0f3",
+      "arguments_sha256": "26b994f4839a119d778a205a0ac2da8382445456dc732f439b9298682aab5dd7",
+      "response_sha256": "6ac93c3eb7b7264711b8ca82ebf413c0fdab7e8a0b4a44dac90f78e42e9a8aa8",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 8,
+      "operation": "describe_operation",
+      "appserver_call_id": "exec-be7c5124-2331-4e09-b5ae-51d064e08744",
+      "arguments_sha256": "6f8e9bfa63249d9937861bebe89865581130f6ea96c7261352d4279c52e5112f",
+      "response_sha256": "2b82d10ae6faac3e420593e3ef7a5316d8cbdcb3e1d1d2858ebf701943080fa2",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 9,
+      "operation": "create_binary",
+      "appserver_call_id": "exec-e8ca6a6e-8efc-4cef-84c5-ca0758a2df55",
+      "arguments_sha256": "1223c8eb42c1cf8cc510a04499c7846272f10e8177a4f0510ee598f4c45503ec",
+      "response_sha256": "9b1b898201041c587ae6df38579a0b5080cc46ba9861de5f45083ac1f1d2855b",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 10,
+      "operation": "create_if",
+      "appserver_call_id": "exec-c3d5332e-5fbf-4cac-86fb-c5a277476bc5",
+      "arguments_sha256": "4d4c2ed625a11f4c6db87c51bf7871be3055cdbf79e425d9d58007f299c5f127",
+      "response_sha256": "1e90d81022d57c8061bfabf41a08ba243d28a0a6fc96c04ce860b90967066e9c",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 11,
+      "operation": "replace_expression",
+      "appserver_call_id": "exec-51ed1607-e856-44fe-a84d-bb4c8305754d",
+      "arguments_sha256": "5197c39063ae97f66c796d5d1d3b89b48e6c9da9c3b99db01c63f22571b1235d",
+      "response_sha256": "34b1ff6a261c728bb0e529821ea62ff0942b60444df8d31f6f66b6d7d9c58539",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 12,
+      "operation": "preview_semantic_diff",
+      "appserver_call_id": "exec-77d74d76-6af9-408a-bda2-425811d13309",
+      "arguments_sha256": "624d4bd0a38f2f7a4f4d87f17d2a7fedc786c526b914cb55e9f6bef92d2bdf1d",
+      "response_sha256": "132ae2c2e1afb83c07d05dc61dc8d35ff6272f995ad00408f073f0db13ccf7cd",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 13,
+      "operation": "check_transaction",
+      "appserver_call_id": "exec-038366b9-e0ef-41ca-aa8d-4ed06de61106",
+      "arguments_sha256": "624d4bd0a38f2f7a4f4d87f17d2a7fedc786c526b914cb55e9f6bef92d2bdf1d",
+      "response_sha256": "f7b367a75d786a0a56d0528fbbe5075e504ce055d3c62406f9df1399a87eb54a",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 14,
+      "operation": "inspect_body",
+      "appserver_call_id": "exec-622df097-56ee-4d0d-a092-29444b6c2ece",
+      "arguments_sha256": "99be6390acb79a20d57525cc2ac1f7f00e736f39286a233066e98dea40ad577a",
+      "response_sha256": "8b5b1fa2e317e8ced23b2622c87f042f61c38075eb11be79972d3b77c6e69cb4",
+      "is_error": false
+    },
+    {
+      "native_ordinal": 15,
+      "operation": "commit_transaction",
+      "appserver_call_id": "exec-bc96dcc6-89c6-4574-b4e8-fe10a70a6694",
+      "arguments_sha256": "624d4bd0a38f2f7a4f4d87f17d2a7fedc786c526b914cb55e9f6bef92d2bdf1d",
+      "response_sha256": "2c9e5e2be7580797b177b5bb79e8e4722c189c3917a39a696ef217aae6f68ff8",
+      "is_error": false
+    }
+  ],
+  "preview": [
+    {
+      "diff": "CHANGED module store.xml\nCHANGED function store.xml.parse_prefix"
+    }
+  ],
+  "transaction_check": [
+    {
+      "problems": []
+    }
+  ],
+  "model_check_test_finish": [
+    {
+      "action": "check"
+    },
+    {
+      "action": "test"
+    },
+    {
+      "action": "finish"
+    }
+  ],
+  "independent_goal_tests": 1,
+  "independent_regression_tests": 3,
+  "interpretation": "Original assertion groups and vectors unchanged; these test-group counts are not separate model slots."
+}
