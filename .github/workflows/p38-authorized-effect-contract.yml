@@ -49,6 +49,9 @@ jobs:
             --toolchain "$(rustc --print sysroot)" \
             --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
             --output out/p38-wave
+      - name: Independently verify retained commit, Guard and evaluator evidence
+        if: always()
+        run: python benchmarks/p38_authorized_effect_contract/validate_evidence.py out/p38-wave > out/p38-wave/EVIDENCE-CHECK.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

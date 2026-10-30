@@ -27,9 +27,9 @@ Source inspected at commit `d89efa473754f455d38ab47b4dc938cfc8334a0d`:
 
 - [`codewrite_server.py:30`](https://github.com/amazon-science/CodeStruct/blob/d89efa473754f455d38ab47b4dc938cfc8334a0d/SWE-agent/tools/ast_edit/lib/codewrite_server.py#L30): path, operation, selector and replacement schema; CLI dispatch at lines 130–158.
 - [`editCode:420`](https://github.com/amazon-science/CodeStruct/blob/d89efa473754f455d38ab47b4dc938cfc8334a0d/SWE-agent/tools/ast_edit/bin/editCode#L420): operation implementation; Python validation before the write at lines 598–606.
-- [`file_operations.py:153`](https://github.com/amazon-science/CodeStruct/blob/d89efa473754f455d38ab47b4dc938cfc8334a0d/SWE-agent/tools/ast_edit/lib/file_operations.py#L153): ordinary file writer.
+- [`file_operations.py:136`](https://github.com/amazon-science/CodeStruct/blob/d89efa473754f455d38ab47b4dc938cfc8334a0d/SWE-agent/tools/ast_edit/lib/file_operations.py#L136): ordinary file writer.
 
-ALVA evidence at the canonical P38 base is `alva/src/aep/` and
+ALVA evidence at the canonical P38 base is `alva/src/aep.rs`, `alva/src/air.rs` and
 `integrations/codex/precommit_scope_guard.py`, together with the frozen P34/P35
 reports. Named source selection and authoritative revision addressing are real
 representation differences. Syntax validity, transaction validity, structural
