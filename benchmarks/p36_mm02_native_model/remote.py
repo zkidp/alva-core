@@ -37,6 +37,19 @@ class Remote:
             raise RuntimeError("SSH_REMOTE_FAILURE:" + result.stderr[-1500:])
         return result.stdout
 
+    def owned_service_argv(self, state, instance, service, config):
+        owner = self.root + "/benchmarks/p36_mm02_native_model/startup_owner.py"
+        return self.argv(["python3", owner, "serve", "--state", state, "--instance", instance,
+                          "--", "python3", service, "--role", "server", "--config", config])
+
+    def cleanup_owned(self, state, instance):
+        owner = self.root + "/benchmarks/p36_mm02_native_model/startup_owner.py"
+        result = json.loads(self.checked(["python3", owner, "cancel", "--state", state,
+                                          "--instance", instance], timeout=12))
+        if result.get("instance") != instance or result.get("confirmed") is not True:
+            raise RuntimeError("STARTUP_CLEANUP_UNCONFIRMED:" + json.dumps(result))
+        return result
+
     def put(self, local):
         self.checked(["mkdir", "-p", str(Path(self.path(local)).parent).replace("\\", "/")])
         subprocess.run(["scp", "-q", *self.options, "-P", str(self.cfg.get("port", 22)),

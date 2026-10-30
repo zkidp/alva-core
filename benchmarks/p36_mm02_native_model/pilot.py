@@ -14,6 +14,7 @@ import sys
 import time
 from unittest.mock import patch
 import zipfile
+import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -35,6 +36,7 @@ INSTRUCTIONS += " Only the body of store.xml.parse_prefix is authorized for muta
 
 
 class Slot(mm.Slot):
+    READY_SECONDS = 45
     def __init__(self, runtime, entry, frozen, args):
         self.path = runtime / entry["id"]
         self.path.mkdir(parents=True, exist_ok=False)
@@ -50,16 +52,74 @@ class Slot(mm.Slot):
                        "alva": args.alva, "toolchain": args.toolchain, "registry": args.registry}
         save(self.path / "config.json", self.config)
         self.remote.put(self.path / "config.json")
-        self.process = subprocess.Popen(self.remote.argv(["unshare", "-Ur", "python3", self.remote.path(self.service), "--role", "server",
-                                                         "--config", self.remote.path(self.path / "config.json")]),
-                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        deadline = time.monotonic() + 45
-        while self.remote.run(["test", "-f", self.remote.path(self.ready)]).returncode:
-            if self.process.poll() is not None:
-                raise old.InfrastructureError("SERVICE_EXIT:" + self.process.communicate()[1].decode(errors="replace")[-2000:])
-            if time.monotonic() > deadline:
-                raise old.InfrastructureError("SERVICE_READY_TIMEOUT")
-            time.sleep(.1)
+        self.process = None
+        self.startup_instance = uuid.uuid4().hex
+        self.owner_state = self.remote.path(self.path / ("startup-" + self.startup_instance))
+        try:
+            self.process = subprocess.Popen(self.remote.owned_service_argv(self.owner_state, self.startup_instance,
+                self.remote.path(self.service), self.remote.path(self.path / "config.json")),
+                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            deadline = time.monotonic() + self.READY_SECONDS
+            while True:
+                if self.process.poll() is not None:
+                    _, stderr = self.process.communicate(timeout=2)
+                    raise old.InfrastructureError("SERVICE_EXIT_BEFORE_READY:" + str(self.process.returncode) + ":" + stderr.decode(errors="replace")[-2000:])
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise old.InfrastructureError("SERVICE_READY_TIMEOUT")
+                probe = self.remote.run(["test", "-f", self.remote.path(self.ready)], timeout=min(2, remaining))
+                if probe.returncode == 0:
+                    break
+                if probe.returncode != 1:
+                    raise old.InfrastructureError("SERVICE_READINESS_PROBE_FAILED:" + probe.stderr[-1000:])
+                time.sleep(min(.1, max(0, deadline - time.monotonic())))
+        except BaseException as original:
+            # Slot(...) has not returned: this object must clean its own launch.
+            try:
+                cleanup = self._startup_cleanup()
+            except BaseException as exc:
+                cleanup = {"status": "STARTUP_CLEANUP_UNCONFIRMED", "errors": [repr(exc)]}
+            try:
+                save(self.path / "startup-failure.json", {"startup_error": type(original).__name__ + ":" + str(original),
+                                                         "cleanup": cleanup})
+            except BaseException as exc:
+                cleanup["record_error"] = repr(exc)
+            original.startup_cleanup = cleanup
+            if hasattr(original, "add_note"):
+                original.add_note(cleanup["status"] + ":" + json.dumps(cleanup))
+            raise
+
+    def _startup_cleanup(self):
+        errors = []
+        remote = None
+        try:
+            remote = self.remote.cleanup_owned(self.owner_state, self.startup_instance)
+            if remote.get("instance") != self.startup_instance or remote.get("confirmed") is not True:
+                raise RuntimeError("REMOTE_CLEANUP_IDENTITY_OR_CONFIRMATION_MISSING")
+        except BaseException as exc:
+            errors.append("remote:" + type(exc).__name__ + ":" + str(exc))
+        reaped = self.process is None
+        if self.process is not None:
+            try:
+                if self.process.poll() is None:
+                    self.process.terminate()
+                try:
+                    self.process.communicate(timeout=2)
+                except subprocess.TimeoutExpired:
+                    self.process.kill()
+                    self.process.communicate(timeout=2)
+                reaped = True
+            except BaseException as exc:
+                errors.append("ssh:" + type(exc).__name__ + ":" + str(exc))
+            finally:
+                for stream in (self.process.stdin, self.process.stdout, self.process.stderr):
+                    if stream is not None:
+                        try:
+                            stream.close()
+                        except BaseException as exc:
+                            errors.append("pipe:" + repr(exc))
+        return {"status": "STARTUP_CLEANUP_CONFIRMED" if not errors and reaped else "STARTUP_CLEANUP_UNCONFIRMED",
+                "instance": self.startup_instance, "remote": remote, "local_ssh_reaped": reaped, "errors": errors}
 
     def dispatch(self, action, args):
         with patch.object(mm, "PATHS", PATHS), patch.object(old, "wsl", self.remote.run), \
@@ -70,10 +130,25 @@ class Slot(mm.Slot):
         try:
             super().close()
         finally:
-            for name in ("linux.json", "guard.jsonl", "observer.jsonl"):
-                local = self.path / name
-                if not self.remote.run(["test", "-f", self.remote.path(local)]).returncode:
-                    self.remote.get(local)
+            # Even a failed graceful stop must not leave the owned namespace.
+            # Preserve an existing exception instead of hiding it with cleanup.
+            original = sys.exc_info()[1]
+            cleanup = self._startup_cleanup()
+            try:
+                save(self.path / "close-cleanup.json", cleanup)
+            except BaseException:
+                if original is None:
+                    raise
+            if cleanup["status"] != "STARTUP_CLEANUP_CONFIRMED":
+                if original is None:
+                    raise old.InfrastructureError("CLOSE_CLEANUP_UNCONFIRMED:" + json.dumps(cleanup))
+                if hasattr(original, "add_note"):
+                    original.add_note("CLOSE_CLEANUP_UNCONFIRMED:" + json.dumps(cleanup))
+            if original is None:
+                for name in ("linux.json", "guard.jsonl", "observer.jsonl"):
+                    local = self.path / name
+                    if not self.remote.run(["test", "-f", self.remote.path(local)]).returncode:
+                        self.remote.get(local)
 
 
 def authorization(slot):
