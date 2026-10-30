@@ -1,0 +1,19 @@
+{
+  "wave-01": {
+    "sha256": "b4696b76fb2b24c4bff93366e318dbe8faa8edee55443dfdc49f62573fb677c9",
+    "bytes": 504256,
+    "raw_records": 4,
+    "controlled_raw_only": true
+  },
+  "wave-02": {
+    "sha256": "9d297f89f39719fcf5c4f08d1bd6b6d86f3e0157556352c0165485657ca986a6",
+    "bytes": 939884,
+    "raw_records": 4,
+    "controlled_raw_only": true
+  },
+  "local_controlled_paths": [
+    ".local/p37-qualification/wave-01/RAW.zip",
+    ".local/p37-qualification/wave-02/RAW.zip"
+  ],
+  "raw_archives_committed": false
+}
