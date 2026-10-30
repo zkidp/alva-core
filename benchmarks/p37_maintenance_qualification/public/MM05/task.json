@@ -1,0 +1,16 @@
+{
+  "id": "MM05",
+  "target": "build.model.needs_build",
+  "requirement": "Only BUILT or CACHED package states may reuse matching source/dependency hashes. PENDING or FAILED must require a build even when hashes match. Preserve rebuilds caused by changed source, changed dependency output, missing dependency or missing recorded output.",
+  "authorized_functions": [
+    "build.model.needs_build"
+  ],
+  "editable_files": [
+    "src/model.alva"
+  ],
+  "protected": [
+    "alva.toml",
+    "all other declarations, signatures, types, exports and module structure"
+  ],
+  "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+}

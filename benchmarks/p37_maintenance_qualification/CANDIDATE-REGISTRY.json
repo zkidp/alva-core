@@ -1,0 +1,286 @@
+{
+  "schema": "alva-p37-prospective/v1",
+  "base": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+  "selection_order": [
+    "MM04",
+    "MM05",
+    "MM06",
+    "MM07"
+  ],
+  "registered_count": 4,
+  "authorship": "Codex-authored deterministic engineering; no independent human review claimed",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "candidates": [
+    {
+      "id": "MM04",
+      "target": "build.model.topo_order",
+      "requirement": "Return Err when any package cannot be ordered because of a cycle or an unresolved dependency; never return a successful partial order. Keep the existing deterministic dependency-before-dependent, lexicographic same-wave ordering for valid unique-name graphs, including empty input.",
+      "authorized_functions": [
+        "build.model.topo_order"
+      ],
+      "editable_files": [
+        "src/model.alva"
+      ],
+      "protected": [
+        "alva.toml",
+        "all other declarations, signatures, types, exports and module structure"
+      ],
+      "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement.",
+      "task_type": "graph-order-completeness",
+      "source_commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+      "source_path": "examples/build_system/src/model.alva",
+      "license": {
+        "spdx": "Apache-2.0",
+        "git_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "crate": "buildq",
+      "component_adaptation": "New single-module manifest; entire original source module unchanged, not full application",
+      "baseline_behavior": "topo_order currently returns Ok of the accumulated (possibly partial) order",
+      "maintenance_risks": "cycles and dangling edges; valid ordering and unrelated graph helpers must survive",
+      "native_hypothesis": "existing if/binary/call/result construction and body reconnection expected sufficient",
+      "text_hypothesis": "Body-only source edit expected sufficient; must be executed and independently evaluated",
+      "difference_from_MM01_MM02": "error/success boundary over a graph algorithm, not MM01 record update or MM02 query parsing",
+      "evaluation_plan": "trusted assertions.py; baseline regression PASS / goal runtime TEST_FAIL; independent generated Rust tests after check/build; all non-authorized body roots and metadata unchanged",
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "build.model.topo_order"
+        ],
+        "modules": {
+          "build.model": {
+            "functions": [
+              "state_label",
+              "state_from_label",
+              "deps_to_string",
+              "deps_from_string",
+              "dep_outputs_to_string",
+              "dep_outputs_from_string",
+              "serialize_package",
+              "extract_field",
+              "parse_package",
+              "find_package",
+              "cycle_from",
+              "has_cycle",
+              "reverse_dependents",
+              "vec_contains",
+              "all_deps_in",
+              "unprocessed",
+              "ready_names",
+              "topo_order",
+              "dep_output_changed",
+              "needs_build",
+              "report_line"
+            ],
+            "types": [
+              "BuildState",
+              "Package"
+            ]
+          }
+        }
+      },
+      "registration_disposition": "REGISTERED_NOT_YET_QUALIFIED",
+      "model_result": "NOT_STARTED"
+    },
+    {
+      "id": "MM05",
+      "target": "build.model.needs_build",
+      "requirement": "Only BUILT or CACHED package states may reuse matching source/dependency hashes. PENDING or FAILED must require a build even when hashes match. Preserve rebuilds caused by changed source, changed dependency output, missing dependency or missing recorded output.",
+      "authorized_functions": [
+        "build.model.needs_build"
+      ],
+      "editable_files": [
+        "src/model.alva"
+      ],
+      "protected": [
+        "alva.toml",
+        "all other declarations, signatures, types, exports and module structure"
+      ],
+      "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement.",
+      "task_type": "cache-state-invariant",
+      "source_commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+      "source_path": "examples/build_system/src/model.alva",
+      "license": {
+        "spdx": "Apache-2.0",
+        "git_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "crate": "buildq",
+      "component_adaptation": "New single-module manifest; entire original source module unchanged, not full application",
+      "baseline_behavior": "needs_build considers hashes/dependencies but ignores prior build state",
+      "maintenance_risks": "cache reuse of failed/pending output; preserve dependency-sensitive behavior",
+      "native_hypothesis": "existing field construction, public state_label call, boolean construction and body replacement expected sufficient",
+      "text_hypothesis": "Body-only source edit expected sufficient; must be executed and independently evaluated",
+      "difference_from_MM01_MM02": "enum-state cache invalidation through existing helper/data flow; no arithmetic record update",
+      "evaluation_plan": "trusted assertions.py; baseline regression PASS / goal runtime TEST_FAIL; independent generated Rust tests after check/build; all non-authorized body roots and metadata unchanged",
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "build.model.needs_build"
+        ],
+        "modules": {
+          "build.model": {
+            "functions": [
+              "state_label",
+              "state_from_label",
+              "deps_to_string",
+              "deps_from_string",
+              "dep_outputs_to_string",
+              "dep_outputs_from_string",
+              "serialize_package",
+              "extract_field",
+              "parse_package",
+              "find_package",
+              "cycle_from",
+              "has_cycle",
+              "reverse_dependents",
+              "vec_contains",
+              "all_deps_in",
+              "unprocessed",
+              "ready_names",
+              "topo_order",
+              "dep_output_changed",
+              "needs_build",
+              "report_line"
+            ],
+            "types": [
+              "BuildState",
+              "Package"
+            ]
+          }
+        }
+      },
+      "registration_disposition": "REGISTERED_NOT_YET_QUALIFIED",
+      "model_result": "NOT_STARTED"
+    },
+    {
+      "id": "MM06",
+      "target": "build.model.reverse_dependents",
+      "requirement": "Return each matching package name once, in first matching input occurrence order, even when merged package inputs contain duplicate names. Preserve direct-dependency-only matching, nonmatches and empty-input behavior. Inputs need not have unique package names for this query.",
+      "authorized_functions": [
+        "build.model.reverse_dependents"
+      ],
+      "editable_files": [
+        "src/model.alva"
+      ],
+      "protected": [
+        "alva.toml",
+        "all other declarations, signatures, types, exports and module structure"
+      ],
+      "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement.",
+      "task_type": "stable-collection-deduplication",
+      "source_commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+      "source_path": "examples/build_system/src/model.alva",
+      "license": {
+        "spdx": "Apache-2.0",
+        "git_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "crate": "buildq",
+      "component_adaptation": "New single-module manifest; entire original source module unchanged, not full application",
+      "baseline_behavior": "reverse_dependents appends every matching package record's name",
+      "maintenance_risks": "duplicates in merged listings; preserve stable order and exclude transitive/nonmatching entries",
+      "native_hypothesis": "existing vec_contains call and conditional reconnection expected sufficient",
+      "text_hypothesis": "Body-only source edit expected sufficient; must be executed and independently evaluated",
+      "difference_from_MM01_MM02": "stable aggregation with duplicate-name input, not first-nonempty parser selection",
+      "evaluation_plan": "trusted assertions.py; baseline regression PASS / goal runtime TEST_FAIL; independent generated Rust tests after check/build; all non-authorized body roots and metadata unchanged",
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "modules": {
+          "build.model": {
+            "functions": [
+              "state_label",
+              "state_from_label",
+              "deps_to_string",
+              "deps_from_string",
+              "dep_outputs_to_string",
+              "dep_outputs_from_string",
+              "serialize_package",
+              "extract_field",
+              "parse_package",
+              "find_package",
+              "cycle_from",
+              "has_cycle",
+              "reverse_dependents",
+              "vec_contains",
+              "all_deps_in",
+              "unprocessed",
+              "ready_names",
+              "topo_order",
+              "dep_output_changed",
+              "needs_build",
+              "report_line"
+            ],
+            "types": [
+              "BuildState",
+              "Package"
+            ]
+          }
+        }
+      },
+      "registration_disposition": "REGISTERED_NOT_YET_QUALIFIED",
+      "model_result": "NOT_STARTED"
+    },
+    {
+      "id": "MM07",
+      "target": "store.model.xml_error",
+      "requirement": "Escape &, < and > as XML text in both code and message before serializing an error response. Treat existing entity-looking text literally (escape its ampersand once). Preserve status, XML response content type, empty and Unicode text, and all ordinary response helpers. Do not change signatures or introduce another public function.",
+      "authorized_functions": [
+        "store.model.xml_error"
+      ],
+      "editable_files": [
+        "src/model.alva"
+      ],
+      "protected": [
+        "alva.toml",
+        "all other declarations, signatures, types, exports and module structure"
+      ],
+      "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement.",
+      "task_type": "xml-text-encoding",
+      "source_commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+      "source_path": "examples/store_split/src/model.alva",
+      "license": {
+        "spdx": "Apache-2.0",
+        "git_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      "bundle_sha256": "6b03233443ee91284d677d9e47b86e2791ce49580e1bd25fe78af6eafb77a6f2",
+      "crate": "response",
+      "component_adaptation": "New single-module manifest; entire original source module unchanged, not full application",
+      "baseline_behavior": "xml_error concatenates unescaped code/message into XML",
+      "maintenance_risks": "ampersand ordering/double handling, malformed XML text and accidental response-helper edits",
+      "native_hypothesis": "existing split/join calls, literal construction and operand reconnection expected sufficient",
+      "text_hypothesis": "Body-only source edit expected sufficient; must be executed and independently evaluated",
+      "difference_from_MM01_MM02": "format/encoding invariant through a response helper, not MM01 or MM02",
+      "evaluation_plan": "trusted assertions.py; baseline regression PASS / goal runtime TEST_FAIL; independent generated Rust tests after check/build; all non-authorized body roots and metadata unchanged",
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "store.model.xml_error"
+        ],
+        "modules": {
+          "store.model": {
+            "functions": [
+              "text_response",
+              "xml_response",
+              "xml_error"
+            ],
+            "types": [
+              "HttpRequest",
+              "RouteResult"
+            ]
+          }
+        }
+      },
+      "registration_disposition": "REGISTERED_NOT_YET_QUALIFIED",
+      "model_result": "NOT_STARTED"
+    }
+  ]
+}

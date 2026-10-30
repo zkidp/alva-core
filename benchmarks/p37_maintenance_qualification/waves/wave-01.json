@@ -1,0 +1,125 @@
+{
+  "schema": "alva-p37-qualification/v1",
+  "registration_commit": "e800c8808beb6c333e61d23e84119a4bcb6ec747",
+  "execution_commit": "b1c8b3602014dacddaa2be986019f9b2bf8ce565",
+  "registry_sha256": "2ebca6836f94f7a6d452bd3e11dde033f31649810a1bd50db78a564c435a2c8b",
+  "binary_sha256": "f5d07807ebd1b66113f5b588c38f80a552275cf62f0de414068376efbef76588",
+  "driver_sha256": "33ddb444d5e7b6030ac965203f16d91c74675e2851c195dad25b15062cb11e07",
+  "witness_sha256": "acadfb201bef470bec9e8cfa6dabc468f362e7eddb67dd7a674f94144449c649",
+  "registered_count": 4,
+  "disposition_counts": {
+    "QUALIFIED_MATCHED": 0,
+    "TEXT_ONLY_NATIVE_UNSUPPORTED": 0,
+    "NATIVE_ONLY_TEXT_UNSUPPORTED": 0,
+    "CANDIDATE_LOCAL_FAILURE": 4,
+    "INCONCLUSIVE_WITH_BLOCKER": 0,
+    "EXCLUDED_AT_REGISTRATION": 0
+  },
+  "matched_qualified_count": 0,
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "future_formal_model_result": "NOT_STARTED",
+  "platform": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+  "rows": [
+    {
+      "id": "MM04",
+      "task_type": "graph-order-completeness",
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "disposition": "CANDIDATE_LOCAL_FAILURE",
+      "reason": "NATIVE_ENGINEERING_SEQUENCE_ERROR:('construct_expression', {'content': [{'text': '{\"error\":\"E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected_type does not match constructed result type\"}', 'type': 'text'}], 'isError': True, 'structuredContent': {'error': 'E_AEP_CONSTRUCTION_TYPE_MISMATCH: expected_type does not match constructed result type'}})",
+      "raw_canonical_sha256": "08970a2118414e369187380644980aed20e05b9a789e1a5b7d4f39c105780dd4"
+    },
+    {
+      "id": "MM05",
+      "task_type": "cache-state-invariant",
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "disposition": "CANDIDATE_LOCAL_FAILURE",
+      "reason": "NATIVE_ENGINEERING_SEQUENCE_ERROR:('check_transaction', {'content': [{'text': '{\"error\":\"check failed: 0:0: error: E_CALL_002: rust function \\'build.model.state_label\\' must be declared via (extern ...); 0:0: error: E_CALL_002: rust function \\'build.model.state_label\\' must be declared via (extern ...)\"}', 'type': 'text'}], 'isError': True, 'structuredContent': {'error': \"check failed: 0:0: error: E_CALL_002: rust function 'build.",
+      "raw_canonical_sha256": "1a6f1a6e41c92e6dacd0a0e6773cf776bffea8913a4ebba7f2216d68c3498ffe"
+    },
+    {
+      "id": "MM06",
+      "task_type": "stable-collection-deduplication",
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "disposition": "CANDIDATE_LOCAL_FAILURE",
+      "reason": "NATIVE_ENGINEERING_SEQUENCE_ERROR:('check_transaction', {'content': [{'text': '{\"error\":\"check failed: 0:0: error: E_CALL_002: rust function \\'build.model.vec_contains\\' must be declared via (extern ...)\"}', 'type': 'text'}], 'isError': True, 'structuredContent': {'error': \"check failed: 0:0: error: E_CALL_002: rust function 'build.model.vec_contains' must be declared via (extern ...)\"}})",
+      "raw_canonical_sha256": "d6d9bcd45a52907c84a68220476ae3e933e00bdde6fd3e16eca5baddbb3435fc"
+    },
+    {
+      "id": "MM07",
+      "task_type": "xml-text-encoding",
+      "bundle_sha256": "6b03233443ee91284d677d9e47b86e2791ce49580e1bd25fe78af6eafb77a6f2",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "disposition": "CANDIDATE_LOCAL_FAILURE",
+      "reason": "NATIVE_ENGINEERING_SEQUENCE_ERROR:",
+      "raw_canonical_sha256": "d39cb617feffe9f3f17d396decc134211200ce46fd25368dcc92e33533cfd244"
+    }
+  ]
+}

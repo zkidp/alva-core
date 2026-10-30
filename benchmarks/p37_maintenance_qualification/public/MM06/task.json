@@ -1,0 +1,16 @@
+{
+  "id": "MM06",
+  "target": "build.model.reverse_dependents",
+  "requirement": "Return each matching package name once, in first matching input occurrence order, even when merged package inputs contain duplicate names. Preserve direct-dependency-only matching, nonmatches and empty-input behavior. Inputs need not have unique package names for this query.",
+  "authorized_functions": [
+    "build.model.reverse_dependents"
+  ],
+  "editable_files": [
+    "src/model.alva"
+  ],
+  "protected": [
+    "alva.toml",
+    "all other declarations, signatures, types, exports and module structure"
+  ],
+  "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+}

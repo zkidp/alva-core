@@ -1,0 +1,567 @@
+{
+  "schema": "alva-p37-qualification/v1",
+  "registration_commit": "e800c8808beb6c333e61d23e84119a4bcb6ec747",
+  "execution_commit": "b230ae7f01eaed2225a90a6dd900190f0df375f5",
+  "registry_sha256": "2ebca6836f94f7a6d452bd3e11dde033f31649810a1bd50db78a564c435a2c8b",
+  "binary_sha256": "f5d07807ebd1b66113f5b588c38f80a552275cf62f0de414068376efbef76588",
+  "driver_sha256": "33ddb444d5e7b6030ac965203f16d91c74675e2851c195dad25b15062cb11e07",
+  "witness_sha256": "b9f82b754695966101689558731d3269522c9491cf8e83c53930c04514d008c6",
+  "registered_count": 4,
+  "disposition_counts": {
+    "QUALIFIED_MATCHED": 4,
+    "TEXT_ONLY_NATIVE_UNSUPPORTED": 0,
+    "NATIVE_ONLY_TEXT_UNSUPPORTED": 0,
+    "CANDIDATE_LOCAL_FAILURE": 0,
+    "INCONCLUSIVE_WITH_BLOCKER": 0,
+    "EXCLUDED_AT_REGISTRATION": 0
+  },
+  "matched_qualified_count": 4,
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "future_formal_model_result": "NOT_STARTED",
+  "platform": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+  "rows": [
+    {
+      "id": "MM04",
+      "task_type": "graph-order-completeness",
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "native": {
+        "schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+        "staged_bodies": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "c72d549a962ed7a555d8392f52ac34f3f183b504e7bde9309232ab5ba77d5181",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "c5d8911243c95f86886fc8ef31d70af31661957cbbe29c1223956982917cc85b",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "594a8ee1aece1c4f49e5e43d6cbf407a4f3ea2bd43c2924a8de088104a383dca",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "initial_bodies": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "c72d549a962ed7a555d8392f52ac34f3f183b504e7bde9309232ab5ba77d5181",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "3a8a8aa6f57877ee046f974119cddaf5a059b8d5c0b677cff7c17778740366fc",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "594a8ee1aece1c4f49e5e43d6cbf407a4f3ea2bd43c2924a8de088104a383dca",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "preview": {
+          "diff": "CHANGED module build.model\nCHANGED function build.model.topo_order"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.topo_order"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.topo_order"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "9f42a8b529448d0225ff71b3d36bc452bf338b6485f4a5fab1f8feda3ad69f62",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "c7f82469587e996f0d6e52ba865fa3733b5db4ef8259bcf834428bbb25d16154",
+          "coverage_nodes": 404,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "actual_commit_dispatches": 1,
+        "commit": {
+          "generation": 1,
+          "revision": "c7f82469587e996f0d6e52ba865fa3733b5db4ef8259bcf834428bbb25d16154",
+          "host_scope": {
+            "status": "SCOPE_ALLOWED",
+            "changed_functions": [
+              "build.model.topo_order"
+            ],
+            "unauthorized_functions": [],
+            "authorized_functions": [
+              "build.model.topo_order"
+            ],
+            "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+            "staged_sha256": "9f42a8b529448d0225ff71b3d36bc452bf338b6485f4a5fab1f8feda3ad69f62",
+            "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+            "staged_project_revision": "c7f82469587e996f0d6e52ba865fa3733b5db4ef8259bcf834428bbb25d16154",
+            "coverage_nodes": 404,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": true,
+        "fresh_project_revision": "c7f82469587e996f0d6e52ba865fa3733b5db4ef8259bcf834428bbb25d16154",
+        "fresh_body_revisions": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "c72d549a962ed7a555d8392f52ac34f3f183b504e7bde9309232ab5ba77d5181",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "c5d8911243c95f86886fc8ef31d70af31661957cbbe29c1223956982917cc85b",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "594a8ee1aece1c4f49e5e43d6cbf407a4f3ea2bd43c2924a8de088104a383dca",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "fresh_matches_commit_and_staging": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "source_projection_unchanged": true,
+        "independent_check": 0,
+        "independent_build": 0
+      },
+      "disposition": "QUALIFIED_MATCHED",
+      "reason": "both engineering routes independently pass",
+      "raw_canonical_sha256": "ae86ab1bbc7ed211b270d25bcd9f47fc3155fc1cacd97af7fef092d843f5ddce"
+    },
+    {
+      "id": "MM05",
+      "task_type": "cache-state-invariant",
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "native": {
+        "schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+        "staged_bodies": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "c72d549a962ed7a555d8392f52ac34f3f183b504e7bde9309232ab5ba77d5181",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "3a8a8aa6f57877ee046f974119cddaf5a059b8d5c0b677cff7c17778740366fc",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "6536c89a2219b22f387a9e93dc2b5dc99fc74edab07c5d2dba6868b6cc3eb4ce",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "initial_bodies": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "c72d549a962ed7a555d8392f52ac34f3f183b504e7bde9309232ab5ba77d5181",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "3a8a8aa6f57877ee046f974119cddaf5a059b8d5c0b677cff7c17778740366fc",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "594a8ee1aece1c4f49e5e43d6cbf407a4f3ea2bd43c2924a8de088104a383dca",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "preview": {
+          "diff": "CHANGED module build.model\nCHANGED function build.model.needs_build"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.needs_build"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.needs_build"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "c6793b7d066a6ca56bf5bebedad9b2ec8fbbe43676b1e3b7ea9e6203dae1aceb",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "997899976163806d6b934cbc8fc57413e9a891d45d93015db96a13461866609e",
+          "coverage_nodes": 403,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "actual_commit_dispatches": 1,
+        "commit": {
+          "generation": 1,
+          "revision": "997899976163806d6b934cbc8fc57413e9a891d45d93015db96a13461866609e",
+          "host_scope": {
+            "status": "SCOPE_ALLOWED",
+            "changed_functions": [
+              "build.model.needs_build"
+            ],
+            "unauthorized_functions": [],
+            "authorized_functions": [
+              "build.model.needs_build"
+            ],
+            "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+            "staged_sha256": "c6793b7d066a6ca56bf5bebedad9b2ec8fbbe43676b1e3b7ea9e6203dae1aceb",
+            "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+            "staged_project_revision": "997899976163806d6b934cbc8fc57413e9a891d45d93015db96a13461866609e",
+            "coverage_nodes": 403,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": true,
+        "fresh_project_revision": "997899976163806d6b934cbc8fc57413e9a891d45d93015db96a13461866609e",
+        "fresh_body_revisions": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "c72d549a962ed7a555d8392f52ac34f3f183b504e7bde9309232ab5ba77d5181",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "3a8a8aa6f57877ee046f974119cddaf5a059b8d5c0b677cff7c17778740366fc",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "6536c89a2219b22f387a9e93dc2b5dc99fc74edab07c5d2dba6868b6cc3eb4ce",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "fresh_matches_commit_and_staging": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "source_projection_unchanged": true,
+        "independent_check": 0,
+        "independent_build": 0
+      },
+      "disposition": "QUALIFIED_MATCHED",
+      "reason": "both engineering routes independently pass",
+      "raw_canonical_sha256": "a7dbaf122d5b626bbd917fa83de556b92be74c61dea8589ffe9b7dfabb297c54"
+    },
+    {
+      "id": "MM06",
+      "task_type": "stable-collection-deduplication",
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "native": {
+        "schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+        "staged_bodies": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "2d0752bc6a8ad7385423db7968001ab254c8c33f55883ce439aeb75197e5802a",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "3a8a8aa6f57877ee046f974119cddaf5a059b8d5c0b677cff7c17778740366fc",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "594a8ee1aece1c4f49e5e43d6cbf407a4f3ea2bd43c2924a8de088104a383dca",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "initial_bodies": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "c72d549a962ed7a555d8392f52ac34f3f183b504e7bde9309232ab5ba77d5181",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "3a8a8aa6f57877ee046f974119cddaf5a059b8d5c0b677cff7c17778740366fc",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "594a8ee1aece1c4f49e5e43d6cbf407a4f3ea2bd43c2924a8de088104a383dca",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "preview": {
+          "diff": "CHANGED module build.model\nCHANGED function build.model.reverse_dependents"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "36f95f1a8574ed1c132fd0df8420a39ec53354da9137f6c54b8d782eba09d3cc",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "13e3ad58266782fa57ead53d4f75cbf4ffb49c60eeda824e0dd4f6667741c1d8",
+          "coverage_nodes": 401,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "actual_commit_dispatches": 1,
+        "commit": {
+          "generation": 1,
+          "revision": "13e3ad58266782fa57ead53d4f75cbf4ffb49c60eeda824e0dd4f6667741c1d8",
+          "host_scope": {
+            "status": "SCOPE_ALLOWED",
+            "changed_functions": [
+              "build.model.reverse_dependents"
+            ],
+            "unauthorized_functions": [],
+            "authorized_functions": [
+              "build.model.reverse_dependents"
+            ],
+            "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+            "staged_sha256": "36f95f1a8574ed1c132fd0df8420a39ec53354da9137f6c54b8d782eba09d3cc",
+            "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+            "staged_project_revision": "13e3ad58266782fa57ead53d4f75cbf4ffb49c60eeda824e0dd4f6667741c1d8",
+            "coverage_nodes": 401,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": true,
+        "fresh_project_revision": "13e3ad58266782fa57ead53d4f75cbf4ffb49c60eeda824e0dd4f6667741c1d8",
+        "fresh_body_revisions": {
+          "build.model.state_label": "8f2e1f52509eee6f418bf1217f00d095cff15205c601a9b8d070ae2771421866",
+          "build.model.state_from_label": "ba823dc304d343ea21ef4a9fc3a7abbbacdd383b1bd0fe15ba64fd8cec1e9e84",
+          "build.model.deps_to_string": "700ae10c78af62b1faedece58a942beecdca233965fb835125ce54e8af804884",
+          "build.model.deps_from_string": "b28537ab6a79bef2f19f6ace78efabd7f2d51970718d6d1c8d12e2322edad3a7",
+          "build.model.dep_outputs_to_string": "25381a56b7a41bc2fde93aa965460ffc922a0366612469e6976ce754b09cd632",
+          "build.model.dep_outputs_from_string": "6ecaece3e799cd9f6b62d5bdc0f1234a216cb5aca79127e24314275523736272",
+          "build.model.serialize_package": "eec4cdf5671c4576610b74bcfa41241f75c0a6d37452e4a9d9f8bcc7afa54ef7",
+          "build.model.extract_field": "6f46cddad95f11a163ddd23110fb3d5899b862079a0a81eb8233259bc96bb383",
+          "build.model.parse_package": "efe58b019c38a1ed151ad75fe87579f04cb5fa86ec5f9364f06eeb1e650525a7",
+          "build.model.find_package": "c4fed8f1569787ce0022c8e94d13e9353d854f226586730b433fd18b32ac82af",
+          "build.model.cycle_from": "36b5af0aa27525b16e560f028312e397b0e4418ceb439b5b72ef16a96ff08efc",
+          "build.model.has_cycle": "812407f26a3527ce0dba25471fcda7cfca0420a0be32fe4c2458658b1c37c396",
+          "build.model.reverse_dependents": "2d0752bc6a8ad7385423db7968001ab254c8c33f55883ce439aeb75197e5802a",
+          "build.model.vec_contains": "f0a84e8f79df346f1c17ddece354bfa7e53f89243564dce259e1758da0c1b0bf",
+          "build.model.all_deps_in": "0f750f0c9b244795b6164fa3d2052592d2c01514a60d10f6be136664021e1b46",
+          "build.model.unprocessed": "22407a325f919ef03b4ab1a9e8f24c9ee8b8b93bff656da8efcf6c19577f4d37",
+          "build.model.ready_names": "bd9743fdc1813ad976fc99a93d0616633a2c0c646320407e9d1820b44ba9a60a",
+          "build.model.topo_order": "3a8a8aa6f57877ee046f974119cddaf5a059b8d5c0b677cff7c17778740366fc",
+          "build.model.dep_output_changed": "b3d6ac14b3fc3497e91ce9d018bf16c3c5878fcd57e5cdb888d6db5cb75b4042",
+          "build.model.needs_build": "594a8ee1aece1c4f49e5e43d6cbf407a4f3ea2bd43c2924a8de088104a383dca",
+          "build.model.report_line": "2491301efde6c24cfdd4fe3abf119962d125afc9c7e6429b1a5f7ad67aebb184"
+        },
+        "fresh_matches_commit_and_staging": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "source_projection_unchanged": true,
+        "independent_check": 0,
+        "independent_build": 0
+      },
+      "disposition": "QUALIFIED_MATCHED",
+      "reason": "both engineering routes independently pass",
+      "raw_canonical_sha256": "84c85292ca7c9253f075b32a9c96efb1c76706c31fbf500f2b1e2cb19de834f5"
+    },
+    {
+      "id": "MM07",
+      "task_type": "xml-text-encoding",
+      "bundle_sha256": "6b03233443ee91284d677d9e47b86e2791ce49580e1bd25fe78af6eafb77a6f2",
+      "baseline": {
+        "regression": "PASS",
+        "goal": "TEST_FAIL",
+        "check": 0,
+        "build": 0,
+        "goal_runtime_assertion_failure": true
+      },
+      "text": {
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "changed_files": [
+          "src/model.alva"
+        ],
+        "check": 0,
+        "build": 0
+      },
+      "native": {
+        "schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+        "staged_bodies": {
+          "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+          "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+          "store.model.xml_error": "20bd271735f0136884b3adc5e8fd1abd27297f2d7d52b27e0399554dbc7258ff"
+        },
+        "initial_bodies": {
+          "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+          "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+          "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+        },
+        "preview": {
+          "diff": "CHANGED module store.model\nCHANGED function store.model.xml_error"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "store.model.xml_error"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "store.model.xml_error"
+          ],
+          "baseline_sha256": "df4048e917504a6e354476494e9d0815c2d8d69ec107d9b96139621237e47972",
+          "staged_sha256": "5ff887f0f885a43d69293c49d1b648acf43765ba365e380bcd498739302d8341",
+          "baseline_project_revision": "f0f07af4859dfb0123aaaf41d49d6ddd79203301890d496604c6178a371b92d2",
+          "staged_project_revision": "9fc9ca263287ffc215e18110d82e33d2e34171e712dd59fca1e8d667c5cc32b9",
+          "coverage_nodes": 67,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "actual_commit_dispatches": 1,
+        "commit": {
+          "generation": 1,
+          "revision": "9fc9ca263287ffc215e18110d82e33d2e34171e712dd59fca1e8d667c5cc32b9",
+          "host_scope": {
+            "status": "SCOPE_ALLOWED",
+            "changed_functions": [
+              "store.model.xml_error"
+            ],
+            "unauthorized_functions": [],
+            "authorized_functions": [
+              "store.model.xml_error"
+            ],
+            "baseline_sha256": "df4048e917504a6e354476494e9d0815c2d8d69ec107d9b96139621237e47972",
+            "staged_sha256": "5ff887f0f885a43d69293c49d1b648acf43765ba365e380bcd498739302d8341",
+            "baseline_project_revision": "f0f07af4859dfb0123aaaf41d49d6ddd79203301890d496604c6178a371b92d2",
+            "staged_project_revision": "9fc9ca263287ffc215e18110d82e33d2e34171e712dd59fca1e8d667c5cc32b9",
+            "coverage_nodes": 67,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": true,
+        "fresh_project_revision": "9fc9ca263287ffc215e18110d82e33d2e34171e712dd59fca1e8d667c5cc32b9",
+        "fresh_body_revisions": {
+          "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+          "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+          "store.model.xml_error": "20bd271735f0136884b3adc5e8fd1abd27297f2d7d52b27e0399554dbc7258ff"
+        },
+        "fresh_matches_commit_and_staging": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "scope": "PASS",
+        "source_projection_unchanged": true,
+        "independent_check": 0,
+        "independent_build": 0
+      },
+      "disposition": "QUALIFIED_MATCHED",
+      "reason": "both engineering routes independently pass",
+      "raw_canonical_sha256": "06ad6e8b760d44e67d118845d6945e8172974a525cb5c69d8c09e073f09dfd54"
+    }
+  ]
+}

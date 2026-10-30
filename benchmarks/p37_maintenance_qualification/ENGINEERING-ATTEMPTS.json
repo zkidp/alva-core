@@ -1,0 +1,56 @@
+{
+  "registration_commit": "e800c8808beb6c333e61d23e84119a4bcb6ec747",
+  "candidate_definitions_changed": false,
+  "assertions_changed": false,
+  "completed_waves": [
+    {
+      "id": "wave-01",
+      "execution_commit": "b1c8b3602014dacddaa2be986019f9b2bf8ce565",
+      "ci_run": 41111842859,
+      "summary": "waves/wave-01.json",
+      "registered_count": 4,
+      "matched_qualified_count": 0,
+      "dispositions": {
+        "CANDIDATE_LOCAL_FAILURE": 4
+      },
+      "all_baselines_valid": true,
+      "all_text_goal_regression_scope_pass": true,
+      "native_diagnosis": {
+        "MM04": "Witness used an incompatible long expected_type annotation for err construction; remove optional witness constraint, retaining original goal and return signature.",
+        "MM05": "Witness incorrectly qualified a same-module state_label call; use the source module's existing unqualified name.",
+        "MM06": "Witness incorrectly qualified a same-module vec_contains call; use the source module's existing unqualified name.",
+        "MM07": "Witness expected concat-kind nodes, but actual original nodes are calls. Public arg rewiring has no index argument; reconstruct changed call ancestors and reconnect to the existing body block using the same public tools."
+      },
+      "raw_zip_sha256": "b4696b76fb2b24c4bff93366e318dbe8faa8edee55443dfdc49f62573fb677c9",
+      "raw_zip_bytes": 504256,
+      "actions_artifact_id": 13004227146,
+      "actions_artifact_sha256": "0ee3adadd454e679e10bcde8b75a1d0891e79ee626b5a63e8947ecb373abacde"
+    },
+    {
+      "id": "wave-02",
+      "execution_commit": "b230ae7f01eaed2225a90a6dd900190f0df375f5",
+      "ci_run": 41112699596,
+      "summary": "waves/wave-02.json",
+      "dispositions": {
+        "QUALIFIED_MATCHED": 4,
+        "TEXT_ONLY_NATIVE_UNSUPPORTED": 0,
+        "NATIVE_ONLY_TEXT_UNSUPPORTED": 0,
+        "CANDIDATE_LOCAL_FAILURE": 0,
+        "INCONCLUSIVE_WITH_BLOCKER": 0,
+        "EXCLUDED_AT_REGISTRATION": 0
+      },
+      "registered_count": 4,
+      "matched_qualified_count": 4,
+      "raw_zip_sha256": "9d297f89f39719fcf5c4f08d1bd6b6d86f3e0157556352c0165485657ca986a6",
+      "raw_zip_bytes": 939884,
+      "actions_artifact_id": 13004890946,
+      "actions_artifact_sha256": "bf8c87c9e688722d46dbf14195fb23655162dc75b0f335eb6d21cc8526fc1935"
+    }
+  ],
+  "next_wave_limit": "One corrected-witness batch over the same four registered tasks; preserve both waves regardless of outcome. No additional candidates or model turns.",
+  "interpretation": "Failures of these concrete first witness sequences are retained; they are not proofs that the registered tasks or all existing Native sequences are impossible.",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "exploratory_waves_closed": true,
+  "subsequent_ci": "Zero-model regression repeats of the fixed wave-02 implementation, not new candidate search, witness alternatives or formal model slots; own raw logs/artifacts retained per run."
+}

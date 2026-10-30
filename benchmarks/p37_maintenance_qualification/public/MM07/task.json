@@ -1,0 +1,16 @@
+{
+  "id": "MM07",
+  "target": "store.model.xml_error",
+  "requirement": "Escape &, < and > as XML text in both code and message before serializing an error response. Treat existing entity-looking text literally (escape its ampersand once). Preserve status, XML response content type, empty and Unicode text, and all ordinary response helpers. Do not change signatures or introduce another public function.",
+  "authorized_functions": [
+    "store.model.xml_error"
+  ],
+  "editable_files": [
+    "src/model.alva"
+  ],
+  "protected": [
+    "alva.toml",
+    "all other declarations, signatures, types, exports and module structure"
+  ],
+  "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+}

@@ -1,0 +1,4 @@
+[project]
+name = "response"
+[modules]
+"store.model" = "src/model.alva"

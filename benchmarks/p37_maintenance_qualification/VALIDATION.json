@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "registration_commit": "e800c8808beb6c333e61d23e84119a4bcb6ec747",
+  "both_wave_archives_integrity": "PASS",
+  "all_candidate_raw_hashes_recomputed": true,
+  "goal_regression_results_match_actual_execution": true,
+  "guard_commit_fresh_scope_conjunction_verified": true,
+  "initial_failures_preserved": true,
+  "registered_definitions_and_assertions_changed": false,
+  "final_registered_count": 4,
+  "final_matched_qualified_count": 4,
+  "engineering_authorship": "Codex; no independent human review or model success claimed",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "formal_model_execution_authorized": false
+}
