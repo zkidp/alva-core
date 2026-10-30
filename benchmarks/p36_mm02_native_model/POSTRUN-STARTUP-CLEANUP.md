@@ -54,12 +54,35 @@ unrelated process remains alive. The portable fake-transport tests are not
 claimed as evidence of actual remote termination. CI execution/status and the
 exact patch SHA are provided in the review reply after completion.
 
-**REMOTE_TERMINATION: NOT_VERIFIED.** The previous temporary private key no
-longer exists, and a bounded BatchMode SSH check using existing authentication
-returns permission denied. No deleted key was recreated, password login
-attempted, new authorization obtained, or remote environment modified in this
-fix. The original P2 thread stays **OPEN** pending real SSH failure-injection
-verification. Local/Linux CI evidence must not be relabelled remote SSH proof.
+**REMOTE_TERMINATION_VERIFIED**, using the user's previously authorized password
+login. The initial BatchMode check failed because the old temporary key had
+been deleted; that was not the only existing authentication method. No key was
+recreated and no new permission was obtained. A separate trusted test checkout
+at fix commit `617330dc4cb873ec573d3cb5b8a25d2b87f6bc52` was used, leaving the
+original study workspace and raw archive untouched.
+
+`ssh_startup_probe.py` supplies a manual, zero-model real SSH integration probe.
+One actual SSH session launched the current owner and a controlled fake service
+which never wrote readiness; a second already-authenticated control session
+cancelled that exact instance after an injected short readiness deadline.
+Actual pidfds confirmed the remote service init and its setsid descendant had
+exited, the owner helper was reaped and scratch removed, and the unrelated
+control task was still alive. The latter was then explicitly cleaned by its
+own pidfd. The launch SSH process naturally exited with code 0 and was reaped;
+both control sessions were also closed. No Native MCP/SDK or model was started.
+
+This complements the actual Slot constructor unit tests using fake transport;
+it does not claim the password-authenticated probe invoked Slot's noninteractive
+SSH adapter end to end. It directly tests the new remote owner/cancel protocol
+over real SSH, plus launch transport exit. Actual key-based automatic SSH auth
+was not recreated. Local mocks are not used as remote termination evidence.
+
+`STARTUP-CLEANUP-VALIDATION.json` records the separate derived verification.
+Controlled new raw record `.local/p36-startup-fix/remote-proof.json` SHA256:
+`ed6c205177e3ba6d40fbca6c4d44e03a948ecc2bd5e10173a34289aa520693d4`.
+The copied bytes were checked against the remote file's SHA256. This record is
+independent of the immutable P36 model RAW.zip. The P2 thread is resolved only
+after final CI and a concrete review reply, using this real remote evidence.
 
 ## Frozen science remains separate
 
