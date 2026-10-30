@@ -3,7 +3,9 @@
 Base: `3a13b3f843f0bbc0be287a950e0c34fc997a7d1c` (P34).
 This is Codex-assisted deterministic engineering, not a model capability
 experiment. Model generation calls = 0; input-token API calls = 0.
-Execution evidence and final disposition are recorded below after Linux CI.
+**EXISTING_NATIVE_OCCURRENCE_SCOPE_FEASIBLE.** Actual Linux isolated execution
+passes all success conditions with existing public Native MCP operations.
+No Core extension is required for this fixed original MM02 case.
 
 ## Existing-operation capability analysis
 
@@ -92,7 +94,7 @@ it. Decoding and delimiter's last-match code are reused unchanged.
 
 `benchmarks/p35_occurrence_scope/reproduce.py` contains three bounded routes:
 
-| Route | Required staging and publication result |
+| Route | Actual staging and publication result |
 |---|---|
 | Detached construction | All body revisions unchanged; abort, no commit, target remains expected FAIL. No maintenance success credit. Also probe direct function-body replacement and unexposed AEP operations, retaining actual refusals. |
 | Original P29 shared mutation | Prefix and delimiter change; check problems=[]; real P34 Guard SCOPE_VIOLATION; zero underlying commits; authority unchanged; target remains expected FAIL, regression PASS. Historical unguarded P29/P33 failure is not overwritten. |
@@ -126,27 +128,59 @@ AppServer/model approval-route experiment or model tool-use success.
 
 ## Supported conclusions and limits
 
-The planned positive disposition requires every success condition above to
-pass in actual Linux execution; construction or SCOPE_ALLOWED alone is insufficient.
-The route would establish fixed-case engineering expressibility with existing
+Every success condition above passed in actual Linux execution; construction
+or SCOPE_ALLOWED alone was not credited. The route establishes fixed-case
+engineering expressibility with existing
 Native tools, without changing Core/AEP/MCP/official Skill or the original graph
 before the transaction. It does not establish automatic occurrence semantics
 for arbitrary parents, Agent discoverability, universal behavioral preservation,
 or a language/correctness advantage. P29's original sequence still spills.
 
-No Core extension is needed if this route passes. For arbitrary graphs with
-shared ancestors or unsupported reconstructible kinds, a future atomic
-rooted path-copy API would need an explicit named declaration, expected base
-project/root revision, ordered `(parent revision, slot, index, child revision)`
-edges, and replacement revision. Validate each edge and exact root before
-mutation; reject stale/missing/ambiguous paths rather than silently refreshing.
-Build changed leaf/parent and copy ancestors bottom-up without mutating shared
-entries, then reconnect only the selected named declaration, recomputing Merkle
-revisions. Multi-child slots require explicit index semantics. Existing
-hashing/staging/publication can be reused, but current `replace_slot` alone is
-not that operation. P34 Guard remains an independent final authorization check,
-and finite task/regression evaluation remains necessary. This is context for
-the general limitation, not an implementation proposal required for MM02.
+This result does not supply general path-copy semantics for graphs without an
+available unshared attachment parent. No new stale-path, ambiguity, concurrent
+mutation, shared-ancestor copy or arbitrary-kind reconstruction experiment was
+run. Current revision/commit preconditions and P34 Guard remain unchanged.
+Because this fixed case is feasible, no Core extension is proposed or implemented.
+
+## Verified revisions, CI and Git scope
+
+Evidence execution HEAD: `5ad595d8820753bd731d6c97de4667b5de683597`;
+parent: `03571c3509fd7cba92973f264419369273a6866d`.
+The unchanged final driver passed [Linux CI run 41098355252](https://github.com/zkidp/alva-core/actions/runs/41098355252).
+That run passed cargo fmt, Clippy with warnings denied, 26 Rust unit tests,
+SDK build, seven P34 guard regressions, and all three isolated P35 routes.
+The earlier initial witness also passed run 41097982393; final evidence uses the
+stronger second driver with explicit commit revision equality and refusal probes.
+Public RESULTS.json is derived from that successful job's JSON output.
+Its raw_sha256 fields hash canonical parsed records, not indented file bytes.
+The retained Actions artifact is `p35-native-engineering-evidence`, ID
+`12997540867`, archive digest SHA256
+`a4437a487172ff8d4922a31dc85bb6a21e0984da7322a5cdfd6e4adae19e3fa6`.
+
+Published AIR generation: **1**. Committed and fresh-process project revision:
+`b414a22eeaac90b281f7ae267965713a8fa5e82d67aa28f5cdd0a3275931f139`.
+Prefix body: `14a972cff2d1b88cd843e80c5fab0a8c19d80db7f2936fd3a724016c3b6168d9`
+→ `37d4de36ae0441ce924088130f155bab20ed693c2b6ca6f7fd7022fa07e3ea9b`.
+Delimiter body remains
+`62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672`.
+All other seven body revisions remain unchanged. The original shared if remains
+byte-equivalent as an inspected node. The original repeated-delimiter assertion
+`delimiter=%2F&delimiter=%21` → `!` passes, along with all other original
+regressions and every original goal vector. Preview lists prefix only.
+
+Exact additive changed files relative to P34:
+
+- `.github/workflows/p35-occurrence-scope.yml`
+- `benchmarks/p35_occurrence_scope/reproduce.py`
+- `benchmarks/p35_occurrence_scope/RESULTS.json`
+- `docs/research/p35-occurrence-scope-feasibility.md`
+
+Branch: `codex/p35-occurrence-scope-feasibility`, targeting the P34 branch
+`codex/p34-host-owned-scope-guard`.
+[Full branch comparison](https://github.com/zkidp/alva-core/compare/3a13b3f843f0bbc0be287a950e0c34fc997a7d1c...codex/p35-occurrence-scope-feasibility).
+The final PR description records the final publication HEAD/parent, exact-head
+CI, origin equality and clean worktree after the derived-evidence commit;
+this report records the reproducible execution commit without a self-hash cycle.
 
 Only additive P35 driver/workflow/report/results files are permitted. P20–P34
 frozen artifacts and all original programs/assertions remain byte-identical.
