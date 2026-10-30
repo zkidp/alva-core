@@ -58,15 +58,14 @@ def native(candidate, c):
         assert len(parents) == 1
         parent = parents[0]
         complete = binary("==", call("len", reference("ordered")), call("len", reference("pkgs")))
-        error = c.call("construct_expression", kind="err", value=literal("unresolved dependencies or cycle"),
-                       expected_type="(result (vec (prim string)) (prim string))")["revision"]
+        error = c.call("construct_expression", kind="err", value=literal("unresolved dependencies or cycle"))["revision"]
         changed = branch(complete, parent["slots"]["body"][0], error)
         c.call("replace_expression", parent=parent["revision"], position="body", child=changed)
     elif candidate["id"] == "MM05":
         root = c.call("inspect_entity", entity=target)
         block = nodes[root["slots"]["body"][0]]
         state = c.call("construct_expression", kind="field", name="state", value=reference("p"))["revision"]
-        label = call("build.model.state_label", state)
+        label = call("state_label", state)
         bad = binary("or", binary("==", label, literal("PENDING")), binary("==", label, literal("FAILED")))
         changed = branch(bad, literal("true", "bool"), block["slots"]["steps"][0])
         c.call("replace_expression", parent=block["revision"], position="step", child=changed)
@@ -75,17 +74,35 @@ def native(candidate, c):
         assert len(parents) == 1
         parent = parents[0]
         name = c.call("construct_expression", kind="field", name="name", value=reference("p"))["revision"]
-        seen = call("build.model.vec_contains", reference("out"), name)
+        seen = call("vec_contains", reference("out"), name)
         changed = branch(seen, reference("out"), parent["slots"]["body"][0])
         c.call("replace_expression", parent=parent["revision"], position="body", child=changed)
     else:
+        escaped = {}
         for name in ("code", "message"):
-            nodes = c.nodes(target)
-            matches = [(n, slot) for n in nodes.values() if n["kind"] == "concat" for slot in ("left", "right")
-                if nodes[n["slots"][slot][0]]["kind"] == "ref" and nodes[n["slots"][slot][0]]["fields"].get("name") == name]
-            assert len(matches) == 1
-            parent, slot = matches[0]
-            value = parent["slots"][slot][0]
+            refs = [n for n in nodes.values() if n["kind"] == "ref" and n["fields"].get("name") == name]
+            assert len(refs) == 1
+            value = refs[0]["revision"]
             for before, after in (("&", "&amp;"), ("<", "&lt;"), (">", "&gt;")):
                 value = call("join", call("split", value, literal(before)), literal(after))
-            c.call("replace_expression", parent=parent["revision"], position=slot, child=value)
+            escaped[refs[0]["revision"]] = value
+        # Actual source builtins are call nodes. The public arg position replaces
+        # a whole slot, not an indexed argument: rebuild changed call ancestors
+        # and reconnect the complete expression to the existing function block.
+        memo = dict(escaped)
+        def rebuild(revision):
+            if revision in memo:
+                return memo[revision]
+            node = nodes[revision]
+            result = revision
+            if node["kind"] == "call":
+                original = node["slots"]["args"]
+                args = [rebuild(r) for r in original]
+                if args != original:
+                    result = call(node["fields"]["name"], *args)
+            memo[revision] = result
+            return result
+        root = c.call("inspect_entity", entity=target)
+        block = nodes[root["slots"]["body"][0]]
+        changed = rebuild(block["slots"]["steps"][0])
+        c.call("replace_expression", parent=block["revision"], position="step", child=changed)
