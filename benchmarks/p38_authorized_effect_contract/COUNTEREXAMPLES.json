@@ -1,0 +1,411 @@
+{
+  "schema": "aec-counterexamples/v0",
+  "cases": [
+    {
+      "id": "C1",
+      "module": "aec.c1",
+      "crate": "aec1",
+      "functions": [
+        "adjust",
+        "exposed",
+        "stable"
+      ],
+      "authorized_functions": [
+        "aec.c1.adjust"
+      ],
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "aec.c1.adjust"
+        ],
+        "modules": {
+          "aec.c1": {
+            "functions": [
+              "adjust",
+              "exposed",
+              "stable"
+            ],
+            "types": []
+          }
+        }
+      },
+      "evidence_strength": "bounded_samples",
+      "permitted_downstream_change": [],
+      "protected_behavior": [
+        "exposed"
+      ],
+      "hashes": {
+        "baseline": {
+          "alva.toml": "b39a6642ee26ec10dc23d1ecc7bd158aaf08483ebe7ae6a24fc0003424227a19",
+          "src/model.alva": "74fe83d9069567fe70cba2eace688e6b41807478eadfe5eb145b45bb2008e928"
+        },
+        "candidate": {
+          "alva.toml": "b39a6642ee26ec10dc23d1ecc7bd158aaf08483ebe7ae6a24fc0003424227a19",
+          "src/model.alva": "74b70ff8882cbee4580416acd76746fd9636152afc86d1af37fa24d18673a61e"
+        }
+      },
+      "samples": [
+        {
+          "function": "adjust",
+          "input": -2,
+          "baseline": -1,
+          "required_candidate": 0
+        },
+        {
+          "function": "exposed",
+          "input": -2,
+          "baseline": -1,
+          "required_candidate": -1
+        },
+        {
+          "function": "stable",
+          "input": -2,
+          "baseline": 98,
+          "required_candidate": 98
+        },
+        {
+          "function": "adjust",
+          "input": 0,
+          "baseline": 1,
+          "required_candidate": 2
+        },
+        {
+          "function": "exposed",
+          "input": 0,
+          "baseline": 1,
+          "required_candidate": 1
+        },
+        {
+          "function": "stable",
+          "input": 0,
+          "baseline": 100,
+          "required_candidate": 100
+        },
+        {
+          "function": "adjust",
+          "input": 3,
+          "baseline": 4,
+          "required_candidate": 5
+        },
+        {
+          "function": "exposed",
+          "input": 3,
+          "baseline": 4,
+          "required_candidate": 4
+        },
+        {
+          "function": "stable",
+          "input": 3,
+          "baseline": 103,
+          "required_candidate": 103
+        }
+      ],
+      "native_edit": {
+        "parent": "original authorized function body block",
+        "position": "step",
+        "replacement": "(+ (ref x) (int 2))"
+      },
+      "scope": "body-only; all signatures, exports, module metadata and other bodies protected"
+    },
+    {
+      "id": "C2",
+      "module": "aec.c2",
+      "crate": "aec2",
+      "functions": [
+        "adjust",
+        "exposed",
+        "stable"
+      ],
+      "authorized_functions": [
+        "aec.c2.adjust"
+      ],
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "aec.c2.adjust"
+        ],
+        "modules": {
+          "aec.c2": {
+            "functions": [
+              "adjust",
+              "exposed",
+              "stable"
+            ],
+            "types": []
+          }
+        }
+      },
+      "evidence_strength": "bounded_samples",
+      "permitted_downstream_change": [
+        "exposed"
+      ],
+      "protected_behavior": [
+        "stable"
+      ],
+      "hashes": {
+        "baseline": {
+          "alva.toml": "171c6421b4796da9dd999072e966137271b8c02fbedc3758a4c57a31c2e771bd",
+          "src/model.alva": "6322c4ea1c6457797416e198a2dab3b85488b20a27fcd6bc42dd8c44ff76da15"
+        },
+        "candidate": {
+          "alva.toml": "171c6421b4796da9dd999072e966137271b8c02fbedc3758a4c57a31c2e771bd",
+          "src/model.alva": "5fb96e212e91b49e8b9a5ebf2ec0c12ed1d21ed3b5593f789750596c09c232ea"
+        }
+      },
+      "samples": [
+        {
+          "function": "adjust",
+          "input": -2,
+          "baseline": -1,
+          "required_candidate": 0
+        },
+        {
+          "function": "exposed",
+          "input": -2,
+          "baseline": -1,
+          "required_candidate": 0
+        },
+        {
+          "function": "stable",
+          "input": -2,
+          "baseline": 98,
+          "required_candidate": 98
+        },
+        {
+          "function": "adjust",
+          "input": 0,
+          "baseline": 1,
+          "required_candidate": 2
+        },
+        {
+          "function": "exposed",
+          "input": 0,
+          "baseline": 1,
+          "required_candidate": 2
+        },
+        {
+          "function": "stable",
+          "input": 0,
+          "baseline": 100,
+          "required_candidate": 100
+        },
+        {
+          "function": "adjust",
+          "input": 3,
+          "baseline": 4,
+          "required_candidate": 5
+        },
+        {
+          "function": "exposed",
+          "input": 3,
+          "baseline": 4,
+          "required_candidate": 5
+        },
+        {
+          "function": "stable",
+          "input": 3,
+          "baseline": 103,
+          "required_candidate": 103
+        }
+      ],
+      "native_edit": {
+        "parent": "original authorized function body block",
+        "position": "step",
+        "replacement": "(+ (ref x) (int 2))"
+      },
+      "scope": "body-only; all signatures, exports, module metadata and other bodies protected"
+    },
+    {
+      "id": "C3",
+      "module": "aec.c3",
+      "crate": "aec3",
+      "functions": [
+        "left",
+        "right"
+      ],
+      "authorized_functions": [
+        "aec.c3.left"
+      ],
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "aec.c3.left"
+        ],
+        "modules": {
+          "aec.c3": {
+            "functions": [
+              "left",
+              "right"
+            ],
+            "types": []
+          }
+        }
+      },
+      "evidence_strength": "bounded_samples",
+      "permitted_downstream_change": [],
+      "protected_behavior": [
+        "right"
+      ],
+      "hashes": {
+        "baseline": {
+          "alva.toml": "24824113be34996fae4a6dabf610799ca0ceaa0fc7b100663e25e80779389d06",
+          "src/model.alva": "4ad1594c453eda1b73e2cab080b1c9d62617a52b95587bc4c1a108bc07410f27"
+        },
+        "candidate": {
+          "alva.toml": "24824113be34996fae4a6dabf610799ca0ceaa0fc7b100663e25e80779389d06",
+          "src/model.alva": "ae13447f130794a7fc7c6a213cbf2ff6805bdbed0e65c9e55a1a7a02bc6fb7dc"
+        }
+      },
+      "samples": [
+        {
+          "function": "left",
+          "input": -2,
+          "baseline": -1,
+          "required_candidate": 2
+        },
+        {
+          "function": "right",
+          "input": -2,
+          "baseline": -1,
+          "required_candidate": 2
+        },
+        {
+          "function": "left",
+          "input": 0,
+          "baseline": 1,
+          "required_candidate": 2
+        },
+        {
+          "function": "right",
+          "input": 0,
+          "baseline": 1,
+          "required_candidate": 2
+        },
+        {
+          "function": "left",
+          "input": 3,
+          "baseline": 4,
+          "required_candidate": 2
+        },
+        {
+          "function": "right",
+          "input": 3,
+          "baseline": 4,
+          "required_candidate": 2
+        }
+      ],
+      "native_edit": {
+        "parent": "original authorized function body block",
+        "position": "step",
+        "replacement": "(int 2)"
+      },
+      "scope": "body-only; all signatures, exports, module metadata and other bodies protected"
+    },
+    {
+      "id": "C4",
+      "module": "aec.c4",
+      "crate": "aec4",
+      "functions": [
+        "adjust",
+        "exposed",
+        "stable"
+      ],
+      "authorized_functions": [
+        "aec.c4.adjust"
+      ],
+      "guard_policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "aec.c4.adjust"
+        ],
+        "modules": {
+          "aec.c4": {
+            "functions": [
+              "adjust",
+              "exposed",
+              "stable"
+            ],
+            "types": []
+          }
+        }
+      },
+      "evidence_strength": "proof",
+      "permitted_downstream_change": [],
+      "protected_behavior": [
+        "exposed"
+      ],
+      "hashes": {
+        "baseline": {
+          "alva.toml": "36a6a331deb47d00d21e79203ebcbc14d7c54e3d325937744b8c9f6a736a4adc",
+          "src/model.alva": "65e99dde6ef6ba0c592f37c5053358f6c7164033284927398fc3fad8c6c0db61"
+        },
+        "candidate": {
+          "alva.toml": "36a6a331deb47d00d21e79203ebcbc14d7c54e3d325937744b8c9f6a736a4adc",
+          "src/model.alva": "c3fa84de6ceddbd5fa09d96e654263764d5b367cedb9a2b1c0d1b0452a77cfbd"
+        }
+      },
+      "samples": [
+        {
+          "function": "adjust",
+          "input": -2,
+          "baseline": -2,
+          "required_candidate": -2
+        },
+        {
+          "function": "exposed",
+          "input": -2,
+          "baseline": -2,
+          "required_candidate": -2
+        },
+        {
+          "function": "stable",
+          "input": -2,
+          "baseline": 98,
+          "required_candidate": 98
+        },
+        {
+          "function": "adjust",
+          "input": 0,
+          "baseline": 0,
+          "required_candidate": 0
+        },
+        {
+          "function": "exposed",
+          "input": 0,
+          "baseline": 0,
+          "required_candidate": 0
+        },
+        {
+          "function": "stable",
+          "input": 0,
+          "baseline": 100,
+          "required_candidate": 100
+        },
+        {
+          "function": "adjust",
+          "input": 3,
+          "baseline": 3,
+          "required_candidate": 3
+        },
+        {
+          "function": "exposed",
+          "input": 3,
+          "baseline": 3,
+          "required_candidate": 3
+        },
+        {
+          "function": "stable",
+          "input": 3,
+          "baseline": 103,
+          "required_candidate": 103
+        }
+      ],
+      "native_edit": {
+        "parent": "original authorized function body block",
+        "position": "step",
+        "replacement": "(ref x)"
+      },
+      "scope": "body-only; all signatures, exports, module metadata and other bodies protected"
+    }
+  ]
+}

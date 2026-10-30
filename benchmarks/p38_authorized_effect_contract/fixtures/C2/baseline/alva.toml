@@ -1,0 +1,4 @@
+[project]
+name = "aec2"
+[modules]
+"aec.c2" = "src/model.alva"
