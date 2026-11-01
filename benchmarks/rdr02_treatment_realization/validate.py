@@ -46,15 +46,31 @@ def validate(observations, comparison, paths=None):
         if observation["id"] == "U1":
             expected = {k: "NOT_APPLICABLE" for k in expected}
             actual_gaps = []
-            for probe in observation["coverage_probes"]:
-                call = e.pointer(sources[probe["evidence"]["source"]], probe["evidence"]["pointer"])
-                descriptor = probe["advertised_evidence"]
+            coverage_path = "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json"
+            # Reconstruct from hash-pinned source, not the extractor's optional
+            # descriptor pointer or booleans (which may omit real descriptors).
+            tested_operations = {"create_reference", "create_literal", "create_binary", "create_call", "replace_expression"}
+            originals = [(ri, ci, row, call)
+                         for ri, row in enumerate(sources[coverage_path]["rows"])
+                         for ci, call in enumerate(row["calls"]) if call["name"] in tested_operations]
+            assert len(observation["coverage_probes"]) == len(originals), "U1_PROBE_COVERAGE_MISMATCH"
+            for probe, (ri, ci, row, call) in zip(observation["coverage_probes"], originals):
+                assert probe["evidence"] == e.ref(coverage_path, f"/rows/{ri}/calls/{ci}", call)
+                assert probe["operation"] == call["name"]
+                descriptors = [(di, d) for di, d in enumerate(row["calls"])
+                               if d["name"] == "describe_operation" and
+                               d["arguments"].get("name") == call["name"] and
+                               d["response"].get("isError") is False and
+                               d["response"].get("structuredContent", {}).get("name") == call["name"]]
+                descriptor = (e.ref(coverage_path, f"/rows/{ri}/calls/{descriptors[-1][0]}", descriptors[-1][1])
+                              if descriptors else None)
+                assert probe["advertised_evidence"] == descriptor, "U1_REGISTRY_DESCRIPTOR_MISMATCH"
+                assert probe["advertised_by_registry"] is bool(descriptors), "U1_REGISTRY_EXPOSURE_MISMATCH"
+                assert probe["native_surface_evidence"] == e.ref(coverage_path, f"/rows/{ri}/advertised_names", row["advertised_names"])
+                assert probe["advertised_native_tool"] is (call["name"] in row["advertised_names"])
                 assert probe["response_sha256"] == e.identity(call["response"])
-                assert probe["isError"] == call["response"].get("isError")
-                if descriptor is not None:
-                    d = e.pointer(sources[descriptor["source"]], descriptor["pointer"])
-                    assert d["response"].get("isError") is False
-                    assert d["response"]["structuredContent"]["name"] == call["name"]
+                assert probe["isError"] is call["response"].get("isError")
+                assert probe["error_text"] == " ".join(t.get("text", "") for t in call["response"].get("content", []))[:500]
                 actual_gaps.append(bool(descriptor and call["response"].get("isError") and
                     "E_MCP_UNKNOWN_TOOL" in str(call["response"].get("structuredContent", {}))))
             expected["exposure"] = "FALSE" if any(actual_gaps) else "UNKNOWN"

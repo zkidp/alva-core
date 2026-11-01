@@ -39,3 +39,17 @@ command lost its temporary-directory variable at the shell boundary and failed
 before cloning. Neither ran analysis or changed any input. Cloning from the
 actual shared repository into an explicit Linux temporary path succeeded;
 eight tests and public-certificate validation then passed on Python 3.14.4.
+
+## PR #40 P2 — independent U1 descriptor reconstruction
+
+Reproduced on `d17d98dc8818c86fda350df91755ac0caac904d7`: erasing U1's
+descriptor pointers and Registry flags, then regenerating E0/E1 classifications
+and digests, incorrectly passed validation as UNKNOWN. The new regression failed
+against that validator before repair. The validator now enumerates the original
+hash-pinned public coverage calls, reconstructs successful Registry descriptors,
+and checks exact descriptor references, Registry/native exposure, probe coverage
+and refusal payloads independently of the projection. The erased-descriptor
+regression and field/reference tampering controls now pass (tampering rejected).
+Normal data retains CAPABILITY_COVERAGE_GAP, zero E0/E1 disagreements and
+INCONCLUSIVE_EVIDENCE_LIMITATION. No analyzer, frozen input/result or archive is
+changed; model generation and input-token API calls remain zero.

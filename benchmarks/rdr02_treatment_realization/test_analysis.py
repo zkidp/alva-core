@@ -68,6 +68,37 @@ class AnalysisTests(unittest.TestCase):
         changed["rows"][2]["E0"]["staged_behavior"] = "PASS"
         with self.assertRaises(AssertionError): v.validate(self.obs, changed)
 
+    def test_erased_registry_descriptors_rejected_after_reclassification(self):
+        changed = copy.deepcopy(self.obs)
+        for probe in changed["units"][0]["coverage_probes"]:
+            probe["advertised_evidence"] = None
+            probe["advertised_by_registry"] = False
+        regenerated = a.compare(changed)
+        self.assertEqual(regenerated["rows"][0]["E0"]["classification"], "UNKNOWN")
+        self.assertEqual(regenerated["rows"][0]["E1"]["classification"], "UNKNOWN")
+        with self.assertRaisesRegex(AssertionError, "U1_REGISTRY_DESCRIPTOR_MISMATCH"):
+            v.validate(changed, regenerated)
+
+    def test_u1_projection_fields_bound_to_original_coverage(self):
+        for field, value in (("advertised_by_registry", False),
+                             ("advertised_native_tool", True),
+                             ("native_surface_evidence", None),
+                             ("operation", "create_fake"),
+                             ("isError", False),
+                             ("error_text", "INVALID_ARGUMENT")):
+            with self.subTest(field=field):
+                changed = copy.deepcopy(self.obs)
+                changed["units"][0]["coverage_probes"][0][field] = value
+                with self.assertRaises(AssertionError):
+                    v.validate(changed, a.compare(changed))
+        changed = copy.deepcopy(self.obs)
+        probes = changed["units"][0]["coverage_probes"]
+        probes[0]["advertised_evidence"] = probes[1]["advertised_evidence"]
+        with self.assertRaises(AssertionError): v.validate(changed, a.compare(changed))
+        changed = copy.deepcopy(self.obs)
+        changed["units"][0]["coverage_probes"].pop()
+        with self.assertRaises(AssertionError): v.validate(changed, a.compare(changed))
+
     def test_historical_label_poisoning_does_not_change_classifiers(self):
         for row in self.obs["units"]:
             poisoned = copy.deepcopy(row)
