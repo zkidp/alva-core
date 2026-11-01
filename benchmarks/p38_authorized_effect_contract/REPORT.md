@@ -98,3 +98,26 @@ cross-language implementation claim is supported.
 
 Create the independent PR, then STOP for review. Do not merge, change Core,
 run a model or start P39.
+
+## Reproduction closeout (2026-11-02)
+
+Review identified that loading the hard-coded registration commit requires
+that historical Git object to remain available. It is an ancestor on the
+original branch, but a squash/tree-only checkout need not retain it.
+REGISTERED-INPUTS.json now transports the exact 20 original registered Git
+blobs (four protocol files and sixteen fixture files), including their origin
+identities. The loader pins the complete canonical snapshot SHA256 and checks
+every decoded length/hash; it never accepts a different newline variant.
+The registration commit remains provenance, not a runtime object dependency.
+The study checks the current committed registered files against those exact
+bytes and rejects dirty tracked inputs or a changed fixture set.
+
+The regression exports the current tree into a new repository with a single
+root commit and explicitly confirms the original registration object is
+absent. It loads all four cases/eight bundles, and rejects both uncommitted
+and committed fixture tampering. Snapshot tampering fails closed; all eight
+bundle identities remain identical to the retained original results.
+This is an additive reproduction repair, not a new treatment or rescore.
+Registered inputs, original VALIDATION/results/archive manifests and the
+NO_OBSERVED_INCREMENTAL_VALUE conclusion remain unchanged. Future CI wave
+records belong to that repair commit's Actions artifacts, not the old wave.

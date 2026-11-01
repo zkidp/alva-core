@@ -18,23 +18,55 @@ from benchmarks.maintenance_design import feasibility as prior
 from benchmarks.p33_shared_scope.reproduce import Client
 from benchmarks.native_prospective.service import files
 from benchmarks.p38_authorized_effect_contract import mechanisms as m
-from integrations.benchmark_runtime_v2.freeze import pack_git, canonical, decode, sha
+from integrations.benchmark_runtime_v2.freeze import pack_git, canonical, decode, sha, relative
 from integrations.benchmark_runtime_v2.persistent import PersistentSandbox
 from integrations.benchmark_runtime_v2.sandbox import SDK, LinuxSandbox
 from integrations.codex.precommit_scope_guard import GuardedNative
 
 REGISTRATION = "4fe0edceae8721f808e750c2dca266417d92ee98"
+REGISTERED_INPUTS_SHA256 = "4ebdc9ce4ab1bc1787f0c0f8ee4a4c15422c1eeb00e08292b044a1cc8c386d80"
 PREFIX = "benchmarks/p38_authorized_effect_contract/"
 TOOLS = tuple(json.loads((ROOT / "benchmarks/p36_mm02_native_model/FREEZE.json").read_text())["native_tools"])
 
 
+def registration_snapshot():
+    """Exact original Git blobs, portable even when registration history is absent."""
+    snapshot = json.loads((HERE / "REGISTERED-INPUTS.json").read_bytes())
+    if sha(canonical(snapshot)) != REGISTERED_INPUTS_SHA256:
+        raise ValueError("Registration snapshot identity mismatch")
+    decode(snapshot, snapshot["payload_sha256"])
+    if any(e["origin"]["commit"] != REGISTRATION for e in snapshot["payload"]["entries"]):
+        raise ValueError("Registration provenance mismatch")
+    return snapshot
+
+
 def registered(name):
-    return subprocess.check_output(["git", "show", REGISTRATION + ":" + PREFIX + name], cwd=ROOT)
+    snapshot = registration_snapshot()
+    return decode(snapshot, snapshot["payload_sha256"])[PREFIX + relative(name)]
+
+
+def validate_registered_inputs():
+    snapshot = registration_snapshot()
+    expected = decode(snapshot, snapshot["payload_sha256"])
+    current = pack_git(ROOT, "HEAD", list(expected))
+    if decode(current, current["payload_sha256"]) != expected:
+        raise ValueError("Committed registered input bytes changed")
+    fixtures = subprocess.check_output(
+        ["git", "ls-tree", "-r", "--name-only", "HEAD", "--", PREFIX + "fixtures"],
+        cwd=ROOT, text=True).splitlines()
+    if set(fixtures) != {p for p in expected if p.startswith(PREFIX + "fixtures/")}:
+        raise ValueError("Registered fixture set changed")
+    subprocess.run(["git", "diff", "--exit-code", "HEAD", "--", *expected],
+                   cwd=ROOT, check=True, capture_output=True)
 
 
 def bundle(case, phase):
     prefix = PREFIX + "fixtures/" + case["id"] + "/" + phase + "/"
-    b = pack_git(ROOT, REGISTRATION, [prefix + p for p in case["hashes"][phase]])
+    b = registration_snapshot()
+    wanted = {prefix + relative(p) for p in case["hashes"][phase]}
+    b["payload"]["entries"] = [e for e in b["payload"]["entries"] if e["path"] in wanted]
+    if {e["path"] for e in b["payload"]["entries"]} != wanted:
+        raise ValueError("Missing registered fixture")
     for e in b["payload"]["entries"]:
         e["path"] = e["path"].removeprefix(prefix)
         assert e["sha256"] == case["hashes"][phase][e["path"]]
@@ -276,10 +308,7 @@ def main(args):
     if sys.platform != "linux":
         raise RuntimeError("existing P22/P23 Linux isolation required")
     args.output.mkdir(parents=True, exist_ok=False)
-    frozen = ["REGISTRATION.md", "AEC-V0-CONTRACT.md", "COUNTEREXAMPLES.json", "oracle.json"]
-    frozen += subprocess.check_output(["git", "ls-tree", "-r", "--name-only", REGISTRATION, "--", PREFIX + "fixtures"], cwd=ROOT, text=True).splitlines()
-    frozen = [p if p.startswith(PREFIX) else PREFIX + p for p in frozen]
-    assert not subprocess.check_output(["git", "diff", REGISTRATION, "--", *frozen], cwd=ROOT)
+    validate_registered_inputs()
     sdk = SDK(*(Path(getattr(args, k)).resolve() for k in ("alva", "toolchain", "registry")))
     cases = json.loads(registered("COUNTEREXAMPLES.json"))["cases"]
     rows = []
