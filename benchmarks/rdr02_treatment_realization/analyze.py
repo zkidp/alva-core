@@ -16,7 +16,8 @@ def e0(row):
     """Conventional state-aware process/diff/test baseline, not an ok counter."""
     out = {s: "UNKNOWN" for s in STAGES}
     if not row["model_unit"]:
-        gap = any(p["advertised_by_registry"] and p["isError"] is True for p in row["coverage_probes"])
+        gap = any(p["advertised_by_registry"] and p["isError"] is True and
+                  "E_MCP_UNKNOWN_TOOL" in p["error_text"] for p in row["coverage_probes"])
         out.update({s: "NOT_APPLICABLE" for s in STAGES})
         out["exposure"] = "FALSE" if gap else "UNKNOWN"
         return {"stages": out, "classification": "CAPABILITY_COVERAGE_GAP" if gap else "UNKNOWN",
@@ -68,7 +69,8 @@ def e1(row):
     chain = dict.fromkeys(STAGES, "UNKNOWN")
     if row["model_unit"] is False:
         chain = dict.fromkeys(STAGES, "NOT_APPLICABLE")
-        mismatch = [p for p in row["coverage_probes"] if p["advertised_by_registry"] is True and p["isError"] is True]
+        mismatch = [p for p in row["coverage_probes"] if p["advertised_by_registry"] is True and
+                    p["isError"] is True and "E_MCP_UNKNOWN_TOOL" in p["error_text"]]
         chain["exposure"] = "FALSE" if mismatch else "UNKNOWN"
         return {"stages": chain, "classification": "CAPABILITY_COVERAGE_GAP" if mismatch else "UNKNOWN",
                 "task_tests": "NOT_APPLICABLE", "staged_behavior": "NOT_APPLICABLE"}
@@ -124,7 +126,7 @@ def compare(observations):
             "E0": left, "E1": right, "agreement": left == right,
             "comparison": "BASELINE_PARITY" if left == right else "DISAGREEMENT_REQUIRES_REVIEW",
             "missing": unit["missing"], "archive_available": raw_complete,
-            "full_chain_evidence_sufficient": raw_complete and (not unit["model_unit"] or
+            "full_chain_evidence_sufficient": raw_complete and left["classification"] != "UNKNOWN" and (not unit["model_unit"] or
                 left["stages"]["publication"] == "FALSE" or
                 unit.get("evaluation_identity", {}).get("explicit_revision_receipt") is not None),
             "evidence_pointers": [c["evidence"] for c in unit["backend"] + unit["frontend"] + unit["observer"]] +

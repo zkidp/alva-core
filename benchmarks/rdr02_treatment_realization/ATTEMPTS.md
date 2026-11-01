@@ -22,3 +22,11 @@ the actual schema and records missing fields rather than fabricating records.
 The absence of a standalone evaluated-revision echo in final records is not
 repaired by inventing one. Any later result must keep co-recorded files/tests
 distinct from an explicit identity receipt and preserve original P32 grading.
+
+## Attempt 02 — bounded extraction repair
+
+Actual successful Registry descriptors and actual Native unknown-tool refusals
+now ground U1's coverage gap. Both evaluators still agree on all four units.
+The independently implemented validator checks source pointers, complete tool
+record ordering, state identities, evaluation exits and missingness. No original
+archive, registered input, historical score or comparison rule was changed.

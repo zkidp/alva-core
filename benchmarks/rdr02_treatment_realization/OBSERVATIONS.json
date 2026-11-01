@@ -11,7 +11,8 @@
       "coverage_probes": [
         {
           "operation": "create_reference",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "95c06f5c1b9c6568851442ebfb0b51f5f7d7b3454832a561b6cc51965bdbd155",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
@@ -22,13 +23,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/0/calls/4",
+            "record_sha256": "86ad4a5d55ed7e3d96f75ea60fd7b2045206e20fc3d844b58e4c82e8cb944eb7"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/0/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_literal",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "d51c994c10067a925b837a57a52f2e3d56f055f709ee6de6ca9e16d8793a3aab",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
@@ -39,13 +46,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/0/calls/6",
+            "record_sha256": "e61344b07f1b6b2a5ce94ca2c29538ba408403341f02dff0e169676a8f66fa37"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/0/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_binary",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "781bfa2ab7ee0a937494847b32f44bbe3d167b96135b5827799e4314e1b46656",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
@@ -56,13 +69,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/0/calls/8",
+            "record_sha256": "55f5db5d7a4b01f9cae2daed0cee84515681b1fbb0fb03eb566e6545dc0d8b2a"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/0/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_call",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "4a8544dca379c6224bb28eef48c00abb6643a60df60e648b95a4987c0b9037e1",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
@@ -73,13 +92,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/0/calls/10",
+            "record_sha256": "6dcc9255de8486efeb1d36f65684d641be8c2f982e4ac0112f5c065f59440a31"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/0/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "replace_expression",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "687c3ff021aa0651e29323f833f8089230c2fda180554b4589281b307404b6c4",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
@@ -90,13 +115,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/0/calls/12",
+            "record_sha256": "db278ae0f535b69114fe9d15d040b6f1d9372c422eeecd76eebb360086895c25"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/0/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_reference",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "95c06f5c1b9c6568851442ebfb0b51f5f7d7b3454832a561b6cc51965bdbd155",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
@@ -107,13 +138,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/1/calls/4",
+            "record_sha256": "86ad4a5d55ed7e3d96f75ea60fd7b2045206e20fc3d844b58e4c82e8cb944eb7"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/1/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_literal",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "d51c994c10067a925b837a57a52f2e3d56f055f709ee6de6ca9e16d8793a3aab",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
@@ -124,13 +161,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/1/calls/6",
+            "record_sha256": "e61344b07f1b6b2a5ce94ca2c29538ba408403341f02dff0e169676a8f66fa37"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/1/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_binary",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "781bfa2ab7ee0a937494847b32f44bbe3d167b96135b5827799e4314e1b46656",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
@@ -141,13 +184,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/1/calls/8",
+            "record_sha256": "55f5db5d7a4b01f9cae2daed0cee84515681b1fbb0fb03eb566e6545dc0d8b2a"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/1/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_call",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "4a8544dca379c6224bb28eef48c00abb6643a60df60e648b95a4987c0b9037e1",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
@@ -158,13 +207,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/1/calls/10",
+            "record_sha256": "6dcc9255de8486efeb1d36f65684d641be8c2f982e4ac0112f5c065f59440a31"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/1/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "replace_expression",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "687c3ff021aa0651e29323f833f8089230c2fda180554b4589281b307404b6c4",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
@@ -175,13 +230,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/1/calls/12",
+            "record_sha256": "db278ae0f535b69114fe9d15d040b6f1d9372c422eeecd76eebb360086895c25"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/1/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_reference",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "95c06f5c1b9c6568851442ebfb0b51f5f7d7b3454832a561b6cc51965bdbd155",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
@@ -192,13 +253,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/2/calls/4",
+            "record_sha256": "86ad4a5d55ed7e3d96f75ea60fd7b2045206e20fc3d844b58e4c82e8cb944eb7"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/2/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_literal",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "d51c994c10067a925b837a57a52f2e3d56f055f709ee6de6ca9e16d8793a3aab",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
@@ -209,13 +276,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/2/calls/6",
+            "record_sha256": "e61344b07f1b6b2a5ce94ca2c29538ba408403341f02dff0e169676a8f66fa37"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/2/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_binary",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "781bfa2ab7ee0a937494847b32f44bbe3d167b96135b5827799e4314e1b46656",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
@@ -226,13 +299,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/2/calls/8",
+            "record_sha256": "55f5db5d7a4b01f9cae2daed0cee84515681b1fbb0fb03eb566e6545dc0d8b2a"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/2/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_call",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "4a8544dca379c6224bb28eef48c00abb6643a60df60e648b95a4987c0b9037e1",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
@@ -243,13 +322,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/2/calls/10",
+            "record_sha256": "6dcc9255de8486efeb1d36f65684d641be8c2f982e4ac0112f5c065f59440a31"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/2/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "replace_expression",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "687c3ff021aa0651e29323f833f8089230c2fda180554b4589281b307404b6c4",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
@@ -260,13 +345,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/2/calls/12",
+            "record_sha256": "db278ae0f535b69114fe9d15d040b6f1d9372c422eeecd76eebb360086895c25"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/2/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_reference",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "95c06f5c1b9c6568851442ebfb0b51f5f7d7b3454832a561b6cc51965bdbd155",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_reference'\"}",
@@ -277,13 +368,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/3/calls/4",
+            "record_sha256": "86ad4a5d55ed7e3d96f75ea60fd7b2045206e20fc3d844b58e4c82e8cb944eb7"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/3/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_literal",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "d51c994c10067a925b837a57a52f2e3d56f055f709ee6de6ca9e16d8793a3aab",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_literal'\"}",
@@ -294,13 +391,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/3/calls/6",
+            "record_sha256": "e61344b07f1b6b2a5ce94ca2c29538ba408403341f02dff0e169676a8f66fa37"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/3/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_binary",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "781bfa2ab7ee0a937494847b32f44bbe3d167b96135b5827799e4314e1b46656",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_binary'\"}",
@@ -311,13 +414,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/3/calls/8",
+            "record_sha256": "55f5db5d7a4b01f9cae2daed0cee84515681b1fbb0fb03eb566e6545dc0d8b2a"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/3/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "create_call",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "4a8544dca379c6224bb28eef48c00abb6643a60df60e648b95a4987c0b9037e1",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'create_call'\"}",
@@ -328,13 +437,19 @@
           },
           "advertised_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/3/calls/10",
+            "record_sha256": "6dcc9255de8486efeb1d36f65684d641be8c2f982e4ac0112f5c065f59440a31"
+          },
+          "native_surface_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/3/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"
           }
         },
         {
           "operation": "replace_expression",
-          "advertised_by_registry": false,
+          "advertised_by_registry": true,
+          "advertised_native_tool": false,
           "isError": true,
           "response_sha256": "687c3ff021aa0651e29323f833f8089230c2fda180554b4589281b307404b6c4",
           "error_text": "{\"error\":\"E_MCP_UNKNOWN_TOOL: unknown tool 'replace_expression'\"}",
@@ -344,6 +459,11 @@
             "record_sha256": "bad858cef6f5513e1ae2257a59dd5c44c65e54f3c97c72ed337083cf820f3b7a"
           },
           "advertised_evidence": {
+            "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+            "pointer": "/rows/3/calls/12",
+            "record_sha256": "db278ae0f535b69114fe9d15d040b6f1d9372c422eeecd76eebb360086895c25"
+          },
+          "native_surface_evidence": {
             "source": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
             "pointer": "/rows/3/advertised_names",
             "record_sha256": "7408095d2acc999357e26b5f5e4e0d138d4f06db1b3eb9f9297a4e9ce80d6fd5"

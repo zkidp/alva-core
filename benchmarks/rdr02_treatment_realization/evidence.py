@@ -97,12 +97,17 @@ def project(bank, availability):
         advertised = row["advertised_names"]
         for ci, call in enumerate(row["calls"]):
             if call["name"] in {"create_reference", "create_literal", "create_binary", "create_call", "replace_expression"}:
-                probes.append({"operation": call["name"], "advertised_by_registry": call["name"] in advertised,
+                descriptors = [(i, c) for i, c in enumerate(row["calls"]) if c["name"] == "describe_operation" and
+                               not c["response"].get("isError") and envelope(c["response"]).get("name") == call["name"]]
+                described = descriptors[-1] if descriptors else None
+                probes.append({"operation": call["name"], "advertised_by_registry": bool(described),
+                    "advertised_native_tool": call["name"] in advertised,
                     "isError": call["response"].get("isError"),
                     "response_sha256": identity(call["response"]),
                     "error_text": " ".join(t.get("text", "") for t in call["response"].get("content", []))[:500],
                     "evidence": ref(coverage_path, f"/rows/{ri}/calls/{ci}", call),
-                    "advertised_evidence": ref(coverage_path, f"/rows/{ri}/advertised_names", advertised)})
+                    "advertised_evidence": ref(coverage_path, f"/rows/{ri}/calls/{described[0]}", described[1]) if described else None,
+                    "native_surface_evidence": ref(coverage_path, f"/rows/{ri}/advertised_names", advertised)})
     units.append({"id": "U1", "model_unit": False, "availability": availability["U1"], "coverage_probes": probes,
                   "missing": ["model stages not applicable: no model slot"], "backend": [], "frontend": [], "observer": []})
     for unit in manifest()["units"][1:]:

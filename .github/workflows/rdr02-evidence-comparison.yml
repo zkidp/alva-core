@@ -1,0 +1,26 @@
+name: RDR-02 read-only archived evidence
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/rdr02_treatment_realization/**'
+      - 'docs/research-direction-review-02/**'
+      - '.github/workflows/rdr02-evidence-comparison.yml'
+permissions:
+  contents: read
+jobs:
+  portable-analysis:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Parser, fairness, missingness and independent single-root checkout
+        run: python -m unittest benchmarks.rdr02_treatment_realization.test_analysis -v
+      - name: Public certificate verification (private archives not available on CI)
+        run: python benchmarks/rdr02_treatment_realization/validate.py

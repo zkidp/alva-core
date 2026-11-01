@@ -4,11 +4,11 @@
     {
       "id": "U1",
       "model_unit": false,
-      "evidence_sha256_E0": "69363701eb3c5cf09b052fa2e8e10dde4e312459508e53cdf09af45bb9ea4032",
-      "evidence_sha256_E1": "69363701eb3c5cf09b052fa2e8e10dde4e312459508e53cdf09af45bb9ea4032",
+      "evidence_sha256_E0": "d7eee4766c8352f07e33c1efb6c97e6be2bb7d050d3f41edc290844533343472",
+      "evidence_sha256_E1": "d7eee4766c8352f07e33c1efb6c97e6be2bb7d050d3f41edc290844533343472",
       "E0": {
         "stages": {
-          "exposure": "UNKNOWN",
+          "exposure": "FALSE",
           "tool_dispatch": "NOT_APPLICABLE",
           "construction": "NOT_APPLICABLE",
           "target_attachment": "NOT_APPLICABLE",
@@ -17,13 +17,13 @@
           "publication": "NOT_APPLICABLE",
           "independent_published_behavior": "NOT_APPLICABLE"
         },
-        "classification": "UNKNOWN",
+        "classification": "CAPABILITY_COVERAGE_GAP",
         "task_tests": "NOT_APPLICABLE",
         "staged_behavior": "NOT_APPLICABLE"
       },
       "E1": {
         "stages": {
-          "exposure": "UNKNOWN",
+          "exposure": "FALSE",
           "tool_dispatch": "NOT_APPLICABLE",
           "construction": "NOT_APPLICABLE",
           "target_attachment": "NOT_APPLICABLE",
@@ -32,7 +32,7 @@
           "publication": "NOT_APPLICABLE",
           "independent_published_behavior": "NOT_APPLICABLE"
         },
-        "classification": "UNKNOWN",
+        "classification": "CAPABILITY_COVERAGE_GAP",
         "task_tests": "NOT_APPLICABLE",
         "staged_behavior": "NOT_APPLICABLE"
       },
