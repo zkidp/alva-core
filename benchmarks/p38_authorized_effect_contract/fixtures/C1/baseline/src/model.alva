@@ -1,0 +1,20 @@
+(module
+  (name "aec.c1")
+  (version "0.1.0")
+  (export adjust exposed stable)
+  (fn adjust
+    (params (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (+ (ref x) (int 1))))
+  (fn exposed
+    (params (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (call adjust (ref x))))
+  (fn stable
+    (params (param x (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (body (+ (ref x) (int 100))))
+)

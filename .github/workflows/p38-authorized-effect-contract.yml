@@ -1,0 +1,59 @@
+name: P38 authorized effect contract (zero models)
+on:
+  push:
+    branches: [codex/p38-authorized-effect-contract]
+  pull_request:
+    paths:
+      - 'benchmarks/p38_authorized_effect_contract/**'
+      - '.github/workflows/p38-authorized-effect-contract.yml'
+permissions:
+  contents: read
+jobs:
+  controls:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest benchmarks.p38_authorized_effect_contract.test_study -v
+  linux-wave:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unchanged SDK baseline
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          cargo fmt --manifest-path alva/Cargo.toml --check
+          cargo clippy --locked --manifest-path alva/Cargo.toml -- -D warnings
+          cargo test --locked --manifest-path alva/Cargo.toml
+          cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Registered deterministic batch
+        run: |
+          python benchmarks/p38_authorized_effect_contract/study.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/p38-wave
+      - name: Independently verify retained commit, Guard and evaluator evidence
+        if: always()
+        run: python benchmarks/p38_authorized_effect_contract/validate_evidence.py out/p38-wave > out/p38-wave/EVIDENCE-CHECK.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p38-counterexample-wave-evidence
+          path: out/p38-wave/*

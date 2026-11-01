@@ -1,0 +1,21 @@
+{
+  "waves": [
+    {
+      "wave": 1,
+      "role": "primary registered mechanism comparison",
+      "run_id": 41117034325,
+      "url": "https://github.com/zkidp/alva-core/actions/runs/41117034325",
+      "code_commit": "3bb65c0f2abd9ab915d87dcabefe907927a3091a",
+      "artifact_id": 13006023716,
+      "artifact_sha256": "060982ca1c70691d0c359917d8e5baa873abd9df9fc195e179019d15f773222a",
+      "raw_archive": {
+        "sha256": "e8e1eb02a3f137102b7a83d2fa0d96d8d6f90cbe78b518369e59f9d4626f7add",
+        "bytes": 105004
+      },
+      "all_cases_executed": true,
+      "failed_cases": [],
+      "integrity_verified": true
+    }
+  ],
+  "raw_policy": "Raw deterministic engineering records are not committed; retain local ignored .local/p38-wave01 and Actions artifact. Artifact expires 2027-01-28; public summaries and hashes remain. No raw agent transcripts exist."
+}

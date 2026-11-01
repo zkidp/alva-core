@@ -1,0 +1,3331 @@
+{
+  "schema": "p38-wave/v0",
+  "registration": "4fe0edceae8721f808e750c2dca266417d92ee98",
+  "code_commit": "3bb65c0f2abd9ab915d87dcabefe907927a3091a",
+  "harness_sha256": "8c8b5a19b86b907fb5caad9b9a55974dd5cc1359650ca8eb46c1900555f52ecb",
+  "mechanisms_sha256": "f4481130c976bf1525889e3f36bce86a55322429f6491515f57a212fb10829f5",
+  "platform": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "executed_cases": 4,
+  "disposition": "NO_OBSERVED_INCREMENTAL_VALUE",
+  "scores": {
+    "A": {
+      "mode": "decision_simulation",
+      "correct": 4,
+      "invalid_allows": 0,
+      "false_rejections": 0,
+      "unknown": 1,
+      "proof_insufficient_allows": 0,
+      "actual_contract_invalid_publications": null,
+      "actual_publication_count": null
+    },
+    "B": {
+      "mode": "decision_simulation",
+      "correct": 3,
+      "invalid_allows": 0,
+      "false_rejections": 0,
+      "unknown": 0,
+      "proof_insufficient_allows": 1,
+      "actual_contract_invalid_publications": null,
+      "actual_publication_count": null
+    },
+    "C": {
+      "mode": "actual_guarded_publication",
+      "correct": 2,
+      "invalid_allows": 1,
+      "false_rejections": 0,
+      "unknown": 0,
+      "proof_insufficient_allows": 1,
+      "actual_contract_invalid_publications": 1,
+      "actual_publication_count": 3
+    },
+    "D": {
+      "mode": "decision_simulation",
+      "correct": 4,
+      "invalid_allows": 0,
+      "false_rejections": 0,
+      "unknown": 1,
+      "proof_insufficient_allows": 0,
+      "actual_contract_invalid_publications": null,
+      "actual_publication_count": null
+    }
+  },
+  "rows": [
+    {
+      "id": "C1",
+      "status": "EXECUTED",
+      "bundle_sha256": "c126e4067ac63cc4e28f908024df6d12a27919cd6f5ac8dc0726b2738638c2d8",
+      "candidate_bundle_sha256": "594ffd0e74efd02933c7f368585a744c26b087840b9eb1af1b5e36a683bcb854",
+      "same_candidate_roots": true,
+      "structural": {
+        "status": "ALLOW",
+        "changed": [
+          "aec.c1.adjust"
+        ],
+        "unauthorized": []
+      },
+      "potential": {
+        "potentially_impacted": [
+          "aec.c1.adjust",
+          "aec.c1.exposed"
+        ],
+        "direct_calls": [
+          [
+            "aec.c1.exposed",
+            "aec.c1.adjust"
+          ]
+        ],
+        "complete_for_fixture": true,
+        "unsupported": [],
+        "claim": "potential reachability, not proof of changed behavior"
+      },
+      "shared_reachable_nodes": [
+        {
+          "functions": [
+            "aec.c1.adjust",
+            "aec.c1.exposed"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        },
+        {
+          "functions": [
+            "aec.c1.adjust",
+            "aec.c1.stable"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        },
+        {
+          "functions": [
+            "aec.c1.exposed",
+            "aec.c1.stable"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "function": "adjust",
+          "input": -2,
+          "baseline": -1,
+          "candidate": 0,
+          "required": 0
+        },
+        {
+          "function": "exposed",
+          "input": -2,
+          "baseline": -1,
+          "candidate": 0,
+          "required": -1
+        },
+        {
+          "function": "stable",
+          "input": -2,
+          "baseline": 98,
+          "candidate": 98,
+          "required": 98
+        },
+        {
+          "function": "adjust",
+          "input": 0,
+          "baseline": 1,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "exposed",
+          "input": 0,
+          "baseline": 1,
+          "candidate": 2,
+          "required": 1
+        },
+        {
+          "function": "stable",
+          "input": 0,
+          "baseline": 100,
+          "candidate": 100,
+          "required": 100
+        },
+        {
+          "function": "adjust",
+          "input": 3,
+          "baseline": 4,
+          "candidate": 5,
+          "required": 5
+        },
+        {
+          "function": "exposed",
+          "input": 3,
+          "baseline": 4,
+          "candidate": 5,
+          "required": 4
+        },
+        {
+          "function": "stable",
+          "input": 3,
+          "baseline": 103,
+          "candidate": 103,
+          "required": 103
+        }
+      ],
+      "evidence": {
+        "confirmed_failure": true,
+        "bound_complete": true,
+        "semantic_proof": null
+      },
+      "text_scope": {
+        "status": "ALLOW",
+        "changed": [
+          "adjust"
+        ]
+      },
+      "text_diff_sha256": "19cce0cda2515352386457813e95f607795baf8b55019bfc27ae2481e8f0600a",
+      "baseline": {
+        "status": "PASS",
+        "observations": [
+          -1,
+          -1,
+          98,
+          1,
+          1,
+          100,
+          4,
+          4,
+          103
+        ],
+        "evaluation_ms": 2861.750544,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "text_candidate": {
+        "status": "TEST_FAIL",
+        "observations": [
+          0,
+          0,
+          98,
+          2,
+          2,
+          100,
+          5,
+          5,
+          103
+        ],
+        "evaluation_ms": 1631.702586,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 101
+      },
+      "native_candidate": {
+        "status": "TEST_FAIL",
+        "observations": [
+          0,
+          0,
+          98,
+          2,
+          2,
+          100,
+          5,
+          5,
+          103
+        ],
+        "evaluation_ms": 1633.39162,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 101
+      },
+      "guarded_authority": {
+        "status": "TEST_FAIL",
+        "observations": [
+          0,
+          0,
+          98,
+          2,
+          2,
+          100,
+          5,
+          5,
+          103
+        ],
+        "evaluation_ms": 1616.76103,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 101
+      },
+      "quarantine": {
+        "before": {
+          "project_revision": "fbb6be0d7efbee11d3cbaff846b274314ccf20b7dd3aef960822b249979f6a6a",
+          "modules": {
+            "aec.c1": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c1",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c1",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c1.adjust": {
+              "entity": "module:aec.c1/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            },
+            "aec.c1.exposed": {
+              "entity": "module:aec.c1/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c1.stable": {
+              "entity": "module:aec.c1/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12",
+          "modules": {
+            "aec.c1": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c1",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c1",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c1.adjust": {
+              "entity": "module:aec.c1/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c1.exposed": {
+              "entity": "module:aec.c1/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c1.stable": {
+              "entity": "module:aec.c1/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12",
+          "modules": {
+            "aec.c1": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c1",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c1",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c1.adjust": {
+              "entity": "module:aec.c1/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c1.exposed": {
+              "entity": "module:aec.c1/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c1.stable": {
+              "entity": "module:aec.c1/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c1\nCHANGED function aec.c1.adjust"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": null,
+        "committed": true,
+        "guard_native_commit_dispatches": null,
+        "commit": {
+          "generation": 1,
+          "revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12"
+        },
+        "air_published": true,
+        "fresh_match": true,
+        "commit_ms": 3.27626,
+        "source_projection_unchanged": true
+      },
+      "guarded": {
+        "before": {
+          "project_revision": "fbb6be0d7efbee11d3cbaff846b274314ccf20b7dd3aef960822b249979f6a6a",
+          "modules": {
+            "aec.c1": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c1",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c1",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c1.adjust": {
+              "entity": "module:aec.c1/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            },
+            "aec.c1.exposed": {
+              "entity": "module:aec.c1/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c1.stable": {
+              "entity": "module:aec.c1/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12",
+          "modules": {
+            "aec.c1": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c1",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c1",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c1.adjust": {
+              "entity": "module:aec.c1/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c1.exposed": {
+              "entity": "module:aec.c1/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c1.stable": {
+              "entity": "module:aec.c1/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12",
+          "modules": {
+            "aec.c1": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c1",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c1",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c1.adjust": {
+              "entity": "module:aec.c1/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c1.exposed": {
+              "entity": "module:aec.c1/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c1.stable": {
+              "entity": "module:aec.c1/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c1\nCHANGED function aec.c1.adjust"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "aec.c1.adjust"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "aec.c1.adjust"
+          ],
+          "baseline_sha256": "d719f31dae4b5eb31d0ef71e7a5aa4cd9eb6203994f3f4116aaa22f1f879a743",
+          "staged_sha256": "ccf973a599eb6895c61eb3bfa34332f6da4f6a6d5ff4e02955b562fae8eab351",
+          "baseline_project_revision": "fbb6be0d7efbee11d3cbaff846b274314ccf20b7dd3aef960822b249979f6a6a",
+          "staged_project_revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12",
+          "coverage_nodes": 15,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "committed": true,
+        "guard_native_commit_dispatches": 1,
+        "commit": {
+          "generation": 1,
+          "revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12",
+          "host_scope": {
+            "status": "SCOPE_ALLOWED",
+            "changed_functions": [
+              "aec.c1.adjust"
+            ],
+            "unauthorized_functions": [],
+            "authorized_functions": [
+              "aec.c1.adjust"
+            ],
+            "baseline_sha256": "d719f31dae4b5eb31d0ef71e7a5aa4cd9eb6203994f3f4116aaa22f1f879a743",
+            "staged_sha256": "ccf973a599eb6895c61eb3bfa34332f6da4f6a6d5ff4e02955b562fae8eab351",
+            "baseline_project_revision": "fbb6be0d7efbee11d3cbaff846b274314ccf20b7dd3aef960822b249979f6a6a",
+            "staged_project_revision": "a524f2f0b863a59de6b0b3eb7543c67f0bc7cb07f3f9731d17b9bb58cad58f12",
+            "coverage_nodes": 15,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": true,
+        "fresh_match": true,
+        "commit_ms": 5.152162,
+        "source_projection_unchanged": true
+      },
+      "decisions": {
+        "A": {
+          "verdict": "REJECT",
+          "reason": "confirmed scope or required behavior violation",
+          "decision_ms": 0.003206
+        },
+        "B": {
+          "verdict": "REJECT",
+          "reason": "confirmed scope or required behavior violation",
+          "decision_ms": 0.001203
+        },
+        "C": {
+          "verdict": "ALLOW",
+          "decision_ms": null,
+          "guarded_commit_roundtrip_ms": 5.152162,
+          "reason": "actual unchanged P34 decision"
+        },
+        "D": {
+          "verdict": "REJECT",
+          "reason": "confirmed scope or required behavior violation",
+          "decision_ms": 0.000962
+        }
+      },
+      "total_acquisition_and_evaluation_ms": 8316.578134
+    },
+    {
+      "id": "C2",
+      "status": "EXECUTED",
+      "bundle_sha256": "3ab6ba427c26c263dacbb48cac9779ad53e824d95eb8762e3d0d469bc5a9595b",
+      "candidate_bundle_sha256": "c379c7f6e3bfa309f2cd686a45d52843a158818b69ac01f2d8083809e3fae168",
+      "same_candidate_roots": true,
+      "structural": {
+        "status": "ALLOW",
+        "changed": [
+          "aec.c2.adjust"
+        ],
+        "unauthorized": []
+      },
+      "potential": {
+        "potentially_impacted": [
+          "aec.c2.adjust",
+          "aec.c2.exposed"
+        ],
+        "direct_calls": [
+          [
+            "aec.c2.exposed",
+            "aec.c2.adjust"
+          ]
+        ],
+        "complete_for_fixture": true,
+        "unsupported": [],
+        "claim": "potential reachability, not proof of changed behavior"
+      },
+      "shared_reachable_nodes": [
+        {
+          "functions": [
+            "aec.c2.adjust",
+            "aec.c2.exposed"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        },
+        {
+          "functions": [
+            "aec.c2.adjust",
+            "aec.c2.stable"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        },
+        {
+          "functions": [
+            "aec.c2.exposed",
+            "aec.c2.stable"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "function": "adjust",
+          "input": -2,
+          "baseline": -1,
+          "candidate": 0,
+          "required": 0
+        },
+        {
+          "function": "exposed",
+          "input": -2,
+          "baseline": -1,
+          "candidate": 0,
+          "required": 0
+        },
+        {
+          "function": "stable",
+          "input": -2,
+          "baseline": 98,
+          "candidate": 98,
+          "required": 98
+        },
+        {
+          "function": "adjust",
+          "input": 0,
+          "baseline": 1,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "exposed",
+          "input": 0,
+          "baseline": 1,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "stable",
+          "input": 0,
+          "baseline": 100,
+          "candidate": 100,
+          "required": 100
+        },
+        {
+          "function": "adjust",
+          "input": 3,
+          "baseline": 4,
+          "candidate": 5,
+          "required": 5
+        },
+        {
+          "function": "exposed",
+          "input": 3,
+          "baseline": 4,
+          "candidate": 5,
+          "required": 5
+        },
+        {
+          "function": "stable",
+          "input": 3,
+          "baseline": 103,
+          "candidate": 103,
+          "required": 103
+        }
+      ],
+      "evidence": {
+        "confirmed_failure": false,
+        "bound_complete": true,
+        "semantic_proof": null
+      },
+      "text_scope": {
+        "status": "ALLOW",
+        "changed": [
+          "adjust"
+        ]
+      },
+      "text_diff_sha256": "19cce0cda2515352386457813e95f607795baf8b55019bfc27ae2481e8f0600a",
+      "baseline": {
+        "status": "PASS",
+        "observations": [
+          -1,
+          -1,
+          98,
+          1,
+          1,
+          100,
+          4,
+          4,
+          103
+        ],
+        "evaluation_ms": 1662.863908,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "text_candidate": {
+        "status": "PASS",
+        "observations": [
+          0,
+          0,
+          98,
+          2,
+          2,
+          100,
+          5,
+          5,
+          103
+        ],
+        "evaluation_ms": 1668.526223,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "native_candidate": {
+        "status": "PASS",
+        "observations": [
+          0,
+          0,
+          98,
+          2,
+          2,
+          100,
+          5,
+          5,
+          103
+        ],
+        "evaluation_ms": 1657.56875,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "guarded_authority": {
+        "status": "PASS",
+        "observations": [
+          0,
+          0,
+          98,
+          2,
+          2,
+          100,
+          5,
+          5,
+          103
+        ],
+        "evaluation_ms": 1666.195275,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "quarantine": {
+        "before": {
+          "project_revision": "be4274ee6fa69defb380c472e4611117bf471ce63bfe13dd426bcca7ea135a8e",
+          "modules": {
+            "aec.c2": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c2",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c2",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c2.adjust": {
+              "entity": "module:aec.c2/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            },
+            "aec.c2.exposed": {
+              "entity": "module:aec.c2/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c2.stable": {
+              "entity": "module:aec.c2/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736",
+          "modules": {
+            "aec.c2": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c2",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c2",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c2.adjust": {
+              "entity": "module:aec.c2/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c2.exposed": {
+              "entity": "module:aec.c2/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c2.stable": {
+              "entity": "module:aec.c2/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736",
+          "modules": {
+            "aec.c2": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c2",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c2",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c2.adjust": {
+              "entity": "module:aec.c2/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c2.exposed": {
+              "entity": "module:aec.c2/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c2.stable": {
+              "entity": "module:aec.c2/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c2\nCHANGED function aec.c2.adjust"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": null,
+        "committed": true,
+        "guard_native_commit_dispatches": null,
+        "commit": {
+          "generation": 1,
+          "revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736"
+        },
+        "air_published": true,
+        "fresh_match": true,
+        "commit_ms": 3.203418,
+        "source_projection_unchanged": true
+      },
+      "guarded": {
+        "before": {
+          "project_revision": "be4274ee6fa69defb380c472e4611117bf471ce63bfe13dd426bcca7ea135a8e",
+          "modules": {
+            "aec.c2": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c2",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c2",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c2.adjust": {
+              "entity": "module:aec.c2/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            },
+            "aec.c2.exposed": {
+              "entity": "module:aec.c2/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c2.stable": {
+              "entity": "module:aec.c2/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736",
+          "modules": {
+            "aec.c2": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c2",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c2",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c2.adjust": {
+              "entity": "module:aec.c2/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c2.exposed": {
+              "entity": "module:aec.c2/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c2.stable": {
+              "entity": "module:aec.c2/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736",
+          "modules": {
+            "aec.c2": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c2",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c2",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c2.adjust": {
+              "entity": "module:aec.c2/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "264e64ee7acab4f87bb0ccee0253fa50b878c1fb60ca62654ee7505222e21364"
+            },
+            "aec.c2.exposed": {
+              "entity": "module:aec.c2/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c2.stable": {
+              "entity": "module:aec.c2/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c2\nCHANGED function aec.c2.adjust"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "aec.c2.adjust"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "aec.c2.adjust"
+          ],
+          "baseline_sha256": "82a9cb627d8ede29e541b8157b4be0f1c96722f90aec2a7aa430d3c10a084340",
+          "staged_sha256": "10ce428cb6b3c85deb6e12b7cc89e3f6928c26ea77969cb656d600fc583338f4",
+          "baseline_project_revision": "be4274ee6fa69defb380c472e4611117bf471ce63bfe13dd426bcca7ea135a8e",
+          "staged_project_revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736",
+          "coverage_nodes": 15,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "committed": true,
+        "guard_native_commit_dispatches": 1,
+        "commit": {
+          "generation": 1,
+          "revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736",
+          "host_scope": {
+            "status": "SCOPE_ALLOWED",
+            "changed_functions": [
+              "aec.c2.adjust"
+            ],
+            "unauthorized_functions": [],
+            "authorized_functions": [
+              "aec.c2.adjust"
+            ],
+            "baseline_sha256": "82a9cb627d8ede29e541b8157b4be0f1c96722f90aec2a7aa430d3c10a084340",
+            "staged_sha256": "10ce428cb6b3c85deb6e12b7cc89e3f6928c26ea77969cb656d600fc583338f4",
+            "baseline_project_revision": "be4274ee6fa69defb380c472e4611117bf471ce63bfe13dd426bcca7ea135a8e",
+            "staged_project_revision": "4ee00d18d218f69e777be11f7fbb22ce157f4ada56dee2ccb2b18defd9be7736",
+            "coverage_nodes": 15,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": true,
+        "fresh_match": true,
+        "commit_ms": 5.774519,
+        "source_projection_unchanged": true
+      },
+      "decisions": {
+        "A": {
+          "verdict": "ALLOW",
+          "reason": "registered bounded observations and structural policy satisfied",
+          "decision_ms": 0.003066
+        },
+        "B": {
+          "verdict": "ALLOW",
+          "reason": "registered bounded observations and structural policy satisfied",
+          "decision_ms": 0.001202
+        },
+        "C": {
+          "verdict": "ALLOW",
+          "decision_ms": null,
+          "guarded_commit_roundtrip_ms": 5.774519,
+          "reason": "actual unchanged P34 decision"
+        },
+        "D": {
+          "verdict": "ALLOW",
+          "reason": "registered bounded observations and structural policy satisfied",
+          "decision_ms": 0.001182
+        }
+      },
+      "total_acquisition_and_evaluation_ms": 7223.032258
+    },
+    {
+      "id": "C3",
+      "status": "EXECUTED",
+      "bundle_sha256": "592e089d77822f0c9069dd5333d6e257bcbaec09ba78af30af93efa8dd720b48",
+      "candidate_bundle_sha256": "ab6b30922fa3e8c9290daec9d375adcf38c987a0d5194882fb4cf8b5d1ab887e",
+      "same_candidate_roots": true,
+      "structural": {
+        "status": "REJECT",
+        "changed": [
+          "aec.c3.left",
+          "aec.c3.right"
+        ],
+        "unauthorized": [
+          "aec.c3.right"
+        ]
+      },
+      "potential": {
+        "potentially_impacted": [
+          "aec.c3.left",
+          "aec.c3.right"
+        ],
+        "direct_calls": [],
+        "complete_for_fixture": true,
+        "unsupported": [],
+        "claim": "potential reachability, not proof of changed behavior"
+      },
+      "shared_reachable_nodes": [
+        {
+          "functions": [
+            "aec.c3.left",
+            "aec.c3.right"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294",
+            "bd3f9f91e091b794904bd29178c07455593c27e0bd84418b1ef65e50c3ee3298",
+            "c08b160d136be3d4d887bdca86619e3e1ec320ebb778cf79bf3120219a5a1092"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "function": "left",
+          "input": -2,
+          "baseline": -1,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "right",
+          "input": -2,
+          "baseline": -1,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "left",
+          "input": 0,
+          "baseline": 1,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "right",
+          "input": 0,
+          "baseline": 1,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "left",
+          "input": 3,
+          "baseline": 4,
+          "candidate": 2,
+          "required": 2
+        },
+        {
+          "function": "right",
+          "input": 3,
+          "baseline": 4,
+          "candidate": 2,
+          "required": 2
+        }
+      ],
+      "evidence": {
+        "confirmed_failure": false,
+        "bound_complete": true,
+        "semantic_proof": null
+      },
+      "text_scope": {
+        "status": "REJECT",
+        "changed": [
+          "left",
+          "right"
+        ]
+      },
+      "text_diff_sha256": "02a9a0ed00a031f3669586644f76e75b39d458a915f7b0845b9428d870f6e3f7",
+      "baseline": {
+        "status": "PASS",
+        "observations": [
+          -1,
+          -1,
+          1,
+          1,
+          4,
+          4
+        ],
+        "evaluation_ms": 1684.704495,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "text_candidate": {
+        "status": "PASS",
+        "observations": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "evaluation_ms": 1659.21345,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "native_candidate": {
+        "status": "PASS",
+        "observations": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "evaluation_ms": 1651.563536,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "guarded_authority": {
+        "status": "PASS",
+        "observations": [
+          -1,
+          -1,
+          1,
+          1,
+          4,
+          4
+        ],
+        "evaluation_ms": 1645.700539,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "quarantine": {
+        "before": {
+          "project_revision": "333ec6155088225f8a23d9d554410930f66333d37817993f759b6a9898f92565",
+          "modules": {
+            "aec.c3": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "left",
+                  "right"
+                ],
+                "name": "aec.c3",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c3",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "left",
+                "right"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c3.left": {
+              "entity": "module:aec.c3/fn:left",
+              "fields": {
+                "eff": [],
+                "name": "left",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            },
+            "aec.c3.right": {
+              "entity": "module:aec.c3/fn:right",
+              "fields": {
+                "eff": [],
+                "name": "right",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "cd5924155c1c58363f3f49b958c0a1546d92d57d8d31f37ad4f45db6f3f8e39b",
+          "modules": {
+            "aec.c3": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "left",
+                  "right"
+                ],
+                "name": "aec.c3",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c3",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "left",
+                "right"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c3.left": {
+              "entity": "module:aec.c3/fn:left",
+              "fields": {
+                "eff": [],
+                "name": "left",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6829fb32537446487feffc7da3d208ea7c062231e85fe5661a7c90ba8fb6339e"
+            },
+            "aec.c3.right": {
+              "entity": "module:aec.c3/fn:right",
+              "fields": {
+                "eff": [],
+                "name": "right",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6829fb32537446487feffc7da3d208ea7c062231e85fe5661a7c90ba8fb6339e"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "cd5924155c1c58363f3f49b958c0a1546d92d57d8d31f37ad4f45db6f3f8e39b",
+          "modules": {
+            "aec.c3": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "left",
+                  "right"
+                ],
+                "name": "aec.c3",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c3",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "left",
+                "right"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c3.left": {
+              "entity": "module:aec.c3/fn:left",
+              "fields": {
+                "eff": [],
+                "name": "left",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6829fb32537446487feffc7da3d208ea7c062231e85fe5661a7c90ba8fb6339e"
+            },
+            "aec.c3.right": {
+              "entity": "module:aec.c3/fn:right",
+              "fields": {
+                "eff": [],
+                "name": "right",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6829fb32537446487feffc7da3d208ea7c062231e85fe5661a7c90ba8fb6339e"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c3\nCHANGED function aec.c3.left\nCHANGED function aec.c3.right"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": null,
+        "committed": true,
+        "guard_native_commit_dispatches": null,
+        "commit": {
+          "generation": 1,
+          "revision": "cd5924155c1c58363f3f49b958c0a1546d92d57d8d31f37ad4f45db6f3f8e39b"
+        },
+        "air_published": true,
+        "fresh_match": true,
+        "commit_ms": 3.231898,
+        "source_projection_unchanged": true
+      },
+      "guarded": {
+        "before": {
+          "project_revision": "333ec6155088225f8a23d9d554410930f66333d37817993f759b6a9898f92565",
+          "modules": {
+            "aec.c3": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "left",
+                  "right"
+                ],
+                "name": "aec.c3",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c3",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "left",
+                "right"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c3.left": {
+              "entity": "module:aec.c3/fn:left",
+              "fields": {
+                "eff": [],
+                "name": "left",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            },
+            "aec.c3.right": {
+              "entity": "module:aec.c3/fn:right",
+              "fields": {
+                "eff": [],
+                "name": "right",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "cd5924155c1c58363f3f49b958c0a1546d92d57d8d31f37ad4f45db6f3f8e39b",
+          "modules": {
+            "aec.c3": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "left",
+                  "right"
+                ],
+                "name": "aec.c3",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c3",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "left",
+                "right"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c3.left": {
+              "entity": "module:aec.c3/fn:left",
+              "fields": {
+                "eff": [],
+                "name": "left",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6829fb32537446487feffc7da3d208ea7c062231e85fe5661a7c90ba8fb6339e"
+            },
+            "aec.c3.right": {
+              "entity": "module:aec.c3/fn:right",
+              "fields": {
+                "eff": [],
+                "name": "right",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6829fb32537446487feffc7da3d208ea7c062231e85fe5661a7c90ba8fb6339e"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "333ec6155088225f8a23d9d554410930f66333d37817993f759b6a9898f92565",
+          "modules": {
+            "aec.c3": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "left",
+                  "right"
+                ],
+                "name": "aec.c3",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c3",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "left",
+                "right"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c3.left": {
+              "entity": "module:aec.c3/fn:left",
+              "fields": {
+                "eff": [],
+                "name": "left",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            },
+            "aec.c3.right": {
+              "entity": "module:aec.c3/fn:right",
+              "fields": {
+                "eff": [],
+                "name": "right",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "6c7a9c0969b15bff9a11cdf0cc6f8cbece513326fd6673320208872e58f2ab6f"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c3\nCHANGED function aec.c3.left\nCHANGED function aec.c3.right"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_VIOLATION",
+          "changed_functions": [
+            "aec.c3.left",
+            "aec.c3.right"
+          ],
+          "unauthorized_functions": [
+            "aec.c3.right"
+          ],
+          "authorized_functions": [
+            "aec.c3.left"
+          ],
+          "baseline_sha256": "115177c61a9437e8df2f3376bc2d405d58c61223d9b967b04d182a04d1b22498",
+          "staged_sha256": "466be13cf9e03a686a849391c1604d5b0db47bb08a0f2c02b2543b9a183b323b",
+          "baseline_project_revision": "333ec6155088225f8a23d9d554410930f66333d37817993f759b6a9898f92565",
+          "staged_project_revision": "cd5924155c1c58363f3f49b958c0a1546d92d57d8d31f37ad4f45db6f3f8e39b",
+          "coverage_nodes": 7,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "committed": false,
+        "guard_native_commit_dispatches": 0,
+        "commit": {
+          "host_scope": {
+            "status": "SCOPE_VIOLATION",
+            "changed_functions": [
+              "aec.c3.left",
+              "aec.c3.right"
+            ],
+            "unauthorized_functions": [
+              "aec.c3.right"
+            ],
+            "authorized_functions": [
+              "aec.c3.left"
+            ],
+            "baseline_sha256": "115177c61a9437e8df2f3376bc2d405d58c61223d9b967b04d182a04d1b22498",
+            "staged_sha256": "466be13cf9e03a686a849391c1604d5b0db47bb08a0f2c02b2543b9a183b323b",
+            "baseline_project_revision": "333ec6155088225f8a23d9d554410930f66333d37817993f759b6a9898f92565",
+            "staged_project_revision": "cd5924155c1c58363f3f49b958c0a1546d92d57d8d31f37ad4f45db6f3f8e39b",
+            "coverage_nodes": 7,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": false,
+        "fresh_match": true,
+        "commit_ms": 1.211243,
+        "source_projection_unchanged": true
+      },
+      "decisions": {
+        "A": {
+          "verdict": "REJECT",
+          "reason": "confirmed scope or required behavior violation",
+          "decision_ms": 0.002274
+        },
+        "B": {
+          "verdict": "REJECT",
+          "reason": "confirmed scope or required behavior violation",
+          "decision_ms": 0.000851
+        },
+        "C": {
+          "verdict": "REJECT",
+          "decision_ms": null,
+          "guarded_commit_roundtrip_ms": 1.211243,
+          "reason": "actual unchanged P34 decision"
+        },
+        "D": {
+          "verdict": "REJECT",
+          "reason": "confirmed scope or required behavior violation",
+          "decision_ms": 0.000932
+        }
+      },
+      "total_acquisition_and_evaluation_ms": 7196.063369
+    },
+    {
+      "id": "C4",
+      "status": "EXECUTED",
+      "bundle_sha256": "712fbad74840598c2f7cce243c305863c0708ed2cd61c6e17a3150d800348c95",
+      "candidate_bundle_sha256": "a3af3621d42e515eec3190b58c53a4a1a5ae2aee06f6e7ca8af42b0626d27cc4",
+      "same_candidate_roots": true,
+      "structural": {
+        "status": "ALLOW",
+        "changed": [
+          "aec.c4.adjust"
+        ],
+        "unauthorized": []
+      },
+      "potential": {
+        "potentially_impacted": [
+          "aec.c4.adjust",
+          "aec.c4.exposed"
+        ],
+        "direct_calls": [
+          [
+            "aec.c4.exposed",
+            "aec.c4.adjust"
+          ]
+        ],
+        "complete_for_fixture": true,
+        "unsupported": [],
+        "claim": "potential reachability, not proof of changed behavior"
+      },
+      "shared_reachable_nodes": [
+        {
+          "functions": [
+            "aec.c4.adjust",
+            "aec.c4.exposed"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        },
+        {
+          "functions": [
+            "aec.c4.adjust",
+            "aec.c4.stable"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        },
+        {
+          "functions": [
+            "aec.c4.exposed",
+            "aec.c4.stable"
+          ],
+          "revisions": [
+            "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4",
+            "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf",
+            "a6e5d450d232a6b3be06082d43f13c7c792fe36ee8af22eb3ee8015e15449294"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "function": "adjust",
+          "input": -2,
+          "baseline": -2,
+          "candidate": -2,
+          "required": -2
+        },
+        {
+          "function": "exposed",
+          "input": -2,
+          "baseline": -2,
+          "candidate": -2,
+          "required": -2
+        },
+        {
+          "function": "stable",
+          "input": -2,
+          "baseline": 98,
+          "candidate": 98,
+          "required": 98
+        },
+        {
+          "function": "adjust",
+          "input": 0,
+          "baseline": 0,
+          "candidate": 0,
+          "required": 0
+        },
+        {
+          "function": "exposed",
+          "input": 0,
+          "baseline": 0,
+          "candidate": 0,
+          "required": 0
+        },
+        {
+          "function": "stable",
+          "input": 0,
+          "baseline": 100,
+          "candidate": 100,
+          "required": 100
+        },
+        {
+          "function": "adjust",
+          "input": 3,
+          "baseline": 3,
+          "candidate": 3,
+          "required": 3
+        },
+        {
+          "function": "exposed",
+          "input": 3,
+          "baseline": 3,
+          "candidate": 3,
+          "required": 3
+        },
+        {
+          "function": "stable",
+          "input": 3,
+          "baseline": 103,
+          "candidate": 103,
+          "required": 103
+        }
+      ],
+      "evidence": {
+        "confirmed_failure": false,
+        "bound_complete": true,
+        "semantic_proof": null
+      },
+      "text_scope": {
+        "status": "ALLOW",
+        "changed": [
+          "adjust"
+        ]
+      },
+      "text_diff_sha256": "278f3f756e12a3a6c5c0177b711755a755c4e2dd928b215b1d35fe8cc7603406",
+      "baseline": {
+        "status": "PASS",
+        "observations": [
+          -2,
+          -2,
+          98,
+          0,
+          0,
+          100,
+          3,
+          3,
+          103
+        ],
+        "evaluation_ms": 1634.44127,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "text_candidate": {
+        "status": "PASS",
+        "observations": [
+          -2,
+          -2,
+          98,
+          0,
+          0,
+          100,
+          3,
+          3,
+          103
+        ],
+        "evaluation_ms": 1689.310297,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "native_candidate": {
+        "status": "PASS",
+        "observations": [
+          -2,
+          -2,
+          98,
+          0,
+          0,
+          100,
+          3,
+          3,
+          103
+        ],
+        "evaluation_ms": 1669.079888,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "guarded_authority": {
+        "status": "PASS",
+        "observations": [
+          -2,
+          -2,
+          98,
+          0,
+          0,
+          100,
+          3,
+          3,
+          103
+        ],
+        "evaluation_ms": 1645.874131,
+        "check_exit": 0,
+        "build_exit": 0,
+        "tests_exit": 0
+      },
+      "quarantine": {
+        "before": {
+          "project_revision": "6562ef34a465fd023415c5c1de60c3bd32fad64eaaa9af1d33cf241a2bd61adc",
+          "modules": {
+            "aec.c4": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c4",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c4",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c4.adjust": {
+              "entity": "module:aec.c4/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "bef58902889d0e5cff801bd6b1639fdaaa90af6f4888468c414b6d839f042920"
+            },
+            "aec.c4.exposed": {
+              "entity": "module:aec.c4/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c4.stable": {
+              "entity": "module:aec.c4/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5",
+          "modules": {
+            "aec.c4": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c4",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c4",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c4.adjust": {
+              "entity": "module:aec.c4/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "0a80074d2bd929853f65fb1a2226621e7a9b00cc98a833b8b09909ec8f96b2a2"
+            },
+            "aec.c4.exposed": {
+              "entity": "module:aec.c4/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c4.stable": {
+              "entity": "module:aec.c4/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5",
+          "modules": {
+            "aec.c4": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c4",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c4",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c4.adjust": {
+              "entity": "module:aec.c4/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "0a80074d2bd929853f65fb1a2226621e7a9b00cc98a833b8b09909ec8f96b2a2"
+            },
+            "aec.c4.exposed": {
+              "entity": "module:aec.c4/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c4.stable": {
+              "entity": "module:aec.c4/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c4\nCHANGED function aec.c4.adjust"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": null,
+        "committed": true,
+        "guard_native_commit_dispatches": null,
+        "commit": {
+          "generation": 1,
+          "revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5"
+        },
+        "air_published": true,
+        "fresh_match": true,
+        "commit_ms": 3.440889,
+        "source_projection_unchanged": true
+      },
+      "guarded": {
+        "before": {
+          "project_revision": "6562ef34a465fd023415c5c1de60c3bd32fad64eaaa9af1d33cf241a2bd61adc",
+          "modules": {
+            "aec.c4": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c4",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c4",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c4.adjust": {
+              "entity": "module:aec.c4/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "bef58902889d0e5cff801bd6b1639fdaaa90af6f4888468c414b6d839f042920"
+            },
+            "aec.c4.exposed": {
+              "entity": "module:aec.c4/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c4.stable": {
+              "entity": "module:aec.c4/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "staged": {
+          "project_revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5",
+          "modules": {
+            "aec.c4": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c4",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c4",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c4.adjust": {
+              "entity": "module:aec.c4/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "0a80074d2bd929853f65fb1a2226621e7a9b00cc98a833b8b09909ec8f96b2a2"
+            },
+            "aec.c4.exposed": {
+              "entity": "module:aec.c4/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c4.stable": {
+              "entity": "module:aec.c4/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "fresh": {
+          "project_revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5",
+          "modules": {
+            "aec.c4": {
+              "fields": {
+                "caps": [],
+                "deps": [],
+                "exports": [
+                  "adjust",
+                  "exposed",
+                  "stable"
+                ],
+                "name": "aec.c4",
+                "rust_deps": [],
+                "version": "0.1.0"
+              },
+              "entity": "module:aec.c4",
+              "other_slots": {
+                "benches": [],
+                "externs": [],
+                "tests": [],
+                "types": []
+              },
+              "function_order": [
+                "adjust",
+                "exposed",
+                "stable"
+              ]
+            }
+          },
+          "functions": {
+            "aec.c4.adjust": {
+              "entity": "module:aec.c4/fn:adjust",
+              "fields": {
+                "eff": [],
+                "name": "adjust",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "0a80074d2bd929853f65fb1a2226621e7a9b00cc98a833b8b09909ec8f96b2a2"
+            },
+            "aec.c4.exposed": {
+              "entity": "module:aec.c4/fn:exposed",
+              "fields": {
+                "eff": [],
+                "name": "exposed",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "92b97e9deae29ab434890121b7dcf037035459dfea45600c232fd6d887aa05d9"
+            },
+            "aec.c4.stable": {
+              "entity": "module:aec.c4/fn:stable",
+              "fields": {
+                "eff": [],
+                "name": "stable",
+                "pure": true
+              },
+              "metadata_slots": {
+                "inv": [],
+                "params": [
+                  "7aba03ccfcdd3fe6955dc2ed8e90e0fb6f19a36a8b7e1c4ccb2e703b3b2838bf"
+                ],
+                "post": [],
+                "pre": [],
+                "returns": [
+                  "3b14a279a134487d0bfb5316aa6bc031629df2379450352b76db7d24e19b21b4"
+                ]
+              },
+              "body": "1b53f29071a79493dc659296c0e2e0fac7f0b982d0cdd1ad8bfd3892231d4998"
+            }
+          }
+        },
+        "preview": {
+          "diff": "CHANGED module aec.c4\nCHANGED function aec.c4.adjust"
+        },
+        "check": {
+          "problems": []
+        },
+        "guard": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "aec.c4.adjust"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "aec.c4.adjust"
+          ],
+          "baseline_sha256": "a6c0bcd1b781dff3ccce6e9c76b47e3df1669a11a076535c945b68d37b936290",
+          "staged_sha256": "0176e8089f77b0da7f7f4b9c91ba7f87936a3cda9291a255c478da0e91341407",
+          "baseline_project_revision": "6562ef34a465fd023415c5c1de60c3bd32fad64eaaa9af1d33cf241a2bd61adc",
+          "staged_project_revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5",
+          "coverage_nodes": 13,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "committed": true,
+        "guard_native_commit_dispatches": 1,
+        "commit": {
+          "generation": 1,
+          "revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5",
+          "host_scope": {
+            "status": "SCOPE_ALLOWED",
+            "changed_functions": [
+              "aec.c4.adjust"
+            ],
+            "unauthorized_functions": [],
+            "authorized_functions": [
+              "aec.c4.adjust"
+            ],
+            "baseline_sha256": "a6c0bcd1b781dff3ccce6e9c76b47e3df1669a11a076535c945b68d37b936290",
+            "staged_sha256": "0176e8089f77b0da7f7f4b9c91ba7f87936a3cda9291a255c478da0e91341407",
+            "baseline_project_revision": "6562ef34a465fd023415c5c1de60c3bd32fad64eaaa9af1d33cf241a2bd61adc",
+            "staged_project_revision": "d523dcc381d076af6009504b446808ad9d64e2197d08944f4821114482f3e6f5",
+            "coverage_nodes": 13,
+            "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+          }
+        },
+        "air_published": true,
+        "fresh_match": true,
+        "commit_ms": 5.115217,
+        "source_projection_unchanged": true
+      },
+      "decisions": {
+        "A": {
+          "verdict": "UNKNOWN",
+          "reason": "required checked semantic proof unavailable",
+          "decision_ms": 0.002424
+        },
+        "B": {
+          "verdict": "ALLOW",
+          "reason": "registered bounded observations and structural policy satisfied",
+          "decision_ms": 0.001232
+        },
+        "C": {
+          "verdict": "ALLOW",
+          "decision_ms": null,
+          "guarded_commit_roundtrip_ms": 5.115217,
+          "reason": "actual unchanged P34 decision"
+        },
+        "D": {
+          "verdict": "UNKNOWN",
+          "reason": "required checked semantic proof unavailable",
+          "decision_ms": 0.001162
+        }
+      },
+      "total_acquisition_and_evaluation_ms": 7213.912882
+    }
+  ]
+}

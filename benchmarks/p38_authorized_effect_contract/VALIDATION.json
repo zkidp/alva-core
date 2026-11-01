@@ -1,0 +1,57 @@
+{
+  "archive_integrity": "PASS",
+  "wave_code": "3bb65c0f2abd9ab915d87dcabefe907927a3091a",
+  "records": [
+    {
+      "id": "C1",
+      "raw_sha256": "4834f2c622fec109bde27c093fad7506908fbeb1e053b16da6d544787e703a8f",
+      "status": "EXECUTED",
+      "actual_commit_and_fresh_checked": true,
+      "independent_evaluations_checked": true,
+      "actual_guard_dispatch_checked": true,
+      "same_text_native_observations": true
+    },
+    {
+      "id": "C2",
+      "raw_sha256": "c4543ec2ac53ddd8fbeb31237db22dff388b2856ea57452d50abb9b6f6e2face",
+      "status": "EXECUTED",
+      "actual_commit_and_fresh_checked": true,
+      "independent_evaluations_checked": true,
+      "actual_guard_dispatch_checked": true,
+      "same_text_native_observations": true
+    },
+    {
+      "id": "C3",
+      "raw_sha256": "c40f5102bb003c411b95a2c8d18d0faace56df4df995c24a93570c9c26fa8090",
+      "status": "EXECUTED",
+      "actual_commit_and_fresh_checked": true,
+      "independent_evaluations_checked": true,
+      "actual_guard_dispatch_checked": true,
+      "same_text_native_observations": true
+    },
+    {
+      "id": "C4",
+      "raw_sha256": "68a669dbabb7871481f8559a33dddd3f082430b12a8cc85bd4825e2887359a76",
+      "status": "EXECUTED",
+      "actual_commit_and_fresh_checked": true,
+      "independent_evaluations_checked": true,
+      "actual_guard_dispatch_checked": true,
+      "same_text_native_observations": true
+    }
+  ],
+  "status": "PASS",
+  "registration_commit": "4fe0edceae8721f808e750c2dca266417d92ee98",
+  "canonical_base": "0f9713848bf052161ca74e84fe7b17955daa61f6",
+  "executed_counterexamples": 4,
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "registered_inputs_changed": false,
+  "frozen_P20_P37_changed": false,
+  "initial_execution_failures": [],
+  "primary_wave_source": "3bb65c0f2abd9ab915d87dcabefe907927a3091a",
+  "actual_guard_publications": 3,
+  "quarantine_observation_commits": 4,
+  "proof_insufficient_actual_publications": 1,
+  "contract_invalid_actual_publications": 1,
+  "author": "Codex engineering; no independent human review or model outcome"
+}

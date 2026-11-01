@@ -1,0 +1,22 @@
+{
+  "C1": {
+    "verdict": "REJECT",
+    "class": "invalid",
+    "reason": "protected exposed samples regress"
+  },
+  "C2": {
+    "verdict": "ALLOW",
+    "class": "legitimate",
+    "reason": "explicit downstream permission and protected stable samples"
+  },
+  "C3": {
+    "verdict": "REJECT",
+    "class": "invalid",
+    "reason": "right body structurally changes without authorization"
+  },
+  "C4": {
+    "verdict": "UNKNOWN",
+    "class": "insufficient_evidence",
+    "reason": "universal protected equivalence requires proof absent in this study"
+  }
+}
