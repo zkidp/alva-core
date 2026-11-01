@@ -39,7 +39,8 @@ class StudyControls(unittest.TestCase):
     def test_historyless_checkout_and_changed_input_rejection(self):
         # Export only the current tree, then create a brand-new root commit:
         # no borrowed Git objects, original registration commit, or branch refs.
-        archive = subprocess.check_output(["git", "archive", "--format=zip", "HEAD"], cwd=study.ROOT)
+        archive = subprocess.check_output(
+            ["git", "-c", "core.autocrlf=false", "archive", "--format=zip", "HEAD"], cwd=study.ROOT)
         with tempfile.TemporaryDirectory(prefix="p38-historyless-") as tmp:
             root = Path(tmp)
             with zipfile.ZipFile(io.BytesIO(archive)) as z:

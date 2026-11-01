@@ -121,3 +121,8 @@ This is an additive reproduction repair, not a new treatment or rescore.
 Registered inputs, original VALIDATION/results/archive manifests and the
 NO_OBSERVED_INCREMENTAL_VALUE conclusion remain unchanged. Future CI wave
 records belong to that repair commit's Actions artifacts, not the old wave.
+The first new Windows historyless control failed because Git archive honored
+the host's core.autocrlf=true and exported CRLF instead of the registered LF
+blobs. The control now explicitly disables archive newline conversion and
+repository-add conversion; it does not normalize or relax the input hashes.
+That failed control is retained in commit/CI history, not a scientific wave.
