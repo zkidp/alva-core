@@ -1,0 +1,41 @@
+{
+  "U1": {
+    "status": "PUBLIC_RECORDS",
+    "archive_required": false
+  },
+  "U2": {
+    "status": "ARCHIVE_VERIFIED",
+    "sha256": "b37b499ec63388824efde38c395c221a71ae04d1367b1ad8555309c3888c6dd2",
+    "bytes": 236273,
+    "selected_members": [
+      "P26-12-HE23-B/ready.json",
+      "P26-12-HE23-B/result.json",
+      "P26-12-HE23-B/linux.json",
+      "P26-12-HE23-B/config.json"
+    ]
+  },
+  "U3": {
+    "status": "ARCHIVE_VERIFIED",
+    "sha256": "0ed04b131cf0d7fc2fe89d7d182fbfd589942e4bfca9d04e9ce5769bf7e52295",
+    "bytes": 65828,
+    "selected_members": [
+      "MM01-S/observer.jsonl",
+      "MM01-S/record.json",
+      "MM01-S/linux.json",
+      "MM01-S/ready.json",
+      "MM01-S/config.json"
+    ]
+  },
+  "U4": {
+    "status": "ARCHIVE_VERIFIED",
+    "sha256": "6b1f8bac0074ae82eb3234f42ee4d4a5f185d442b1e6ea1bb18939115fba4ab1",
+    "bytes": 45032,
+    "selected_members": [
+      "P32-MM01-S/observer.jsonl",
+      "P32-MM01-S/record.json",
+      "P32-MM01-S/linux.json",
+      "P32-MM01-S/ready.json",
+      "P32-MM01-S/config.json"
+    ]
+  }
+}
