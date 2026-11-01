@@ -30,3 +30,12 @@ now ground U1's coverage gap. Both evaluators still agree on all four units.
 The independently implemented validator checks source pointers, complete tool
 record ordering, state identities, evaluation exits and missingness. No original
 archive, registered input, historical score or comparison rule was changed.
+
+## Portable-check setup failures
+
+The first WSL clone command used the Windows linked worktree as a clone source;
+its absolute Windows Git pointer is not resolvable by Linux Git. A second
+command lost its temporary-directory variable at the shell boundary and failed
+before cloning. Neither ran analysis or changed any input. Cloning from the
+actual shared repository into an explicit Linux temporary path succeeded;
+eight tests and public-certificate validation then passed on Python 3.14.4.

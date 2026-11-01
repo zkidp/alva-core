@@ -75,6 +75,11 @@ private pointers left unopened. The committed VALIDATION.json records that raw
 run. Linux/Windows portable CI separately checks the public certificate without
 claiming access to the private originals.
 
+An independent Linux checkout under WSL Ubuntu 26.04 / Python 3.14.4 also passed
+all eight tests and public-certificate verification (60 public pointers checked,
+178 private pointers explicitly not reopened). Failed clone-setup commands are
+recorded in ATTEMPTS.md; they produced no comparison results.
+
 ```text
 python -m unittest benchmarks.rdr02_treatment_realization.test_analysis -v
 python benchmarks/rdr02_treatment_realization/validate.py
