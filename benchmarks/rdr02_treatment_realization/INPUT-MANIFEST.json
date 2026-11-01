@@ -1,0 +1,191 @@
+{
+  "schema": "rdr02-input-manifest/v1",
+  "base": "5cc33a531e465d97ded33a0749db6451468a54b8",
+  "public_sources": [
+    {
+      "unit": "U1",
+      "path": "benchmarks/native_mcp_skill/evidence/NATIVE-COVERAGE.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "d320fb8bec9ebdd373ed47c861233bc4e32657d1eeb857708dd5d0a7991a63ca",
+      "bytes": 105649,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U1",
+      "path": "benchmarks/native_mcp_skill/evidence/PHASE-A.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "56bccd1d64cdd863d308e5b3d03f91445fc28592b697d6ca6b4fd4bf5663a130",
+      "bytes": 71458,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U1",
+      "path": "benchmarks/native_mcp_skill/STATUS.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "31f4e4a014412031611eb4ebf649df7edf279e51470c09f62b0db78363d96e39",
+      "bytes": 620,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U2",
+      "path": "benchmarks/native_prospective/RESULTS.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "43c3b25d99f3933d598b5a15cc507ea99b10741a16f5fefe4cad8b8c6a2fe442",
+      "bytes": 19909,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U2",
+      "path": "benchmarks/native_prospective/ANALYSIS.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "432a8bc6f2cefbba2ac73a1c147259164c0755609a401786f6580abce2030f0f",
+      "bytes": 29368,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U2",
+      "path": "benchmarks/p27_bottleneck/STAGE-TRAJECTORIES.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "b0a775b21bcf9fd91f837cbbe86efefed973d5fe1a13e0d17e94b915717c34c5",
+      "bytes": 829439,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U2",
+      "path": "benchmarks/native_prospective/ARCHIVE.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "354872c7d7a6cee4eb39d35df42b4363c687cc9070cca656f8f03dfa6a410e4c",
+      "bytes": 152,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U3",
+      "path": "benchmarks/mm01_pilot/RESULTS.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "58055c243073ade3fb5bc7910a9e4f93ce22022d6804313cc2f0bfa53bc61d9a",
+      "bytes": 6690,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U3",
+      "path": "benchmarks/mm01_pilot/ANALYSIS.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "82d458e98fdd37ed760268cbb90bf22dd2881d8ef91831f9e16214d664c4078a",
+      "bytes": 55447,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U3",
+      "path": "benchmarks/mm01_pilot/SCIENTIFIC-DISPOSITION.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "2d4edba7e60a4baf392f5d1f658b5d7a7971cd8965c0a7bf2c3ca041e750cc6b",
+      "bytes": 1053,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U3",
+      "path": "benchmarks/mm01_pilot/ARCHIVE.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "a22eb8db816acbabbe680838c6f73450a07134d77b33c889b06d8f4de3837567",
+      "bytes": 151,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U4",
+      "path": "benchmarks/p32_native_mm01/RESULTS.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "02a5a69d337afda6ca1d64f314266576d3470c8b53bf57e2f5c441cded2537d0",
+      "bytes": 4082,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U4",
+      "path": "benchmarks/p32_native_mm01/ANALYSIS.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "65832eb8bae8d4ad3b90d3d156f61498435b6e4e9e250f1d2c0640c6efdb1497",
+      "bytes": 6797,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U4",
+      "path": "benchmarks/p32_native_mm01/VALIDATION.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "b430686651ca64f5c6a1e7d5dfe022ec4e6523e03c998a77319756051872a220",
+      "bytes": 530,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    },
+    {
+      "unit": "U4",
+      "path": "benchmarks/p32_native_mm01/ARCHIVE.json",
+      "origin_commit": "5cc33a531e465d97ded33a0749db6451468a54b8",
+      "sha256": "3fae062f180c88db78cb3ba75b831b2735a85538b63fccfc3ac94859dc343625",
+      "bytes": 184,
+      "role": "observations_and_posthoc_crosschecks_separated_by_extractor"
+    }
+  ],
+  "units": [
+    {
+      "id": "U1",
+      "historical_id": "P24_NATIVE_COVERAGE",
+      "model_unit": false,
+      "archive": null
+    },
+    {
+      "id": "U2",
+      "historical_id": "P26-12-HE23-B",
+      "model_unit": true,
+      "archive": {
+        "sha256": "b37b499ec63388824efde38c395c221a71ae04d1367b1ad8555309c3888c6dd2",
+        "bytes": 236273,
+        "members": [
+          "P26-12-HE23-B/ready.json",
+          "P26-12-HE23-B/result.json",
+          "P26-12-HE23-B/linux.json",
+          "P26-12-HE23-B/config.json"
+        ]
+      }
+    },
+    {
+      "id": "U3",
+      "historical_id": "MM01-S",
+      "model_unit": true,
+      "archive": {
+        "sha256": "0ed04b131cf0d7fc2fe89d7d182fbfd589942e4bfca9d04e9ce5769bf7e52295",
+        "bytes": 65828,
+        "members": [
+          "MM01-S/observer.jsonl",
+          "MM01-S/record.json",
+          "MM01-S/linux.json",
+          "MM01-S/ready.json",
+          "MM01-S/config.json"
+        ]
+      }
+    },
+    {
+      "id": "U4",
+      "historical_id": "P32-MM01-S",
+      "model_unit": true,
+      "archive": {
+        "sha256": "6b1f8bac0074ae82eb3234f42ee4d4a5f185d442b1e6ea1bb18939115fba4ab1",
+        "bytes": 45032,
+        "members": [
+          "P32-MM01-S/observer.jsonl",
+          "P32-MM01-S/record.json",
+          "P32-MM01-S/linux.json",
+          "P32-MM01-S/ready.json",
+          "P32-MM01-S/config.json"
+        ]
+      }
+    }
+  ],
+  "missing_policy": "null/UNKNOWN; fail closed on hash mismatch; no reconstruction, historical execution or label features",
+  "evidence_schema": "rdr02-observations/v1: values with source/member/JSON-pointer-or-JSONL-line/record_sha256",
+  "classifier_inputs": "identical source projection; no outcome/disposition labels; no private reasoning",
+  "comparison": "eight stage propositions plus target state, publication, tested/fresh identity and independent behavior; substantive equivalence not label spelling",
+  "dispositions": [
+    "OBSERVED_INCREMENTAL_MEASUREMENT_VALUE",
+    "NO_OBSERVED_INCREMENTAL_VALUE",
+    "INCONCLUSIVE_EVIDENCE_LIMITATION"
+  ],
+  "future_model_experiment": "NOT_AUTHORIZED"
+}

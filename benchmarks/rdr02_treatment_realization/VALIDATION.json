@@ -1,0 +1,32 @@
+{
+  "status": "PASS_WITH_EXPLICIT_EVIDENCE_LIMITATIONS",
+  "mode": "RAW_AND_PUBLIC",
+  "records": [
+    {
+      "id": "U1",
+      "propositions_independently_recomputed": true,
+      "raw_archive_reopened": false
+    },
+    {
+      "id": "U2",
+      "propositions_independently_recomputed": true,
+      "raw_archive_reopened": true
+    },
+    {
+      "id": "U3",
+      "propositions_independently_recomputed": true,
+      "raw_archive_reopened": true
+    },
+    {
+      "id": "U4",
+      "propositions_independently_recomputed": true,
+      "raw_archive_reopened": true
+    }
+  ],
+  "source_pointers_checked": 238,
+  "private_pointers_not_reopened": 0,
+  "raw_validation_complete": true,
+  "historical_scores_changed": false,
+  "no_model_denominator_or_pooled_success_rate": true,
+  "independent_of_analyzer_implementation": true
+}
