@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="640" viewBox="0 0 1120 640" role="img">
+<title>Figure 3. Historical failure-to-safe-maintenance evidence chain</title><desc>E06 P33; E08 P34; E09 P35; E10-E12 P36. Distinct engineering/model units, not a pooled or causal improvement curve.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#475569"/></marker></defs>
+<rect width="1120" height="100%" fill="white"/>
+<text x="28" y="34" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#172554">Figure 3. Historical failure-to-safe-maintenance evidence chain</text>
+<rect x="30" y="90" width="500" height="170" rx="8" fill="#fef2f2" stroke="#64748b" stroke-width="1.4"/>
+<text x="44" y="115" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">P33: deterministic failure</text>
+<text x="44" y="139" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Original parent replacement changes two bodies</text>
+<text x="44" y="160" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Preview reports both; check/build and target pass</text>
+<text x="44" y="181" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Commit publishes; delimiter regression fails</text>
+<text x="44" y="202" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Evidence E06/E07</text>
+<rect x="590" y="90" width="500" height="170" rx="8" fill="#fff7ed" stroke="#64748b" stroke-width="1.4"/>
+<text x="604" y="115" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">P34: deterministic prevention</text>
+<text x="604" y="139" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Same risky shared mutation; trusted body policy</text>
+<text x="604" y="160" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">SCOPE_VIOLATION; underlying commit count = 0</text>
+<text x="604" y="181" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Authority unchanged; new task still unfinished</text>
+<text x="604" y="202" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Evidence E08</text>
+<path d="M530,175 L590,175" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<rect x="30" y="340" width="500" height="170" rx="8" fill="#eff6ff" stroke="#64748b" stroke-width="1.4"/>
+<text x="44" y="365" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">P35: deterministic safe composition</text>
+<text x="44" y="389" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Original graph; existing unshared attachment</text>
+<text x="44" y="410" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Construct alternative; reconnect prefix binding</text>
+<text x="44" y="431" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Guard allows; commit + task/regressions pass</text>
+<text x="44" y="452" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Evidence E09</text>
+<rect x="590" y="340" width="500" height="170" rx="8" fill="#ecfdf5" stroke="#64748b" stroke-width="1.4"/>
+<text x="604" y="365" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">P36: one fresh autonomous model case</text>
+<text x="604" y="389" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Original graph; no engineered witness input</text>
+<text x="604" y="410" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Model constructs different safe wrapper</text>
+<text x="604" y="431" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Guard/commit/fresh read; task/regressions pass</text>
+<text x="604" y="452" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Evidence E10-E12</text>
+<path d="M840,260 L280,340" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M530,425 L590,425" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<text x="30" y="565" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#172554">Dashed arrows mean historical motivation, not model answer transfer or matched treatment effects.</text>
+<text x="30" y="593" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">P36 has no rejection/recovery episode. Engineering prevention is not agent task completion.</text>
+</svg>
