@@ -283,4 +283,3 @@ Last-change commit: `1e1ef6b35783a7fca0e9754f6e80ac337ea736d4`.
 SHA256: `d6955cc5098fce70853ff7d3cae17520446fe906f55c89d77292d85773e3da53`; 832 bytes.
 
 Checked pointers: `/source_pointers_checked`, `/raw_validation_complete`.
-
