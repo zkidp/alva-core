@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="620" viewBox="0 0 1120 620" role="img">
+<title>Figure 1. Separate editing, authorization and publication boundaries</title><desc>Evidence E01-E05, E08, E10. Schematic, not an atomic source-plus-AIR transaction.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#475569"/></marker></defs>
+<rect width="1120" height="100%" fill="white"/>
+<text x="28" y="34" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#172554">Figure 1. Separate editing, authorization and publication boundaries</text>
+<rect x="30" y="70" width="250" height="88" rx="8" fill="#eff6ff" stroke="#64748b" stroke-width="1.4"/>
+<text x="44" y="95" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Coding agent</text>
+<text x="44" y="119" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Official Skill + Native schemas</text>
+<text x="44" y="140" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Original task/program only</text>
+<rect x="340" y="70" width="300" height="88" rx="8" fill="#eff6ff" stroke="#64748b" stroke-width="1.4"/>
+<text x="354" y="95" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Trusted Host + MCP transport</text>
+<text x="354" y="119" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Scoped commit approval</text>
+<text x="354" y="140" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Original call identity preserved</text>
+<path d="M280,114 L340,114" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)"/>
+<rect x="340" y="200" width="300" height="105" rx="8" fill="#eff6ff" stroke="#64748b" stroke-width="1.4"/>
+<text x="354" y="225" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Private AIR transaction</text>
+<text x="354" y="249" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Base revision; construct + attach</text>
+<text x="354" y="270" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Preview; graph/compiler check</text>
+<text x="354" y="291" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Detached nodes are not edits</text>
+<path d="M490,158 L490,200" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)"/>
+<rect x="715" y="200" width="370" height="105" rx="8" fill="#fff7ed" stroke="#64748b" stroke-width="1.4"/>
+<text x="729" y="225" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Host-owned scope gate</text>
+<text x="729" y="249" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Complete fixed declaration inventory</text>
+<text x="729" y="270" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Allowed bodies + unchanged metadata</text>
+<text x="729" y="291" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Unverified or violation: no commit</text>
+<path d="M640,252 L715,252" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)"/>
+<rect x="715" y="352" width="370" height="88" rx="8" fill="#ecfdf5" stroke="#64748b" stroke-width="1.4"/>
+<text x="729" y="377" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Core authoritative publication</text>
+<text x="729" y="401" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Commit-time recheck + stale-base guard</text>
+<text x="729" y="422" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">AIR generation/current; fresh reread</text>
+<path d="M900,305 L900,352" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)"/>
+<rect x="340" y="352" width="300" height="88" rx="8" fill="#eff6ff" stroke="#64748b" stroke-width="1.4"/>
+<text x="354" y="377" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Source projection (separate)</text>
+<text x="354" y="401" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Explicit materialization boundary</text>
+<text x="354" y="422" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Not atomic with all source files</text>
+<path d="M715,396 L640,396" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<rect x="715" y="490" width="370" height="82" rx="8" fill="#eff6ff" stroke="#64748b" stroke-width="1.4"/>
+<text x="729" y="515" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Independent compile + behavior tests</text>
+<text x="729" y="539" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Separate Linux isolation; finite assertions</text>
+<text x="729" y="560" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Not guaranteed by check/commit alone</text>
+<path d="M900,440 L900,490" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)"/>
+<rect x="30" y="352" width="250" height="88" rx="8" fill="#eff6ff" stroke="#64748b" stroke-width="1.4"/>
+<text x="44" y="377" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#172554">Initial public sources</text>
+<text x="44" y="401" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Parse/import to AIR</text>
+<text x="44" y="422" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">Source path remains distinct</text>
+<path d="M155,352 L340,265" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<text x="30" y="525" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#172554">Candidate MCP / compilation / execution:</text>
+<text x="30" y="548" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#172554">existing Linux OS isolation; Host trusted.</text>
+<text x="30" y="590" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#172554">E01-E05: source implementation. E08/E10: actual mediated publication. Dashed arrows: separate materialization/import.</text>
+</svg>
