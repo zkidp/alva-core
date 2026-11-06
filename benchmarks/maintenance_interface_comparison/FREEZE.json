@@ -1,0 +1,925 @@
+{
+  "schema": "mic01-freeze/v1",
+  "base": "b7a8cf86094c8e85a2f22025508088579cdf9476",
+  "task_provenance": "six known author-familiar tasks; not a fresh-task benchmark",
+  "model": "gpt-5.6-sol",
+  "provider": "openai",
+  "effort": "low",
+  "limits": {
+    "wall_observation_seconds": 480,
+    "tool_callback_limit": 80,
+    "token_observation_threshold": 600000,
+    "interrupt_grace_seconds": 20,
+    "model_turns_per_slot": 1,
+    "concurrency": 1,
+    "max_slots": 24
+  },
+  "docs": {
+    "language.md": "# alva \u2014\u2014 AI \u539f\u751f\u8bed\u8a00\u5de5\u5177\u94fe v0.14.1 Developer Preview\n\n\u5de5\u4f5c\u540d\uff0c\u968f\u65f6\u53ef\u6539\u3002\u5f53\u524d\u5305\u7248\u672c\u4e3a `0.14.1-preview.2`\uff1b\u9884\u89c8\u7248 API \u4ecd\u53ef\u80fd\u53d8\u5316\u3002\n\n\u9884\u7f16\u8bd1 binary\u3001\u6821\u9a8c\u548c\u53ca\u5b89\u88c5\u65b9\u5f0f\u89c1\u4ed3\u5e93\u6839\u76ee\u5f55 `README.md`\u3002`check`\u3001AIR/AEP\n\u548c semantic views \u4e0d\u8981\u6c42\u672c\u673a\u5b89\u88c5 Rust\uff1b`build`/`run` \u4ecd\u9700 Rust \u548c Cargo\u3002\n\n## \u6784\u5efa\n\n```\ncargo build --release\n```\n\n## \u4f7f\u7528\n\n```\nalva check  examples/hello.alva            # \u8bed\u6cd5 + \u8bed\u4e49 + \u5951\u7ea6\u68c0\u67e5\nalva check  examples/hello.alva --json     # \u7ed3\u6784\u5316\u8bca\u65ad\uff08JSON\uff09\nalva build  examples/hello.alva            # \u751f\u6210 Rust \u5e76\u7f16\u8bd1 native\nalva build  examples/hello.alva --target wasm\nalva build  examples/calc.alva --test      # \u751f\u6210 + \u7f16\u8bd1 + \u8dd1\u5c5e\u6027\u6d4b\u8bd5\nalva build  examples/calculator.alva --test   # \u8ba1\u7b97\u5668\uff08fold \u5faa\u73af + \u96c6\u5408\uff09\nalva build  examples/pi.alva --release     # \u03c0 \u57fa\u51c6\uff08release \u6784\u5efa\uff0c\u6027\u80fd\u5bf9\u6bd4\uff09\nalva build  examples/pi.alva --bench --release  # \u8dd1\u57fa\u51c6\uff1a10 \u8f6e min/max/avg + \u9884\u7b97\u65ad\u8a00\nalva build  examples/calculator.alva --bench    # \u57fa\u51c6\u4e5f\u53ef\u4ee5\u5728 debug \u4e0b\u8dd1\nalva build  examples/store_metadata.alva --test # \u5bf9\u8c61\u5b58\u50a8\u5143\u6570\u636e\u6838\u5fc3\uff08enum+match+map+\u5951\u7ea6\uff09\nalva build  examples/store_checksum.alva --test # \u5bf9\u8c61\u6821\u9a8c\uff08use rust + extern FFI \u63a5 blake3\uff09\nalva build  examples/store_server.alva          # S3 \u98ce\u683c\u5bf9\u8c61\u5b58\u50a8\u670d\u52a1\u5668\nalva run    examples/hello.alva            # \u7f16\u8bd1\u5e76\u8fd0\u884c\nalva run    examples/calculator.alva       # \u8fd0\u884c\u8ba1\u7b97\u5668\n\n## \u5bf9\u8c61\u5b58\u50a8\u670d\u52a1\u5668\u6f14\u793a\n\n```\nalva build examples/store_server.alva\n.\\out\\store_server\\target\\debug\\store_server.exe   # \u76d1\u542c 127.0.0.1:9000\n\ncurl -X PUT http://127.0.0.1:9000/test/hello.txt -d \"hello world\"\ncurl http://127.0.0.1:9000/test/hello.txt\ncurl -X DELETE http://127.0.0.1:9000/test/hello.txt\n```\n\n\u652f\u6301\uff1aPUT/GET/DELETE \u5bf9\u8c61\u3001\u5efa\u6876\u3001\u5217\u6876\u3001\u5217\u5bf9\u8c61\uff1b404 \u8fd4\u56de S3 \u98ce\u683c XML \u9519\u8bef\u3002\n**SigV4 \u8ba4\u8bc1\u5df2\u542f\u7528**\uff1a\u8bf7\u6c42\u5fc5\u987b\u643a\u5e26 AWS4-HMAC-SHA256 \u7b7e\u540d\uff08AK: test / SK: testtest\uff09\uff0c\u672a\u7b7e\u540d\u8bf7\u6c42\u8fd4\u56de 403\u3002\n\n## rclone \u4e92\u64cd\u4f5c\u6d4b\u8bd5\uff08\u5df2\u901a\u8fc7\uff09\n\n```\n[localstore]\ntype = s3\nprovider = Other\nendpoint = http://127.0.0.1:9000\naccess_key_id = test\nsecret_access_key = testtest\nforce_path_style = true\n\nrclone --config rclone.conf copy <\u672c\u5730\u76ee\u5f55> localstore:bucket   # \u76ee\u5f55\u540c\u6b65\uff08\u542b\u5d4c\u5957\uff09\nrclone --config rclone.conf check <\u672c\u5730\u76ee\u5f55> localstore:bucket   # \u6570\u636e\u4e00\u81f4\u6027\u6821\u9a8c\uff1a0 differences\nrclone --config rclone.conf cat localstore:bucket/sub/file.txt   # \u5d4c\u5957\u8bfb\u53d6\nrclone --config rclone.conf ls / lsf -R / deletefile / rmdir\n```\n\n\u5df2\u9a8c\u8bc1\uff1a85MB \u5927\u6587\u4ef6\u4e0a\u4f20\u4e0b\u8f7d\u5b57\u8282\u7ea7\u4e00\u81f4\u3001\u5d4c\u5957\u76ee\u5f55\u3001ListObjectsV2\uff08prefix/delimiter/CommonPrefixes\uff09\u3001HEAD \u5927\u5c0f\u3002\n```\n\n## \u5f53\u524d\u80fd\u529b\n\n- S-expression \u6e90\u7801\uff08\u524d\u7f00\u5f0f\uff0c\u65e0\u8fd0\u7b97\u7b26\u4f18\u5148\u7ea7\u6b67\u4e49\uff09\n- \u6a21\u5757\uff1a`name` `version` `cap` `export` `use rust`\n- \u7c7b\u578b\uff1a`record` + \u5185\u5efa\u7c7b\u578b + `result<T,E>`\n- \u51fd\u6570\uff1a`pre` `post` \u5951\u7ea6\uff08\u7f16\u8bd1\u4e3a debug_assert\uff09\u3001`pure`\u3001`eff`\n- \u8868\u8fbe\u5f0f\uff1a\u5b57\u9762\u91cf\u3001\u8c03\u7528\u3001\u4e8c\u5143\u8fd0\u7b97\u3001`if`\u3001`let`\u3001`block`\u3001\u8bb0\u5f55\u6784\u9020/\u8bbf\u95ee\u3001`raise`\u3001`try/catch`\u3001`ok`/`err`\n- \u96c6\u5408\u4e0e\u5faa\u73af\uff1a`vec`\u3001`len`\u3001`get`\u3001`append`\u3001`as` \u7c7b\u578b\u8f6c\u6362\u3001`fold` \u7eaf\u6298\u53e0\u5faa\u73af\n- \u5185\u5efa\uff1a`sys.now_ms`\uff08\u8ba1\u65f6\uff09\u3001`io.print_debug`\n- `test` \u2192 Rust `#[test]`\n- `bench` \u2192 \u81ea\u52a8 10 \u8f6e + min/max/avg \u62a5\u544a + `(budget (ms n))` \u6027\u80fd\u9884\u7b97\u65ad\u8a00\uff08\u8d85\u9884\u7b97\u5931\u8d25\uff09\n- \u7ed3\u6784\u5316\u8bca\u65ad\uff1a`--json` \u8f93\u51fa\u673a\u5668\u53ef\u8bfb\u9519\u8bef\u62a5\u544a\n- \u8d44\u6e90\u9650\u5236\uff1a\u9632\u6b62\u6076\u610f/\u610f\u5916\u5de8\u5927\u8f93\u5165\u538b\u57ae\u89e3\u6790\u5668\uff08\u9ed8\u8ba4\u89c1\u4e0b\uff0c`ALVA_MAX_*` \u73af\u5883\u53d8\u91cf\u53ef\u8c03\uff09\n\n## \u8d44\u6e90\u9650\u5236\n\n| \u73af\u5883\u53d8\u91cf | \u9ed8\u8ba4 | \u8d85\u9650\u8bca\u65ad\u7801 |\n|---|---|---|\n| `ALVA_MAX_AST_DEPTH` | 512 | `E_PARSE_002` |\n| `ALVA_MAX_AST_NODES` | 100000 | `E_PARSE_003` |\n| `ALVA_MAX_SOURCE_BYTES` | 8388608 | `E_PARSE_004` |\n| `ALVA_MAX_LITERAL_BYTES` | 262144 | `E_PARSE_005` |\n| `ALVA_MAX_ATOM_BYTES` | 4096 | `E_PARSE_006` |\n\n\u793a\u4f8b\uff1a`ALVA_MAX_AST_DEPTH=64 alva check examples/hello.alva`\u3002golden tests \u7528\u540c\u6837\u673a\u5236\u4ee5\u5c0f\u6587\u4ef6\u9a8c\u8bc1\u6bcf\u4e2a\u9650\u503c\uff08`tests/limits/`\uff09\u3002\n\n## \u6301\u4e45\u5316\u5bf9\u8c61\u5b58\u50a8\uff08v0.3\uff09\n\n`examples/store_split` \u7684 S3 \u670d\u52a1\u5668\u73b0\u5728\u4f7f\u7528\u78c1\u76d8\u6301\u4e45\u5316\u5b58\u50a8\uff0c\u4e0d\u518d\u4f9d\u8d56\u5185\u5b58 map\uff1a\n\n```text\n<data-root>/            # \u9ed8\u8ba4 ./store-data\uff0c\u53ef\u7528 ALVA_DATA_ROOT \u8986\u76d6\n  blobs/sha256/ab/<sha256>      # \u5185\u5bb9\u5bfb\u5740 blob\uff08\u4e0d\u53ef\u53d8\uff09\n  objects/<bucket-hash>/<key-hash>.json   # \u5bf9\u8c61\u5143\u6570\u636e\uff08\u539f\u5b50\u63d0\u4ea4\uff09\n  tmp/                      # \u4e34\u65f6\u6587\u4ef6\uff08\u5d29\u6e83\u540e\u7531\u6062\u590d\u6e05\u7406\uff09\n  quarantine/               # \u635f\u574f/\u5b64\u7acb\u5143\u6570\u636e\u9694\u79bb\u533a\n```\n\n\u4fdd\u8bc1\uff1a\n\n- PUT \u6309\"\u4e34\u65f6 blob \u2192 \u5199\u5165+\u54c8\u5e0c \u2192 fsync \u2192 \u539f\u5b50 rename \u2192 fsync \u76ee\u5f55 \u2192 \u4e34\u65f6\u5143\u6570\u636e \u2192 \u5199\u5165 \u2192 fsync \u2192 \u539f\u5b50 rename \u2192 fsync \u76ee\u5f55\"\u63d0\u4ea4\uff1b\n- \u5d29\u6e83\u540e\u53ea\u53ef\u80fd\u51fa\u73b0\"\u5bf9\u8c61\u4e0d\u5b58\u5728\"\u6216\"\u5b8c\u6574\u5bf9\u8c61\"\uff08old-or-new\uff09\uff0c\u4e0d\u5b58\u5728\u534a\u5bf9\u8c61\uff1b\n- metadata \u6c38\u8fdc\u4e0d\u6307\u5411\u672a\u6301\u4e45\u5316\u7684 blob\uff1b\u6062\u590d\u65f6\u6821\u9a8c\u683c\u5f0f\u7248\u672c\u5e76\u9694\u79bb\u635f\u574f/\u7f3a\u5931 blob \u7684\u5143\u6570\u636e\uff1b\n- bucket/key \u7ecf SHA-256 \u7f16\u7801\u8fdb\u8def\u5f84\uff0c`../`\u3001\u53cd\u659c\u6760\u3001Unicode\u3001\u63a7\u5236\u5b57\u7b26\u65e0\u6cd5\u8d8a\u51fa data root\uff1b\n- \u540c\u5185\u5bb9\u91cd\u590d\u4e0a\u4f20\u590d\u7528\u540c\u4e00 blob\uff08\u5185\u5bb9\u5bfb\u5740\u53bb\u91cd\uff09\uff1b\n- \u542f\u52a8\u65f6\u6267\u884c\u6062\u590d + \u5b64\u513f blob GC\uff1b\n- \u7ed3\u6784\u5316\u9519\u8bef\u7801 `E_STORAGE_001..010`\uff08\u8def\u5f84\u4e0d\u5b89\u5168 / \u5199\u5931\u8d25 / fsync \u5931\u8d25 / \u539f\u5b50\u63d0\u4ea4\u5931\u8d25 / \u5143\u6570\u636e\u635f\u574f / \u7f3a\u5931 blob / \u6821\u9a8c\u548c\u4e0d\u5339\u914d / \u6062\u590d\u5931\u8d25 / \u4e0d\u5b58\u5728 / bucket \u975e\u7a7a\uff09\u3002\n\n\u9a8c\u8bc1\uff1a`tests/storage/durable_test.py` \u8986\u76d6 12 \u9879\u9a8c\u6536\uff08\u91cd\u542f\u6301\u4e45\u5316\u3001DELETE \u6301\u4e45\u5316\u3001overwrite old-or-new\u30016 \u4e2a failpoint \u5d29\u6e83\u4e00\u81f4\u6027\u3001\u7f3a\u5931 blob \u9694\u79bb\u3001\u635f\u574f blob \u68c0\u6d4b\u3001\u8def\u5f84\u7a7f\u8d8a\u3001\u5e76\u53d1\u8bfb\u5199\u3001\u53bb\u91cd\u3001GC\u300185MB \u5b57\u8282\u7ea7\u56de\u73af\u3001rclone \u91cd\u542f\u524d\u540e\u96f6\u5dee\u5f02\uff09\u3002`ALVA_DURABLE_FULL=1` \u65f6\u8fd0\u884c 85MB \u4e0e rclone \u7528\u4f8b\u3002\n\n\u5c1a\u672a\u652f\u6301\uff08\u660e\u786e\u4e0d\u5ba3\u79f0\uff09\uff1a\n\n- \u5206\u5e03\u5f0f\u4e00\u81f4\u6027 / \u591a\u526f\u672c / MinIO \u7b49\u4ef7\u80fd\u529b\uff1b\n- \u591a\u8fdb\u7a0b\u5e76\u53d1\u5199\u5165\u9501\uff08\u5f53\u524d\u5355\u7ebf\u7a0b\u670d\u52a1\u5668\uff0c\u4e32\u884c\u5904\u7406\u8bf7\u6c42\uff09\uff1b\n- \u5206\u7247\u4e0a\u4f20 Multipart\u3001\u7248\u672c\u7ba1\u7406\u3001\u751f\u547d\u5468\u671f\u7b56\u7565\u3001IAM\uff1b\n- blob \u5f15\u7528\u8ba1\u6570\uff08GC \u4e3a\u5168\u91cf\u626b\u63cf\uff0c\u5355\u5b9e\u4f8b\u9002\u7528\uff09\uff1b\n- \u670d\u52a1\u7aef\u52a0\u5bc6\u4e0e\u81ea\u5b9a\u4e49\u5143\u6570\u636e\u3002\n\n## Source-less Typed Program Construction\uff08v0.5\uff09\n\n\u7a0b\u5e8f\u7684**\u6743\u5a01\u8868\u793a**\u662f\u7c7b\u578b\u5316 AST/Merkle \u56fe\uff08AIR\uff09\uff0c\u4e0d\u518d\u662f\u624b\u5199 S-expression \u6587\u672c\uff1a\n\n- `alva air export <project>`\uff1a\u9879\u76ee \u2192 `.air`\uff08\u786e\u5b9a\u6027\u4e8c\u8fdb\u5236\uff0c\u8282\u70b9 ID = \u5185\u5bb9\u5bfb\u5740\n  Merkle \u54c8\u5e0c\uff0c\u4e0d\u4f9d\u8d56\u884c\u53f7/\u7f29\u8fdb/\u6ce8\u91ca\uff09\uff1b`alva air verify` \u6821\u9a8c\u5b8c\u6574\u6027\uff1b\n  `alva air import` \u751f\u6210 canonical `.alva` \u6295\u5f71\uff1b`alva air diff` \u8f93\u51fa\u8bed\u4e49 diff\uff1b\n  `alva air view --json` \u8f93\u51fa\u786e\u5b9a\u6027 JSON \u8c03\u8bd5\u89c6\u56fe\u3002\n- `alva edit`\uff1aAEP \u7ed3\u6784\u5316\u7f16\u8f91\u534f\u8bae\uff08stdin JSON-lines\uff09\u2014\u2014begin/create_node/\n  create_hole/replace_node/replace_slot/append_child/bind_symbol/rename_symbol/\n  delete_entity/check/commit/abort/snapshot\u3002\u6240\u6709\u5199\u64cd\u4f5c\u4f7f\u7528\u7a33\u5b9a node ID\uff1b\n  commit \u524d\u8fd0\u884c\u771f\u5b9e checker\uff0c\u9a8c\u8bc1\u5931\u8d25\u4e0d\u5199\u5165\u4efb\u4f55\u6587\u4ef6\uff08\u4e8b\u52a1\u539f\u5b50\u6027\uff09\u3002\n- `alva hole inspect|candidates|fill`\uff1atyped holes\uff0c\u5019\u9009\u6309\u4f5c\u7528\u57df/\u7c7b\u578b\u52a8\u6001\u751f\u6210\u3002\n- `alva view module|function|dependencies|callers|impact`\uff1a\u6309 token \u9884\u7b97\u7684\u8bed\u4e49\u89c6\u56fe\uff0c\n  \u4e0d\u8981\u6c42 Agent \u8bfb\u53d6\u5b8c\u6574\u6e90\u7801\u3002\n- S-expression \u964d\u7ea7\u4e3a import \u683c\u5f0f + \u53ea\u8bfb canonical \u6295\u5f71\uff1bAEP \u8def\u5f84\u4e2d\u4e0d\u5b58\u5728\u62ec\u53f7\u914d\u5bf9\u95ee\u9898\u3002\n\n\u9a8c\u8bc1\uff1a`tests/air/air_test.py`\uff08\u56de\u73af\u54c8\u5e0c\u7a33\u5b9a\u3001AEP \u4e8b\u52a1\u3001\u8bed\u4e49 diff\u3001\u89c6\u56fe\u3001holes\uff09\u3002\n`benchmarks/abc/run_abc.py` \u662f A/B/C \u5199\u5165\u65b9\u5f0f\u5b9e\u9a8c\u9aa8\u67b6\uff08\u771f\u5b9e\u6a21\u578b\u6d4b\u91cf\u5f85\u9694\u79bb Agent \u57fa\u7840\u8bbe\u65bd\uff09\u3002\n\n## AIR Integrity and Authority Hardening\uff08v0.5.1\uff09\n\n- **EntityId \u4e0e RevisionHash \u5206\u79bb**\uff1a\u547d\u540d\u5b9e\u4f53\uff08module/type/fn/extern/param/field/\u2026\uff09\n  \u4f7f\u7528\u7a33\u5b9a `entity`\uff08\u5982 `module:store.model/fn:put_object`\uff09\uff0c\u8282\u70b9 `revision` \u662f\n  \u5185\u5bb9\u5bfb\u5740 Merkle \u54c8\u5e0c\uff1b\u540c\u540d\u540c\u578b\u7684\u5171\u4eab\u5b50\u6811\u53ea\u5b58\u4e00\u4efd revision\uff0c\u591a\u4e2a entity \u53ef\u6307\u5411\n  \u540c\u4e00 revision\uff08entity \u662f\u7d22\u5f15\uff0c\u4e0d\u662f\u5185\u5bb9\uff09\u3002\n- **\u4e0d\u53ef\u53d8 path-copy**\uff1a\u6bcf\u6b21\u7f16\u8f91\u540e\u81ea\u6a21\u5757\u5934\u81ea\u5e95\u5411\u4e0a\u91cd\u7b97\u7956\u5148 revision\uff08\u5185\u5bb9\u5bfb\u5740\u4fdd\u8bc1\n  \u672a\u53d8\u5316\u5b50\u6811 revision \u4e0d\u53d8\uff09\uff0c**\u6bcf\u6b21 AEP \u64cd\u4f5c\u540e\u7acb\u5373\u5168\u91cf verify**\uff08\u53ef\u8fbe revision \u6811\n  \u5168\u90e8\u54c8\u5e0c\u4e00\u81f4\u3001\u65e0\u60ac\u6302\u69fd\u5f15\u7528\u3001head \u5747\u5b58\u5728\uff09\u3002\n- **.air \u6210\u4e3a\u6743\u5a01\u5b58\u50a8**\uff1a`alva-air/current`\uff08\u539f\u5b50 CURRENT \u6307\u9488\uff09+ `gen-<n>.air`\n  generation \u6587\u4ef6\uff1bcommit \u53ea\u5199\u6743\u5a01\u5b58\u50a8\uff0c`.alva` \u4ec5\u7528\u4e8e import/export\uff1b\n  `alva project check/build` \u5728\u5b58\u5728\u6743\u5a01\u5b58\u50a8\u65f6**\u76f4\u63a5\u6d88\u8d39 AIR**\uff08air_to_ast \u91cd\u5efa\uff0c\n  \u4e0d\u7ecf\u6587\u672c\uff09\u3002\n- **commit \u524d\u91cd\u65b0\u9a8c\u8bc1 base revision**\uff1a\u6743\u5a01\u5b58\u50a8 revision \u4e0e begin \u65f6 base \u4e0d\u4e00\u81f4\n  \u5373\u62d2\u7edd\uff08\u5e76\u53d1\u51b2\u7a81\uff09\uff1bgeneration \u9012\u589e + CURRENT \u539f\u5b50\u66f4\u65b0\uff0c\u5d29\u6e83\u4e0d\u4f1a\u6307\u5411\u534a\u5199\u6587\u4ef6\u3002\n- **\u6bcf node kind \u7684 field/slot schema**\uff1a`create_node` \u6309 schema \u6821\u9a8c\u5fc5\u9700/\u5141\u8bb8\u7684\n  fields \u4e0e slots\uff0c\u672a\u77e5 kind/\u5b57\u6bb5/\u69fd\u4e00\u5f8b\u62d2\u7edd\u3002\n- **hole \u4f7f\u7528\u51c6\u786e lexical scope**\uff1a\u6cbf\u7956\u5148\u8def\u5f84\u6536\u96c6\u7ed1\u5b9a\uff08\u4ec5 hole \u4f4d\u4e8e binding body\n  \u5185\u65f6\u53ef\u89c1\uff09+ \u5916\u5c42\u51fd\u6570\u53c2\u6570\u3002\n- **\u534f\u8bae\u8f93\u51fa\u7ed3\u6784\u5316 JSON**\uff1a`{\"ok\":bool,\"result\":{...},\"message\":\"...\"}`\u3002\n- **\u6d4b\u8bd5**\uff1a\u56de\u73af\u54c8\u5e0c\u7a33\u5b9a\u3001\u6bcf\u6b21\u64cd\u4f5c\u540e invariant\u3001\u635f\u574f generation \u62d2\u7edd\u3001\n  \u5d29\u6e83\u5b89\u5168\uff08\u6e38\u79bb generation \u4e0d\u52a8 CURRENT\uff09\u3001\u5e76\u53d1 stale-base \u62d2\u7edd\u3001\u89c6\u56fe\u3001lexical\n  scope holes\uff08`tests/air/air_test.py`\uff09\u3002\n\n## AIR Adversarial Safety\uff08v0.5.2\uff09\n\n- **\u65e0 panic**\uff1a\u5168\u90e8\u8282\u70b9\u8bbf\u95ee\u8d70\u5b89\u5168\u8bbf\u95ee\u5668\uff1b\u60ac\u6302\u5b50\u5f15\u7528\u8fd4\u56de\n  `E_AIR_DANGLING_CHILD`\uff08\u542b parent revision/entity/slot/child\uff09\uff1b\u635f\u574f AIR\n  \u5728 `air verify`/`project check`/`project build` \u7a33\u5b9a\u5931\u8d25\u4e0d\u5d29\u6e83\u3002\n- **DAG \u73af\u68c0\u6d4b**\uff1a\u8fed\u4ee3\u5f0f white/gray/black\uff0c`E_AIR_CYCLE`\uff1bself/two-node/deep\n  \u73af\u5747\u68c0\u51fa\uff0c\u5171\u4eab DAG \u4e0d\u8bef\u62a5\uff1brebuild/reachable/\u5e8f\u5217\u5316/AIR\u2192AST \u4e0d\u9012\u5f52\u5931\u63a7\uff1b\n  \u73af\u68c0\u6d4b\u5728 mutation \u63d0\u4ea4\u524d\u6267\u884c\u3002\n- **\u6bcf\u64cd\u4f5c\u539f\u5b50\u56de\u6eda**\uff1a\u6240\u6709 mutation \u8d70 staging graph\uff08clone\u2192apply\u2192rebuild\u2192\n  verify\u2192schema\u2192cycle\u2192swap\uff09\uff0c\u5931\u8d25\u540e\u8bed\u4e49\u54c8\u5e0c\u3001heads\u3001\u8282\u70b9\u6570\u4e0d\u53d8\uff0c\u540e\u7eed\u64cd\u4f5c\u53ef\u7ee7\u7eed\u3002\n- **Typed node schema**\uff1aFieldSpec/SlotSpec\uff08value type\u3001child kind\u3001cardinality\uff09\uff0c\n  `function.returns/body`\u3001`param.type`\u3001`if.cond/then/else`\u3001`binding.value/body`\u3001\n  `call.args`\u3001`block.steps` \u7b49\u4e25\u683c\u6821\u9a8c\uff1btype slot \u62d2\u7edd expression\uff0cexpression\n  slot \u62d2\u7edd module/type/function\uff1b\u7a33\u5b9a `E_AEP_001..007` \u7801\u3002\n- **\u8de8\u8fdb\u7a0b commit \u9501**\uff1alockdir \u4e92\u65a5 + \u9501\u5185\u91cd\u8bfb CURRENT/\u9a8c\u8bc1 base/\u5206\u914d generation/\n  \u5199 gen temp/fsync/\u539f\u5b50 rename/fsync \u76ee\u5f55/\u5199 CURRENT temp/fsync/\u539f\u5b50 rename/\n  fsync \u76ee\u5f55\uff1b\u5e76\u53d1\u63d0\u4ea4\u53ea\u6709\u4e00\u4e2a\u6210\u529f\uff0c\u53e6\u4e00\u4e2a `E_AEP_CONFLICT`\uff0cgeneration \u4e0d\u8986\u76d6\u3002\n- **AIR \u8f93\u5165\u786c\u5316**\uff1a\u6587\u4ef6/\u8282\u70b9/\u5b57\u6bb5/\u69fd/\u5b57\u7b26\u4e32/\u6df1\u5ea6\u4e0a\u9650\uff1b\u4e25\u683c UTF-8\uff1b\u5c3e\u968f\u5783\u573e\u62d2\u7edd\uff1b\n  \u91cd\u590d revision/entity \u62d2\u7edd\uff1bfuzz\uff08\u968f\u673a\u5b57\u8282\u4e0d panic\uff09+ serialize\u2192deserialize\n  canonical + mutation \u6210\u529f\u5fc5 verify/\u5931\u8d25\u56fe\u4e0d\u53d8\u3002\n- **lexical scope \u5b9e\u6d4b**\uff1ahole \u63d2\u5165\u771f\u5b9e AST \u4f4d\u7f6e\uff0c\u9a8c\u8bc1 binding \u4ec5 body \u53ef\u89c1\u3001\n  \u540e\u58f0\u660e\u4e0d\u53ef\u89c1\u3001if/match \u5206\u652f\u4e0d\u6cc4\u6f0f\u3001fold/loop \u7d2f\u52a0\u5668\u4ec5 body \u53ef\u89c1\u3001\u53c2\u6570\u53ef\u89c1\u3001\n  \u5916\u5c42\u53ef\u89c1\u5185\u5c42\u3001\u5185\u5c42\u4e0d\u6cc4\u9732\u5916\u5c42\u3002\n\n## Agent Runtime\uff08v0.6\uff09\n\n`alva agent` \u63d0\u4f9b\u7248\u672c\u5316 Agent \u5de5\u5177\u5c42\uff0821 \u4e2a\u5de5\u5177\uff09\uff1ainspect_project/module/\nfunction/entity\u3001list_candidates\u3001begin_transaction\u3001create_literal/reference/\ncall/binding/block\u3001append_step\u3001replace_expression\u3001add_function\u3001change_field\u3001\nrename_entity\u3001check_transaction\u3001preview_semantic_diff\u3001commit_transaction\u3001\nabort_transaction\u3002\n\n- \u53c2\u6570\u4e25\u683c schema\uff1b\u54cd\u5e94 `{protocol_version:\"0.6\", ok, result, diagnostics}`\uff0c\n  \u652f\u6301 request_id/op_index\uff1bID \u4e0d\u5728 message \u5b57\u7b26\u4e32\u4e2d\u7f16\u7801\uff1b\n- \u6bcf\u4e2a\u64cd\u4f5c\u8fd4\u56de entity/revision/project revision\uff1b\n- Agent \u4e0d\u9700\u8981\u77e5\u9053 AIR \u5185\u90e8 slot \u540d\u6216 Value \u679a\u4e3e\uff08friendly positions \u6620\u5c04\uff09\uff1b\n- \u6a21\u5f0f C \u7981\u6b62 `.alva` \u6587\u4ef6\u8bbf\u95ee\uff08\u5de5\u4f5c\u533a\u53ea\u542b\u6743\u5a01 AIR store\uff09\u3002\n\n`alva mcp` \u5728\u540c\u4e00 binary \u4e2d\u63d0\u4f9b\u5171\u4eab STDIO MCP adapter\u3002\u5b83\u540c\u65f6\u517c\u5bb9 2025\ninitialize handshake \u4e0e 2026-07-28 per-request metadata\uff0c\u5e76\u628a\u5de5\u5177\u8c03\u7528\u8f6c\u4ea4\u7ed9\u540c\u4e00\nAEP registry / AIR transaction implementation\u3002MCP \u4e8b\u52a1\u4e0d\u4f9d\u8d56\u9690\u85cf transport\nsession\uff1a`begin_transaction` \u8fd4\u56de\u663e\u5f0f `transaction_id`\uff0c\u540e\u7eed\u8c03\u7528\u5fc5\u987b\u643a\u5e26\u8be5 handle\u3002\n\u914d\u7f6e\u4e0e v1 tool surface \u89c1 [`integrations/mcp/README.md`](../integrations/mcp/README.md)\u3002\n",
+    "SKILL.md": "---\nname: alva\ndescription: Inspect, edit, check, and build ALVA language projects through the ALVA MCP server or installed CLI transactional semantic interface. Use for work on ALVA programs; do not use for maintaining the ALVA compiler implementation itself.\n---\n\n# ALVA semantic workflow\n\nUse ALVA's semantic control plane as the primary interface to an ALVA project.\nDo not begin by reading the whole repository, inferring its complete source\nlayout, or applying a large text patch to `.alva` files.\n\n## Required path\n\n1. Run `alva doctor`. A missing Rust/Cargo toolchain blocks native `build` and\n   `run`, but does not block semantic inspection, editing, or checking with the\n   prebuilt ALVA binary.\n2. Locate the relevant `alva.toml` and determine authority. If\n   `alva-air/current` exists beside it, AIR is authoritative. Otherwise the\n   first successful semantic commit creates AIR authority from the source\n   projection; surface that transition before mutating.\n3. Prefer the ALVA MCP tools when the host exposes them. Otherwise start one\n   persistent `alva agent` process and use the CLI JSON-lines fallback. Begin\n   with `begin_transaction` using the manifest path. With MCP, retain the\n   returned `transaction_id` and pass it to every later ALVA tool call.\n4. Resolve the target with `resolve_entity`; use `kind` and `module` to resolve\n   ambiguity instead of guessing.\n5. Inspect only the semantic neighborhood needed for the task with\n   `inspect_project`, `inspect_module`, `inspect_function`, `inspect_body`, or\n   `inspect_entity`. Use standalone `alva view dependencies|callers` when an AIR\n   file and those relationships are relevant.\n6. Call `applicable_operations` on the resolved named entity. Before mutation,\n   call `describe_operation`; for typed construction also call\n   `describe_construction`. Treat these executable discovery responses as the\n   source of truth, not a remembered operation schema.\n7. Apply the smallest staged semantic mutation. Use returned entity and\n   revision IDs; never edit raw `.air` bytes or invent slot names.\n8. Review `preview_semantic_diff`, then run `check_transaction`.\n9. On failure, use `error_code`, `result`, `diagnostics`, and only then\n   `message` to make a targeted repair. Re-resolve stale entities and re-run\n   discovery rather than silently substituting an ID.\n10. Call `commit_transaction` only after the staged check passes. Otherwise\n    call `abort_transaction`. Afterward run\n    `alva project check <alva.toml> --json` and any task-relevant build or\n    tests. An ALVA transaction commit is not a Git commit; inspect repository\n    changes and create a Git commit only when the user requested one.\n\nRead [references/workflow.md](references/workflow.md) before performing a\nsemantic edit. Read [references/diagnostics.md](references/diagnostics.md) when\nany CLI or transaction operation fails. Read\n[references/examples.md](references/examples.md) for a concrete hello-message\nedit or when request/response shape is unclear.\n\n## Boundaries\n\n- Keep one explicit transaction from begin through commit or abort. With MCP,\n  pass its `transaction_id` on every call; with the CLI fallback, keep one\n  persistent `alva agent` process. Revisions may become stale after mutation.\n- Do not enable experimental capability gates unless the user explicitly asks.\n- Do not treat `.alva` text as authoritative after graph authority exists.\n- If the registry exposes no operation capable of the requested change, report\n  the missing semantic operation. Do not fabricate a tool or silently fall\n  back to broad source rewriting.\n- Do not copy non-public research material or internal project history into an\n  ALVA project or its public artifacts.\n",
+    "references/workflow.md": "# Semantic-edit workflow\n\n## Preflight and authority\n\nRun:\n\n```text\nalva doctor\n```\n\nLocate the nearest relevant `alva.toml` without recursively reading source\ncontents. Inspect the manifest and the existence of `alva-air/current` beside\nit:\n\n- present: AIR generations are authoritative; `.alva` files are projections;\n- absent: `begin_transaction` imports the manifest's source modules, and the\n  first `commit_transaction` creates `alva-air/current` plus a generation.\n\nThe second case is an authority transition, not an ordinary text-file update.\nMention it before mutation and expect new graph-store files in version-control\nstatus. Never patch generation files directly.\n\n## Prefer MCP when available\n\nIf the host exposes ALVA MCP tools, use them directly. Start with\n`begin_transaction`, retain its explicit `transaction_id`, and include that\nhandle in every inspection, discovery, mutation, check, and finish call. Do not\nsubstitute shell invocations for available semantic MCP tools.\n\nThe MCP server exposes the same AEP registry and AIR transaction implementation\nas the CLI fallback. Treat each tool's advertised input schema as authoritative.\nAlways end a transaction with `commit_transaction` or `abort_transaction`.\n\n## CLI fallback: keep one JSON-lines session\n\nWhen MCP is not available, launch `alva agent` as a persistent child process\nwith writable stdin and readable stdout. Send exactly one JSON object per line\nand read exactly one JSON response per request. Keep the process alive through\ndiscovery, mutation, checking, and commit or abort.\n\nStart with a request ID that makes transcripts easy to audit:\n\n```json\n{\"request_id\":\"begin-1\",\"tool\":\"begin_transaction\",\"project\":\"/workspace/alva.toml\"}\n```\n\nEvery response is a JSON envelope. Confirm `ok` before consuming `result` and\nretain the returned project revision. Do not require a hard-coded\n`protocol_version`; use the version returned by the installed binary.\n\n## Discover before changing\n\nResolve a named target explicitly:\n\n```json\n{\"request_id\":\"resolve-1\",\"tool\":\"resolve_entity\",\"name\":\"main\",\"kind\":\"function\",\"module\":\"hello\"}\n```\n\nIf the result is ambiguous, choose only from the structured candidates and\nretry with `kind` and/or `module`. Then inspect the narrowest useful view:\n\n```json\n{\"request_id\":\"inspect-1\",\"tool\":\"inspect_body\",\"function\":\"hello.main\"}\n{\"request_id\":\"ops-1\",\"tool\":\"applicable_operations\",\"entity\":\"hello.main\"}\n```\n\n`applicable_operations` is for named entities. Expression revisions discovered\ninside a body can be inspected with `inspect_entity`, but may not themselves be\nresolvable as named entities.\n\nBefore using a returned operation, retrieve its executable schema:\n\n```json\n{\"request_id\":\"describe-1\",\"tool\":\"describe_operation\",\"name\":\"change_field\"}\n```\n\nFor typed construction, also retrieve the kind-specific schema and candidate\nbindings:\n\n```json\n{\"request_id\":\"construct-schema-1\",\"tool\":\"describe_construction\",\"kind\":\"record_update\",\"include_candidates\":true}\n```\n\nUse the response's canonical name, required arguments, preconditions, effects,\nand examples. Do not maintain a separate remembered list of operation\narguments.\n\n## Stage, review, and finish\n\nApply the smallest mutation using the current revision IDs. After any mutation,\nassume affected ancestor revisions may have changed. Re-resolve named entities\nbefore a subsequent edit instead of recycling an old revision.\n\nReview and check within the same process:\n\n```json\n{\"request_id\":\"diff-1\",\"tool\":\"preview_semantic_diff\"}\n{\"request_id\":\"check-1\",\"tool\":\"check_transaction\"}\n```\n\nCommit only when the response to `check_transaction` has `ok: true`:\n\n```json\n{\"request_id\":\"commit-1\",\"tool\":\"commit_transaction\"}\n```\n\nIf the task is cancelled, the intended edit cannot be expressed through the\ndiscovered interface, or validation cannot be repaired safely, end the staged\nsession without changing authority:\n\n```json\n{\"request_id\":\"abort-1\",\"tool\":\"abort_transaction\"}\n```\n\nAfter a successful semantic commit, run:\n\n```text\nalva project check /workspace/alva.toml --json\n```\n\nSuccessful JSON-mode checking can produce no output; use its exit status. Run\n`project build`, program tests, or `run` only when relevant and when `doctor`\nshowed the required Rust/Cargo toolchain. Finally inspect Git status. The AEP\ncommit writes authoritative program state; a Git commit remains a separate,\nuser-authorized repository action.\n",
+    "references/diagnostics.md": "# Diagnostics and recovery\n\n## Read the structured envelope first\n\nFor every `alva agent` response, inspect fields in this order:\n\n1. `ok`\n2. `error_code`\n3. `result`\n4. `diagnostics`\n5. `message`\n\nUse `message` as supporting detail, not as the primary machine contract when a\nstructured field supplies the same information. A failed staged operation is\natomic; do not assume it partially applied.\n\n## Common recovery paths\n\n- `E_AEP_AMBIGUOUS_ENTITY`: inspect `result.candidates`; retry\n  `resolve_entity` with an exact candidate plus `kind` or `module`.\n- `E_AEP_ENTITY_NOT_FOUND`, operand-not-found, or stale-revision errors:\n  re-resolve the named entity and re-inspect its current body. Never silently\n  refresh a revision by choosing the nearest-looking candidate.\n- `E_AEP_UNKNOWN_TOOL`: use candidates in `result`, then call\n  `describe_operation` on the intended canonical operation. A hidden\n  experimental operation is unavailable, not permission to enable its gate.\n- `E_AEP_BAD_REQUEST` or an invalid friendly position: call\n  `describe_operation` and use its required arguments or\n  `expected_positions` recovery data.\n- Construction incomplete/type mismatch: inspect `result.missing`,\n  `result.expected`, `result.actual`, and candidate bindings; re-run\n  `describe_construction` before retrying.\n- `E_AEP_CONFLICT`: another process changed authority after this transaction\n  began. Abort, begin a new transaction, resolve again, and re-evaluate the\n  change against the new project revision.\n\nDo not retry an identical failed mutation without new information.\n\n## Checker failures\n\n`check_transaction` keeps the transaction staged when validation fails. Use\nthe returned envelope and checker detail to inspect the implicated semantic\nentities, repair through described operations, and check again. Abort if a safe\nsemantic repair is not available.\n\nFor committed authority or source-only diagnostics, run:\n\n```text\nalva project check /path/to/alva.toml --json\nalva check /path/to/module.alva --json\n```\n\nThe project command consumes AIR when `alva-air/current` exists. JSON-mode\nfailures contain a `diagnostics` array with stable codes and structured fields\nsuch as function, expected, and actual. Fix the represented semantic cause;\ndo not suppress diagnostics or edit generated output.\n\n## Stop conditions\n\nAbort and report the blocker when:\n\n- authority is corrupt or cannot be verified;\n- the requested semantic operation is absent from registry discovery;\n- only an experimental gated operation could perform the change and the user\n  did not request enabling it;\n- repeated resolution produces genuine ambiguity that user intent cannot\n  distinguish;\n- validation cannot pass without expanding the requested change.\n",
+    "references/examples.md": "# Example: change a hello message semantically\n\nAssume `/workspace/hello/alva.toml` declares module `hello` with function\n`main`. Prefer the ALVA MCP server and include the `transaction_id` returned by\n`begin_transaction` in every later tool call. The JSON below shows the\nequivalent CLI fallback wire shape; keep those requests in one persistent\n`alva agent` process.\n\n## 1. Begin and discover\n\n```json\n{\"request_id\":\"begin\",\"tool\":\"begin_transaction\",\"project\":\"/workspace/hello/alva.toml\"}\n{\"request_id\":\"resolve-main\",\"tool\":\"resolve_entity\",\"name\":\"main\",\"kind\":\"function\",\"module\":\"hello\"}\n{\"request_id\":\"ops-main\",\"tool\":\"applicable_operations\",\"entity\":\"hello.main\"}\n{\"request_id\":\"body-main\",\"tool\":\"inspect_body\",\"function\":\"hello.main\"}\n```\n\nThe body view identifies the current string literal and its revision without\nrequiring the agent to read the complete source file. Save the exact literal\nrevision from this response as `<literal-revision>`.\n\nDiscover the mutation contract rather than assuming its parameters:\n\n```json\n{\"request_id\":\"describe-change\",\"tool\":\"describe_operation\",\"name\":\"change_field\"}\n{\"request_id\":\"inspect-literal\",\"tool\":\"inspect_entity\",\"entity\":\"<literal-revision>\"}\n```\n\nConfirm that the inspected node is the intended string literal and that its\ncurrent `value` matches the message being changed.\n\n## 2. Stage the semantic edit\n\nUse the schema returned by `describe_operation`:\n\n```json\n{\"request_id\":\"change-message\",\"tool\":\"change_field\",\"entity\":\"<literal-revision>\",\"field\":\"value\",\"value\":\"hello from ALVA\"}\n```\n\nDo not edit `.alva`, a generation file, or a raw AIR slot. The mutation returns\nthe new node revision while keeping the change staged.\n\n## 3. Review, validate, and commit\n\n```json\n{\"request_id\":\"diff\",\"tool\":\"preview_semantic_diff\"}\n{\"request_id\":\"check\",\"tool\":\"check_transaction\"}\n```\n\nConfirm that the diff contains only the intended semantic change and that the\ncheck response has `ok: true`. Then commit the ALVA transaction:\n\n```json\n{\"request_id\":\"commit\",\"tool\":\"commit_transaction\"}\n```\n\nIf either review or checking is unsatisfactory, send `abort_transaction`\ninstead.\n\n## 4. Verify outside the session\n\n```text\nalva project check /workspace/hello/alva.toml --json\nalva project build /workspace/hello/alva.toml\n```\n\nRun the build only when it is part of the task and Rust/Cargo are available.\nInspect Git status and confirm that the authoritative `alva-air` generation\u2014not\nan unrelated source or generated-output patch\u2014contains the intended change.\n"
+  },
+  "tasks": {
+    "MM01": {
+      "public_task": {
+        "id": "MM01",
+        "target": "demo.model.touch_size",
+        "requirement": "For metadata with negative size, touch_size must return the original metadata unchanged. For nonnegative size retain increment-by-one. Preserve key/etag, size_of, make_meta and application run()==6. Bounded i64 inputs only; overflow policy is unchanged."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "98e1e21c4728fa928276c575ab452888df995eb1",
+                "mode": "100644"
+              },
+              "length": 95,
+              "sha256": "a88ef41a68aa9ace09bbd2d74ee6820b02bd09cedf2a617a9f6c0ace5acfd7c7",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAiZGVtbyIKClttb2R1bGVzXQoiZGVtby5tb2RlbCIgPSAic3JjL21vZGVsLmFsdmEiCiJkZW1vLmFwcCIgPSAic3JjL2FwcC5hbHZhIgo="
+            },
+            {
+              "path": "src/app.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "98f41e2dc83e177a7b8d160644db1be84b03e123",
+                "mode": "100644"
+              },
+              "length": 368,
+              "sha256": "3f81d9c42da8ae03e7923d1849385425dd2d5515c1ec85cb8765045a2b0cd72b",
+              "base64": "KG1vZHVsZQogIChuYW1lICJkZW1vLmFwcCIpCiAgKHZlcnNpb24gIjAuMS4wIikKICAoZGVwICJkZW1vLm1vZGVsIiAiMC4xLjAiKQogIChleHBvcnQgcnVuKQoKICAoZm4gcnVuCiAgICAocGFyYW1zKQogICAgKHJldHVybnMgKHByaW0gaTY0KSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGNhbGwgZGVtby5tb2RlbC5zaXplX29mCiAgICAgICAgKGNhbGwgZGVtby5tb2RlbC50b3VjaF9zaXplCiAgICAgICAgICAoY2FsbCBkZW1vLm1vZGVsLm1ha2VfbWV0YSAoc3RyaW5nICJhIikgKGludCA1KSAoc3RyaW5nICJlMSIpKSkpKSkKCiAgKHRlc3QgcnVuX3dvcmtzCiAgICAoYm9keQogICAgICAoPT0gKGNhbGwgcnVuKSAoaW50IDYpKSkpKQo="
+            },
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "acfbf2619a175d00140b465a3fccb73eb4c67904",
+                "mode": "100644"
+              },
+              "length": 846,
+              "sha256": "fdebc5e20734c37892614d33089ab2eab66f90b4dbb86b03feca0332d8cc82f0",
+              "base64": "KG1vZHVsZQogIChuYW1lICJkZW1vLm1vZGVsIikKICAodmVyc2lvbiAiMC4xLjAiKQogIChleHBvcnQgTWV0YSBtYWtlX21ldGEgc2l6ZV9vZiB0b3VjaF9zaXplKQoKICAodHlwZSBNZXRhCiAgICAocmVjb3JkCiAgICAgIChmaWVsZCBrZXkgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHNpemUgKHByaW0gaTY0KSkKICAgICAgKGZpZWxkIGV0YWcgKHByaW0gc3RyaW5nKSkpKQoKICAoZm4gbWFrZV9tZXRhCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBrZXkgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIHNpemUgKHByaW0gaTY0KSkKICAgICAgKHBhcmFtIGV0YWcgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBNZXRhKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAocmVjb3JkIE1ldGEKICAgICAgICAoa2V5IChyZWYga2V5KSkKICAgICAgICAoc2l6ZSAocmVmIHNpemUpKQogICAgICAgIChldGFnIChyZWYgZXRhZykpKSkpCgogIChmbiBzaXplX29mCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBtIE1ldGEpKQogICAgKHJldHVybnMgKHByaW0gaTY0KSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGZpZWxkIChyZWYgbSkgInNpemUiKSkpCgogIChmbiB0b3VjaF9zaXplCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBtIE1ldGEpKQogICAgKHJldHVybnMgTWV0YSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBNZXRhCiAgICAgICAgKGtleSAoZmllbGQgKHJlZiBtKSAia2V5IikpCiAgICAgICAgKHNpemUgKCsgKGZpZWxkIChyZWYgbSkgInNpemUiKSAoaW50IDEpKSkKICAgICAgICAoZXRhZyAoZmllbGQgKHJlZiBtKSAiZXRhZyIpKSkpKSkK"
+            }
+          ]
+        },
+        "payload_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090"
+      },
+      "policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "demo.model.touch_size"
+        ],
+        "modules": {
+          "demo.model": {
+            "functions": [
+              "make_meta",
+              "size_of",
+              "touch_size"
+            ],
+            "types": [
+              "Meta"
+            ]
+          },
+          "demo.app": {
+            "functions": [
+              "run"
+            ],
+            "types": []
+          }
+        }
+      },
+      "crate": "demo",
+      "assertions": {
+        "goal": "\n#[cfg(test)] mod maintenance_goal {\n use super::demo_model;\n #[test] fn negative_is_noop_and_fields_survive(){\n  for (s,want) in [(-9,-9),(-1,-1),(0,1),(7,8)] {\n   let m=demo_model::touch_size(demo_model::make_meta(\"k\".into(),s,\"e\".into()));\n   assert_eq!(m.size,want); assert_eq!(m.key,\"k\"); assert_eq!(m.etag,\"e\");\n  }\n }\n #[test] fn unrelated_accessor(){\n  assert_eq!(demo_model::size_of(demo_model::make_meta(\"k\".into(),-3,\"e\".into())),-3);\n }\n}\n",
+        "regression": "\n#[cfg(test)] mod maintenance_regression {\n use super::{demo_app, demo_model};\n #[test] fn app_compatibility(){assert_eq!(demo_app::run(),6);}\n #[test] fn construction_and_fields(){\n  for s in [-9,0,11] {\n   let m=demo_model::make_meta(\"key\".into(),s,\"tag\".into());\n   assert_eq!(m.key,\"key\"); assert_eq!(m.size,s); assert_eq!(m.etag,\"tag\");\n  }\n }\n}\n"
+      },
+      "input_paths": [
+        "alva.toml",
+        "src/app.alva",
+        "src/model.alva"
+      ]
+    },
+    "MM02": {
+      "public_task": {
+        "id": "MM02",
+        "target": "store.xml.parse_prefix",
+        "requirement": "parse_prefix must return the first nonempty URL-decoded prefix value in query order, ignoring later matches and empty decoded values. Preserve missing/empty-query behavior, parse_delimiter's current last-match behavior, XML rendering and response-record functions. Inputs use ordinary ASCII query strings and valid percent escapes; no new decoding policy."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "6c065e9b365de743f50cecda45dfc4a87d90d246",
+                "mode": "100644"
+              },
+              "length": 1643,
+              "sha256": "2d79c372af1f62ae66309af8db0cb7540c6bd8301a296ac4d14bfc00b36c5a90",
+              "base64": "KG1vZHVsZQogIChuYW1lICJzdG9yZS5tb2RlbCIpCiAgKHZlcnNpb24gIjAuMS4wIikKICAoZXhwb3J0IEh0dHBSZXF1ZXN0IFJvdXRlUmVzdWx0IHRleHRfcmVzcG9uc2UgeG1sX3Jlc3BvbnNlIHhtbF9lcnJvcikKCiAgKHR5cGUgSHR0cFJlcXVlc3QKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIG1ldGhvZCAocHJpbSBzdHJpbmcpKQogICAgICAoZmllbGQgcGF0aCAocHJpbSBzdHJpbmcpKQogICAgICAoZmllbGQgcXVlcnkgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIGhlYWRlcnMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKQogICAgICAoZmllbGQgYm9keSAocHJpbSBieXRlcykpKSkKCiAgKHR5cGUgUm91dGVSZXN1bHQKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIHN0YXR1cyAocHJpbSBpNjQpKQogICAgICAoZmllbGQgY29udGVudF90eXBlIChwcmltIHN0cmluZykpCiAgICAgIChmaWVsZCBib2R5IChwcmltIGJ5dGVzKSkKICAgICAgKGZpZWxkIGhlYWRfY29udGVudF9sZW5ndGggKHByaW0gaTY0KSkpKQoKICAoZm4gdGV4dF9yZXNwb25zZQogICAgKHBhcmFtcwogICAgICAocGFyYW0gc3RhdHVzIChwcmltIGk2NCkpCiAgICAgIChwYXJhbSBib2R5IChwcmltIGJ5dGVzKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBSb3V0ZVJlc3VsdAogICAgICAgIChzdGF0dXMgKHJlZiBzdGF0dXMpKQogICAgICAgIChjb250ZW50X3R5cGUgKHN0cmluZyAidGV4dC9wbGFpbiIpKQogICAgICAgIChib2R5IChyZWYgYm9keSkpCiAgICAgICAgKGhlYWRfY29udGVudF9sZW5ndGggKGludCAwKSkpKSkKCiAgKGZuIHhtbF9yZXNwb25zZQogICAgKHBhcmFtcwogICAgICAocGFyYW0gc3RhdHVzIChwcmltIGk2NCkpCiAgICAgIChwYXJhbSBib2R5IChwcmltIGJ5dGVzKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBSb3V0ZVJlc3VsdAogICAgICAgIChzdGF0dXMgKHJlZiBzdGF0dXMpKQogICAgICAgIChjb250ZW50X3R5cGUgKHN0cmluZyAiYXBwbGljYXRpb24veG1sIikpCiAgICAgICAgKGJvZHkgKHJlZiBib2R5KSkKICAgICAgICAoaGVhZF9jb250ZW50X2xlbmd0aCAoaW50IDApKSkpKQoKICAoZm4geG1sX2Vycm9yCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzdGF0dXMgKHByaW0gaTY0KSkKICAgICAgKHBhcmFtIGNvZGUgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIG1lc3NhZ2UgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGNhbGwgeG1sX3Jlc3BvbnNlIChyZWYgc3RhdHVzKQogICAgICAgIChjYWxsIHRvLWJ5dGVzCiAgICAgICAgICAoY2FsbCBjb25jYXQKICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjw/eG1sIHZlcnNpb249XCIxLjBcIj8+PEVycm9yPjxDb2RlPiIpIChyZWYgY29kZSkpCiAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICI8L0NvZGU+PE1lc3NhZ2U+IikKICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiBtZXNzYWdlKSAoc3RyaW5nICI8L01lc3NhZ2U+PC9FcnJvcj4iKSkpKSkpKSkKKQo="
+            },
+            {
+              "path": "src/xml.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e78162036c5a373a1a3f1f4644f6149478aac842",
+                "oid": "9452451dcfdc6de73e3c344bcee36d34a18ab796",
+                "mode": "100644"
+              },
+              "length": 4965,
+              "sha256": "67a2cfb2bc81fa33727ef6bd2fd173f841aaf36859fba627d2e7947b9ebc5364",
+              "base64": "KG1vZHVsZQogIChuYW1lICJzdG9yZS54bWwiKQogICh2ZXJzaW9uICIwLjEuMCIpCiAgKGV4cG9ydCBwYXJzZV9wcmVmaXggcGFyc2VfZGVsaW1pdGVyIGxpc3RfYnVja2V0c194bWwgbGlzdF9vYmplY3RzX3htbCkKCiAgKGZuIHBhcnNlX3ByZWZpeAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcXVlcnkgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoaWYgKD09IChyZWYgcXVlcnkpIChzdHJpbmcgIiIpKQogICAgICAgIChzdHJpbmcgIiIpCiAgICAgICAgKGxldCBwYXJ0cyAoY2FsbCBzcGxpdCAocmVmIHF1ZXJ5KSAoc3RyaW5nICImIikpCiAgICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBhcnRzKSkpCiAgICAgICAgICAgIChhY2MgZm91bmQgKHByaW0gc3RyaW5nKSAoc3RyaW5nICIiKSkKICAgICAgICAgICAgKGxldCBwYXJ0IChjYWxsIGdldCAocmVmIHBhcnRzKSAocmVmIGkpKQogICAgICAgICAgICAgIChsZXQgcmVzdCAoY2FsbCBzdHJpcC1wcmVmaXggKHJlZiBwYXJ0KSAoc3RyaW5nICJwcmVmaXg9IikpCiAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYgcmVzdCkgKHJlZiBwYXJ0KSkKICAgICAgICAgICAgICAgICAgKHJlZiBmb3VuZCkKICAgICAgICAgICAgICAgICAgKGNhbGwgdXJsLWRlY29kZSAocmVmIHJlc3QpKSkpKSkpKSkpCgogIChmbiBwYXJzZV9kZWxpbWl0ZXIKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHF1ZXJ5IChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGlmICg9PSAocmVmIHF1ZXJ5KSAoc3RyaW5nICIiKSkKICAgICAgICAoc3RyaW5nICIiKQogICAgICAgIChsZXQgcGFydHMgKGNhbGwgc3BsaXQgKHJlZiBxdWVyeSkgKHN0cmluZyAiJiIpKQogICAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBwYXJ0cykpKQogICAgICAgICAgICAoYWNjIGZvdW5kIChwcmltIHN0cmluZykgKHN0cmluZyAiIikpCiAgICAgICAgICAgIChsZXQgcGFydCAoY2FsbCBnZXQgKHJlZiBwYXJ0cykgKHJlZiBpKSkKICAgICAgICAgICAgICAobGV0IHJlc3QgKGNhbGwgc3RyaXAtcHJlZml4IChyZWYgcGFydCkgKHN0cmluZyAiZGVsaW1pdGVyPSIpKQogICAgICAgICAgICAgICAgKGlmICg9PSAocmVmIHJlc3QpIChyZWYgcGFydCkpCiAgICAgICAgICAgICAgICAgIChyZWYgZm91bmQpCiAgICAgICAgICAgICAgICAgIChjYWxsIHVybC1kZWNvZGUgKHJlZiByZXN0KSkpKSkpKSkpKQoKICAoZm4gZW1pdF9jb21tb25fcHJlZml4CiAgICAocGFyYW1zCiAgICAgIChwYXJhbSB4bWwgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIGNwIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGlmIChjYWxsIGVuZHMtd2l0aCAocmVmIHhtbCkKICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAocmVmIGNwKSAoc3RyaW5nICI8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPiIpKSkKICAgICAgICAocmVmIHhtbCkKICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiB4bWwpCiAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPENvbW1vblByZWZpeGVzPjxQcmVmaXg+IikKICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgY3ApIChzdHJpbmcgIjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+IikpKSkpKSkKCiAgKGZuIGVtaXRfbGVhZgogICAgKHBhcmFtcwogICAgICAocGFyYW0geG1sIChwcmltIHN0cmluZykpCiAgICAgIChwYXJhbSBmaWVsZHMgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQgKHJlZiB4bWwpCiAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjxDb250ZW50cz48S2V5PiIpCiAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgZ2V0IChyZWYgZmllbGRzKSAoaW50IDEpKQogICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPC9LZXk+PExhc3RNb2RpZmllZD4iKQogICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBnZXQgKHJlZiBmaWVsZHMpIChpbnQgNCkpCiAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPC9MYXN0TW9kaWZpZWQ+PEVUYWc+IikKICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChjYWxsIGdldCAocmVmIGZpZWxkcykgKGludCAyKSkKICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiPC9FVGFnPjxTaXplPiIpCiAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgZ2V0IChyZWYgZmllbGRzKSAoaW50IDMpKQogICAgICAgICAgICAgICAgICAgICAgICAoc3RyaW5nICI8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+IikpKSkpKSkpKSkpKQoKICAoZm4gbGlzdF9idWNrZXRzX3htbAogICAgKHBhcmFtcwogICAgICAocGFyYW0gYnVja2V0c19saW5lIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBuYW1lcyAoY2FsbCBzcGxpdCAocmVmIGJ1Y2tldHNfbGluZSkgKHN0cmluZyAiXG4iKSkKICAgICAgICAoY2FsbCBjb25jYXQKICAgICAgICAgIChzdHJpbmcgIjw/eG1sIHZlcnNpb249XCIxLjBcIj8+PExpc3RBbGxNeUJ1Y2tldHNSZXN1bHQ+PEJ1Y2tldHM+IikKICAgICAgICAgIChjYWxsIGNvbmNhdAogICAgICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIG5hbWVzKSkpCiAgICAgICAgICAgICAgKGFjYyB4bWwgKHByaW0gc3RyaW5nKSAoc3RyaW5nICIiKSkKICAgICAgICAgICAgICAobGV0IG5hbWUgKGNhbGwgZ2V0IChyZWYgbmFtZXMpIChyZWYgaSkpCiAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYgbmFtZSkgKHN0cmluZyAiIikpCiAgICAgICAgICAgICAgICAgIChyZWYgeG1sKQogICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiB4bWwpCiAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjxCdWNrZXQ+PE5hbWU+IikKICAgICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAocmVmIG5hbWUpIChzdHJpbmcgIjwvTmFtZT48Q3JlYXRpb25EYXRlPjIwMjYtMDEtMDVUMDA6MDA6MDBaPC9DcmVhdGlvbkRhdGU+PC9CdWNrZXQ+IikpKSkpKSkKICAgICAgICAgICAgKHN0cmluZyAiPC9CdWNrZXRzPjwvTGlzdEFsbE15QnVja2V0c1Jlc3VsdD4iKSkpKSkpCgogIChmbiBsaXN0X29iamVjdHNfeG1sCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBsaW5lcyAocHJpbSBzdHJpbmcpKQogICAgICAocGFyYW0gcHJlZml4IChwcmltIHN0cmluZykpCiAgICAgIChwYXJhbSBkZWxpbWl0ZXIgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgbGluZXMpIChzdHJpbmcgIlxuIikpCiAgICAgICAgKGNhbGwgY29uY2F0CiAgICAgICAgICAoc3RyaW5nICI8P3htbCB2ZXJzaW9uPVwiMS4wXCI/PjxMaXN0QnVja2V0UmVzdWx0PiIpCiAgICAgICAgICAoY2FsbCBjb25jYXQKICAgICAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBwYXJ0cykpKQogICAgICAgICAgICAgIChhY2MgeG1sIChwcmltIHN0cmluZykgKHN0cmluZyAiIikpCiAgICAgICAgICAgICAgKGxldCBsaW5lIChjYWxsIGdldCAocmVmIHBhcnRzKSAocmVmIGkpKQogICAgICAgICAgICAgICAgKGxldCBmaWVsZHMgKGNhbGwgc3BsaXQgKHJlZiBsaW5lKSAoc3RyaW5nICJcdCIpKQogICAgICAgICAgICAgICAgICAoaWYgKDwgKGNhbGwgbGVuIChyZWYgZmllbGRzKSkgKGludCAyKSkKICAgICAgICAgICAgICAgICAgICAocmVmIHhtbCkKICAgICAgICAgICAgICAgICAgICAobGV0IGtleSAoY2FsbCBnZXQgKHJlZiBmaWVsZHMpIChpbnQgMSkpCiAgICAgICAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYga2V5KSAoc3RyaW5nICIiKSkKICAgICAgICAgICAgICAgICAgICAgICAgKHJlZiB4bWwpCiAgICAgICAgICAgICAgICAgICAgICAgIChsZXQgcmVzdCAoY2FsbCBzdHJpcC1wcmVmaXggKHJlZiBrZXkpIChyZWYgcHJlZml4KSkKICAgICAgICAgICAgICAgICAgICAgICAgICAoaWYgKGFuZCAobm90ICg9PSAocmVmIHByZWZpeCkgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICg9PSAocmVmIHJlc3QpIChyZWYga2V5KSkpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAocmVmIHhtbCkKICAgICAgICAgICAgICAgICAgICAgICAgICAgIChpZiAoYW5kICg9PSAocmVmIGRlbGltaXRlcikgKHN0cmluZyAiLyIpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKG5vdCAoPT0gKGNhbGwgYmVmb3JlIChyZWYgcmVzdCkgKHN0cmluZyAiLyIpKSAocmVmIHJlc3QpKSkpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChjYWxsIGVtaXRfY29tbW9uX3ByZWZpeCAocmVmIHhtbCkKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiBwcmVmaXgpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgYmVmb3JlIChyZWYgcmVzdCkgKHN0cmluZyAiLyIpKSAoc3RyaW5nICIvIikpKSkKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgZW1pdF9sZWFmIChyZWYgeG1sKSAocmVmIGZpZWxkcykpKSkpKSkpKSkpCiAgICAgICAgICAgIChzdHJpbmcgIjwvTGlzdEJ1Y2tldFJlc3VsdD4iKSkpKSkpCikK"
+            },
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "e51a6aa11898e3fdac9077071cb6315a92dc1933",
+                "oid": "e27f2ae292a67f0b7684620591721a465c023201",
+                "mode": "100644"
+              },
+              "length": 97,
+              "sha256": "5de3b03d8a9391a18cbfae11fb8ea1ceafdaeebcc5da4d538219426db2ad7ff5",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAic3RvcmUiClttb2R1bGVzXQoic3RvcmUubW9kZWwiID0gInNyYy9tb2RlbC5hbHZhIgoic3RvcmUueG1sIiA9ICJzcmMveG1sLmFsdmEiCg=="
+            }
+          ]
+        },
+        "payload_sha256": "352a8b6fa459942b8b1d5469a966a706498afa7a2abbc13c39c457dafb069faf"
+      },
+      "policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "store.xml.parse_prefix"
+        ],
+        "modules": {
+          "store.model": {
+            "functions": [
+              "text_response",
+              "xml_response",
+              "xml_error"
+            ],
+            "types": [
+              "HttpRequest",
+              "RouteResult"
+            ]
+          },
+          "store.xml": {
+            "functions": [
+              "parse_prefix",
+              "parse_delimiter",
+              "emit_common_prefix",
+              "emit_leaf",
+              "list_buckets_xml",
+              "list_objects_xml"
+            ],
+            "types": []
+          }
+        }
+      },
+      "crate": "store",
+      "assertions": {
+        "goal": "\n#[cfg(test)] mod maintenance_goal {\n use super::store_xml;\n #[test] fn first_nonempty_decoded_prefix(){\n  for (q,want) in [(\"prefix=a&prefix=b\",\"a\"),(\"prefix=&prefix=a&prefix=b\",\"a\"),\n   (\"x=1&prefix=a%2Fb&prefix=c\",\"a/b\"),(\"prefix=a&prefix=\",\"a\"),\n   (\"prefix=&prefix=\",\"\"),(\"x=1\",\"\"),(\"\",\"\")] {\n   assert_eq!(store_xml::parse_prefix(q.into()),want);\n  }\n }\n}\n",
+        "regression": "\n#[cfg(test)] mod maintenance_regression {\n use super::{store_xml,store_model};\n #[test] fn delimiter_unchanged(){\n  assert_eq!(store_xml::parse_delimiter(\"delimiter=%2F&delimiter=%21\".into()),\"!\");\n  assert_eq!(store_xml::parse_delimiter(\"prefix=a\".into()),\"\");\n }\n #[test] fn response_record_unchanged(){\n  let r=store_model::text_response(201,vec![65u8]);\n  assert_eq!(r.status,201); assert_eq!(r.content_type,\"text/plain\");\n  assert_eq!(r.body,vec![65u8]); assert_eq!(r.head_content_length,0);\n }\n #[test] fn list_render_unchanged(){\n  let r=store_xml::list_objects_xml(\"\".into(),\"\".into(),\"\".into());\n  assert_eq!(r,\"<?xml version=\\\"1.0\\\"?><ListBucketResult></ListBucketResult>\");\n  assert!(store_xml::list_buckets_xml(\"one\\n\".into()).contains(\"<Name>one</Name>\"));\n }\n}\n"
+      },
+      "input_paths": [
+        "alva.toml",
+        "src/model.alva",
+        "src/xml.alva"
+      ]
+    },
+    "MM04": {
+      "public_task": {
+        "id": "MM04",
+        "target": "build.model.topo_order",
+        "requirement": "Return Err when any package cannot be ordered because of a cycle or an unresolved dependency; never return a successful partial order. Keep the existing deterministic dependency-before-dependent, lexicographic same-wave ordering for valid unique-name graphs, including empty input.",
+        "authorized_functions": [
+          "build.model.topo_order"
+        ],
+        "editable_files": [
+          "src/model.alva"
+        ],
+        "protected": [
+          "alva.toml",
+          "all other declarations, signatures, types, exports and module structure"
+        ],
+        "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+                "oid": "ef01f9eae24d7ea5a3a2a2620127ccab1bdd02ac",
+                "mode": "100644"
+              },
+              "length": 14709,
+              "sha256": "a5e8bb68e29c540c14973543afddc011cb73dd1d600f208ce56b218eb952592c",
+              "base64": "KG1vZHVsZQogIChuYW1lICJidWlsZC5tb2RlbCIpCiAgKHZlcnNpb24gIjAuOC4wLWRldiIpCiAgKGV4cG9ydCBCdWlsZFN0YXRlIFBhY2thZ2UKICAgICAgICAgIHN0YXRlX2xhYmVsIHN0YXRlX2Zyb21fbGFiZWwKICAgICAgICAgIGRlcHNfdG9fc3RyaW5nIGRlcHNfZnJvbV9zdHJpbmcKICAgICAgICAgIGRlcF9vdXRwdXRzX3RvX3N0cmluZyBkZXBfb3V0cHV0c19mcm9tX3N0cmluZwogICAgICAgICAgc2VyaWFsaXplX3BhY2thZ2UgcGFyc2VfcGFja2FnZQogICAgICAgICAgZmluZF9wYWNrYWdlCiAgICAgICAgICBoYXNfY3ljbGUgdG9wb19vcmRlciByZXZlcnNlX2RlcGVuZGVudHMgdmVjX2NvbnRhaW5zCiAgICAgICAgICBkZXBfb3V0cHV0X2NoYW5nZWQgbmVlZHNfYnVpbGQKICAgICAgICAgIHJlcG9ydF9saW5lKQoKICA7OyBNMyDlop7ph4/mnoTlu7rvvJpQYWNrYWdlID0gbWFuaWZlc3Qg5p2h55uuICsgYnVpbGQg5Yaz562W54q25oCBCiAgKHR5cGUgQnVpbGRTdGF0ZQogICAgKGVudW0gKHZhcmlhbnQgcGVuZGluZykgKHZhcmlhbnQgYnVpbHQpICh2YXJpYW50IGNhY2hlZCkgKHZhcmlhbnQgZmFpbGVkKSkpCgogICh0eXBlIFBhY2thZ2UKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIG5hbWUgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHNvdXJjZV9oYXNoIChwcmltIHN0cmluZykpCiAgICAgIChmaWVsZCBkZXBzICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgIChmaWVsZCBzdGF0ZSBCdWlsZFN0YXRlKQogICAgICAoZmllbGQgb3V0cHV0X2hhc2ggKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHByZXZfc291cmNlX2hhc2ggKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIGRlcF9vdXRwdXRzIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSkpKQoKICA7OyAtLS0tIOeKtuaAgeagh+etviAtLS0tCiAgKGZuIHN0YXRlX2xhYmVsCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIEJ1aWxkU3RhdGUpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKG1hdGNoIEJ1aWxkU3RhdGUgKHJlZiBzKQogICAgICAgIChjYXNlIHBlbmRpbmcgKHN0cmluZyAiUEVORElORyIpKQogICAgICAgIChjYXNlIGJ1aWx0IChzdHJpbmcgIkJVSUxUIikpCiAgICAgICAgKGNhc2UgY2FjaGVkIChzdHJpbmcgIkNBQ0hFRCIpKQogICAgICAgIChjYXNlIGZhaWxlZCAoc3RyaW5nICJGQUlMRUQiKSkpKSkKCiAgKGZuIHN0YXRlX2Zyb21fbGFiZWwKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHMgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBCdWlsZFN0YXRlKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoaWYgKD09IChyZWYgcykgKHN0cmluZyAiQlVJTFQiKSkKICAgICAgICAodmFyaWFudCBCdWlsZFN0YXRlIGJ1aWx0KQogICAgICAgIChpZiAoPT0gKHJlZiBzKSAoc3RyaW5nICJDQUNIRUQiKSkKICAgICAgICAgICh2YXJpYW50IEJ1aWxkU3RhdGUgY2FjaGVkKQogICAgICAgICAgKGlmICg9PSAocmVmIHMpIChzdHJpbmcgIkZBSUxFRCIpKQogICAgICAgICAgICAodmFyaWFudCBCdWlsZFN0YXRlIGZhaWxlZCkKICAgICAgICAgICAgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkpKSkpCgogIDs7IC0tLS0g5bqP5YiX5YyWIC0tLS0KICAoZm4gZGVwc190b19zdHJpbmcKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIGRlcHMgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBqb2luIChyZWYgZGVwcykgKHN0cmluZyAiLCIpKSkpCgogIChmbiBkZXBzX2Zyb21fc3RyaW5nCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgOzsgbWFuaWZlc3Qg5paH5Lu25Y+v6IO95bim5o2i6KGM77yIQ1JMRu+8ie+8m+WFiOWPluesrOS4gOihjOWGjeaMiemAl+WPt+aLhuWIhgogICAgICAobGV0IG5vX25sIChjYWxsIGJlZm9yZSAocmVmIHMpIChzdHJpbmcgIlxuIikpCiAgICAgICAgKGxldCBsaW5lIChjYWxsIGJlZm9yZSAocmVmIG5vX25sKSAoc3RyaW5nICJcciIpKQogICAgICAgICAgKGlmICg9PSAocmVmIGxpbmUpIChzdHJpbmcgIiIpKQogICAgICAgICAgICAodmVjIChwcmltIHN0cmluZykpCiAgICAgICAgICAgIChjYWxsIHNwbGl0IChyZWYgbGluZSkgKHN0cmluZyAiLCIpKSkpKSkpCgogIDs7IGRlcF9vdXRwdXRzOiAiQTpoMTtCOmgyIu+8iG5hbWU6aGFzaCDnlKggOyDliIbpmpTvvJtuYW1lL2hhc2gg5LiN5ZCr6L+Z5Lqb5a2X56ym77yJCiAgKGZuIGRlcF9vdXRwdXRzX3RvX3N0cmluZwogICAgKHBhcmFtcwogICAgICAocGFyYW0gbSAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBrcyAoY2FsbCBzb3J0IChjYWxsIGtleXMgKHJlZiBtKSkpCiAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBrcykpKQogICAgICAgICAgKGFjYyBvdXQgKHByaW0gc3RyaW5nKSAoc3RyaW5nICIiKSkKICAgICAgICAgIChsZXQgayAoY2FsbCBnZXQgKHJlZiBrcykgKHJlZiBpKSkKICAgICAgICAgICAgKGxldCB2IChjYWxsIGxvb2t1cCAocmVmIG0pIChyZWYgaykpCiAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgb3V0KQogICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgaykKICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjoiKQogICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCB1bndyYXAgKHJlZiB2KSkKICAgICAgICAgICAgICAgICAgICAgIChzdHJpbmcgIjsiKSkpKSkpKSkpKSkKCiAgKGZuIGRlcF9vdXRwdXRzX2Zyb21fc3RyaW5nCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgcykgKHN0cmluZyAiOyIpKQogICAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGFydHMpKSkKICAgICAgICAgIChhY2Mgb3V0IChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpCiAgICAgICAgICAobGV0IHBhcnQgKGNhbGwgZ2V0IChyZWYgcGFydHMpIChyZWYgaSkpCiAgICAgICAgICAgIChsZXQgbmFtZSAoY2FsbCBiZWZvcmUgKHJlZiBwYXJ0KSAoc3RyaW5nICI6IikpCiAgICAgICAgICAgICAgKGxldCBoYXNoIChjYWxsIHN0cmlwLXByZWZpeCAocmVmIHBhcnQpIChjYWxsIGNvbmNhdCAocmVmIG5hbWUpIChzdHJpbmcgIjoiKSkpCiAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYgcGFydCkgKHN0cmluZyAiIikpCiAgICAgICAgICAgICAgICAgIChyZWYgb3V0KQogICAgICAgICAgICAgICAgICAoY2FsbCBzZXQgKHJlZiBvdXQpIChyZWYgbmFtZSkgKHJlZiBoYXNoKSkpKSkpKSkpKQoKICAoZm4gc2VyaWFsaXplX3BhY2thZ2UKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHAgUGFja2FnZSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQKICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAibmFtZT0iKSAoZmllbGQgKHJlZiBwKSAibmFtZSIpKQogICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgY29uY2F0IChzdHJpbmcgInNvdXJjZV9oYXNoPSIpIChmaWVsZCAocmVmIHApICJzb3VyY2VfaGFzaCIpKQogICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiXG4iKQogICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAiZGVwcz0iKSAoY2FsbCBkZXBzX3RvX3N0cmluZyAoZmllbGQgKHJlZiBwKSAiZGVwcyIpKSkKICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAic3RhdGU9IikgKGNhbGwgc3RhdGVfbGFiZWwgKGZpZWxkIChyZWYgcCkgInN0YXRlIikpKQogICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgY29uY2F0IChzdHJpbmcgIm91dHB1dF9oYXNoPSIpIChmaWVsZCAocmVmIHApICJvdXRwdXRfaGFzaCIpKQogICAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiXG4iKQogICAgICAgICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAicHJldl9zb3VyY2VfaGFzaD0iKSAoZmllbGQgKHJlZiBwKSAicHJldl9zb3VyY2VfaGFzaCIpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIlxuIikKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChjYWxsIGNvbmNhdCAoc3RyaW5nICJkZXBfb3V0cHV0cz0iKSAoY2FsbCBkZXBfb3V0cHV0c190b19zdHJpbmcgKGZpZWxkIChyZWYgcCkgImRlcF9vdXRwdXRzIikpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChzdHJpbmcgIlxuIikpKSkpKSkpKSkpKSkpKSkKCiAgKGZuIGV4dHJhY3RfZmllbGQKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBhcnRzICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgIChwYXJhbSBwcmVmaXggKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIGRlZmF1bHQgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBhcnRzKSkpCiAgICAgICAgKGFjYyBmb3VuZCAocHJpbSBzdHJpbmcpIChyZWYgZGVmYXVsdCkpCiAgICAgICAgKGxldCBwYXJ0IChjYWxsIGdldCAocmVmIHBhcnRzKSAocmVmIGkpKQogICAgICAgICAgKGxldCByZXN0IChjYWxsIHN0cmlwLXByZWZpeCAocmVmIHBhcnQpIChyZWYgcHJlZml4KSkKICAgICAgICAgICAgKGlmICg9PSAocmVmIHJlc3QpIChyZWYgcGFydCkpCiAgICAgICAgICAgICAgKHJlZiBmb3VuZCkKICAgICAgICAgICAgICAocmVmIHJlc3QpKSkpKSkpCgogIChmbiBwYXJzZV9wYWNrYWdlCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSB0ZXh0IChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHJlc3VsdCBQYWNrYWdlIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgdGV4dCkgKHN0cmluZyAiXG4iKSkKICAgICAgICAobGV0IG5hbWUgKGNhbGwgZXh0cmFjdF9maWVsZCAocmVmIHBhcnRzKSAoc3RyaW5nICJuYW1lPSIpIChzdHJpbmcgIiIpKQogICAgICAgICAgKGlmICg9PSAocmVmIG5hbWUpIChzdHJpbmcgIiIpKQogICAgICAgICAgICAoZXJyIChzdHJpbmcgInBhY2thZ2UgZmlsZSBtaXNzaW5nIG5hbWUiKSkKICAgICAgICAgICAgKG9rCiAgICAgICAgICAgICAgKHJlY29yZCBQYWNrYWdlCiAgICAgICAgICAgICAgICAobmFtZSAocmVmIG5hbWUpKQogICAgICAgICAgICAgICAgKHNvdXJjZV9oYXNoIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAic291cmNlX2hhc2g9IikgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgKGRlcHMgKGNhbGwgZGVwc19mcm9tX3N0cmluZyAoY2FsbCBleHRyYWN0X2ZpZWxkIChyZWYgcGFydHMpIChzdHJpbmcgImRlcHM9IikgKHN0cmluZyAiIikpKSkKICAgICAgICAgICAgICAgIChzdGF0ZSAoY2FsbCBzdGF0ZV9mcm9tX2xhYmVsIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAic3RhdGU9IikgKHN0cmluZyAiUEVORElORyIpKSkpCiAgICAgICAgICAgICAgICAob3V0cHV0X2hhc2ggKGNhbGwgZXh0cmFjdF9maWVsZCAocmVmIHBhcnRzKSAoc3RyaW5nICJvdXRwdXRfaGFzaD0iKSAoc3RyaW5nICIiKSkpCiAgICAgICAgICAgICAgICAocHJldl9zb3VyY2VfaGFzaCAoY2FsbCBleHRyYWN0X2ZpZWxkIChyZWYgcGFydHMpIChzdHJpbmcgInByZXZfc291cmNlX2hhc2g9IikgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgKGRlcF9vdXRwdXRzIChjYWxsIGRlcF9vdXRwdXRzX2Zyb21fc3RyaW5nIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAiZGVwX291dHB1dHM9IikgKHN0cmluZyAiIikpKSkpKSkpKSkpCgogIDs7IC0tLS0g5Zu+77yITTMg54us56uL5a6e546w77yM5LiN5aSN55SoIHdvcmtmbG9377yJLS0tLQogIChmbiBmaW5kX3BhY2thZ2UKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkKICAgICAgKHBhcmFtIG5hbWUgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocmVzdWx0IFBhY2thZ2UgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2MgZm91bmQgKHJlc3VsdCBQYWNrYWdlIChwcmltIHN0cmluZykpIChlcnIgKHN0cmluZyAibm90IGZvdW5kIikpKQogICAgICAgIChsZXQgcCAoY2FsbCBnZXQgKHJlZiBwa2dzKSAocmVmIGkpKQogICAgICAgICAgKGlmICg9PSAoZmllbGQgKHJlZiBwKSAibmFtZSIpIChyZWYgbmFtZSkpCiAgICAgICAgICAgIChvayAocmVmIHApKQogICAgICAgICAgICAocmVmIGZvdW5kKSkpKSkpCgogIDs7IOeOr+ajgOa1i++8mkRGU++8jHZpc2l0ZWQg6ZuG5rK/6Lev5b6E5Lyg6YCS77yI5Zu+5bCP77yM5pegIGRvbmUg5Ymq5p6d77yJCiAgKGZuIGN5Y2xlX2Zyb20KICAgIChwYXJhbXMKICAgICAgKHBhcmFtIG5hbWUgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkKICAgICAgKHBhcmFtIHZpc2l0aW5nIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBib29sKSkpKQogICAgKHJldHVybnMgKHByaW0gYm9vbCkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChpZiAoY2FsbCBjb250YWlucyAocmVmIHZpc2l0aW5nKSAocmVmIG5hbWUpKQogICAgICAgIChib29sIHRydWUpCiAgICAgICAgKGxldCB2MiAoY2FsbCBzZXQgKHJlZiB2aXNpdGluZykgKHJlZiBuYW1lKSAoYm9vbCB0cnVlKSkKICAgICAgICAgIChsZXQgZm91bmQgKGNhbGwgZmluZF9wYWNrYWdlIChyZWYgcGtncykgKHJlZiBuYW1lKSkKICAgICAgICAgICAgKGlmIChjYWxsIGlzLW9rIChyZWYgZm91bmQpKQogICAgICAgICAgICAgIChsZXQgZGVwcyAoZmllbGQgKGNhbGwgdW53cmFwIChyZWYgZm91bmQpKSAiZGVwcyIpCiAgICAgICAgICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIGRlcHMpKSkKICAgICAgICAgICAgICAgICAgKGFjYyBjeWMgKHByaW0gYm9vbCkgKGJvb2wgZmFsc2UpKQogICAgICAgICAgICAgICAgICAoaWYgKHJlZiBjeWMpCiAgICAgICAgICAgICAgICAgICAgKHJlZiBjeWMpCiAgICAgICAgICAgICAgICAgICAgKGNhbGwgY3ljbGVfZnJvbSAoY2FsbCBnZXQgKHJlZiBkZXBzKSAocmVmIGkpKSAocmVmIHBrZ3MpIChyZWYgdjIpKSkpKQogICAgICAgICAgICAgIChib29sIGZhbHNlKSkpKSkpKQoKICAoZm4gaGFzX2N5Y2xlCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpKQogICAgKHJldHVybnMgKHByaW0gYm9vbCkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2MgY3ljIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAoaWYgKHJlZiBjeWMpCiAgICAgICAgICAocmVmIGN5YykKICAgICAgICAgIChsZXQgcCAoY2FsbCBnZXQgKHJlZiBwa2dzKSAocmVmIGkpKQogICAgICAgICAgICAoY2FsbCBjeWNsZV9mcm9tIChmaWVsZCAocmVmIHApICJuYW1lIikgKHJlZiBwa2dzKSAobWFwIChwcmltIHN0cmluZykgKHByaW0gYm9vbCkpKSkpKSkpCgogIDs7IOmAhuS+nei1lu+8mmRlcHMg6YeM5YyF5ZCrIHRhcmdldCDnmoQgcGFja2FnZSDlkI0KICAoZm4gcmV2ZXJzZV9kZXBlbmRlbnRzCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpCiAgICAgIChwYXJhbSB0YXJnZXQgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAodmVjIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBrZ3MpKSkKICAgICAgICAoYWNjIG91dCAodmVjIChwcmltIHN0cmluZykpICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgICAgKGxldCBwIChjYWxsIGdldCAocmVmIHBrZ3MpIChyZWYgaSkpCiAgICAgICAgICAobGV0IGRlcHMgKGZpZWxkIChyZWYgcCkgImRlcHMiKQogICAgICAgICAgICAobGV0IGhpdAogICAgICAgICAgICAgIChmb2xkIGogKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgZGVwcykpKQogICAgICAgICAgICAgICAgKGFjYyBoIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAgICAgICAgIChpZiAocmVmIGgpCiAgICAgICAgICAgICAgICAgIChyZWYgaCkKICAgICAgICAgICAgICAgICAgKD09IChjYWxsIGdldCAocmVmIGRlcHMpIChyZWYgaikpIChyZWYgdGFyZ2V0KSkpKQogICAgICAgICAgICAgIChpZiAocmVmIGhpdCkKICAgICAgICAgICAgICAgIChjYWxsIGFwcGVuZCAocmVmIG91dCkgKGZpZWxkIChyZWYgcCkgIm5hbWUiKSkKICAgICAgICAgICAgICAgIChyZWYgb3V0KSkpKSkpKSkKCiAgOzsgdmVjIOaIkOWRmOajgOafpe+8iGNvbnRhaW5zIOWPquaUr+aMgSBtYXDvvJt2ZWMg5peg5YaF5bu6IGNvbnRhaW5z77yJCiAgKGZuIHZlY19jb250YWlucwogICAgKHBhcmFtcwogICAgICAocGFyYW0gdiAodmVjIChwcmltIHN0cmluZykpKQogICAgICAocGFyYW0geCAocHJpbSBzdHJpbmcpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHYpKSkKICAgICAgICAoYWNjIGZvdW5kIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAoaWYgKHJlZiBmb3VuZCkKICAgICAgICAgIChyZWYgZm91bmQpCiAgICAgICAgICAoPT0gKGNhbGwgZ2V0IChyZWYgdikgKHJlZiBpKSkgKHJlZiB4KSkpKSkpCgogIDs7IOehruWumuaAp+aLk+aJkeW6j++8iEthaG7vvInvvJrlj43lpI3pgIki5omA5pyJ5L6d6LWW6YO95bey5YWl5bqPIueahOiKgueCue+8mwogIDs7IOWQjOe6p+aMieWQjeWtl+Wtl+WFuOW6j++8iHNvcnQg5YaF5bu677yJ77yM5L+d6K+B5ZCM5LiAIGdyYXBoIOavj+asoemhuuW6j+S4gOiHtAogIChmbiBhbGxfZGVwc19pbgogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBib29sKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBkZXBzIChmaWVsZCAocmVmIHApICJkZXBzIikKICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIGRlcHMpKSkKICAgICAgICAgIChhY2Mgb2sgKHByaW0gYm9vbCkgKGJvb2wgdHJ1ZSkpCiAgICAgICAgICAoaWYgKG5vdCAocmVmIG9rKSkKICAgICAgICAgICAgKHJlZiBvaykKICAgICAgICAgICAgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChjYWxsIGdldCAocmVmIGRlcHMpIChyZWYgaSkpKSkpKSkpCgogIChmbiB1bnByb2Nlc3NlZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKQogICAgICAocGFyYW0gc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAodmVjIFBhY2thZ2UpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBrZ3MpKSkKICAgICAgICAoYWNjIG91dCAodmVjIFBhY2thZ2UpICh2ZWMgUGFja2FnZSkpCiAgICAgICAgKGxldCBwIChjYWxsIGdldCAocmVmIHBrZ3MpIChyZWYgaSkpCiAgICAgICAgICAoaWYgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChmaWVsZCAocmVmIHApICJuYW1lIikpCiAgICAgICAgICAgIChyZWYgb3V0KQogICAgICAgICAgICAoY2FsbCBhcHBlbmQgKHJlZiBvdXQpIChyZWYgcCkpKSkpKSkKCiAgKGZuIHJlYWR5X25hbWVzCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpCiAgICAgIChwYXJhbSBzdGF0ZSAodmVjIChwcmltIHN0cmluZykpKSkKICAgIChyZXR1cm5zICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2Mgb3V0ICh2ZWMgKHByaW0gc3RyaW5nKSkgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgICAgICAobGV0IHAgKGNhbGwgZ2V0IChyZWYgcGtncykgKHJlZiBpKSkKICAgICAgICAgIChpZiAoYW5kIChub3QgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChmaWVsZCAocmVmIHApICJuYW1lIikpKQogICAgICAgICAgICAgICAgICAgKGNhbGwgYWxsX2RlcHNfaW4gKHJlZiBwKSAocmVmIHN0YXRlKSkpCiAgICAgICAgICAgIChjYWxsIGFwcGVuZCAocmVmIG91dCkgKGZpZWxkIChyZWYgcCkgIm5hbWUiKSkKICAgICAgICAgICAgKHJlZiBvdXQpKSkpKSkKCiAgKGZuIHRvcG9fb3JkZXIKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkpCiAgICAocmV0dXJucyAocmVzdWx0ICh2ZWMgKHByaW0gc3RyaW5nKSkgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChsZXQgb3JkZXJlZAogICAgICAgIChsb29wIChhY2Mgc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSAodmVjIChwcmltIHN0cmluZykpKQogICAgICAgICAgKGxldCByZWFkeSAoY2FsbCByZWFkeV9uYW1lcyAocmVmIHBrZ3MpIChyZWYgc3RhdGUpKQogICAgICAgICAgICAoPiAoY2FsbCBsZW4gKHJlZiByZWFkeSkpIChpbnQgMCkpKQogICAgICAgICAgKGJsb2NrCiAgICAgICAgICAgIChsZXQgcmVhZHkgKGNhbGwgcmVhZHlfbmFtZXMgKHJlZiBwa2dzKSAocmVmIHN0YXRlKSkKICAgICAgICAgICAgICAobGV0IHNvcnRlZCAoY2FsbCBzb3J0IChyZWYgcmVhZHkpKQogICAgICAgICAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBzb3J0ZWQpKSkKICAgICAgICAgICAgICAgICAgKGFjYyBzMiAodmVjIChwcmltIHN0cmluZykpIChyZWYgc3RhdGUpKQogICAgICAgICAgICAgICAgICAoY2FsbCBhcHBlbmQgKHJlZiBzMikgKGNhbGwgZ2V0IChyZWYgc29ydGVkKSAocmVmIGkpKSkpKSkpKQogICAgICAgIChvayAocmVmIG9yZGVyZWQpKSkpKQoKICA7OyDkvp3otZbovpPlh7rmmK/lkKblj5jljJbvvJrku7vkuIAgZGVwIOW9k+WJjSBvdXRwdXRfaGFzaCAhPSDkuIrmrKHorrDlvZXnmoQgZGVwX291dHB1dHMpCiAgKGZuIGRlcF9vdXRwdXRfY2hhbmdlZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IGRlcHMgKGZpZWxkIChyZWYgcCkgImRlcHMiKQogICAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgZGVwcykpKQogICAgICAgICAgKGFjYyBjaGFuZ2VkIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAgIChpZiAocmVmIGNoYW5nZWQpCiAgICAgICAgICAgIChyZWYgY2hhbmdlZCkKICAgICAgICAgICAgKGxldCBkZXBfbmFtZSAoY2FsbCBnZXQgKHJlZiBkZXBzKSAocmVmIGkpKQogICAgICAgICAgICAgIChsZXQgZGVwIChjYWxsIGZpbmRfcGFja2FnZSAocmVmIHBrZ3MpIChyZWYgZGVwX25hbWUpKQogICAgICAgICAgICAgICAgKGxldCByZWNvcmRlZCAoY2FsbCBsb29rdXAgKGZpZWxkIChyZWYgcCkgImRlcF9vdXRwdXRzIikgKHJlZiBkZXBfbmFtZSkpCiAgICAgICAgICAgICAgICAgIChpZiAoY2FsbCBpcy1vayAocmVmIGRlcCkpCiAgICAgICAgICAgICAgICAgICAgKGlmIChjYWxsIGlzLW9rIChyZWYgcmVjb3JkZWQpKQogICAgICAgICAgICAgICAgICAgICAgKG5vdCAoPT0gKGNhbGwgdW53cmFwIChyZWYgcmVjb3JkZWQpKSAoZmllbGQgKGNhbGwgdW53cmFwIChyZWYgZGVwKSkgIm91dHB1dF9oYXNoIikpKQogICAgICAgICAgICAgICAgICAgICAgKGJvb2wgdHJ1ZSkpCiAgICAgICAgICAgICAgICAgICAgKGJvb2wgdHJ1ZSkpKSkpKSkpKSkKCiAgOzsg5piv5ZCm6ZyA6KaBIGJ1aWxk77yac291cmNlIOWPmOS6hu+8iGVuZ2luZSDkvKDlhaXlvZPliY0gaGFzaO+8ieaIluS+nei1lui+k+WHuuWPmOS6hgogIChmbiBuZWVkc19idWlsZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gY3VycmVudF9zb3VyY2VfaGFzaCAocHJpbSBzdHJpbmcpKQogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAob3IgKG5vdCAoPT0gKHJlZiBjdXJyZW50X3NvdXJjZV9oYXNoKSAoZmllbGQgKHJlZiBwKSAicHJldl9zb3VyY2VfaGFzaCIpKSkKICAgICAgICAgIChjYWxsIGRlcF9vdXRwdXRfY2hhbmdlZCAocmVmIHApIChyZWYgcGtncykpKSkpCgogIDs7IOaKpeWRiuihjO+8miJuYW1lIENBQ0hFRHxCVUlMVHxGQUlMRUR8UEVORElORyIKICAoZm4gcmVwb3J0X2xpbmUKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHAgUGFja2FnZSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQgKGZpZWxkIChyZWYgcCkgIm5hbWUiKQogICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICIgIikgKGNhbGwgc3RhdGVfbGFiZWwgKGZpZWxkIChyZWYgcCkgInN0YXRlIikpKSkpKQoKICAodGVzdCB0b3BvX3NpbmdsZQogICAgKGJvZHkKICAgICAgKGxldCBwIChyZWNvcmQgUGFja2FnZQogICAgICAgICAgICAgICAobmFtZSAoc3RyaW5nICJwIikpIChzb3VyY2VfaGFzaCAoc3RyaW5nICIiKSkgKGRlcHMgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgICAgICAgICAgICAgKHN0YXRlICh2YXJpYW50IEJ1aWxkU3RhdGUgcGVuZGluZykpIChvdXRwdXRfaGFzaCAoc3RyaW5nICIiKSkKICAgICAgICAgICAgICAgKHByZXZfc291cmNlX2hhc2ggKHN0cmluZyAiIikpIChkZXBfb3V0cHV0cyAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpKQogICAgICAgIChsZXQgb3JkZXIgKGNhbGwgdW53cmFwIChjYWxsIHRvcG9fb3JkZXIgKHZlYyBQYWNrYWdlIChyZWYgcCkpKSkKICAgICAgICAgICg9PSAoY2FsbCBsZW4gKHJlZiBvcmRlcikpIChpbnQgMSkpKSkpKQoKICAodGVzdCB0b3BvX2NoYWluCiAgICAoYm9keQogICAgICAobGV0IGEgKHJlY29yZCBQYWNrYWdlCiAgICAgICAgICAgICAgIChuYW1lIChzdHJpbmcgImEiKSkgKHNvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwcyAodmVjIChwcmltIHN0cmluZykpKQogICAgICAgICAgICAgICAoc3RhdGUgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkgKG91dHB1dF9oYXNoIChzdHJpbmcgIiIpKQogICAgICAgICAgICAgICAocHJldl9zb3VyY2VfaGFzaCAoc3RyaW5nICIiKSkgKGRlcF9vdXRwdXRzIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSkpCiAgICAgICAgKGxldCBiIChyZWNvcmQgUGFja2FnZQogICAgICAgICAgICAgICAgIChuYW1lIChzdHJpbmcgImIiKSkgKHNvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwcyAodmVjIChwcmltIHN0cmluZykgKHN0cmluZyAiYSIpKSkKICAgICAgICAgICAgICAgICAoc3RhdGUgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkgKG91dHB1dF9oYXNoIChzdHJpbmcgIiIpKQogICAgICAgICAgICAgICAgIChwcmV2X3NvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwX291dHB1dHMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKSkKICAgICAgICAgIChsZXQgb3JkZXIgKGNhbGwgdW53cmFwIChjYWxsIHRvcG9fb3JkZXIgKHZlYyBQYWNrYWdlIChyZWYgYSkgKHJlZiBiKSkpKQogICAgICAgICAgICAoYW5kCiAgICAgICAgICAgICAgKD09IChjYWxsIGxlbiAocmVmIG9yZGVyKSkgKGludCAyKSkKICAgICAgICAgICAgICAoYW5kCiAgICAgICAgICAgICAgICAoPT0gKGNhbGwgZ2V0IChyZWYgb3JkZXIpIChpbnQgMCkpIChzdHJpbmcgImEiKSkKICAgICAgICAgICAgICAgICg9PSAoY2FsbCBnZXQgKHJlZiBvcmRlcikgKGludCAxKSkgKHN0cmluZyAiYiIpKSkpKSkpKSkKCikK"
+            },
+            {
+              "path": "alva.toml",
+              "length": 69,
+              "sha256": "de691436b4afe23f324d49f203438d7305576adc29a9944287e5db3bf0abfdf4",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAiYnVpbGRxIgpbbW9kdWxlc10KImJ1aWxkLm1vZGVsIiA9ICJzcmMvbW9kZWwuYWx2YSIK",
+              "origin": {
+                "kind": "p37_explicit_component_manifest",
+                "path": "component-build.toml"
+              }
+            }
+          ]
+        },
+        "payload_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e"
+      },
+      "policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "build.model.topo_order"
+        ],
+        "modules": {
+          "build.model": {
+            "functions": [
+              "state_label",
+              "state_from_label",
+              "deps_to_string",
+              "deps_from_string",
+              "dep_outputs_to_string",
+              "dep_outputs_from_string",
+              "serialize_package",
+              "extract_field",
+              "parse_package",
+              "find_package",
+              "cycle_from",
+              "has_cycle",
+              "reverse_dependents",
+              "vec_contains",
+              "all_deps_in",
+              "unprocessed",
+              "ready_names",
+              "topo_order",
+              "dep_output_changed",
+              "needs_build",
+              "report_line"
+            ],
+            "types": [
+              "BuildState",
+              "Package"
+            ]
+          }
+        }
+      },
+      "crate": "buildq",
+      "assertions": {
+        "goal": "#[cfg(test)] mod p37_goal {\n\nfn pkg(name:&str,deps:&str,state:&str)->super::build_model::Package {\n super::build_model::parse_package(format!(\"name={}\\nsource_hash=h\\ndeps={}\\nstate={}\\noutput_hash=o\\nprev_source_hash=h\\ndep_outputs=\\n\",name,deps,state)).unwrap()\n}\n\n#[test] fn incomplete_graphs_are_errors(){\n use super::build_model as m;\n for ps in [vec![pkg(\"a\",\"a\",\"BUILT\")],vec![pkg(\"a\",\"b\",\"BUILT\"),pkg(\"b\",\"a\",\"BUILT\")],\n            vec![pkg(\"x\",\"\",\"BUILT\"),pkg(\"a\",\"missing\",\"BUILT\")],vec![pkg(\"a\",\"missing\",\"BUILT\")]] {\n  assert!(m::topo_order(ps).is_err());\n }\n}\n}\n",
+        "regression": "#[cfg(test)] mod p37_regression {\n\nfn pkg(name:&str,deps:&str,state:&str)->super::build_model::Package {\n super::build_model::parse_package(format!(\"name={}\\nsource_hash=h\\ndeps={}\\nstate={}\\noutput_hash=o\\nprev_source_hash=h\\ndep_outputs=\\n\",name,deps,state)).unwrap()\n}\n\n#[test] fn valid_graph_order_and_helpers(){\n use super::build_model as m;\n assert_eq!(m::topo_order(vec![]).unwrap(),Vec::<String>::new());\n for ps in [vec![pkg(\"c\",\"a\",\"BUILT\"),pkg(\"b\",\"\",\"BUILT\"),pkg(\"a\",\"\",\"BUILT\")],\n            vec![pkg(\"a\",\"\",\"BUILT\"),pkg(\"c\",\"a\",\"BUILT\"),pkg(\"b\",\"\",\"BUILT\")]] {\n  assert_eq!(m::topo_order(ps).unwrap(),vec![\"a\".to_string(),\"b\".to_string(),\"c\".to_string()]);\n }\n assert!(m::has_cycle(vec![pkg(\"a\",\"a\",\"BUILT\")]));\n assert!(!m::has_cycle(vec![pkg(\"a\",\"\",\"BUILT\")]));\n assert!(m::vec_contains(vec![\"a\".into(),\"b\".into()],\"b\".into()));\n assert!(!m::vec_contains(vec![],\"a\".into()));\n}\n#[test] fn incremental_hash_and_dependency_semantics(){\n use super::build_model as m;\n for state in [\"BUILT\",\"CACHED\"] {\n  assert!(!m::needs_build(pkg(\"a\",\"\",state),\"h\".into(),vec![]));\n  assert!(m::needs_build(pkg(\"a\",\"\",state),\"changed\".into(),vec![]));\n }\n let dep=pkg(\"d\",\"\",\"BUILT\");\n let mut p=pkg(\"a\",\"d\",\"BUILT\");\n assert!(m::needs_build(p.clone(),\"h\".into(),vec![dep.clone()]));\n p.dep_outputs.insert(\"d\".into(),\"o\".into());\n assert!(!m::needs_build(p.clone(),\"h\".into(),vec![dep.clone()]));\n assert!(m::needs_build(p,\"h\".into(),vec![]));\n let mut p=pkg(\"a\",\"d\",\"CACHED\");p.dep_outputs.insert(\"d\".into(),\"old\".into());\n assert!(m::needs_build(p,\"h\".into(),vec![dep]));\n}\n#[test] fn direct_dependents_and_serialization(){\n use super::build_model as m;\n let ps=vec![pkg(\"c\",\"a,a\",\"BUILT\"),pkg(\"b\",\"a\",\"BUILT\"),pkg(\"d\",\"b\",\"BUILT\")];\n assert_eq!(m::reverse_dependents(ps,\"a\".into()),vec![\"c\".to_string(),\"b\".to_string()]);\n assert_eq!(m::reverse_dependents(vec![],\"a\".into()),Vec::<String>::new());\n let p=m::parse_package(m::serialize_package(pkg(\"a\",\"b,c\",\"BUILT\"))).unwrap();\n assert_eq!(p.name,\"a\");assert_eq!(p.deps,vec![\"b\".to_string(),\"c\".to_string()]);assert_eq!(m::state_label(p.state),\"BUILT\");\n}\n}\n"
+      },
+      "input_paths": [
+        "alva.toml",
+        "src/model.alva"
+      ]
+    },
+    "MM05": {
+      "public_task": {
+        "id": "MM05",
+        "target": "build.model.needs_build",
+        "requirement": "Only BUILT or CACHED package states may reuse matching source/dependency hashes. PENDING or FAILED must require a build even when hashes match. Preserve rebuilds caused by changed source, changed dependency output, missing dependency or missing recorded output.",
+        "authorized_functions": [
+          "build.model.needs_build"
+        ],
+        "editable_files": [
+          "src/model.alva"
+        ],
+        "protected": [
+          "alva.toml",
+          "all other declarations, signatures, types, exports and module structure"
+        ],
+        "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+                "oid": "ef01f9eae24d7ea5a3a2a2620127ccab1bdd02ac",
+                "mode": "100644"
+              },
+              "length": 14709,
+              "sha256": "a5e8bb68e29c540c14973543afddc011cb73dd1d600f208ce56b218eb952592c",
+              "base64": "KG1vZHVsZQogIChuYW1lICJidWlsZC5tb2RlbCIpCiAgKHZlcnNpb24gIjAuOC4wLWRldiIpCiAgKGV4cG9ydCBCdWlsZFN0YXRlIFBhY2thZ2UKICAgICAgICAgIHN0YXRlX2xhYmVsIHN0YXRlX2Zyb21fbGFiZWwKICAgICAgICAgIGRlcHNfdG9fc3RyaW5nIGRlcHNfZnJvbV9zdHJpbmcKICAgICAgICAgIGRlcF9vdXRwdXRzX3RvX3N0cmluZyBkZXBfb3V0cHV0c19mcm9tX3N0cmluZwogICAgICAgICAgc2VyaWFsaXplX3BhY2thZ2UgcGFyc2VfcGFja2FnZQogICAgICAgICAgZmluZF9wYWNrYWdlCiAgICAgICAgICBoYXNfY3ljbGUgdG9wb19vcmRlciByZXZlcnNlX2RlcGVuZGVudHMgdmVjX2NvbnRhaW5zCiAgICAgICAgICBkZXBfb3V0cHV0X2NoYW5nZWQgbmVlZHNfYnVpbGQKICAgICAgICAgIHJlcG9ydF9saW5lKQoKICA7OyBNMyDlop7ph4/mnoTlu7rvvJpQYWNrYWdlID0gbWFuaWZlc3Qg5p2h55uuICsgYnVpbGQg5Yaz562W54q25oCBCiAgKHR5cGUgQnVpbGRTdGF0ZQogICAgKGVudW0gKHZhcmlhbnQgcGVuZGluZykgKHZhcmlhbnQgYnVpbHQpICh2YXJpYW50IGNhY2hlZCkgKHZhcmlhbnQgZmFpbGVkKSkpCgogICh0eXBlIFBhY2thZ2UKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIG5hbWUgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHNvdXJjZV9oYXNoIChwcmltIHN0cmluZykpCiAgICAgIChmaWVsZCBkZXBzICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgIChmaWVsZCBzdGF0ZSBCdWlsZFN0YXRlKQogICAgICAoZmllbGQgb3V0cHV0X2hhc2ggKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHByZXZfc291cmNlX2hhc2ggKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIGRlcF9vdXRwdXRzIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSkpKQoKICA7OyAtLS0tIOeKtuaAgeagh+etviAtLS0tCiAgKGZuIHN0YXRlX2xhYmVsCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIEJ1aWxkU3RhdGUpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKG1hdGNoIEJ1aWxkU3RhdGUgKHJlZiBzKQogICAgICAgIChjYXNlIHBlbmRpbmcgKHN0cmluZyAiUEVORElORyIpKQogICAgICAgIChjYXNlIGJ1aWx0IChzdHJpbmcgIkJVSUxUIikpCiAgICAgICAgKGNhc2UgY2FjaGVkIChzdHJpbmcgIkNBQ0hFRCIpKQogICAgICAgIChjYXNlIGZhaWxlZCAoc3RyaW5nICJGQUlMRUQiKSkpKSkKCiAgKGZuIHN0YXRlX2Zyb21fbGFiZWwKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHMgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBCdWlsZFN0YXRlKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoaWYgKD09IChyZWYgcykgKHN0cmluZyAiQlVJTFQiKSkKICAgICAgICAodmFyaWFudCBCdWlsZFN0YXRlIGJ1aWx0KQogICAgICAgIChpZiAoPT0gKHJlZiBzKSAoc3RyaW5nICJDQUNIRUQiKSkKICAgICAgICAgICh2YXJpYW50IEJ1aWxkU3RhdGUgY2FjaGVkKQogICAgICAgICAgKGlmICg9PSAocmVmIHMpIChzdHJpbmcgIkZBSUxFRCIpKQogICAgICAgICAgICAodmFyaWFudCBCdWlsZFN0YXRlIGZhaWxlZCkKICAgICAgICAgICAgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkpKSkpCgogIDs7IC0tLS0g5bqP5YiX5YyWIC0tLS0KICAoZm4gZGVwc190b19zdHJpbmcKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIGRlcHMgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBqb2luIChyZWYgZGVwcykgKHN0cmluZyAiLCIpKSkpCgogIChmbiBkZXBzX2Zyb21fc3RyaW5nCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgOzsgbWFuaWZlc3Qg5paH5Lu25Y+v6IO95bim5o2i6KGM77yIQ1JMRu+8ie+8m+WFiOWPluesrOS4gOihjOWGjeaMiemAl+WPt+aLhuWIhgogICAgICAobGV0IG5vX25sIChjYWxsIGJlZm9yZSAocmVmIHMpIChzdHJpbmcgIlxuIikpCiAgICAgICAgKGxldCBsaW5lIChjYWxsIGJlZm9yZSAocmVmIG5vX25sKSAoc3RyaW5nICJcciIpKQogICAgICAgICAgKGlmICg9PSAocmVmIGxpbmUpIChzdHJpbmcgIiIpKQogICAgICAgICAgICAodmVjIChwcmltIHN0cmluZykpCiAgICAgICAgICAgIChjYWxsIHNwbGl0IChyZWYgbGluZSkgKHN0cmluZyAiLCIpKSkpKSkpCgogIDs7IGRlcF9vdXRwdXRzOiAiQTpoMTtCOmgyIu+8iG5hbWU6aGFzaCDnlKggOyDliIbpmpTvvJtuYW1lL2hhc2gg5LiN5ZCr6L+Z5Lqb5a2X56ym77yJCiAgKGZuIGRlcF9vdXRwdXRzX3RvX3N0cmluZwogICAgKHBhcmFtcwogICAgICAocGFyYW0gbSAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBrcyAoY2FsbCBzb3J0IChjYWxsIGtleXMgKHJlZiBtKSkpCiAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBrcykpKQogICAgICAgICAgKGFjYyBvdXQgKHByaW0gc3RyaW5nKSAoc3RyaW5nICIiKSkKICAgICAgICAgIChsZXQgayAoY2FsbCBnZXQgKHJlZiBrcykgKHJlZiBpKSkKICAgICAgICAgICAgKGxldCB2IChjYWxsIGxvb2t1cCAocmVmIG0pIChyZWYgaykpCiAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgb3V0KQogICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgaykKICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjoiKQogICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCB1bndyYXAgKHJlZiB2KSkKICAgICAgICAgICAgICAgICAgICAgIChzdHJpbmcgIjsiKSkpKSkpKSkpKSkKCiAgKGZuIGRlcF9vdXRwdXRzX2Zyb21fc3RyaW5nCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgcykgKHN0cmluZyAiOyIpKQogICAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGFydHMpKSkKICAgICAgICAgIChhY2Mgb3V0IChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpCiAgICAgICAgICAobGV0IHBhcnQgKGNhbGwgZ2V0IChyZWYgcGFydHMpIChyZWYgaSkpCiAgICAgICAgICAgIChsZXQgbmFtZSAoY2FsbCBiZWZvcmUgKHJlZiBwYXJ0KSAoc3RyaW5nICI6IikpCiAgICAgICAgICAgICAgKGxldCBoYXNoIChjYWxsIHN0cmlwLXByZWZpeCAocmVmIHBhcnQpIChjYWxsIGNvbmNhdCAocmVmIG5hbWUpIChzdHJpbmcgIjoiKSkpCiAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYgcGFydCkgKHN0cmluZyAiIikpCiAgICAgICAgICAgICAgICAgIChyZWYgb3V0KQogICAgICAgICAgICAgICAgICAoY2FsbCBzZXQgKHJlZiBvdXQpIChyZWYgbmFtZSkgKHJlZiBoYXNoKSkpKSkpKSkpKQoKICAoZm4gc2VyaWFsaXplX3BhY2thZ2UKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHAgUGFja2FnZSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQKICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAibmFtZT0iKSAoZmllbGQgKHJlZiBwKSAibmFtZSIpKQogICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgY29uY2F0IChzdHJpbmcgInNvdXJjZV9oYXNoPSIpIChmaWVsZCAocmVmIHApICJzb3VyY2VfaGFzaCIpKQogICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiXG4iKQogICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAiZGVwcz0iKSAoY2FsbCBkZXBzX3RvX3N0cmluZyAoZmllbGQgKHJlZiBwKSAiZGVwcyIpKSkKICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAic3RhdGU9IikgKGNhbGwgc3RhdGVfbGFiZWwgKGZpZWxkIChyZWYgcCkgInN0YXRlIikpKQogICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgY29uY2F0IChzdHJpbmcgIm91dHB1dF9oYXNoPSIpIChmaWVsZCAocmVmIHApICJvdXRwdXRfaGFzaCIpKQogICAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiXG4iKQogICAgICAgICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAicHJldl9zb3VyY2VfaGFzaD0iKSAoZmllbGQgKHJlZiBwKSAicHJldl9zb3VyY2VfaGFzaCIpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIlxuIikKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChjYWxsIGNvbmNhdCAoc3RyaW5nICJkZXBfb3V0cHV0cz0iKSAoY2FsbCBkZXBfb3V0cHV0c190b19zdHJpbmcgKGZpZWxkIChyZWYgcCkgImRlcF9vdXRwdXRzIikpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChzdHJpbmcgIlxuIikpKSkpKSkpKSkpKSkpKSkKCiAgKGZuIGV4dHJhY3RfZmllbGQKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBhcnRzICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgIChwYXJhbSBwcmVmaXggKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIGRlZmF1bHQgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBhcnRzKSkpCiAgICAgICAgKGFjYyBmb3VuZCAocHJpbSBzdHJpbmcpIChyZWYgZGVmYXVsdCkpCiAgICAgICAgKGxldCBwYXJ0IChjYWxsIGdldCAocmVmIHBhcnRzKSAocmVmIGkpKQogICAgICAgICAgKGxldCByZXN0IChjYWxsIHN0cmlwLXByZWZpeCAocmVmIHBhcnQpIChyZWYgcHJlZml4KSkKICAgICAgICAgICAgKGlmICg9PSAocmVmIHJlc3QpIChyZWYgcGFydCkpCiAgICAgICAgICAgICAgKHJlZiBmb3VuZCkKICAgICAgICAgICAgICAocmVmIHJlc3QpKSkpKSkpCgogIChmbiBwYXJzZV9wYWNrYWdlCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSB0ZXh0IChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHJlc3VsdCBQYWNrYWdlIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgdGV4dCkgKHN0cmluZyAiXG4iKSkKICAgICAgICAobGV0IG5hbWUgKGNhbGwgZXh0cmFjdF9maWVsZCAocmVmIHBhcnRzKSAoc3RyaW5nICJuYW1lPSIpIChzdHJpbmcgIiIpKQogICAgICAgICAgKGlmICg9PSAocmVmIG5hbWUpIChzdHJpbmcgIiIpKQogICAgICAgICAgICAoZXJyIChzdHJpbmcgInBhY2thZ2UgZmlsZSBtaXNzaW5nIG5hbWUiKSkKICAgICAgICAgICAgKG9rCiAgICAgICAgICAgICAgKHJlY29yZCBQYWNrYWdlCiAgICAgICAgICAgICAgICAobmFtZSAocmVmIG5hbWUpKQogICAgICAgICAgICAgICAgKHNvdXJjZV9oYXNoIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAic291cmNlX2hhc2g9IikgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgKGRlcHMgKGNhbGwgZGVwc19mcm9tX3N0cmluZyAoY2FsbCBleHRyYWN0X2ZpZWxkIChyZWYgcGFydHMpIChzdHJpbmcgImRlcHM9IikgKHN0cmluZyAiIikpKSkKICAgICAgICAgICAgICAgIChzdGF0ZSAoY2FsbCBzdGF0ZV9mcm9tX2xhYmVsIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAic3RhdGU9IikgKHN0cmluZyAiUEVORElORyIpKSkpCiAgICAgICAgICAgICAgICAob3V0cHV0X2hhc2ggKGNhbGwgZXh0cmFjdF9maWVsZCAocmVmIHBhcnRzKSAoc3RyaW5nICJvdXRwdXRfaGFzaD0iKSAoc3RyaW5nICIiKSkpCiAgICAgICAgICAgICAgICAocHJldl9zb3VyY2VfaGFzaCAoY2FsbCBleHRyYWN0X2ZpZWxkIChyZWYgcGFydHMpIChzdHJpbmcgInByZXZfc291cmNlX2hhc2g9IikgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgKGRlcF9vdXRwdXRzIChjYWxsIGRlcF9vdXRwdXRzX2Zyb21fc3RyaW5nIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAiZGVwX291dHB1dHM9IikgKHN0cmluZyAiIikpKSkpKSkpKSkpCgogIDs7IC0tLS0g5Zu+77yITTMg54us56uL5a6e546w77yM5LiN5aSN55SoIHdvcmtmbG9377yJLS0tLQogIChmbiBmaW5kX3BhY2thZ2UKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkKICAgICAgKHBhcmFtIG5hbWUgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocmVzdWx0IFBhY2thZ2UgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2MgZm91bmQgKHJlc3VsdCBQYWNrYWdlIChwcmltIHN0cmluZykpIChlcnIgKHN0cmluZyAibm90IGZvdW5kIikpKQogICAgICAgIChsZXQgcCAoY2FsbCBnZXQgKHJlZiBwa2dzKSAocmVmIGkpKQogICAgICAgICAgKGlmICg9PSAoZmllbGQgKHJlZiBwKSAibmFtZSIpIChyZWYgbmFtZSkpCiAgICAgICAgICAgIChvayAocmVmIHApKQogICAgICAgICAgICAocmVmIGZvdW5kKSkpKSkpCgogIDs7IOeOr+ajgOa1i++8mkRGU++8jHZpc2l0ZWQg6ZuG5rK/6Lev5b6E5Lyg6YCS77yI5Zu+5bCP77yM5pegIGRvbmUg5Ymq5p6d77yJCiAgKGZuIGN5Y2xlX2Zyb20KICAgIChwYXJhbXMKICAgICAgKHBhcmFtIG5hbWUgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkKICAgICAgKHBhcmFtIHZpc2l0aW5nIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBib29sKSkpKQogICAgKHJldHVybnMgKHByaW0gYm9vbCkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChpZiAoY2FsbCBjb250YWlucyAocmVmIHZpc2l0aW5nKSAocmVmIG5hbWUpKQogICAgICAgIChib29sIHRydWUpCiAgICAgICAgKGxldCB2MiAoY2FsbCBzZXQgKHJlZiB2aXNpdGluZykgKHJlZiBuYW1lKSAoYm9vbCB0cnVlKSkKICAgICAgICAgIChsZXQgZm91bmQgKGNhbGwgZmluZF9wYWNrYWdlIChyZWYgcGtncykgKHJlZiBuYW1lKSkKICAgICAgICAgICAgKGlmIChjYWxsIGlzLW9rIChyZWYgZm91bmQpKQogICAgICAgICAgICAgIChsZXQgZGVwcyAoZmllbGQgKGNhbGwgdW53cmFwIChyZWYgZm91bmQpKSAiZGVwcyIpCiAgICAgICAgICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIGRlcHMpKSkKICAgICAgICAgICAgICAgICAgKGFjYyBjeWMgKHByaW0gYm9vbCkgKGJvb2wgZmFsc2UpKQogICAgICAgICAgICAgICAgICAoaWYgKHJlZiBjeWMpCiAgICAgICAgICAgICAgICAgICAgKHJlZiBjeWMpCiAgICAgICAgICAgICAgICAgICAgKGNhbGwgY3ljbGVfZnJvbSAoY2FsbCBnZXQgKHJlZiBkZXBzKSAocmVmIGkpKSAocmVmIHBrZ3MpIChyZWYgdjIpKSkpKQogICAgICAgICAgICAgIChib29sIGZhbHNlKSkpKSkpKQoKICAoZm4gaGFzX2N5Y2xlCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpKQogICAgKHJldHVybnMgKHByaW0gYm9vbCkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2MgY3ljIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAoaWYgKHJlZiBjeWMpCiAgICAgICAgICAocmVmIGN5YykKICAgICAgICAgIChsZXQgcCAoY2FsbCBnZXQgKHJlZiBwa2dzKSAocmVmIGkpKQogICAgICAgICAgICAoY2FsbCBjeWNsZV9mcm9tIChmaWVsZCAocmVmIHApICJuYW1lIikgKHJlZiBwa2dzKSAobWFwIChwcmltIHN0cmluZykgKHByaW0gYm9vbCkpKSkpKSkpCgogIDs7IOmAhuS+nei1lu+8mmRlcHMg6YeM5YyF5ZCrIHRhcmdldCDnmoQgcGFja2FnZSDlkI0KICAoZm4gcmV2ZXJzZV9kZXBlbmRlbnRzCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpCiAgICAgIChwYXJhbSB0YXJnZXQgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAodmVjIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBrZ3MpKSkKICAgICAgICAoYWNjIG91dCAodmVjIChwcmltIHN0cmluZykpICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgICAgKGxldCBwIChjYWxsIGdldCAocmVmIHBrZ3MpIChyZWYgaSkpCiAgICAgICAgICAobGV0IGRlcHMgKGZpZWxkIChyZWYgcCkgImRlcHMiKQogICAgICAgICAgICAobGV0IGhpdAogICAgICAgICAgICAgIChmb2xkIGogKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgZGVwcykpKQogICAgICAgICAgICAgICAgKGFjYyBoIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAgICAgICAgIChpZiAocmVmIGgpCiAgICAgICAgICAgICAgICAgIChyZWYgaCkKICAgICAgICAgICAgICAgICAgKD09IChjYWxsIGdldCAocmVmIGRlcHMpIChyZWYgaikpIChyZWYgdGFyZ2V0KSkpKQogICAgICAgICAgICAgIChpZiAocmVmIGhpdCkKICAgICAgICAgICAgICAgIChjYWxsIGFwcGVuZCAocmVmIG91dCkgKGZpZWxkIChyZWYgcCkgIm5hbWUiKSkKICAgICAgICAgICAgICAgIChyZWYgb3V0KSkpKSkpKSkKCiAgOzsgdmVjIOaIkOWRmOajgOafpe+8iGNvbnRhaW5zIOWPquaUr+aMgSBtYXDvvJt2ZWMg5peg5YaF5bu6IGNvbnRhaW5z77yJCiAgKGZuIHZlY19jb250YWlucwogICAgKHBhcmFtcwogICAgICAocGFyYW0gdiAodmVjIChwcmltIHN0cmluZykpKQogICAgICAocGFyYW0geCAocHJpbSBzdHJpbmcpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHYpKSkKICAgICAgICAoYWNjIGZvdW5kIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAoaWYgKHJlZiBmb3VuZCkKICAgICAgICAgIChyZWYgZm91bmQpCiAgICAgICAgICAoPT0gKGNhbGwgZ2V0IChyZWYgdikgKHJlZiBpKSkgKHJlZiB4KSkpKSkpCgogIDs7IOehruWumuaAp+aLk+aJkeW6j++8iEthaG7vvInvvJrlj43lpI3pgIki5omA5pyJ5L6d6LWW6YO95bey5YWl5bqPIueahOiKgueCue+8mwogIDs7IOWQjOe6p+aMieWQjeWtl+Wtl+WFuOW6j++8iHNvcnQg5YaF5bu677yJ77yM5L+d6K+B5ZCM5LiAIGdyYXBoIOavj+asoemhuuW6j+S4gOiHtAogIChmbiBhbGxfZGVwc19pbgogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBib29sKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBkZXBzIChmaWVsZCAocmVmIHApICJkZXBzIikKICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIGRlcHMpKSkKICAgICAgICAgIChhY2Mgb2sgKHByaW0gYm9vbCkgKGJvb2wgdHJ1ZSkpCiAgICAgICAgICAoaWYgKG5vdCAocmVmIG9rKSkKICAgICAgICAgICAgKHJlZiBvaykKICAgICAgICAgICAgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChjYWxsIGdldCAocmVmIGRlcHMpIChyZWYgaSkpKSkpKSkpCgogIChmbiB1bnByb2Nlc3NlZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKQogICAgICAocGFyYW0gc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAodmVjIFBhY2thZ2UpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBrZ3MpKSkKICAgICAgICAoYWNjIG91dCAodmVjIFBhY2thZ2UpICh2ZWMgUGFja2FnZSkpCiAgICAgICAgKGxldCBwIChjYWxsIGdldCAocmVmIHBrZ3MpIChyZWYgaSkpCiAgICAgICAgICAoaWYgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChmaWVsZCAocmVmIHApICJuYW1lIikpCiAgICAgICAgICAgIChyZWYgb3V0KQogICAgICAgICAgICAoY2FsbCBhcHBlbmQgKHJlZiBvdXQpIChyZWYgcCkpKSkpKSkKCiAgKGZuIHJlYWR5X25hbWVzCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpCiAgICAgIChwYXJhbSBzdGF0ZSAodmVjIChwcmltIHN0cmluZykpKSkKICAgIChyZXR1cm5zICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2Mgb3V0ICh2ZWMgKHByaW0gc3RyaW5nKSkgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgICAgICAobGV0IHAgKGNhbGwgZ2V0IChyZWYgcGtncykgKHJlZiBpKSkKICAgICAgICAgIChpZiAoYW5kIChub3QgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChmaWVsZCAocmVmIHApICJuYW1lIikpKQogICAgICAgICAgICAgICAgICAgKGNhbGwgYWxsX2RlcHNfaW4gKHJlZiBwKSAocmVmIHN0YXRlKSkpCiAgICAgICAgICAgIChjYWxsIGFwcGVuZCAocmVmIG91dCkgKGZpZWxkIChyZWYgcCkgIm5hbWUiKSkKICAgICAgICAgICAgKHJlZiBvdXQpKSkpKSkKCiAgKGZuIHRvcG9fb3JkZXIKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkpCiAgICAocmV0dXJucyAocmVzdWx0ICh2ZWMgKHByaW0gc3RyaW5nKSkgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChsZXQgb3JkZXJlZAogICAgICAgIChsb29wIChhY2Mgc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSAodmVjIChwcmltIHN0cmluZykpKQogICAgICAgICAgKGxldCByZWFkeSAoY2FsbCByZWFkeV9uYW1lcyAocmVmIHBrZ3MpIChyZWYgc3RhdGUpKQogICAgICAgICAgICAoPiAoY2FsbCBsZW4gKHJlZiByZWFkeSkpIChpbnQgMCkpKQogICAgICAgICAgKGJsb2NrCiAgICAgICAgICAgIChsZXQgcmVhZHkgKGNhbGwgcmVhZHlfbmFtZXMgKHJlZiBwa2dzKSAocmVmIHN0YXRlKSkKICAgICAgICAgICAgICAobGV0IHNvcnRlZCAoY2FsbCBzb3J0IChyZWYgcmVhZHkpKQogICAgICAgICAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBzb3J0ZWQpKSkKICAgICAgICAgICAgICAgICAgKGFjYyBzMiAodmVjIChwcmltIHN0cmluZykpIChyZWYgc3RhdGUpKQogICAgICAgICAgICAgICAgICAoY2FsbCBhcHBlbmQgKHJlZiBzMikgKGNhbGwgZ2V0IChyZWYgc29ydGVkKSAocmVmIGkpKSkpKSkpKQogICAgICAgIChvayAocmVmIG9yZGVyZWQpKSkpKQoKICA7OyDkvp3otZbovpPlh7rmmK/lkKblj5jljJbvvJrku7vkuIAgZGVwIOW9k+WJjSBvdXRwdXRfaGFzaCAhPSDkuIrmrKHorrDlvZXnmoQgZGVwX291dHB1dHMpCiAgKGZuIGRlcF9vdXRwdXRfY2hhbmdlZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IGRlcHMgKGZpZWxkIChyZWYgcCkgImRlcHMiKQogICAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgZGVwcykpKQogICAgICAgICAgKGFjYyBjaGFuZ2VkIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAgIChpZiAocmVmIGNoYW5nZWQpCiAgICAgICAgICAgIChyZWYgY2hhbmdlZCkKICAgICAgICAgICAgKGxldCBkZXBfbmFtZSAoY2FsbCBnZXQgKHJlZiBkZXBzKSAocmVmIGkpKQogICAgICAgICAgICAgIChsZXQgZGVwIChjYWxsIGZpbmRfcGFja2FnZSAocmVmIHBrZ3MpIChyZWYgZGVwX25hbWUpKQogICAgICAgICAgICAgICAgKGxldCByZWNvcmRlZCAoY2FsbCBsb29rdXAgKGZpZWxkIChyZWYgcCkgImRlcF9vdXRwdXRzIikgKHJlZiBkZXBfbmFtZSkpCiAgICAgICAgICAgICAgICAgIChpZiAoY2FsbCBpcy1vayAocmVmIGRlcCkpCiAgICAgICAgICAgICAgICAgICAgKGlmIChjYWxsIGlzLW9rIChyZWYgcmVjb3JkZWQpKQogICAgICAgICAgICAgICAgICAgICAgKG5vdCAoPT0gKGNhbGwgdW53cmFwIChyZWYgcmVjb3JkZWQpKSAoZmllbGQgKGNhbGwgdW53cmFwIChyZWYgZGVwKSkgIm91dHB1dF9oYXNoIikpKQogICAgICAgICAgICAgICAgICAgICAgKGJvb2wgdHJ1ZSkpCiAgICAgICAgICAgICAgICAgICAgKGJvb2wgdHJ1ZSkpKSkpKSkpKSkKCiAgOzsg5piv5ZCm6ZyA6KaBIGJ1aWxk77yac291cmNlIOWPmOS6hu+8iGVuZ2luZSDkvKDlhaXlvZPliY0gaGFzaO+8ieaIluS+nei1lui+k+WHuuWPmOS6hgogIChmbiBuZWVkc19idWlsZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gY3VycmVudF9zb3VyY2VfaGFzaCAocHJpbSBzdHJpbmcpKQogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAob3IgKG5vdCAoPT0gKHJlZiBjdXJyZW50X3NvdXJjZV9oYXNoKSAoZmllbGQgKHJlZiBwKSAicHJldl9zb3VyY2VfaGFzaCIpKSkKICAgICAgICAgIChjYWxsIGRlcF9vdXRwdXRfY2hhbmdlZCAocmVmIHApIChyZWYgcGtncykpKSkpCgogIDs7IOaKpeWRiuihjO+8miJuYW1lIENBQ0hFRHxCVUlMVHxGQUlMRUR8UEVORElORyIKICAoZm4gcmVwb3J0X2xpbmUKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHAgUGFja2FnZSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQgKGZpZWxkIChyZWYgcCkgIm5hbWUiKQogICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICIgIikgKGNhbGwgc3RhdGVfbGFiZWwgKGZpZWxkIChyZWYgcCkgInN0YXRlIikpKSkpKQoKICAodGVzdCB0b3BvX3NpbmdsZQogICAgKGJvZHkKICAgICAgKGxldCBwIChyZWNvcmQgUGFja2FnZQogICAgICAgICAgICAgICAobmFtZSAoc3RyaW5nICJwIikpIChzb3VyY2VfaGFzaCAoc3RyaW5nICIiKSkgKGRlcHMgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgICAgICAgICAgICAgKHN0YXRlICh2YXJpYW50IEJ1aWxkU3RhdGUgcGVuZGluZykpIChvdXRwdXRfaGFzaCAoc3RyaW5nICIiKSkKICAgICAgICAgICAgICAgKHByZXZfc291cmNlX2hhc2ggKHN0cmluZyAiIikpIChkZXBfb3V0cHV0cyAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpKQogICAgICAgIChsZXQgb3JkZXIgKGNhbGwgdW53cmFwIChjYWxsIHRvcG9fb3JkZXIgKHZlYyBQYWNrYWdlIChyZWYgcCkpKSkKICAgICAgICAgICg9PSAoY2FsbCBsZW4gKHJlZiBvcmRlcikpIChpbnQgMSkpKSkpKQoKICAodGVzdCB0b3BvX2NoYWluCiAgICAoYm9keQogICAgICAobGV0IGEgKHJlY29yZCBQYWNrYWdlCiAgICAgICAgICAgICAgIChuYW1lIChzdHJpbmcgImEiKSkgKHNvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwcyAodmVjIChwcmltIHN0cmluZykpKQogICAgICAgICAgICAgICAoc3RhdGUgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkgKG91dHB1dF9oYXNoIChzdHJpbmcgIiIpKQogICAgICAgICAgICAgICAocHJldl9zb3VyY2VfaGFzaCAoc3RyaW5nICIiKSkgKGRlcF9vdXRwdXRzIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSkpCiAgICAgICAgKGxldCBiIChyZWNvcmQgUGFja2FnZQogICAgICAgICAgICAgICAgIChuYW1lIChzdHJpbmcgImIiKSkgKHNvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwcyAodmVjIChwcmltIHN0cmluZykgKHN0cmluZyAiYSIpKSkKICAgICAgICAgICAgICAgICAoc3RhdGUgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkgKG91dHB1dF9oYXNoIChzdHJpbmcgIiIpKQogICAgICAgICAgICAgICAgIChwcmV2X3NvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwX291dHB1dHMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKSkKICAgICAgICAgIChsZXQgb3JkZXIgKGNhbGwgdW53cmFwIChjYWxsIHRvcG9fb3JkZXIgKHZlYyBQYWNrYWdlIChyZWYgYSkgKHJlZiBiKSkpKQogICAgICAgICAgICAoYW5kCiAgICAgICAgICAgICAgKD09IChjYWxsIGxlbiAocmVmIG9yZGVyKSkgKGludCAyKSkKICAgICAgICAgICAgICAoYW5kCiAgICAgICAgICAgICAgICAoPT0gKGNhbGwgZ2V0IChyZWYgb3JkZXIpIChpbnQgMCkpIChzdHJpbmcgImEiKSkKICAgICAgICAgICAgICAgICg9PSAoY2FsbCBnZXQgKHJlZiBvcmRlcikgKGludCAxKSkgKHN0cmluZyAiYiIpKSkpKSkpKSkKCikK"
+            },
+            {
+              "path": "alva.toml",
+              "length": 69,
+              "sha256": "de691436b4afe23f324d49f203438d7305576adc29a9944287e5db3bf0abfdf4",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAiYnVpbGRxIgpbbW9kdWxlc10KImJ1aWxkLm1vZGVsIiA9ICJzcmMvbW9kZWwuYWx2YSIK",
+              "origin": {
+                "kind": "p37_explicit_component_manifest",
+                "path": "component-build.toml"
+              }
+            }
+          ]
+        },
+        "payload_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e"
+      },
+      "policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "build.model.needs_build"
+        ],
+        "modules": {
+          "build.model": {
+            "functions": [
+              "state_label",
+              "state_from_label",
+              "deps_to_string",
+              "deps_from_string",
+              "dep_outputs_to_string",
+              "dep_outputs_from_string",
+              "serialize_package",
+              "extract_field",
+              "parse_package",
+              "find_package",
+              "cycle_from",
+              "has_cycle",
+              "reverse_dependents",
+              "vec_contains",
+              "all_deps_in",
+              "unprocessed",
+              "ready_names",
+              "topo_order",
+              "dep_output_changed",
+              "needs_build",
+              "report_line"
+            ],
+            "types": [
+              "BuildState",
+              "Package"
+            ]
+          }
+        }
+      },
+      "crate": "buildq",
+      "assertions": {
+        "goal": "#[cfg(test)] mod p37_goal {\n\nfn pkg(name:&str,deps:&str,state:&str)->super::build_model::Package {\n super::build_model::parse_package(format!(\"name={}\\nsource_hash=h\\ndeps={}\\nstate={}\\noutput_hash=o\\nprev_source_hash=h\\ndep_outputs=\\n\",name,deps,state)).unwrap()\n}\n\n#[test] fn unsuccessful_states_never_reuse(){\n use super::build_model as m;\n for state in [\"PENDING\",\"FAILED\"] { assert!(m::needs_build(pkg(\"a\",\"\",state),\"h\".into(),vec![])); }\n}\n}\n",
+        "regression": "#[cfg(test)] mod p37_regression {\n\nfn pkg(name:&str,deps:&str,state:&str)->super::build_model::Package {\n super::build_model::parse_package(format!(\"name={}\\nsource_hash=h\\ndeps={}\\nstate={}\\noutput_hash=o\\nprev_source_hash=h\\ndep_outputs=\\n\",name,deps,state)).unwrap()\n}\n\n#[test] fn valid_graph_order_and_helpers(){\n use super::build_model as m;\n assert_eq!(m::topo_order(vec![]).unwrap(),Vec::<String>::new());\n for ps in [vec![pkg(\"c\",\"a\",\"BUILT\"),pkg(\"b\",\"\",\"BUILT\"),pkg(\"a\",\"\",\"BUILT\")],\n            vec![pkg(\"a\",\"\",\"BUILT\"),pkg(\"c\",\"a\",\"BUILT\"),pkg(\"b\",\"\",\"BUILT\")]] {\n  assert_eq!(m::topo_order(ps).unwrap(),vec![\"a\".to_string(),\"b\".to_string(),\"c\".to_string()]);\n }\n assert!(m::has_cycle(vec![pkg(\"a\",\"a\",\"BUILT\")]));\n assert!(!m::has_cycle(vec![pkg(\"a\",\"\",\"BUILT\")]));\n assert!(m::vec_contains(vec![\"a\".into(),\"b\".into()],\"b\".into()));\n assert!(!m::vec_contains(vec![],\"a\".into()));\n}\n#[test] fn incremental_hash_and_dependency_semantics(){\n use super::build_model as m;\n for state in [\"BUILT\",\"CACHED\"] {\n  assert!(!m::needs_build(pkg(\"a\",\"\",state),\"h\".into(),vec![]));\n  assert!(m::needs_build(pkg(\"a\",\"\",state),\"changed\".into(),vec![]));\n }\n let dep=pkg(\"d\",\"\",\"BUILT\");\n let mut p=pkg(\"a\",\"d\",\"BUILT\");\n assert!(m::needs_build(p.clone(),\"h\".into(),vec![dep.clone()]));\n p.dep_outputs.insert(\"d\".into(),\"o\".into());\n assert!(!m::needs_build(p.clone(),\"h\".into(),vec![dep.clone()]));\n assert!(m::needs_build(p,\"h\".into(),vec![]));\n let mut p=pkg(\"a\",\"d\",\"CACHED\");p.dep_outputs.insert(\"d\".into(),\"old\".into());\n assert!(m::needs_build(p,\"h\".into(),vec![dep]));\n}\n#[test] fn direct_dependents_and_serialization(){\n use super::build_model as m;\n let ps=vec![pkg(\"c\",\"a,a\",\"BUILT\"),pkg(\"b\",\"a\",\"BUILT\"),pkg(\"d\",\"b\",\"BUILT\")];\n assert_eq!(m::reverse_dependents(ps,\"a\".into()),vec![\"c\".to_string(),\"b\".to_string()]);\n assert_eq!(m::reverse_dependents(vec![],\"a\".into()),Vec::<String>::new());\n let p=m::parse_package(m::serialize_package(pkg(\"a\",\"b,c\",\"BUILT\"))).unwrap();\n assert_eq!(p.name,\"a\");assert_eq!(p.deps,vec![\"b\".to_string(),\"c\".to_string()]);assert_eq!(m::state_label(p.state),\"BUILT\");\n}\n}\n"
+      },
+      "input_paths": [
+        "alva.toml",
+        "src/model.alva"
+      ]
+    },
+    "MM06": {
+      "public_task": {
+        "id": "MM06",
+        "target": "build.model.reverse_dependents",
+        "requirement": "Return each matching package name once, in first matching input occurrence order, even when merged package inputs contain duplicate names. Preserve direct-dependency-only matching, nonmatches and empty-input behavior. Inputs need not have unique package names for this query.",
+        "authorized_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "editable_files": [
+          "src/model.alva"
+        ],
+        "protected": [
+          "alva.toml",
+          "all other declarations, signatures, types, exports and module structure"
+        ],
+        "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+                "oid": "ef01f9eae24d7ea5a3a2a2620127ccab1bdd02ac",
+                "mode": "100644"
+              },
+              "length": 14709,
+              "sha256": "a5e8bb68e29c540c14973543afddc011cb73dd1d600f208ce56b218eb952592c",
+              "base64": "KG1vZHVsZQogIChuYW1lICJidWlsZC5tb2RlbCIpCiAgKHZlcnNpb24gIjAuOC4wLWRldiIpCiAgKGV4cG9ydCBCdWlsZFN0YXRlIFBhY2thZ2UKICAgICAgICAgIHN0YXRlX2xhYmVsIHN0YXRlX2Zyb21fbGFiZWwKICAgICAgICAgIGRlcHNfdG9fc3RyaW5nIGRlcHNfZnJvbV9zdHJpbmcKICAgICAgICAgIGRlcF9vdXRwdXRzX3RvX3N0cmluZyBkZXBfb3V0cHV0c19mcm9tX3N0cmluZwogICAgICAgICAgc2VyaWFsaXplX3BhY2thZ2UgcGFyc2VfcGFja2FnZQogICAgICAgICAgZmluZF9wYWNrYWdlCiAgICAgICAgICBoYXNfY3ljbGUgdG9wb19vcmRlciByZXZlcnNlX2RlcGVuZGVudHMgdmVjX2NvbnRhaW5zCiAgICAgICAgICBkZXBfb3V0cHV0X2NoYW5nZWQgbmVlZHNfYnVpbGQKICAgICAgICAgIHJlcG9ydF9saW5lKQoKICA7OyBNMyDlop7ph4/mnoTlu7rvvJpQYWNrYWdlID0gbWFuaWZlc3Qg5p2h55uuICsgYnVpbGQg5Yaz562W54q25oCBCiAgKHR5cGUgQnVpbGRTdGF0ZQogICAgKGVudW0gKHZhcmlhbnQgcGVuZGluZykgKHZhcmlhbnQgYnVpbHQpICh2YXJpYW50IGNhY2hlZCkgKHZhcmlhbnQgZmFpbGVkKSkpCgogICh0eXBlIFBhY2thZ2UKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIG5hbWUgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHNvdXJjZV9oYXNoIChwcmltIHN0cmluZykpCiAgICAgIChmaWVsZCBkZXBzICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgIChmaWVsZCBzdGF0ZSBCdWlsZFN0YXRlKQogICAgICAoZmllbGQgb3V0cHV0X2hhc2ggKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIHByZXZfc291cmNlX2hhc2ggKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIGRlcF9vdXRwdXRzIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSkpKQoKICA7OyAtLS0tIOeKtuaAgeagh+etviAtLS0tCiAgKGZuIHN0YXRlX2xhYmVsCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIEJ1aWxkU3RhdGUpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKG1hdGNoIEJ1aWxkU3RhdGUgKHJlZiBzKQogICAgICAgIChjYXNlIHBlbmRpbmcgKHN0cmluZyAiUEVORElORyIpKQogICAgICAgIChjYXNlIGJ1aWx0IChzdHJpbmcgIkJVSUxUIikpCiAgICAgICAgKGNhc2UgY2FjaGVkIChzdHJpbmcgIkNBQ0hFRCIpKQogICAgICAgIChjYXNlIGZhaWxlZCAoc3RyaW5nICJGQUlMRUQiKSkpKSkKCiAgKGZuIHN0YXRlX2Zyb21fbGFiZWwKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHMgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBCdWlsZFN0YXRlKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoaWYgKD09IChyZWYgcykgKHN0cmluZyAiQlVJTFQiKSkKICAgICAgICAodmFyaWFudCBCdWlsZFN0YXRlIGJ1aWx0KQogICAgICAgIChpZiAoPT0gKHJlZiBzKSAoc3RyaW5nICJDQUNIRUQiKSkKICAgICAgICAgICh2YXJpYW50IEJ1aWxkU3RhdGUgY2FjaGVkKQogICAgICAgICAgKGlmICg9PSAocmVmIHMpIChzdHJpbmcgIkZBSUxFRCIpKQogICAgICAgICAgICAodmFyaWFudCBCdWlsZFN0YXRlIGZhaWxlZCkKICAgICAgICAgICAgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkpKSkpCgogIDs7IC0tLS0g5bqP5YiX5YyWIC0tLS0KICAoZm4gZGVwc190b19zdHJpbmcKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIGRlcHMgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBqb2luIChyZWYgZGVwcykgKHN0cmluZyAiLCIpKSkpCgogIChmbiBkZXBzX2Zyb21fc3RyaW5nCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgOzsgbWFuaWZlc3Qg5paH5Lu25Y+v6IO95bim5o2i6KGM77yIQ1JMRu+8ie+8m+WFiOWPluesrOS4gOihjOWGjeaMiemAl+WPt+aLhuWIhgogICAgICAobGV0IG5vX25sIChjYWxsIGJlZm9yZSAocmVmIHMpIChzdHJpbmcgIlxuIikpCiAgICAgICAgKGxldCBsaW5lIChjYWxsIGJlZm9yZSAocmVmIG5vX25sKSAoc3RyaW5nICJcciIpKQogICAgICAgICAgKGlmICg9PSAocmVmIGxpbmUpIChzdHJpbmcgIiIpKQogICAgICAgICAgICAodmVjIChwcmltIHN0cmluZykpCiAgICAgICAgICAgIChjYWxsIHNwbGl0IChyZWYgbGluZSkgKHN0cmluZyAiLCIpKSkpKSkpCgogIDs7IGRlcF9vdXRwdXRzOiAiQTpoMTtCOmgyIu+8iG5hbWU6aGFzaCDnlKggOyDliIbpmpTvvJtuYW1lL2hhc2gg5LiN5ZCr6L+Z5Lqb5a2X56ym77yJCiAgKGZuIGRlcF9vdXRwdXRzX3RvX3N0cmluZwogICAgKHBhcmFtcwogICAgICAocGFyYW0gbSAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpKQogICAgKHJldHVybnMgKHByaW0gc3RyaW5nKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBrcyAoY2FsbCBzb3J0IChjYWxsIGtleXMgKHJlZiBtKSkpCiAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBrcykpKQogICAgICAgICAgKGFjYyBvdXQgKHByaW0gc3RyaW5nKSAoc3RyaW5nICIiKSkKICAgICAgICAgIChsZXQgayAoY2FsbCBnZXQgKHJlZiBrcykgKHJlZiBpKSkKICAgICAgICAgICAgKGxldCB2IChjYWxsIGxvb2t1cCAocmVmIG0pIChyZWYgaykpCiAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgb3V0KQogICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChyZWYgaykKICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjoiKQogICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCB1bndyYXAgKHJlZiB2KSkKICAgICAgICAgICAgICAgICAgICAgIChzdHJpbmcgIjsiKSkpKSkpKSkpKSkKCiAgKGZuIGRlcF9vdXRwdXRzX2Zyb21fc3RyaW5nCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzIChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgcykgKHN0cmluZyAiOyIpKQogICAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGFydHMpKSkKICAgICAgICAgIChhY2Mgb3V0IChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpCiAgICAgICAgICAobGV0IHBhcnQgKGNhbGwgZ2V0IChyZWYgcGFydHMpIChyZWYgaSkpCiAgICAgICAgICAgIChsZXQgbmFtZSAoY2FsbCBiZWZvcmUgKHJlZiBwYXJ0KSAoc3RyaW5nICI6IikpCiAgICAgICAgICAgICAgKGxldCBoYXNoIChjYWxsIHN0cmlwLXByZWZpeCAocmVmIHBhcnQpIChjYWxsIGNvbmNhdCAocmVmIG5hbWUpIChzdHJpbmcgIjoiKSkpCiAgICAgICAgICAgICAgICAoaWYgKD09IChyZWYgcGFydCkgKHN0cmluZyAiIikpCiAgICAgICAgICAgICAgICAgIChyZWYgb3V0KQogICAgICAgICAgICAgICAgICAoY2FsbCBzZXQgKHJlZiBvdXQpIChyZWYgbmFtZSkgKHJlZiBoYXNoKSkpKSkpKSkpKQoKICAoZm4gc2VyaWFsaXplX3BhY2thZ2UKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHAgUGFja2FnZSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQKICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAibmFtZT0iKSAoZmllbGQgKHJlZiBwKSAibmFtZSIpKQogICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgY29uY2F0IChzdHJpbmcgInNvdXJjZV9oYXNoPSIpIChmaWVsZCAocmVmIHApICJzb3VyY2VfaGFzaCIpKQogICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiXG4iKQogICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAiZGVwcz0iKSAoY2FsbCBkZXBzX3RvX3N0cmluZyAoZmllbGQgKHJlZiBwKSAiZGVwcyIpKSkKICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAic3RhdGU9IikgKGNhbGwgc3RhdGVfbGFiZWwgKGZpZWxkIChyZWYgcCkgInN0YXRlIikpKQogICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICJcbiIpCiAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKGNhbGwgY29uY2F0IChzdHJpbmcgIm91dHB1dF9oYXNoPSIpIChmaWVsZCAocmVmIHApICJvdXRwdXRfaGFzaCIpKQogICAgICAgICAgICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHN0cmluZyAiXG4iKQogICAgICAgICAgICAgICAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoY2FsbCBjb25jYXQgKHN0cmluZyAicHJldl9zb3VyY2VfaGFzaD0iKSAoZmllbGQgKHJlZiBwKSAicHJldl9zb3VyY2VfaGFzaCIpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIlxuIikKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGNhbGwgY29uY2F0IChjYWxsIGNvbmNhdCAoc3RyaW5nICJkZXBfb3V0cHV0cz0iKSAoY2FsbCBkZXBfb3V0cHV0c190b19zdHJpbmcgKGZpZWxkIChyZWYgcCkgImRlcF9vdXRwdXRzIikpKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChzdHJpbmcgIlxuIikpKSkpKSkpKSkpKSkpKSkKCiAgKGZuIGV4dHJhY3RfZmllbGQKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBhcnRzICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgIChwYXJhbSBwcmVmaXggKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIGRlZmF1bHQgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBhcnRzKSkpCiAgICAgICAgKGFjYyBmb3VuZCAocHJpbSBzdHJpbmcpIChyZWYgZGVmYXVsdCkpCiAgICAgICAgKGxldCBwYXJ0IChjYWxsIGdldCAocmVmIHBhcnRzKSAocmVmIGkpKQogICAgICAgICAgKGxldCByZXN0IChjYWxsIHN0cmlwLXByZWZpeCAocmVmIHBhcnQpIChyZWYgcHJlZml4KSkKICAgICAgICAgICAgKGlmICg9PSAocmVmIHJlc3QpIChyZWYgcGFydCkpCiAgICAgICAgICAgICAgKHJlZiBmb3VuZCkKICAgICAgICAgICAgICAocmVmIHJlc3QpKSkpKSkpCgogIChmbiBwYXJzZV9wYWNrYWdlCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSB0ZXh0IChwcmltIHN0cmluZykpKQogICAgKHJldHVybnMgKHJlc3VsdCBQYWNrYWdlIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IHBhcnRzIChjYWxsIHNwbGl0IChyZWYgdGV4dCkgKHN0cmluZyAiXG4iKSkKICAgICAgICAobGV0IG5hbWUgKGNhbGwgZXh0cmFjdF9maWVsZCAocmVmIHBhcnRzKSAoc3RyaW5nICJuYW1lPSIpIChzdHJpbmcgIiIpKQogICAgICAgICAgKGlmICg9PSAocmVmIG5hbWUpIChzdHJpbmcgIiIpKQogICAgICAgICAgICAoZXJyIChzdHJpbmcgInBhY2thZ2UgZmlsZSBtaXNzaW5nIG5hbWUiKSkKICAgICAgICAgICAgKG9rCiAgICAgICAgICAgICAgKHJlY29yZCBQYWNrYWdlCiAgICAgICAgICAgICAgICAobmFtZSAocmVmIG5hbWUpKQogICAgICAgICAgICAgICAgKHNvdXJjZV9oYXNoIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAic291cmNlX2hhc2g9IikgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgKGRlcHMgKGNhbGwgZGVwc19mcm9tX3N0cmluZyAoY2FsbCBleHRyYWN0X2ZpZWxkIChyZWYgcGFydHMpIChzdHJpbmcgImRlcHM9IikgKHN0cmluZyAiIikpKSkKICAgICAgICAgICAgICAgIChzdGF0ZSAoY2FsbCBzdGF0ZV9mcm9tX2xhYmVsIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAic3RhdGU9IikgKHN0cmluZyAiUEVORElORyIpKSkpCiAgICAgICAgICAgICAgICAob3V0cHV0X2hhc2ggKGNhbGwgZXh0cmFjdF9maWVsZCAocmVmIHBhcnRzKSAoc3RyaW5nICJvdXRwdXRfaGFzaD0iKSAoc3RyaW5nICIiKSkpCiAgICAgICAgICAgICAgICAocHJldl9zb3VyY2VfaGFzaCAoY2FsbCBleHRyYWN0X2ZpZWxkIChyZWYgcGFydHMpIChzdHJpbmcgInByZXZfc291cmNlX2hhc2g9IikgKHN0cmluZyAiIikpKQogICAgICAgICAgICAgICAgKGRlcF9vdXRwdXRzIChjYWxsIGRlcF9vdXRwdXRzX2Zyb21fc3RyaW5nIChjYWxsIGV4dHJhY3RfZmllbGQgKHJlZiBwYXJ0cykgKHN0cmluZyAiZGVwX291dHB1dHM9IikgKHN0cmluZyAiIikpKSkpKSkpKSkpCgogIDs7IC0tLS0g5Zu+77yITTMg54us56uL5a6e546w77yM5LiN5aSN55SoIHdvcmtmbG9377yJLS0tLQogIChmbiBmaW5kX3BhY2thZ2UKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkKICAgICAgKHBhcmFtIG5hbWUgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAocmVzdWx0IFBhY2thZ2UgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2MgZm91bmQgKHJlc3VsdCBQYWNrYWdlIChwcmltIHN0cmluZykpIChlcnIgKHN0cmluZyAibm90IGZvdW5kIikpKQogICAgICAgIChsZXQgcCAoY2FsbCBnZXQgKHJlZiBwa2dzKSAocmVmIGkpKQogICAgICAgICAgKGlmICg9PSAoZmllbGQgKHJlZiBwKSAibmFtZSIpIChyZWYgbmFtZSkpCiAgICAgICAgICAgIChvayAocmVmIHApKQogICAgICAgICAgICAocmVmIGZvdW5kKSkpKSkpCgogIDs7IOeOr+ajgOa1i++8mkRGU++8jHZpc2l0ZWQg6ZuG5rK/6Lev5b6E5Lyg6YCS77yI5Zu+5bCP77yM5pegIGRvbmUg5Ymq5p6d77yJCiAgKGZuIGN5Y2xlX2Zyb20KICAgIChwYXJhbXMKICAgICAgKHBhcmFtIG5hbWUgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkKICAgICAgKHBhcmFtIHZpc2l0aW5nIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBib29sKSkpKQogICAgKHJldHVybnMgKHByaW0gYm9vbCkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChpZiAoY2FsbCBjb250YWlucyAocmVmIHZpc2l0aW5nKSAocmVmIG5hbWUpKQogICAgICAgIChib29sIHRydWUpCiAgICAgICAgKGxldCB2MiAoY2FsbCBzZXQgKHJlZiB2aXNpdGluZykgKHJlZiBuYW1lKSAoYm9vbCB0cnVlKSkKICAgICAgICAgIChsZXQgZm91bmQgKGNhbGwgZmluZF9wYWNrYWdlIChyZWYgcGtncykgKHJlZiBuYW1lKSkKICAgICAgICAgICAgKGlmIChjYWxsIGlzLW9rIChyZWYgZm91bmQpKQogICAgICAgICAgICAgIChsZXQgZGVwcyAoZmllbGQgKGNhbGwgdW53cmFwIChyZWYgZm91bmQpKSAiZGVwcyIpCiAgICAgICAgICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIGRlcHMpKSkKICAgICAgICAgICAgICAgICAgKGFjYyBjeWMgKHByaW0gYm9vbCkgKGJvb2wgZmFsc2UpKQogICAgICAgICAgICAgICAgICAoaWYgKHJlZiBjeWMpCiAgICAgICAgICAgICAgICAgICAgKHJlZiBjeWMpCiAgICAgICAgICAgICAgICAgICAgKGNhbGwgY3ljbGVfZnJvbSAoY2FsbCBnZXQgKHJlZiBkZXBzKSAocmVmIGkpKSAocmVmIHBrZ3MpIChyZWYgdjIpKSkpKQogICAgICAgICAgICAgIChib29sIGZhbHNlKSkpKSkpKQoKICAoZm4gaGFzX2N5Y2xlCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpKQogICAgKHJldHVybnMgKHByaW0gYm9vbCkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2MgY3ljIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAoaWYgKHJlZiBjeWMpCiAgICAgICAgICAocmVmIGN5YykKICAgICAgICAgIChsZXQgcCAoY2FsbCBnZXQgKHJlZiBwa2dzKSAocmVmIGkpKQogICAgICAgICAgICAoY2FsbCBjeWNsZV9mcm9tIChmaWVsZCAocmVmIHApICJuYW1lIikgKHJlZiBwa2dzKSAobWFwIChwcmltIHN0cmluZykgKHByaW0gYm9vbCkpKSkpKSkpCgogIDs7IOmAhuS+nei1lu+8mmRlcHMg6YeM5YyF5ZCrIHRhcmdldCDnmoQgcGFja2FnZSDlkI0KICAoZm4gcmV2ZXJzZV9kZXBlbmRlbnRzCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpCiAgICAgIChwYXJhbSB0YXJnZXQgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyAodmVjIChwcmltIHN0cmluZykpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBrZ3MpKSkKICAgICAgICAoYWNjIG91dCAodmVjIChwcmltIHN0cmluZykpICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAgICAgKGxldCBwIChjYWxsIGdldCAocmVmIHBrZ3MpIChyZWYgaSkpCiAgICAgICAgICAobGV0IGRlcHMgKGZpZWxkIChyZWYgcCkgImRlcHMiKQogICAgICAgICAgICAobGV0IGhpdAogICAgICAgICAgICAgIChmb2xkIGogKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgZGVwcykpKQogICAgICAgICAgICAgICAgKGFjYyBoIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAgICAgICAgIChpZiAocmVmIGgpCiAgICAgICAgICAgICAgICAgIChyZWYgaCkKICAgICAgICAgICAgICAgICAgKD09IChjYWxsIGdldCAocmVmIGRlcHMpIChyZWYgaikpIChyZWYgdGFyZ2V0KSkpKQogICAgICAgICAgICAgIChpZiAocmVmIGhpdCkKICAgICAgICAgICAgICAgIChjYWxsIGFwcGVuZCAocmVmIG91dCkgKGZpZWxkIChyZWYgcCkgIm5hbWUiKSkKICAgICAgICAgICAgICAgIChyZWYgb3V0KSkpKSkpKSkKCiAgOzsgdmVjIOaIkOWRmOajgOafpe+8iGNvbnRhaW5zIOWPquaUr+aMgSBtYXDvvJt2ZWMg5peg5YaF5bu6IGNvbnRhaW5z77yJCiAgKGZuIHZlY19jb250YWlucwogICAgKHBhcmFtcwogICAgICAocGFyYW0gdiAodmVjIChwcmltIHN0cmluZykpKQogICAgICAocGFyYW0geCAocHJpbSBzdHJpbmcpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHYpKSkKICAgICAgICAoYWNjIGZvdW5kIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAoaWYgKHJlZiBmb3VuZCkKICAgICAgICAgIChyZWYgZm91bmQpCiAgICAgICAgICAoPT0gKGNhbGwgZ2V0IChyZWYgdikgKHJlZiBpKSkgKHJlZiB4KSkpKSkpCgogIDs7IOehruWumuaAp+aLk+aJkeW6j++8iEthaG7vvInvvJrlj43lpI3pgIki5omA5pyJ5L6d6LWW6YO95bey5YWl5bqPIueahOiKgueCue+8mwogIDs7IOWQjOe6p+aMieWQjeWtl+Wtl+WFuOW6j++8iHNvcnQg5YaF5bu677yJ77yM5L+d6K+B5ZCM5LiAIGdyYXBoIOavj+asoemhuuW6j+S4gOiHtAogIChmbiBhbGxfZGVwc19pbgogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAocHJpbSBib29sKSkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGxldCBkZXBzIChmaWVsZCAocmVmIHApICJkZXBzIikKICAgICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIGRlcHMpKSkKICAgICAgICAgIChhY2Mgb2sgKHByaW0gYm9vbCkgKGJvb2wgdHJ1ZSkpCiAgICAgICAgICAoaWYgKG5vdCAocmVmIG9rKSkKICAgICAgICAgICAgKHJlZiBvaykKICAgICAgICAgICAgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChjYWxsIGdldCAocmVmIGRlcHMpIChyZWYgaSkpKSkpKSkpCgogIChmbiB1bnByb2Nlc3NlZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKQogICAgICAocGFyYW0gc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSkpCiAgICAocmV0dXJucyAodmVjIFBhY2thZ2UpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoZm9sZCBpIChyYW5nZSAoaW50IDApIChjYWxsIGxlbiAocmVmIHBrZ3MpKSkKICAgICAgICAoYWNjIG91dCAodmVjIFBhY2thZ2UpICh2ZWMgUGFja2FnZSkpCiAgICAgICAgKGxldCBwIChjYWxsIGdldCAocmVmIHBrZ3MpIChyZWYgaSkpCiAgICAgICAgICAoaWYgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChmaWVsZCAocmVmIHApICJuYW1lIikpCiAgICAgICAgICAgIChyZWYgb3V0KQogICAgICAgICAgICAoY2FsbCBhcHBlbmQgKHJlZiBvdXQpIChyZWYgcCkpKSkpKSkKCiAgKGZuIHJlYWR5X25hbWVzCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBwa2dzICh2ZWMgUGFja2FnZSkpCiAgICAgIChwYXJhbSBzdGF0ZSAodmVjIChwcmltIHN0cmluZykpKSkKICAgIChyZXR1cm5zICh2ZWMgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgcGtncykpKQogICAgICAgIChhY2Mgb3V0ICh2ZWMgKHByaW0gc3RyaW5nKSkgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgICAgICAobGV0IHAgKGNhbGwgZ2V0IChyZWYgcGtncykgKHJlZiBpKSkKICAgICAgICAgIChpZiAoYW5kIChub3QgKGNhbGwgdmVjX2NvbnRhaW5zIChyZWYgc3RhdGUpIChmaWVsZCAocmVmIHApICJuYW1lIikpKQogICAgICAgICAgICAgICAgICAgKGNhbGwgYWxsX2RlcHNfaW4gKHJlZiBwKSAocmVmIHN0YXRlKSkpCiAgICAgICAgICAgIChjYWxsIGFwcGVuZCAocmVmIG91dCkgKGZpZWxkIChyZWYgcCkgIm5hbWUiKSkKICAgICAgICAgICAgKHJlZiBvdXQpKSkpKSkKCiAgKGZuIHRvcG9fb3JkZXIKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHBrZ3MgKHZlYyBQYWNrYWdlKSkpCiAgICAocmV0dXJucyAocmVzdWx0ICh2ZWMgKHByaW0gc3RyaW5nKSkgKHByaW0gc3RyaW5nKSkpCiAgICAocHVyZSkKICAgIChib2R5CiAgICAgIChsZXQgb3JkZXJlZAogICAgICAgIChsb29wIChhY2Mgc3RhdGUgKHZlYyAocHJpbSBzdHJpbmcpKSAodmVjIChwcmltIHN0cmluZykpKQogICAgICAgICAgKGxldCByZWFkeSAoY2FsbCByZWFkeV9uYW1lcyAocmVmIHBrZ3MpIChyZWYgc3RhdGUpKQogICAgICAgICAgICAoPiAoY2FsbCBsZW4gKHJlZiByZWFkeSkpIChpbnQgMCkpKQogICAgICAgICAgKGJsb2NrCiAgICAgICAgICAgIChsZXQgcmVhZHkgKGNhbGwgcmVhZHlfbmFtZXMgKHJlZiBwa2dzKSAocmVmIHN0YXRlKSkKICAgICAgICAgICAgICAobGV0IHNvcnRlZCAoY2FsbCBzb3J0IChyZWYgcmVhZHkpKQogICAgICAgICAgICAgICAgKGZvbGQgaSAocmFuZ2UgKGludCAwKSAoY2FsbCBsZW4gKHJlZiBzb3J0ZWQpKSkKICAgICAgICAgICAgICAgICAgKGFjYyBzMiAodmVjIChwcmltIHN0cmluZykpIChyZWYgc3RhdGUpKQogICAgICAgICAgICAgICAgICAoY2FsbCBhcHBlbmQgKHJlZiBzMikgKGNhbGwgZ2V0IChyZWYgc29ydGVkKSAocmVmIGkpKSkpKSkpKQogICAgICAgIChvayAocmVmIG9yZGVyZWQpKSkpKQoKICA7OyDkvp3otZbovpPlh7rmmK/lkKblj5jljJbvvJrku7vkuIAgZGVwIOW9k+WJjSBvdXRwdXRfaGFzaCAhPSDkuIrmrKHorrDlvZXnmoQgZGVwX291dHB1dHMpCiAgKGZuIGRlcF9vdXRwdXRfY2hhbmdlZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAobGV0IGRlcHMgKGZpZWxkIChyZWYgcCkgImRlcHMiKQogICAgICAgIChmb2xkIGkgKHJhbmdlIChpbnQgMCkgKGNhbGwgbGVuIChyZWYgZGVwcykpKQogICAgICAgICAgKGFjYyBjaGFuZ2VkIChwcmltIGJvb2wpIChib29sIGZhbHNlKSkKICAgICAgICAgIChpZiAocmVmIGNoYW5nZWQpCiAgICAgICAgICAgIChyZWYgY2hhbmdlZCkKICAgICAgICAgICAgKGxldCBkZXBfbmFtZSAoY2FsbCBnZXQgKHJlZiBkZXBzKSAocmVmIGkpKQogICAgICAgICAgICAgIChsZXQgZGVwIChjYWxsIGZpbmRfcGFja2FnZSAocmVmIHBrZ3MpIChyZWYgZGVwX25hbWUpKQogICAgICAgICAgICAgICAgKGxldCByZWNvcmRlZCAoY2FsbCBsb29rdXAgKGZpZWxkIChyZWYgcCkgImRlcF9vdXRwdXRzIikgKHJlZiBkZXBfbmFtZSkpCiAgICAgICAgICAgICAgICAgIChpZiAoY2FsbCBpcy1vayAocmVmIGRlcCkpCiAgICAgICAgICAgICAgICAgICAgKGlmIChjYWxsIGlzLW9rIChyZWYgcmVjb3JkZWQpKQogICAgICAgICAgICAgICAgICAgICAgKG5vdCAoPT0gKGNhbGwgdW53cmFwIChyZWYgcmVjb3JkZWQpKSAoZmllbGQgKGNhbGwgdW53cmFwIChyZWYgZGVwKSkgIm91dHB1dF9oYXNoIikpKQogICAgICAgICAgICAgICAgICAgICAgKGJvb2wgdHJ1ZSkpCiAgICAgICAgICAgICAgICAgICAgKGJvb2wgdHJ1ZSkpKSkpKSkpKSkKCiAgOzsg5piv5ZCm6ZyA6KaBIGJ1aWxk77yac291cmNlIOWPmOS6hu+8iGVuZ2luZSDkvKDlhaXlvZPliY0gaGFzaO+8ieaIluS+nei1lui+k+WHuuWPmOS6hgogIChmbiBuZWVkc19idWlsZAogICAgKHBhcmFtcwogICAgICAocGFyYW0gcCBQYWNrYWdlKQogICAgICAocGFyYW0gY3VycmVudF9zb3VyY2VfaGFzaCAocHJpbSBzdHJpbmcpKQogICAgICAocGFyYW0gcGtncyAodmVjIFBhY2thZ2UpKSkKICAgIChyZXR1cm5zIChwcmltIGJvb2wpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAob3IgKG5vdCAoPT0gKHJlZiBjdXJyZW50X3NvdXJjZV9oYXNoKSAoZmllbGQgKHJlZiBwKSAicHJldl9zb3VyY2VfaGFzaCIpKSkKICAgICAgICAgIChjYWxsIGRlcF9vdXRwdXRfY2hhbmdlZCAocmVmIHApIChyZWYgcGtncykpKSkpCgogIDs7IOaKpeWRiuihjO+8miJuYW1lIENBQ0hFRHxCVUlMVHxGQUlMRUR8UEVORElORyIKICAoZm4gcmVwb3J0X2xpbmUKICAgIChwYXJhbXMKICAgICAgKHBhcmFtIHAgUGFja2FnZSkpCiAgICAocmV0dXJucyAocHJpbSBzdHJpbmcpKQogICAgKHB1cmUpCiAgICAoYm9keQogICAgICAoY2FsbCBjb25jYXQgKGZpZWxkIChyZWYgcCkgIm5hbWUiKQogICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICIgIikgKGNhbGwgc3RhdGVfbGFiZWwgKGZpZWxkIChyZWYgcCkgInN0YXRlIikpKSkpKQoKICAodGVzdCB0b3BvX3NpbmdsZQogICAgKGJvZHkKICAgICAgKGxldCBwIChyZWNvcmQgUGFja2FnZQogICAgICAgICAgICAgICAobmFtZSAoc3RyaW5nICJwIikpIChzb3VyY2VfaGFzaCAoc3RyaW5nICIiKSkgKGRlcHMgKHZlYyAocHJpbSBzdHJpbmcpKSkKICAgICAgICAgICAgICAgKHN0YXRlICh2YXJpYW50IEJ1aWxkU3RhdGUgcGVuZGluZykpIChvdXRwdXRfaGFzaCAoc3RyaW5nICIiKSkKICAgICAgICAgICAgICAgKHByZXZfc291cmNlX2hhc2ggKHN0cmluZyAiIikpIChkZXBfb3V0cHV0cyAobWFwIChwcmltIHN0cmluZykgKHByaW0gc3RyaW5nKSkpKQogICAgICAgIChsZXQgb3JkZXIgKGNhbGwgdW53cmFwIChjYWxsIHRvcG9fb3JkZXIgKHZlYyBQYWNrYWdlIChyZWYgcCkpKSkKICAgICAgICAgICg9PSAoY2FsbCBsZW4gKHJlZiBvcmRlcikpIChpbnQgMSkpKSkpKQoKICAodGVzdCB0b3BvX2NoYWluCiAgICAoYm9keQogICAgICAobGV0IGEgKHJlY29yZCBQYWNrYWdlCiAgICAgICAgICAgICAgIChuYW1lIChzdHJpbmcgImEiKSkgKHNvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwcyAodmVjIChwcmltIHN0cmluZykpKQogICAgICAgICAgICAgICAoc3RhdGUgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkgKG91dHB1dF9oYXNoIChzdHJpbmcgIiIpKQogICAgICAgICAgICAgICAocHJldl9zb3VyY2VfaGFzaCAoc3RyaW5nICIiKSkgKGRlcF9vdXRwdXRzIChtYXAgKHByaW0gc3RyaW5nKSAocHJpbSBzdHJpbmcpKSkpCiAgICAgICAgKGxldCBiIChyZWNvcmQgUGFja2FnZQogICAgICAgICAgICAgICAgIChuYW1lIChzdHJpbmcgImIiKSkgKHNvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwcyAodmVjIChwcmltIHN0cmluZykgKHN0cmluZyAiYSIpKSkKICAgICAgICAgICAgICAgICAoc3RhdGUgKHZhcmlhbnQgQnVpbGRTdGF0ZSBwZW5kaW5nKSkgKG91dHB1dF9oYXNoIChzdHJpbmcgIiIpKQogICAgICAgICAgICAgICAgIChwcmV2X3NvdXJjZV9oYXNoIChzdHJpbmcgIiIpKSAoZGVwX291dHB1dHMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKSkKICAgICAgICAgIChsZXQgb3JkZXIgKGNhbGwgdW53cmFwIChjYWxsIHRvcG9fb3JkZXIgKHZlYyBQYWNrYWdlIChyZWYgYSkgKHJlZiBiKSkpKQogICAgICAgICAgICAoYW5kCiAgICAgICAgICAgICAgKD09IChjYWxsIGxlbiAocmVmIG9yZGVyKSkgKGludCAyKSkKICAgICAgICAgICAgICAoYW5kCiAgICAgICAgICAgICAgICAoPT0gKGNhbGwgZ2V0IChyZWYgb3JkZXIpIChpbnQgMCkpIChzdHJpbmcgImEiKSkKICAgICAgICAgICAgICAgICg9PSAoY2FsbCBnZXQgKHJlZiBvcmRlcikgKGludCAxKSkgKHN0cmluZyAiYiIpKSkpKSkpKSkKCikK"
+            },
+            {
+              "path": "alva.toml",
+              "length": 69,
+              "sha256": "de691436b4afe23f324d49f203438d7305576adc29a9944287e5db3bf0abfdf4",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAiYnVpbGRxIgpbbW9kdWxlc10KImJ1aWxkLm1vZGVsIiA9ICJzcmMvbW9kZWwuYWx2YSIK",
+              "origin": {
+                "kind": "p37_explicit_component_manifest",
+                "path": "component-build.toml"
+              }
+            }
+          ]
+        },
+        "payload_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e"
+      },
+      "policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "modules": {
+          "build.model": {
+            "functions": [
+              "state_label",
+              "state_from_label",
+              "deps_to_string",
+              "deps_from_string",
+              "dep_outputs_to_string",
+              "dep_outputs_from_string",
+              "serialize_package",
+              "extract_field",
+              "parse_package",
+              "find_package",
+              "cycle_from",
+              "has_cycle",
+              "reverse_dependents",
+              "vec_contains",
+              "all_deps_in",
+              "unprocessed",
+              "ready_names",
+              "topo_order",
+              "dep_output_changed",
+              "needs_build",
+              "report_line"
+            ],
+            "types": [
+              "BuildState",
+              "Package"
+            ]
+          }
+        }
+      },
+      "crate": "buildq",
+      "assertions": {
+        "goal": "#[cfg(test)] mod p37_goal {\n\nfn pkg(name:&str,deps:&str,state:&str)->super::build_model::Package {\n super::build_model::parse_package(format!(\"name={}\\nsource_hash=h\\ndeps={}\\nstate={}\\noutput_hash=o\\nprev_source_hash=h\\ndep_outputs=\\n\",name,deps,state)).unwrap()\n}\n\n#[test] fn duplicate_names_are_scheduled_once(){\n use super::build_model as m;\n let ps=vec![pkg(\"b\",\"a\",\"BUILT\"),pkg(\"b\",\"a\",\"BUILT\"),pkg(\"c\",\"a,a\",\"BUILT\"),pkg(\"b\",\"a\",\"BUILT\"),pkg(\"d\",\"b\",\"BUILT\")];\n assert_eq!(m::reverse_dependents(ps,\"a\".into()),vec![\"b\".to_string(),\"c\".to_string()]);\n let ps=vec![pkg(\"b\",\"x\",\"BUILT\"),pkg(\"c\",\"a\",\"BUILT\"),pkg(\"b\",\"a\",\"BUILT\"),pkg(\"c\",\"a\",\"BUILT\")];\n assert_eq!(m::reverse_dependents(ps,\"a\".into()),vec![\"c\".to_string(),\"b\".to_string()]);\n}\n}\n",
+        "regression": "#[cfg(test)] mod p37_regression {\n\nfn pkg(name:&str,deps:&str,state:&str)->super::build_model::Package {\n super::build_model::parse_package(format!(\"name={}\\nsource_hash=h\\ndeps={}\\nstate={}\\noutput_hash=o\\nprev_source_hash=h\\ndep_outputs=\\n\",name,deps,state)).unwrap()\n}\n\n#[test] fn valid_graph_order_and_helpers(){\n use super::build_model as m;\n assert_eq!(m::topo_order(vec![]).unwrap(),Vec::<String>::new());\n for ps in [vec![pkg(\"c\",\"a\",\"BUILT\"),pkg(\"b\",\"\",\"BUILT\"),pkg(\"a\",\"\",\"BUILT\")],\n            vec![pkg(\"a\",\"\",\"BUILT\"),pkg(\"c\",\"a\",\"BUILT\"),pkg(\"b\",\"\",\"BUILT\")]] {\n  assert_eq!(m::topo_order(ps).unwrap(),vec![\"a\".to_string(),\"b\".to_string(),\"c\".to_string()]);\n }\n assert!(m::has_cycle(vec![pkg(\"a\",\"a\",\"BUILT\")]));\n assert!(!m::has_cycle(vec![pkg(\"a\",\"\",\"BUILT\")]));\n assert!(m::vec_contains(vec![\"a\".into(),\"b\".into()],\"b\".into()));\n assert!(!m::vec_contains(vec![],\"a\".into()));\n}\n#[test] fn incremental_hash_and_dependency_semantics(){\n use super::build_model as m;\n for state in [\"BUILT\",\"CACHED\"] {\n  assert!(!m::needs_build(pkg(\"a\",\"\",state),\"h\".into(),vec![]));\n  assert!(m::needs_build(pkg(\"a\",\"\",state),\"changed\".into(),vec![]));\n }\n let dep=pkg(\"d\",\"\",\"BUILT\");\n let mut p=pkg(\"a\",\"d\",\"BUILT\");\n assert!(m::needs_build(p.clone(),\"h\".into(),vec![dep.clone()]));\n p.dep_outputs.insert(\"d\".into(),\"o\".into());\n assert!(!m::needs_build(p.clone(),\"h\".into(),vec![dep.clone()]));\n assert!(m::needs_build(p,\"h\".into(),vec![]));\n let mut p=pkg(\"a\",\"d\",\"CACHED\");p.dep_outputs.insert(\"d\".into(),\"old\".into());\n assert!(m::needs_build(p,\"h\".into(),vec![dep]));\n}\n#[test] fn direct_dependents_and_serialization(){\n use super::build_model as m;\n let ps=vec![pkg(\"c\",\"a,a\",\"BUILT\"),pkg(\"b\",\"a\",\"BUILT\"),pkg(\"d\",\"b\",\"BUILT\")];\n assert_eq!(m::reverse_dependents(ps,\"a\".into()),vec![\"c\".to_string(),\"b\".to_string()]);\n assert_eq!(m::reverse_dependents(vec![],\"a\".into()),Vec::<String>::new());\n let p=m::parse_package(m::serialize_package(pkg(\"a\",\"b,c\",\"BUILT\"))).unwrap();\n assert_eq!(p.name,\"a\");assert_eq!(p.deps,vec![\"b\".to_string(),\"c\".to_string()]);assert_eq!(m::state_label(p.state),\"BUILT\");\n}\n}\n"
+      },
+      "input_paths": [
+        "alva.toml",
+        "src/model.alva"
+      ]
+    },
+    "MM07": {
+      "public_task": {
+        "id": "MM07",
+        "target": "store.model.xml_error",
+        "requirement": "Escape &, < and > as XML text in both code and message before serializing an error response. Treat existing entity-looking text literally (escape its ampersand once). Preserve status, XML response content type, empty and Unicode text, and all ordinary response helpers. Do not change signatures or introduce another public function.",
+        "authorized_functions": [
+          "store.model.xml_error"
+        ],
+        "editable_files": [
+          "src/model.alva"
+        ],
+        "protected": [
+          "alva.toml",
+          "all other declarations, signatures, types, exports and module structure"
+        ],
+        "non_target_behavior": "Preserve all other functions and the original ordinary behavior declared in the requirement."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "src/model.alva",
+              "origin": {
+                "kind": "git_blob",
+                "commit": "6d5eab29e801415be1054e02ef6cf2335a3c091b",
+                "oid": "6c065e9b365de743f50cecda45dfc4a87d90d246",
+                "mode": "100644"
+              },
+              "length": 1643,
+              "sha256": "2d79c372af1f62ae66309af8db0cb7540c6bd8301a296ac4d14bfc00b36c5a90",
+              "base64": "KG1vZHVsZQogIChuYW1lICJzdG9yZS5tb2RlbCIpCiAgKHZlcnNpb24gIjAuMS4wIikKICAoZXhwb3J0IEh0dHBSZXF1ZXN0IFJvdXRlUmVzdWx0IHRleHRfcmVzcG9uc2UgeG1sX3Jlc3BvbnNlIHhtbF9lcnJvcikKCiAgKHR5cGUgSHR0cFJlcXVlc3QKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIG1ldGhvZCAocHJpbSBzdHJpbmcpKQogICAgICAoZmllbGQgcGF0aCAocHJpbSBzdHJpbmcpKQogICAgICAoZmllbGQgcXVlcnkgKHByaW0gc3RyaW5nKSkKICAgICAgKGZpZWxkIGhlYWRlcnMgKG1hcCAocHJpbSBzdHJpbmcpIChwcmltIHN0cmluZykpKQogICAgICAoZmllbGQgYm9keSAocHJpbSBieXRlcykpKSkKCiAgKHR5cGUgUm91dGVSZXN1bHQKICAgIChyZWNvcmQKICAgICAgKGZpZWxkIHN0YXR1cyAocHJpbSBpNjQpKQogICAgICAoZmllbGQgY29udGVudF90eXBlIChwcmltIHN0cmluZykpCiAgICAgIChmaWVsZCBib2R5IChwcmltIGJ5dGVzKSkKICAgICAgKGZpZWxkIGhlYWRfY29udGVudF9sZW5ndGggKHByaW0gaTY0KSkpKQoKICAoZm4gdGV4dF9yZXNwb25zZQogICAgKHBhcmFtcwogICAgICAocGFyYW0gc3RhdHVzIChwcmltIGk2NCkpCiAgICAgIChwYXJhbSBib2R5IChwcmltIGJ5dGVzKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBSb3V0ZVJlc3VsdAogICAgICAgIChzdGF0dXMgKHJlZiBzdGF0dXMpKQogICAgICAgIChjb250ZW50X3R5cGUgKHN0cmluZyAidGV4dC9wbGFpbiIpKQogICAgICAgIChib2R5IChyZWYgYm9keSkpCiAgICAgICAgKGhlYWRfY29udGVudF9sZW5ndGggKGludCAwKSkpKSkKCiAgKGZuIHhtbF9yZXNwb25zZQogICAgKHBhcmFtcwogICAgICAocGFyYW0gc3RhdHVzIChwcmltIGk2NCkpCiAgICAgIChwYXJhbSBib2R5IChwcmltIGJ5dGVzKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKHJlY29yZCBSb3V0ZVJlc3VsdAogICAgICAgIChzdGF0dXMgKHJlZiBzdGF0dXMpKQogICAgICAgIChjb250ZW50X3R5cGUgKHN0cmluZyAiYXBwbGljYXRpb24veG1sIikpCiAgICAgICAgKGJvZHkgKHJlZiBib2R5KSkKICAgICAgICAoaGVhZF9jb250ZW50X2xlbmd0aCAoaW50IDApKSkpKQoKICAoZm4geG1sX2Vycm9yCiAgICAocGFyYW1zCiAgICAgIChwYXJhbSBzdGF0dXMgKHByaW0gaTY0KSkKICAgICAgKHBhcmFtIGNvZGUgKHByaW0gc3RyaW5nKSkKICAgICAgKHBhcmFtIG1lc3NhZ2UgKHByaW0gc3RyaW5nKSkpCiAgICAocmV0dXJucyBSb3V0ZVJlc3VsdCkKICAgIChwdXJlKQogICAgKGJvZHkKICAgICAgKGNhbGwgeG1sX3Jlc3BvbnNlIChyZWYgc3RhdHVzKQogICAgICAgIChjYWxsIHRvLWJ5dGVzCiAgICAgICAgICAoY2FsbCBjb25jYXQKICAgICAgICAgICAgKGNhbGwgY29uY2F0IChzdHJpbmcgIjw/eG1sIHZlcnNpb249XCIxLjBcIj8+PEVycm9yPjxDb2RlPiIpIChyZWYgY29kZSkpCiAgICAgICAgICAgIChjYWxsIGNvbmNhdCAoc3RyaW5nICI8L0NvZGU+PE1lc3NhZ2U+IikKICAgICAgICAgICAgICAoY2FsbCBjb25jYXQgKHJlZiBtZXNzYWdlKSAoc3RyaW5nICI8L01lc3NhZ2U+PC9FcnJvcj4iKSkpKSkpKSkKKQo="
+            },
+            {
+              "path": "alva.toml",
+              "length": 71,
+              "sha256": "897e9287a71ab11c9218b7e55509edde55339ec6431f3f7f45485c7cf4747689",
+              "base64": "W3Byb2plY3RdCm5hbWUgPSAicmVzcG9uc2UiClttb2R1bGVzXQoic3RvcmUubW9kZWwiID0gInNyYy9tb2RlbC5hbHZhIgo=",
+              "origin": {
+                "kind": "p37_explicit_component_manifest",
+                "path": "component-response.toml"
+              }
+            }
+          ]
+        },
+        "payload_sha256": "6b03233443ee91284d677d9e47b86e2791ce49580e1bd25fe78af6eafb77a6f2"
+      },
+      "policy": {
+        "schema": "fixed-component-body-scope/v1",
+        "authorized_functions": [
+          "store.model.xml_error"
+        ],
+        "modules": {
+          "store.model": {
+            "functions": [
+              "text_response",
+              "xml_response",
+              "xml_error"
+            ],
+            "types": [
+              "HttpRequest",
+              "RouteResult"
+            ]
+          }
+        }
+      },
+      "crate": "response",
+      "assertions": {
+        "goal": "\n#[cfg(test)] mod p37_goal {\n #[test] fn xml_text_is_escaped(){\n  use super::store_model as m;\n  for (code,msg,wc,wm) in [(\"Bad<&\",\"x > y & z\",\"Bad&lt;&amp;\",\"x &gt; y &amp; z\"),\n     (\"&amp;\",\"<tag>\",\"&amp;amp;\",\"&lt;tag&gt;\"),(\"\",\"\u96ea&\",\"\",\"\u96ea&amp;\")] {\n   let r=m::xml_error(409,code.into(),msg.into());\n   assert_eq!(r.status,409);assert_eq!(r.content_type,\"application/xml\");\n   assert_eq!(String::from_utf8(r.body).unwrap(),format!(\"<?xml version=\\\"1.0\\\"?><Error><Code>{}</Code><Message>{}</Message></Error>\",wc,wm));\n  }\n }\n}\n",
+        "regression": "\n#[cfg(test)] mod p37_regression {\n #[test] fn response_helpers_and_ordinary_errors_survive(){\n  use super::store_model as m;\n  let t=m::text_response(201,vec![65u8]); assert_eq!(t.status,201);assert_eq!(t.content_type,\"text/plain\");assert_eq!(t.body,vec![65u8]);assert_eq!(t.head_content_length,0);\n  let x=m::xml_response(202,vec![66u8]);assert_eq!(x.status,202);assert_eq!(x.content_type,\"application/xml\");assert_eq!(x.body,vec![66u8]);\n  let e=m::xml_error(400,\"Bad\".into(),\"ordinary\".into());assert_eq!(e.status,400);assert_eq!(e.head_content_length,0);\n  assert_eq!(String::from_utf8(e.body).unwrap(),\"<?xml version=\\\"1.0\\\"?><Error><Code>Bad</Code><Message>ordinary</Message></Error>\");\n }\n}\n"
+      },
+      "input_paths": [
+        "alva.toml",
+        "src/model.alva"
+      ]
+    }
+  },
+  "schedule": [
+    {
+      "id": "01-MM07-r2-N",
+      "task": "MM07",
+      "repeat": 2,
+      "arm": "N"
+    },
+    {
+      "id": "02-MM07-r2-T",
+      "task": "MM07",
+      "repeat": 2,
+      "arm": "T"
+    },
+    {
+      "id": "03-MM02-r2-N",
+      "task": "MM02",
+      "repeat": 2,
+      "arm": "N"
+    },
+    {
+      "id": "04-MM02-r2-T",
+      "task": "MM02",
+      "repeat": 2,
+      "arm": "T"
+    },
+    {
+      "id": "05-MM06-r1-T",
+      "task": "MM06",
+      "repeat": 1,
+      "arm": "T"
+    },
+    {
+      "id": "06-MM06-r1-N",
+      "task": "MM06",
+      "repeat": 1,
+      "arm": "N"
+    },
+    {
+      "id": "07-MM02-r1-T",
+      "task": "MM02",
+      "repeat": 1,
+      "arm": "T"
+    },
+    {
+      "id": "08-MM02-r1-N",
+      "task": "MM02",
+      "repeat": 1,
+      "arm": "N"
+    },
+    {
+      "id": "09-MM04-r1-T",
+      "task": "MM04",
+      "repeat": 1,
+      "arm": "T"
+    },
+    {
+      "id": "10-MM04-r1-N",
+      "task": "MM04",
+      "repeat": 1,
+      "arm": "N"
+    },
+    {
+      "id": "11-MM04-r2-N",
+      "task": "MM04",
+      "repeat": 2,
+      "arm": "N"
+    },
+    {
+      "id": "12-MM04-r2-T",
+      "task": "MM04",
+      "repeat": 2,
+      "arm": "T"
+    },
+    {
+      "id": "13-MM01-r2-N",
+      "task": "MM01",
+      "repeat": 2,
+      "arm": "N"
+    },
+    {
+      "id": "14-MM01-r2-T",
+      "task": "MM01",
+      "repeat": 2,
+      "arm": "T"
+    },
+    {
+      "id": "15-MM01-r1-T",
+      "task": "MM01",
+      "repeat": 1,
+      "arm": "T"
+    },
+    {
+      "id": "16-MM01-r1-N",
+      "task": "MM01",
+      "repeat": 1,
+      "arm": "N"
+    },
+    {
+      "id": "17-MM05-r2-N",
+      "task": "MM05",
+      "repeat": 2,
+      "arm": "N"
+    },
+    {
+      "id": "18-MM05-r2-T",
+      "task": "MM05",
+      "repeat": 2,
+      "arm": "T"
+    },
+    {
+      "id": "19-MM05-r1-T",
+      "task": "MM05",
+      "repeat": 1,
+      "arm": "T"
+    },
+    {
+      "id": "20-MM05-r1-N",
+      "task": "MM05",
+      "repeat": 1,
+      "arm": "N"
+    },
+    {
+      "id": "21-MM07-r1-T",
+      "task": "MM07",
+      "repeat": 1,
+      "arm": "T"
+    },
+    {
+      "id": "22-MM07-r1-N",
+      "task": "MM07",
+      "repeat": 1,
+      "arm": "N"
+    },
+    {
+      "id": "23-MM06-r2-N",
+      "task": "MM06",
+      "repeat": 2,
+      "arm": "N"
+    },
+    {
+      "id": "24-MM06-r2-T",
+      "task": "MM06",
+      "repeat": 2,
+      "arm": "T"
+    }
+  ],
+  "model_generation_calls": 0,
+  "status": "FROZEN_BEFORE_GENERATION",
+  "preflight_status": "PASS",
+  "registration_commit": "4678392",
+  "registration_sha256": "17a434b400a94af5eef71993a858075b1ddad3822f89dc2f8b32b24efc79389b",
+  "protocol_sha256": "3373cfa76794fa19534aa959784fdb1cbe1cd90209119c989580d469cac6cd5a",
+  "developer_instructions": "Perform the registered existing-code maintenance task using only study and, in N, the Native MCP tools.\nThe actual candidate is /work/project/alva.toml in a remote Linux namespace; your local cwd is only a documentation container.\nNo shell, apply_patch, web, other directories, sessions, delegation, host execution or reading past task material.\nT edits ordinary .alva source via study edit (unique exact replacement) or write (complete file replacement), then Git diff/check/test/finish.\nN mutates only through actual Native MCP tools and must commit AIR for a candidate to count; detached nodes or uncommitted staging do not count.\nBoth arms can read all original sources, language.md, and the complete official Skill and reference files with study doc.\nIn T the Skill is informational: ignore its Native-first and CLI-fallback instructions; Native and shell are unavailable. Use your source editor.\nOnly the authorized target body may change; preserve other bodies, all signatures/contracts/types/module metadata and the manifest.\nUse the same study check/test for isolated compiler and finite behavioral evaluation. No test source or solution hints are available.\nNative source projection can remain unchanged; final evaluation consumes authoritative AIR. Preview/check do not prove behavioral correctness.\nOne turn; 80 total model tools, 480 seconds active-turn observation, 600000 cumulative reported-token threshold, 20 seconds interrupt grace.\nUse finish for final handoff. This does not auto-commit Native staging. Do not alter tests or specifications.\n",
+  "study_tools": [
+    {
+      "name": "study",
+      "description": "Remote isolated source/read/check workbench. arguments is a JSON-encoded object. revision:{} returns current revision and input file paths. read:{revision,path,start?:1,count?:120} reads up to 200 exact source lines with EOF/next_start. search:{revision,text}; diff:{revision} gives ordinary Git diff in T, authority summary in N. T edit:{revision,path,old,new} replaces one unique exact source span; T write:{revision,path,content} replaces the complete allowed source file. check:{}, test:{} run isolated checks and independent goal/regression tests with bounded combined feedback. doc:{path} reads language.md, SKILL.md, references/workflow.md, references/diagnostics.md or references/examples.md in BOTH arms. finish:{} hands off final authority, not uncommitted Native staging. No shell, evaluator access or arbitrary files.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "revision",
+              "read",
+              "search",
+              "diff",
+              "edit",
+              "write",
+              "check",
+              "test",
+              "doc",
+              "finish"
+            ]
+          },
+          "arguments": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "arguments"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "sdk_identity": {
+    "binary": {
+      "sha256": "c5cdbd8a1884e00d16182c7c6fd1c7480afd1d141689d8049fe264323ee1e1e0",
+      "files": 1
+    },
+    "toolchain": {
+      "sha256": "44b122e9df641e6e512e6012192c15a575f20d87947152e166b8e5b986e2e903",
+      "files": 153
+    },
+    "registry": {
+      "sha256": "5c1a88bf9442dcc906c3ef747abc7ecafb471d5cd84cf3b3c60e27ed4bbc8dcc",
+      "files": 703
+    }
+  },
+  "resource_profile": {
+    "nproc_rlimit": 512,
+    "scope": "per-real-UID, not per-candidate process count",
+    "cpu_seconds": 90,
+    "address_space_bytes": 4294967296,
+    "reason": "shared execution UID already has >128 unrelated threads"
+  },
+  "runtime_files": {
+    "benchmarks/cross_language/common.py": "ab1af9a353cfc4a0ca9f858197f89281382e8bcaec770c50ee2343f5e31dcae4",
+    "benchmarks/cross_language/controller.py": "aeed97208f81e528a38e46c982206f8b8f51e8de5a260183bb307316050e145e",
+    "benchmarks/cross_language/execute.py": "80ef9da024a52772abef3dd7207ba489ae6aa4a517ec83bf8e1fb50c5e087474",
+    "benchmarks/cross_language/final/01-HE3-A.py": "3fad6b57997b6aa197b87f895d7c6603d423faef647c6ce4ca78b2a3997a7919",
+    "benchmarks/cross_language/final/03-HE42-A.py": "1b5832159eb6ac5f82d7b133468a81933c44aaee9a2aebc38d80d17e1fb33c65",
+    "benchmarks/cross_language/final/09-HE23-A.py": "1af94775a11759924a3f7900b9dbfde9a2bf97a63dd498e7be36b83dcc9951d3",
+    "benchmarks/cross_language/final/11-HE41-A.py": "9851da8ea139d74249c893108f561a53a225446f134c4d59f88b7063e1759b15",
+    "benchmarks/cross_language/prepare.py": "a63329bf925387f129bf2e2223669abf86138480ad7603bf4359c90671c9a913",
+    "benchmarks/cross_language/replay.py": "017d94577cfd05ff1b871c49c1213a51c043fac4c445aafca842ecbd4a6c6ab0",
+    "benchmarks/cross_language/summarize.py": "a30632016a1ca23e02f684b3f416cefbd9bedcc44a03044ad77da91d5e3cd506",
+    "benchmarks/cross_language/tasks.py": "19a508c133260a17a4659f83191a77c1eb0cf6ae440a8b44323ec8eaf54dea79",
+    "benchmarks/cross_language/test_controller.py": "a512f20d9cfe4ec897697c76c4c2cc9e94a8178f0770beec0fe713cdef22bd62",
+    "benchmarks/maintenance_design/feasibility.py": "7e56817bed4524fee214f81476fc841e57f5e2e5659ca15baecf0138a439dd06",
+    "benchmarks/maintenance_design/test_design.py": "19da0cbc69316d558e3743691533ea7d13ab616b93e87f32f5b0017b936afe92",
+    "benchmarks/maintenance_design/witnesses.py": "fa81e534a486855d6ff4d60f1f5eefbc187a061ed95c1426d46e44f24662a756",
+    "benchmarks/maintenance_interface_comparison/freeze.py": "9685d297a398c4cebe02dab5e84684f1cd6c2e638509176e2bdc0ee950823a40",
+    "benchmarks/maintenance_interface_comparison/linux_profile.py": "c0934db56c3ac0b5fc331b4ceb4a544081378cab19132aa2bb64b9a787a2771f",
+    "benchmarks/maintenance_interface_comparison/owner.py": "7d2183320e451b5136253b224b1aa54dfd2384471d855664409fb54d8f72d359",
+    "benchmarks/maintenance_interface_comparison/pilot.py": "51752756e0d41ea810bfd3387b25da54282824fed2f5e9d9744cffe60107c4a6",
+    "benchmarks/maintenance_interface_comparison/prepare.py": "8787494834412893462b6ad60d9138ee9388910d5f8249cc21466e38c7623cea",
+    "benchmarks/maintenance_interface_comparison/prlimit_profile.py": "ab55a84783e8f0a34cf59e364fca902b08d9ea5aae5db02a7dfc1a858fd8d77f",
+    "benchmarks/maintenance_interface_comparison/relay.py": "9080451ae88a68fd2bc1b566c098d0fd65ea6eec434750ca17b053b0ed67dce9",
+    "benchmarks/maintenance_interface_comparison/remote_preflight.py": "281e4f97a2c67a82a8e80ad644487dad67d635a13f9b4eb422efd69887c54c10",
+    "benchmarks/maintenance_interface_comparison/service.py": "caddd454d2377acf40d99c471a0db49730b6289df072c46d482ed6ae9b70d9f6",
+    "benchmarks/maintenance_interface_comparison/technical_probe.py": "f434c3a20994a709bd0d6c56cb934a012019965ef59dfb8b0da8fc1bbc569c1d",
+    "benchmarks/maintenance_interface_comparison/test_pilot.py": "565d92760480c83c845d837cff3c29fe9bb092ffda8eedc1e41f505619f272d8",
+    "benchmarks/mm01_pilot/analyze.py": "33ae18658bd3bc41604f56243f96cf9e7fc3daf8ca235b4c60b2fa9525e10f8c",
+    "benchmarks/mm01_pilot/ci_exact_runtime.py": "86933324be3a01075a6b3ad9c7f068ea413d3d3df30a328f374ffc48b7b602f2",
+    "benchmarks/mm01_pilot/evaluator.py": "3a611258ff3b86fe03d93d4a3290d2e4ec1445e391e5498836f7d2cdbbfd5909",
+    "benchmarks/mm01_pilot/inside.py": "af2d65d0d714676c9cdd69712078f09fc2aa3f256a832f4d99879d90ac6dec31",
+    "benchmarks/mm01_pilot/pilot.py": "2eda47b580fe3bb32b4a96690cf4378b328c23bc54bf9836f65cc07a1494bffc",
+    "benchmarks/mm01_pilot/service.py": "0c3bc430e390b43c401a5847e3ab30bed86ff33db08de5d9fb1322f1dc14bdff",
+    "benchmarks/mm01_pilot/test_pilot.py": "1660fb0caf1f98b035a83552e577702ac6531cf1c021995958548142803149dc",
+    "benchmarks/native_mcp_skill/native_coverage.py": "ad0cb112057c59379aef16a9b4bab463598a1813e88ca34a4d77866c57e73733",
+    "benchmarks/native_mcp_skill/phase_a.py": "c150a33eb5b512a688b4e06f9d7b278724c852a50669cc9153e9341c157fe930",
+    "benchmarks/native_mcp_skill/proxy.py": "44291e87125c694e18f1b88022672fc4d2ffc9d767636c6f14bbae75a0d713ba",
+    "benchmarks/native_mcp_skill/test_integration.py": "31de73c30000d6ec22e725290363dc5480a8c48f3785dc1a047d57bf0bc6512f",
+    "benchmarks/native_prospective/analyze.py": "b4a0da388e5564866c3530d37181eaaad030c333d7dffa3b82339b4a4957d0cd",
+    "benchmarks/native_prospective/inside.py": "deab97c7711411c8038353225debe52669b33550eb8105c6e484964a29af3343",
+    "benchmarks/native_prospective/pilot.py": "ec83509d9bd0ddda2c390b2161ee3ca2f9f363ed3524820bde3ebda2b4ed67ad",
+    "benchmarks/native_prospective/service.py": "a58f7b9dd610eb8ba862caab84205f5ce61153b966ecd386b9409a7871d88f23",
+    "benchmarks/native_prospective/test_pilot.py": "15201a705b704a01186f134cf7d472b8bfb54826d749fead738ab76e2dbb363b",
+    "benchmarks/p27_bottleneck/audit.py": "29fa874e007382f9fd47a3e60c757f1b16fef8d54cfa75f4773b20732e6b4287",
+    "benchmarks/p27_bottleneck/test_audit.py": "7a03027e75173dea65ec6fae1ffc7dfe5b880183185d0f691f0accf585ecb7a4",
+    "benchmarks/p28_optional_descriptor/analyze.py": "3e2dcb315b99340f5202b5540c743a1ce027c9851087c9e1340b94d89218dd7d",
+    "benchmarks/p28_optional_descriptor/ci_exact_runtime.py": "2887479ed1cc15e101494a0263fea2e5f55d2ec1f0b1527a9ee3bc0671bffe41",
+    "benchmarks/p28_optional_descriptor/observer.py": "3d8bd72866896a7e22546806c9daef3e78ad0e4393864f2e95975a932e9e0707",
+    "benchmarks/p28_optional_descriptor/pilot.py": "5c6982189ec1135d0d268973dad94c79e20b36d63dccf615b2c291f2d89256e5",
+    "benchmarks/p28_optional_descriptor/service.py": "eb31c941eeb008abc78155671f4c6b23fffc51372cf097a4ce98796447bf18ec",
+    "benchmarks/p28_optional_descriptor/test_pilot.py": "44b41cc89fa74d97515cd8c60e89c60e37fdf42bd37d5c012dd9549a79bdeab8",
+    "benchmarks/p28_optional_descriptor/validate_linux.py": "7298007dfcd85784a559c8270ad79c9ee8f9ef15b1dee3789d9468cb6ec72598",
+    "benchmarks/p32_native_mm01/analyze.py": "087080facee28188f9c193480b1084bcbe8347499b9f757515da7ccf9fed7e48",
+    "benchmarks/p32_native_mm01/ci_exact_runtime.py": "e24a598f73e8487d9d5ea9392c623f5f17fab3cda666f67af042261009152e07",
+    "benchmarks/p32_native_mm01/ci_portable.py": "e859d44b40061149aaa0727a21a1340b8b57bf098a48795cadab6111209c3987",
+    "benchmarks/p32_native_mm01/pilot.py": "f4f67d2542f32b07e1e4285d174a74b6af0e6a72a6c2757b4aec88e2b928d543",
+    "benchmarks/p32_native_mm01/test_pilot.py": "78374befc89c253df65b9f944fb7074cdc38d0ad30c48ca2338a5d8289231e02",
+    "benchmarks/p33_shared_scope/publish.py": "eb1ba8d8aa24d91d494bc5c9d606d3643db25cdfa7eecacd95ef568301df7c72",
+    "benchmarks/p33_shared_scope/reproduce.py": "3cd2eddc8f0fed1503676367f0c88095ed147923669e2eeb98f4e6faaaaf1b8d",
+    "benchmarks/p33_shared_scope/test_scope.py": "c314e404095e4c7181c8e347c2951044a5427010e6d57b9af82e6d69327e423a",
+    "benchmarks/p34_scope_guard/cases.py": "7e64dd0a4d3fae4a91372d7d9610cc3f3019d8da26984babdb70ed62a92ad33d",
+    "benchmarks/p34_scope_guard/publish.py": "b7171843d9fbb8dbb03414d9233e7a5a6a7f0cdae2293836fc596208ca32a144",
+    "benchmarks/p34_scope_guard/service.py": "7161ce441e50dbbd80ff111003374011c47fd5a74606a2bb50974a41d5719983",
+    "benchmarks/p34_scope_guard/verify_host.py": "a7f6e4a65287f8399b0cde47632be9bc6abf465466808b182cdad1b8f5ab7978",
+    "benchmarks/p34_scope_guard/verify_native.py": "4c0d2f7a65ac12a1446f7fbba6ed893e15af0c6afaf439acccafc691d3d25885",
+    "benchmarks/p35_occurrence_scope/reproduce.py": "3e5787ce9cf9090b5c7fa411e03d7ef3feb289e2e0ad19d49a037d1ca7238358",
+    "benchmarks/p36_mm02_native_model/analyze.py": "0b489e66f08923cb3cf31c4bb73b059166f741e4fbd1c5a2712c69d016082408",
+    "benchmarks/p36_mm02_native_model/pilot.py": "201effb449e5c54492d6112a5be578c7130b6930e8fa255fcb53b29d4f54a9a2",
+    "benchmarks/p36_mm02_native_model/publish.py": "1888fa1e5f29dd60b138950fb0adc3028f83e4a8246d9f50beb7835b21599c6e",
+    "benchmarks/p36_mm02_native_model/remote.py": "655129a0c71784623de599349c5512ac3d95368881aab8dfdc60491cece7991b",
+    "benchmarks/p36_mm02_native_model/service.py": "48bb9464f7cff27ba592f987094757a0dbdc26ac4e245814b5d8dcd86aa8099f",
+    "benchmarks/p36_mm02_native_model/ssh_startup_probe.py": "398927719e0a07fbafe681e1280518cad8c94dbe17fbe16122ec4484fa1a88e2",
+    "benchmarks/p36_mm02_native_model/startup_owner.py": "ac7883643947bd2d6d783b00e346f5bdcd58907d64dda8336ef609b5b0ad60b8",
+    "benchmarks/p36_mm02_native_model/test_pilot.py": "292a72e123e5a0b51feb340471bdcff475ff0c721e231d45e680a1321cc9e950",
+    "benchmarks/p36_mm02_native_model/test_startup_cleanup.py": "e8488dfbc0ba053769f08d1f67dcd9556959a6e8ff3a1f8bf7c7142d3f054917",
+    "benchmarks/p36_mm02_native_model/validate.py": "4fd860e4d34facc9a98e72227bc08b3970556146c36b2c99e86380d0391e2162",
+    "benchmarks/p36_mm02_native_model/verify_postrun.py": "3e7864129ef380ecf9ba55c7d2b0b5570235b0c7ea7b6b25f96e136b16fc476b",
+    "benchmarks/p37_maintenance_qualification/assertions.py": "49f04e70c86c8d91f15b99f941af78acc3d61c9479b0775274ded74d6d81491e",
+    "benchmarks/p37_maintenance_qualification/inputs.py": "dc95647161b766b5946c7622811b2583b0121b4f6b9944933ae2ebf8912fc0f9",
+    "benchmarks/p37_maintenance_qualification/publish.py": "fb994415c36c28869bc5954e5662cd29db5b5c069092cacc780aaf92d21ac01c",
+    "benchmarks/p37_maintenance_qualification/qualification.py": "33ddb444d5e7b6030ac965203f16d91c74675e2851c195dad25b15062cb11e07",
+    "benchmarks/p37_maintenance_qualification/register.py": "57769153cce1783855c353ffca8fca218448f130c1d9ffb1e377a52ac602a634",
+    "benchmarks/p37_maintenance_qualification/test_qualification.py": "046cb1853153ad9e10c58800cbbfd2fe450ca29baf2b09d19ebda979aa664ac8",
+    "benchmarks/p37_maintenance_qualification/witnesses.py": "b9f82b754695966101689558731d3269522c9491cf8e83c53930c04514d008c6",
+    "benchmarks/p38_authorized_effect_contract/mechanisms.py": "7f049e1f871b000b5df296aa3357742c81117b9102ad96697159935eee723b05",
+    "benchmarks/p38_authorized_effect_contract/study.py": "9e4622873df5bb699029098c9cc3a826ed76fd1455d55dc65201d150eda50674",
+    "benchmarks/p38_authorized_effect_contract/test_study.py": "01dc48755251d5594f255254c366ede40f66126f6a2de3f7d7fd986a8da427f1",
+    "benchmarks/p38_authorized_effect_contract/validate_evidence.py": "5c6a7113205b471a8dd8cb2181b8f8385748d5ead7189f375f899e8ff3299f1f",
+    "benchmarks/rdr02_treatment_realization/analyze.py": "48806c293d12466db00753427c269a72909f0b5f72bc2007598a763c486d1b20",
+    "benchmarks/rdr02_treatment_realization/evidence.py": "f6b8bf702da19179b57cafd97339a58012251280527a5e9b83b4967e5a3cdf3b",
+    "benchmarks/rdr02_treatment_realization/test_analysis.py": "3d52f2f84fecde946e8a325ec56197ccc0d8a77c4479b8a22ed56f07314196eb",
+    "benchmarks/rdr02_treatment_realization/validate.py": "1629945d57906bb41aa4644fd200b07a89b8c25123cc2c4793775d63bf50d582",
+    "docs/papers/alva-case-study-v0/build.py": "079528a8bfd045aed3c2a8205fc7f03424a1602a0f3c560359ebcf200420d306",
+    "docs/papers/alva-case-study-v0/check.py": "5f9d3dd6c802ba51cf9f3ec467601a22bbf3627c06363c9534a7294ace6b836a",
+    "docs/papers/alva-case-study-v0/render_figures.py": "938370c2a0aeebd8fd75bbbfa0a5781b3bc6960c211850313102063e330b166d",
+    "examples/build_system/tests/build_cases.py": "9f4d35b275972d995644795e5e10b7abd4ff6f2aefd9c8ba708447a4ec13f633",
+    "examples/python_guard/demo.py": "b4bf19b3112801d1c7e4a437e815399257f87ffcec650c6676fef01fc34d91a2",
+    "examples/python_guard_codex/demo.py": "dc45adc29c2b31e9470e47b52340318528b903e3fad8f04d00ee66ab1ffe62fe",
+    "examples/python_guard_codex/project/cart.py": "93477163dca8c771aa8e90fe19461f1b01f6072c24df40a867b1ef02b97e7e2c",
+    "examples/python_guard_codex/project/tests/test_cart.py": "4f56194ad97f22539a6331e8ad5eb5b6c37dfbf03789da91804f2cef9787553b",
+    "feasibility/native_api/run.py": "ad0bfbce7f92dc6fd5c1ae8be40836ef69319cc9cac0929175c6b4fa1946947b",
+    "integrations/benchmark_runtime_v2/__init__.py": "73dd0050a062b36dd8386d2bfaeade37eb9e0fa2a474c660a4cbe7680390825c",
+    "integrations/benchmark_runtime_v2/freeze.py": "be01bff6893781daa3a6bd3bfdde90b5f9db1c3cb1f511b44d7a730918f170ea",
+    "integrations/benchmark_runtime_v2/persistent.py": "71fd2e1d4c1b438583c3972242984f23213267f4781337278c0e7ed3f9d12421",
+    "integrations/benchmark_runtime_v2/sandbox.py": "8e50592d4b6101aff446138e2f6a52b0fce973b5bbcf11256017c1fa5e9d3d51",
+    "integrations/codex/native_commit_authorization.py": "a0fba82cef2e27f4e6f81b0c1cd22b1ccb2660000272dfa426fa591582a4830c",
+    "integrations/codex/precommit_scope_guard.py": "54a23a1377f1fd0c7dbfb65f40e5109836d00a50796a6630f2811799b8d76b0e",
+    "integrations/python_guard/__init__.py": "8949bddde32a9e5b8191a689476f9dca226d59147f9a271d8655065d2726cc85",
+    "integrations/python_guard/__main__.py": "344d70bea0a3ef574a05869443ecb5aebf4cefb3991e1f514c9aab6040e4f61d",
+    "integrations/python_guard/guard.py": "2f572c2a78ff8f507d93c317327fa39bfa39244fc4f1b2398c6abf3900d69575",
+    "integrations/python_guard/patch.py": "14d6518d74e51a0b8ddb339399f7acfb425e6507be1caa12e4a7a3427c94d7be",
+    "integrations/python_guard/runner.py": "9333f068522e32bdead639f607c5ff07bed90854e93e880d7ee2daacc8cd06dc",
+    "integrations/python_guard_codex/__init__.py": "8bbf4115b31d7b009908838ba87a7b42c741a7b78d3d44a9caa3bdeb4e41a828",
+    "integrations/python_guard_codex/__main__.py": "54dd2848e29e6ca4b6472e3cc85607338e5ad2184ce16b75e9f826898987e84a",
+    "integrations/python_guard_codex/workflow.py": "af44fed85394149d764407d4b113ba9cab04254a58fe18caa3a4f77597752383",
+    "scripts/analyze_p21_failures.py": "c356156f2675e5c0f9b214d95499aa8d7ca6a0dffa9a80cb41c97ab464de943e",
+    "scripts/check_parens.py": "b8e18eb4fd643ee7c7e8e7038ab5326321002560e845864ae2ec26c6b8dc7491",
+    "scripts/python_guard_candidate.py": "5e2699916bac42f6be1fa9e7d0909de6fa5ca422b3c6a11f3f5e403dae62d978",
+    "tests/air/air_check_soundness_test.py": "9c8a397655667e10f2e8ffbd82d2a8ec68957220a1087737e935a5d8b787225c",
+    "tests/air/air_test.py": "cb387aff4ab5260728ad80c64d9e8759570c33d2cf1bb9cf32b0faeaac3816f3",
+    "tests/air/capability_catalog_test.py": "4102532cc245367aa9c90b320a6576bf0533628d21726acad54eee64780a5fb9",
+    "tests/air/handle_canonical_test.py": "25bef1a0d5e2c99fc6f85f7d8d63ff7e345f43387477d142b39b834d9a7119df",
+    "tests/air/query_aep_test.py": "54d14ceb1b499a88765ad60fba3e19dc943dd64611e9ccac456e306a4b10be53",
+    "tests/air/rfc0005_aep_test.py": "e4b9dc62ee98eacba28b7fe716f7da0d820bc075296aaf8d38aed75bd104c248",
+    "tests/air/rfc0006_construction_test.py": "7aee85fda39ba4eee39a38234f6c03eaf4ab072f865a22ddef1adeb95a023819",
+    "tests/air/rfc0007_operand_test.py": "e3a88a09c8476e0b07f65e8d11a7f945ad30e667808b192299b1d414b6c36f24",
+    "tests/benchmark_runtime_v2/linux_probes.py": "146314db9480aeb26f0fdd002e15d620b1a514453f4907cf89dc8c5f53095f8f",
+    "tests/benchmark_runtime_v2/persistent_probes.py": "f482577168634ff128cc9d16ec85987ccc988342905b246ab6f8653a7da6db44",
+    "tests/benchmark_runtime_v2/run_tests.py": "e5440b5d0e10a4281aa2418a278750e356f7c088406f2ddcec536ef447ae70b7",
+    "tests/benchmark_runtime_v2/test_freeze.py": "3500156fcc58a7e554114e8dabb5de31e4701e6f29c1ce4cf985a6b46d5c7be2",
+    "tests/golden_check.py": "815f433f461e4f11a5613fd188624d4f0fcc318043c24474547d139ed310f4d4",
+    "tests/integrations/claude_code_plugin_test.py": "2bb2749cb82e41aa10361b307e5a5b8502bc5b4357c3ff58cb1bf06c17dce1b7",
+    "tests/integrations/codex_native_test.py": "4f0c01c6f6f78997c7532cd282820849091569da87586e089dfcd45ebd5829a4",
+    "tests/integrations/codex_plugin_test.py": "5a24120915c9869885942960de3a335b49a688575f23bf2b64c1af814dd2d725",
+    "tests/integrations/native_commit_authorization_test.py": "bd7996dc703ae5731d46272be851ac057eb325b2667540afeba74d0f68c4b155",
+    "tests/integrations/p31_synthetic_provider.py": "30b5cf472c520d402ed8b359ddd932086c73f07e01499a05131a4995147d633d",
+    "tests/integrations/test_native_commit_authorization.py": "8a7d184d29b5010f7ba14d271b829c50eddee1a17edbf87c78512ddd07b45e32",
+    "tests/integrations/test_precommit_scope_guard.py": "fd0f32812b372284381cba218cec8d9962af9793425ff1a99e17ad244c595c48",
+    "tests/mcp/coding_closure.py": "0dea1b74f1c71af70e7d3a2587c2f38af8c0d25140a3204b6d9f3aa31eda0976",
+    "tests/mcp/coding_closure_inside.py": "db51f1dabc725682eca378c96ae4cf4c5033aba52b7d81ac9d19f04970b9479b",
+    "tests/mcp/mcp_protocol_test.py": "8272713cc0a86e4b94a8e590c1989facb45985a6adf4ee171e7251e424b96d61",
+    "tests/python_guard/fixture/calc.py": "1eac0f5f2a7c292264745267c7a122d79d430b4f447c53c3e31191f0b4cd00cb",
+    "tests/python_guard/fixture/tests/test_calc.py": "44f3b5a088e0a53201321d2b3c6a3c6bd1f9d6ce389c61879b8af98fdda5be9f",
+    "tests/python_guard/test_candidate_workflow.py": "58036a167746d1ed0f803cd3f9f9000d658b1f6cd576e8c826cd364a35f53b3e",
+    "tests/python_guard/test_guard.py": "f89703c00acb6a911f55748672d4a73d07aa10eaa5ec4285615382c4c5fe2fab",
+    "tests/storage/durable_test.py": "20ce342926f5e15936302839ef3a40b195927cbcc59c6a3140fcb12162de01ac"
+  },
+  "codex": "codex-cli 0.167.0-alpha.3.2",
+  "codex_binary_sha256": "40ecc3d8b6899afd8f935a8cccb7d53ba41ffd7c199f679e186d30ddd0d0bf39",
+  "preflight_sha256": "48c188a807564951914bb3cc4c23119e20bc3fe9994b8158da711d95512b7d1a",
+  "technical_probe_sha256": "82552ebded186dcb900f403042461c8d4347bda9a695cd44e3da901f179b834f"
+}

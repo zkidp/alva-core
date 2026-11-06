@@ -15,6 +15,7 @@ from integrations.benchmark_runtime_v2.sandbox import SDK, LinuxSandbox
 from integrations.benchmark_runtime_v2.persistent import PersistentSandbox
 from integrations.benchmark_runtime_v2.freeze import canonical, decode, sha
 from benchmarks.maintenance_design import feasibility as prior
+from benchmarks.maintenance_interface_comparison.linux_profile import install, PROFILE
 
 
 def tree_identity(path):
@@ -24,6 +25,7 @@ def tree_identity(path):
 
 
 def main(args):
+    install()
     sdk = SDK(*(Path(getattr(args, k)).resolve() for k in ("alva", "toolchain", "registry")))
     registration = json.loads((Path(__file__).parent / "REGISTRATION.json").read_text())
     results = []
@@ -61,7 +63,7 @@ def main(args):
     result = {"status": "PASS" if all(r["status"] == "PASS" for r in results) else "BLOCKED",
         "model_generation_calls": 0, "input_token_api_calls": 0, "platform": platform.platform(),
         "sdk_identity": {"binary": tree_identity(sdk.alva), "toolchain": tree_identity(sdk.rust_toolchain), "registry": tree_identity(sdk.registry)},
-        "alva_version": subprocess.check_output([str(sdk.alva), "--version"], text=True).strip(),
+        "alva_version": subprocess.check_output([str(sdk.alva), "--version"], text=True).strip(), "resource_profile": PROFILE,
         "rows": results}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")

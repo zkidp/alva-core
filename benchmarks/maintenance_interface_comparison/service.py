@@ -11,23 +11,30 @@ sys.path.insert(0, str(ROOT))
 from benchmarks.native_prospective import service as old
 from benchmarks.maintenance_design import feasibility as prior
 from integrations.benchmark_runtime_v2.persistent import _Process
+from integrations.benchmark_runtime_v2.persistent import PersistentSandbox
 from integrations.benchmark_runtime_v2.sandbox import LinuxSandbox
 from integrations.benchmark_runtime_v2.freeze import canonical, sha
 from integrations.codex.precommit_scope_guard import GuardedNative
+from benchmarks.maintenance_interface_comparison.linux_profile import install
 
 TOOLS = tuple(json.loads((ROOT / "benchmarks/p36_mm02_native_model/FREEZE.json").read_text())["native_tools"])
 
 
 def inspect(box, task):
     ledger = []
+    raw = box.mcp()
     # Actual unchanged P34 collector, no commit interception/policy asymmetry.
-    with GuardedNative(box.mcp(), task["policy"], TOOLS, ledger.append) as native:
-        prior.initialize(native)
-        c = prior.Client(native, [])
-        c.begin()
-        result = next(e["snapshot"] for e in ledger if e["event"] == "trusted_baseline")
-        c.call("abort_transaction")
-        return result
+    try:
+        with GuardedNative(raw, task["policy"], TOOLS, ledger.append) as native:
+            prior.initialize(native)
+            c = prior.Client(native, [])
+            c.begin()
+            result = next(e["snapshot"] for e in ledger if e["event"] == "trusted_baseline")
+            c.call("abort_transaction")
+            return result
+    except Exception:
+        print("MCP_STARTUP_STDERR=" + bytes(raw.process.err).decode(errors="replace")[-3000:], file=sys.stderr, flush=True)
+        raise
 
 
 def evaluate(snapshot, sdk, task, check_only=False, baseline=False):
@@ -65,13 +72,25 @@ def inside_source(paths):
 
 
 def serve(config_path):
+    install()
     cfg = json.loads(config_path.read_text())
     task = cfg["task"]
+    class SocketRoot:
+        def __init__(self, original):
+            self.original = original
+        def __truediv__(self, name):
+            return Path(cfg["ipc_path"]) if name == "host.sock" else self.original / name
+    class Box(PersistentSandbox):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            # Work/input/temp ownership remain under the exact original root.
+            # Only the trusted IPC socket uses a short unique host path.
+            self.root = SocketRoot(self.root)
     class Lines(old.Lines):
         def __init__(self, box):
             self.box = box
             self.proc = _Process(box, ["/usr/bin/python3", "-I", "-c", inside_source(task["input_paths"])])
-    with patch.object(old, "Lines", Lines), patch.object(old, "inspect_authority", lambda box: inspect(box, task)), \
+    with patch.object(old, "PersistentSandbox", Box), patch.object(old, "Lines", Lines), patch.object(old, "inspect_authority", lambda box: inspect(box, task)), \
          patch.object(old, "evaluate", lambda snapshot, sdk, vectors, check_only=False: evaluate(snapshot, sdk, task, check_only)):
         old.serve(config_path)
 

@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "baseline_tasks": [
+    {
+      "id": "MM01",
+      "goal": "TEST_FAIL",
+      "regression": "PASS",
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "text_full_file_writer": "PASS"
+    },
+    {
+      "id": "MM02",
+      "goal": "TEST_FAIL",
+      "regression": "PASS",
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "text_full_file_writer": "PASS"
+    },
+    {
+      "id": "MM04",
+      "goal": "TEST_FAIL",
+      "regression": "PASS",
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "text_full_file_writer": "PASS"
+    },
+    {
+      "id": "MM05",
+      "goal": "TEST_FAIL",
+      "regression": "PASS",
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "text_full_file_writer": "PASS"
+    },
+    {
+      "id": "MM06",
+      "goal": "TEST_FAIL",
+      "regression": "PASS",
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "text_full_file_writer": "PASS"
+    },
+    {
+      "id": "MM07",
+      "goal": "TEST_FAIL",
+      "regression": "PASS",
+      "native_schema_sha256": "aae3780fc98ff1b7f2bdccd2b8765e442325004af55237fc52c7e2c9219dbafd",
+      "text_full_file_writer": "PASS"
+    }
+  ],
+  "host_probe": {
+    "rows": [
+      {
+        "arm": "T",
+        "generation_calls": 0,
+        "status": "PASS",
+        "actual_model": "gpt-5.6-sol",
+        "native_tools": 0,
+        "candidate_unchanged": true,
+        "baseline_check": "PASS",
+        "baseline_test": "TEST_FAIL"
+      },
+      {
+        "arm": "N",
+        "generation_calls": 0,
+        "status": "PASS",
+        "actual_model": "gpt-5.6-sol",
+        "native_tools": 20,
+        "candidate_unchanged": true,
+        "baseline_check": "PASS",
+        "baseline_test": "TEST_FAIL"
+      }
+    ],
+    "generation_calls": 0,
+    "status": "PASS"
+  },
+  "resource_profile": {
+    "nproc_rlimit": 512,
+    "scope": "per-real-UID, not per-candidate process count",
+    "cpu_seconds": 90,
+    "address_space_bytes": 4294967296,
+    "reason": "shared execution UID already has >128 unrelated threads"
+  },
+  "sdk_identity": {
+    "binary": {
+      "sha256": "c5cdbd8a1884e00d16182c7c6fd1c7480afd1d141689d8049fe264323ee1e1e0",
+      "files": 1
+    },
+    "toolchain": {
+      "sha256": "44b122e9df641e6e512e6012192c15a575f20d87947152e166b8e5b986e2e903",
+      "files": 153
+    },
+    "registry": {
+      "sha256": "5c1a88bf9442dcc906c3ef747abc7ecafb471d5cd84cf3b3c60e27ed4bbc8dcc",
+      "files": 703
+    }
+  },
+  "preparation_model_generation_calls": 0,
+  "preparation_input_token_api_calls": 0
+}
