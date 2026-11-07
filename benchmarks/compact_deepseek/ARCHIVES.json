@@ -1,0 +1,20 @@
+{
+  "archives": [
+    {
+      "name": "MODEL-RAW.zip",
+      "bytes": 1075092,
+      "sha256": "1b56a1b22a1bc505021c6c8294fc2659d11bff37d764466c80c1ed93abac972e"
+    },
+    {
+      "name": "PREPARATION-RAW.zip",
+      "bytes": 142747,
+      "sha256": "c14421b5b923280440cc7b2a66ab18890fca906b90d862fade5782747d77d4db"
+    },
+    {
+      "name": "RUNTIME.zip",
+      "bytes": 491543,
+      "sha256": "6c5dff98b7223af8ee1a262861bebe9c3f340d033e9cb48ed1f58f473bde8f54"
+    }
+  ],
+  "raw_policy": "Controlled local artifacts only; raw model/reasoning text, keys, authentication contexts and machine configuration are not published. Runtime archive preserves exact executed bytes including checkout line endings."
+}

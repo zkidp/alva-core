@@ -21,4 +21,4 @@ jobs:
         with:
           python-version: '3.12'
       - name: Shared contract and provider-loop controls, no network/model
-        run: python -m unittest benchmarks.compact_maintenance.test_study benchmarks.compact_deepseek.test_runtime -v
+        run: python -m unittest benchmarks.compact_maintenance.test_study benchmarks.compact_deepseek.test_runtime benchmarks.compact_deepseek.test_postrun -v

@@ -1,0 +1,1038 @@
+{
+  "status": "COMPLETED",
+  "disposition": "NO_EXPLORATORY_FAVORABLE_SIGNAL",
+  "model": "deepseek-flash",
+  "effort": "low",
+  "freeze_sha256": "f0951cb294b052f180c6637f7609bd0edd88fdcf6a0c3859697b4def7dee7afa",
+  "known_tasks": 4,
+  "independent_new_tasks": 0,
+  "model_sessions_started": 16,
+  "submitted_chat_requests": 256,
+  "input_token_api_calls": 0,
+  "both_success_pairs": 6,
+  "median_paired_token_ratio": 1.5095546439394352,
+  "arms": {
+    "T": {
+      "scheduled": 8,
+      "observed": 8,
+      "correct": 6,
+      "valid": 8,
+      "complete_usage_slots": 8,
+      "observed_complete_usage_sum": {
+        "totalTokens": 1837434,
+        "inputTokens": 1784807,
+        "cachedInputTokens": 1682432,
+        "outputTokens": 52627,
+        "reasoningOutputTokens": 30968
+      },
+      "submitted_chat_requests": 127,
+      "median_success_total_tokens": 93740.5,
+      "median_active_seconds": 31.021301900000253,
+      "provider_generation_requests": null,
+      "dollar_cost": null
+    },
+    "N": {
+      "scheduled": 8,
+      "observed": 8,
+      "correct": 7,
+      "valid": 8,
+      "complete_usage_slots": 8,
+      "observed_complete_usage_sum": {
+        "totalTokens": 1765717,
+        "inputTokens": 1724035,
+        "cachedInputTokens": 1625856,
+        "outputTokens": 41682,
+        "reasoningOutputTokens": 26027
+      },
+      "submitted_chat_requests": 129,
+      "median_success_total_tokens": 144671.5,
+      "median_active_seconds": 37.71004675000222,
+      "provider_generation_requests": null,
+      "dollar_cost": null
+    }
+  },
+  "pairs": [
+    {
+      "task": "MM01",
+      "repeat": 1,
+      "both_valid": true,
+      "T_correct": true,
+      "N_correct": true,
+      "T_total": 82111,
+      "N_total": 156948,
+      "ratio": 1.9114126000170502
+    },
+    {
+      "task": "MM01",
+      "repeat": 2,
+      "both_valid": true,
+      "T_correct": true,
+      "N_correct": true,
+      "T_total": 105370,
+      "N_total": 116718,
+      "ratio": 1.1076966878618202
+    },
+    {
+      "task": "MM02",
+      "repeat": 1,
+      "both_valid": true,
+      "T_correct": true,
+      "N_correct": true,
+      "T_total": 47396,
+      "N_total": 156889,
+      "ratio": 3.310173854333699
+    },
+    {
+      "task": "MM02",
+      "repeat": 2,
+      "both_valid": true,
+      "T_correct": true,
+      "N_correct": true,
+      "T_total": 176120,
+      "N_total": 132454,
+      "ratio": 0.752066772655008
+    },
+    {
+      "task": "MM04",
+      "repeat": 1,
+      "both_valid": true,
+      "T_correct": true,
+      "N_correct": true,
+      "T_total": 75739,
+      "N_total": 166059,
+      "ratio": 2.1925164050225114
+    },
+    {
+      "task": "MM04",
+      "repeat": 2,
+      "both_valid": true,
+      "T_correct": true,
+      "N_correct": true,
+      "T_total": 119309,
+      "N_total": 113815,
+      "ratio": 0.9539515040776472
+    },
+    {
+      "task": "MM07",
+      "repeat": 1,
+      "both_valid": true,
+      "T_correct": false,
+      "N_correct": false
+    },
+    {
+      "task": "MM07",
+      "repeat": 2,
+      "both_valid": true,
+      "T_correct": false,
+      "N_correct": true
+    }
+  ],
+  "rows": [
+    {
+      "id": "01-MM07-r2-N",
+      "task": "MM07",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 26,
+      "dispatched_tool_calls": 26,
+      "submitted_chat_requests": 19,
+      "reported_usage": {
+        "totalTokens": 301329,
+        "inputTokens": 291111,
+        "cachedInputTokens": 276096,
+        "outputTokens": 10218,
+        "reasoningOutputTokens": 8052
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.6447420999975293,
+      "active_seconds": 94.22346549999929,
+      "finalization_seconds": 6.222636599995894,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.model.xml_error"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "8ae7ffda6c33af10660db25c96c931f000b510c378e13f4d27521b6ba48e4eef",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "4c66daefcd42fd6a31d4e2f2b139dda5a31d42aa875641957a903c844d46eeab",
+        "air_published": true
+      },
+      "successful_native_commits": 1,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "32ec09789b46a152eb88e4635ea1aac1e2cad496ac953c06db609363c5c563a1",
+      "record_sha256": "06347c86c815e40ba3bf49018365d6a9662fa876e6d96cc0e195d271b51b4eec",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 4
+    },
+    {
+      "id": "02-MM07-r2-T",
+      "task": "MM07",
+      "arm": "T",
+      "repeat": 2,
+      "correct": false,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": false,
+      "stop_reason": "OBSERVATION_LIMIT_BETWEEN_REQUESTS",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 33,
+      "dispatched_tool_calls": 33,
+      "submitted_chat_requests": 28,
+      "reported_usage": {
+        "totalTokens": 628552,
+        "inputTokens": 605619,
+        "cachedInputTokens": 582528,
+        "outputTokens": 22933,
+        "reasoningOutputTokens": 12966
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.204843300001812,
+      "active_seconds": 169.56899089999933,
+      "finalization_seconds": 2.765058400000271,
+      "outcome": {
+        "correct": false,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.model.xml_error"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "CHECK_FAIL",
+        "regression": "CHECK_FAIL",
+        "tested_snapshot_sha256": "8093b7692d890ce536c9bad8aea63c6852c5f360767965a799cf41355ea4c42d",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "1da5837524636955179435a2ca75f11ab7446d47e82a95548ec0d9e69c5c31a5",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "6db2836ca34dec34dc0874fe1ff27ae2168375d85039361f27d54f86bfdd8b33",
+      "record_sha256": "3662ae53d58ae5f04b5571207982309fa40dcff3cd2f3f60e362ce3c85e5ac0d",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 1
+    },
+    {
+      "id": "03-MM01-r1-T",
+      "task": "MM01",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 15,
+      "dispatched_tool_calls": 15,
+      "submitted_chat_requests": 10,
+      "reported_usage": {
+        "totalTokens": 82111,
+        "inputTokens": 80882,
+        "cachedInputTokens": 71296,
+        "outputTokens": 1229,
+        "reasoningOutputTokens": 283
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.183131500001764,
+      "active_seconds": 22.75684629999887,
+      "finalization_seconds": 6.200004799997259,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "demo.model.touch_size"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "dce4321e97fe830a7b7a45b0c47c72a0b2ac59a6984d76893298b3e9be7d025e",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "02ae98f6b24b30254fd770bbd8e44d811cc42531ab1a64e0c95b1c27043cfa1d",
+      "record_sha256": "f1f5307e38aa857bca26e68a1839a8ebdb95c5e8f30fdcee613ccb5a8e988fc4",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "04-MM01-r1-N",
+      "task": "MM01",
+      "arm": "N",
+      "repeat": 1,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 23,
+      "dispatched_tool_calls": 23,
+      "submitted_chat_requests": 15,
+      "reported_usage": {
+        "totalTokens": 156948,
+        "inputTokens": 154687,
+        "cachedInputTokens": 143104,
+        "outputTokens": 2261,
+        "reasoningOutputTokens": 1033
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.767266100003326,
+      "active_seconds": 41.16297169999598,
+      "finalization_seconds": 6.279220699994767,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "demo.model.touch_size"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "d88842a62abd039bbfe52d0852701cda5b5fa078ee07ef82abaa91a0149a9ece",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "air_published": true
+      },
+      "successful_native_commits": 1,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "9ce9140efcf4cd4efa4a5290363b06e2d3fa8f8eb8a252bfb90e71c8e9437a88",
+      "record_sha256": "159e12a66003837abbf2455927ba9267cce6c87d0a0b44aa48cc9f86668d24bb",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "05-MM04-r1-T",
+      "task": "MM04",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 14,
+      "dispatched_tool_calls": 14,
+      "submitted_chat_requests": 10,
+      "reported_usage": {
+        "totalTokens": 75739,
+        "inputTokens": 74132,
+        "cachedInputTokens": 63616,
+        "outputTokens": 1607,
+        "reasoningOutputTokens": 563
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.6407737000045017,
+      "active_seconds": 26.039695200001006,
+      "finalization_seconds": 6.520767699999851,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "build.model.topo_order"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "34493400ecf2b909ff69e8ccea0362090db4f5a0073e78c34af60747fed8f53d",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "377e805011467f05c43f64313d4e2b4e92d2ab0484dd94ae2bb5e36a57b8974d",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "f7780db8a54d514e6baca753f601582c18a54cd6fd694ddab92eae20c69d1ee2",
+      "record_sha256": "b5dbc0ef7755e9c3462d74695ec604a5350471a9120e4208e12e90569da10564",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "06-MM04-r1-N",
+      "task": "MM04",
+      "arm": "N",
+      "repeat": 1,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 16,
+      "dispatched_tool_calls": 16,
+      "submitted_chat_requests": 13,
+      "reported_usage": {
+        "totalTokens": 166059,
+        "inputTokens": 163423,
+        "cachedInputTokens": 151296,
+        "outputTokens": 2636,
+        "reasoningOutputTokens": 1536
+      },
+      "usage_complete": true,
+      "setup_seconds": 3.136993000000075,
+      "active_seconds": 40.676002100000915,
+      "finalization_seconds": 6.670610900000611,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "build.model.topo_order"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "909caad86da05baf4344f38d1830e07f4c2c5818f23261857a3a8d7d8bf8565e",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "19785e2a97aaeaa415a70f3a8643ffc8e5c35953c3b10c3ea2f0e548a6cd7ccd",
+        "air_published": true
+      },
+      "successful_native_commits": 1,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "67e9aca8d7f9d4c3f8a610e0386bd5ff461565dad8d10a7080c326fd3ce23057",
+      "record_sha256": "17736d7a6f0a46599f02080aa29d8d6c48d5745e0a398a7ab056dde73b0f190e",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 1
+    },
+    {
+      "id": "07-MM07-r1-T",
+      "task": "MM07",
+      "arm": "T",
+      "repeat": 1,
+      "correct": false,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": false,
+      "stop_reason": "OBSERVATION_LIMIT_BETWEEN_REQUESTS",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 39,
+      "dispatched_tool_calls": 39,
+      "submitted_chat_requests": 35,
+      "reported_usage": {
+        "totalTokens": 602837,
+        "inputTokens": 587479,
+        "cachedInputTokens": 571648,
+        "outputTokens": 15358,
+        "reasoningOutputTokens": 10573
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.115891499997815,
+      "active_seconds": 147.78951109999616,
+      "finalization_seconds": 2.7461930999998003,
+      "outcome": {
+        "correct": false,
+        "scope": "UNKNOWN",
+        "goal": "CHECK_FAIL",
+        "regression": "CHECK_FAIL",
+        "reason": "unreadable candidate structure"
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "16cdb9ec975c6b2317fb00505c987ef288a3d4b899d44868f9ae140a88937d26",
+      "record_sha256": "ccffab3dec0605ec5d6858e1cf8dc992ba375dcaa3d3bc017957d066323935a9",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 1
+    },
+    {
+      "id": "08-MM07-r1-N",
+      "task": "MM07",
+      "arm": "N",
+      "repeat": 1,
+      "correct": false,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": false,
+      "stop_reason": "OBSERVATION_LIMIT_BETWEEN_REQUESTS",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 41,
+      "dispatched_tool_calls": 41,
+      "submitted_chat_requests": 33,
+      "reported_usage": {
+        "totalTokens": 621505,
+        "inputTokens": 603753,
+        "cachedInputTokens": 589440,
+        "outputTokens": 17752,
+        "reasoningOutputTokens": 11289
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.6642018999991706,
+      "active_seconds": 129.28300820000004,
+      "finalization_seconds": 6.38665420000325,
+      "outcome": {
+        "correct": false,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [],
+          "unauthorized": []
+        },
+        "target_changed": false,
+        "goal": "TEST_FAIL",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "ec2c97097da979190242f0191b665c30048d3898f9adfb0bf2fec232a9ff5b14",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "f0f07af4859dfb0123aaaf41d49d6ddd79203301890d496604c6178a371b92d2",
+        "air_published": false
+      },
+      "successful_native_commits": 0,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "692d35ff4151483e038647682e51f8d847f3a237c5b105557b91ec534e1b0be5",
+      "record_sha256": "2c51fe9e144c2fceee5e076d911b379fc297c080770b32f3f0df8328ea213b66",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 25
+    },
+    {
+      "id": "09-MM02-r1-T",
+      "task": "MM02",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 10,
+      "dispatched_tool_calls": 10,
+      "submitted_chat_requests": 7,
+      "reported_usage": {
+        "totalTokens": 47396,
+        "inputTokens": 46111,
+        "cachedInputTokens": 38016,
+        "outputTokens": 1285,
+        "reasoningOutputTokens": 596
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.5968958000012208,
+      "active_seconds": 20.18596900000557,
+      "finalization_seconds": 6.462527800002135,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.xml.parse_prefix"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "f7d329c7357556a4a5303cfb4dfc63c5bacd003dd237b55c20a36e6100a62557",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "79470047c2b63ed365769523c848b9b7590d38298aaa63152ae691ea46dbade0",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "b2e20f6860877155055efe19df22df21bfbfdc3cf4839ba824d5ff536ff2da27",
+      "record_sha256": "495ef14363b7432f59a36b90ebc31c04ee829f605bb4fc638528775055754f4b",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "10-MM02-r1-N",
+      "task": "MM02",
+      "arm": "N",
+      "repeat": 1,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 19,
+      "dispatched_tool_calls": 19,
+      "submitted_chat_requests": 13,
+      "reported_usage": {
+        "totalTokens": 156889,
+        "inputTokens": 154178,
+        "cachedInputTokens": 141824,
+        "outputTokens": 2711,
+        "reasoningOutputTokens": 1539
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.706561700004386,
+      "active_seconds": 34.744091400003526,
+      "finalization_seconds": 6.5978826999999,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.xml.parse_prefix"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "e2f8b8a18b68c7e836a474682f653ec51e7dfaa2696462313e8453e2cb025b24",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "66bed5c87146783938d0b8601e72f0d841b34d60c8bfd9f16da38b6de827dc2b",
+        "air_published": true
+      },
+      "successful_native_commits": 1,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "1415cd277be2997fa34bb5da509ffded9e42637b730bbfb0ed1999c0704ee974",
+      "record_sha256": "c6fadcdd109dfdafc673b239f22ddcd29a52093be52e1054f348a499f63446c2",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "11-MM01-r2-N",
+      "task": "MM01",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 19,
+      "dispatched_tool_calls": 19,
+      "submitted_chat_requests": 12,
+      "reported_usage": {
+        "totalTokens": 116718,
+        "inputTokens": 115359,
+        "cachedInputTokens": 104448,
+        "outputTokens": 1359,
+        "reasoningOutputTokens": 324
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.59296390000236,
+      "active_seconds": 24.271735800000897,
+      "finalization_seconds": 6.193836400001601,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "demo.model.touch_size"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "d88842a62abd039bbfe52d0852701cda5b5fa078ee07ef82abaa91a0149a9ece",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "air_published": true
+      },
+      "successful_native_commits": 1,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "24e63c9ac2707047556bffa7f193c639be061a013f5bd07179e8a7eeef3033c2",
+      "record_sha256": "b124409eac8c2ce584d9529119db45490332a8d410e35f48695cf782217ff4ae",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "12-MM01-r2-T",
+      "task": "MM01",
+      "arm": "T",
+      "repeat": 2,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 18,
+      "dispatched_tool_calls": 18,
+      "submitted_chat_requests": 11,
+      "reported_usage": {
+        "totalTokens": 105370,
+        "inputTokens": 103610,
+        "cachedInputTokens": 92416,
+        "outputTokens": 1760,
+        "reasoningOutputTokens": 594
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.1643361000024015,
+      "active_seconds": 26.02410790000431,
+      "finalization_seconds": 6.385119400001713,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "demo.model.touch_size"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "dce4321e97fe830a7b7a45b0c47c72a0b2ac59a6984d76893298b3e9be7d025e",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "46fb34bbdaa76dfae7376f85e4f31c3f006e2af4f2b136165fb3177e9c3f2bcc",
+      "record_sha256": "e423cc1a24c4b0e9cbe1b99ec68637c074f9fdcf070cdf201eb79678b0304a62",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "13-MM02-r2-N",
+      "task": "MM02",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 18,
+      "dispatched_tool_calls": 18,
+      "submitted_chat_requests": 13,
+      "reported_usage": {
+        "totalTokens": 132454,
+        "inputTokens": 130136,
+        "cachedInputTokens": 119808,
+        "outputTokens": 2318,
+        "reasoningOutputTokens": 1079
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.677510599998641,
+      "active_seconds": 30.96760009999707,
+      "finalization_seconds": 6.711944700000458,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.xml.parse_prefix"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "6fa4de74c328f1d49c645829ec9954f6bf3dde45af5b3f684c79d873be59f8e8",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "b61c436abb87465ae978bb2200bd00b5c1dbd9414fb993b6dec1d7613467c9f8",
+        "air_published": true
+      },
+      "successful_native_commits": 1,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "71b0d44231acb520d4604696b18ba5b65158f85bb70411a0ad9af8854843be5a",
+      "record_sha256": "ac4df069633fd5e5700f9f90f5bd63c23a767d1acf17a13dba2a52087136edd3",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "14-MM02-r2-T",
+      "task": "MM02",
+      "arm": "T",
+      "repeat": 2,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 20,
+      "dispatched_tool_calls": 20,
+      "submitted_chat_requests": 15,
+      "reported_usage": {
+        "totalTokens": 176120,
+        "inputTokens": 170744,
+        "cachedInputTokens": 158720,
+        "outputTokens": 5376,
+        "reasoningOutputTokens": 3372
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.168411400001787,
+      "active_seconds": 50.84791050000058,
+      "finalization_seconds": 6.674200199995539,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.xml.parse_prefix"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "482cbbebbac41dfbb33f6a185c29f52ee433ba045cd840828af46f3d00f35572",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "66bed5c87146783938d0b8601e72f0d841b34d60c8bfd9f16da38b6de827dc2b",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "38b0ff12a224f0c913ad46d7cb3239ba1a1faeacc9063a0d0d924cf651d2389b",
+      "record_sha256": "b2be53fcb9e26bf2fe770d3ff27441b39f0f4d2640c6e57f0278e557b26d20d8",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 2
+    },
+    {
+      "id": "15-MM04-r2-N",
+      "task": "MM04",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 18,
+      "dispatched_tool_calls": 18,
+      "submitted_chat_requests": 11,
+      "reported_usage": {
+        "totalTokens": 113815,
+        "inputTokens": 111388,
+        "cachedInputTokens": 99840,
+        "outputTokens": 2427,
+        "reasoningOutputTokens": 1175
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.7287844000020414,
+      "active_seconds": 30.50954240000283,
+      "finalization_seconds": 6.603738900004828,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "build.model.topo_order"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "b855f32373bd2d69d58ad95b988727c457999c6b5a0d803571bd1c9dd85bd96b",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "b7185c8db8bc72518bb36e70c98d4186e9c724ec7182c4f791850a64d1332bfa",
+        "air_published": true
+      },
+      "successful_native_commits": 1,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "b687501a484c043e1d9725b1a4892b01d6eaf3bb2082b287358ad8b9bc43a491",
+      "record_sha256": "27a232504c9e66f6e14bc71bd10c4e97db495b057fd8e20752e59c43d6d232e9",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    },
+    {
+      "id": "16-MM04-r2-T",
+      "task": "MM04",
+      "arm": "T",
+      "repeat": 2,
+      "correct": true,
+      "valid": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "STUDY_FINISH",
+      "infrastructure_hold": null,
+      "observed_tool_calls": 13,
+      "dispatched_tool_calls": 13,
+      "submitted_chat_requests": 11,
+      "reported_usage": {
+        "totalTokens": 119309,
+        "inputTokens": 116230,
+        "cachedInputTokens": 104192,
+        "outputTokens": 3079,
+        "reasoningOutputTokens": 2021
+      },
+      "usage_complete": true,
+      "setup_seconds": 2.5959690999952727,
+      "active_seconds": 36.0029085999995,
+      "finalization_seconds": 6.611761899999692,
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "build.model.topo_order"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "a6e7e0f3134194f0610103d123101475132d7fc9d2cf4f752b549323b53e03e5",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "8593a377b0ed8f9c8ece76c48363789f74f9f26ac3c3a65daedd414b500ce322",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "identity_before": true,
+      "identity_after": true,
+      "cleanup_confirmed": true,
+      "evidence_sha256": "f367cdbfdc77dc6227a6a7d5357ae3b01253f0b4071dffe25b85edb783494f83",
+      "record_sha256": "eee672e23e99a871e5cf8985d8fc7839c68fb52cf2d03c25c81a391c883cbbbb",
+      "provider_models": [
+        "deepseek-flash"
+      ],
+      "provider_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ],
+      "tool_errors": 0
+    }
+  ],
+  "limits": [
+    "Known author-informed tasks; no general superiority or significance claim.",
+    "Success-conditioned token comparison; failures and observed resource use retained.",
+    "No cross-provider/tokenizer comparison with historical GPT results.",
+    "Provider alias/fingerprints do not establish immutable model weights.",
+    "Reasoning usage remains null if unreported; not fabricated or added to output."
+  ]
+}

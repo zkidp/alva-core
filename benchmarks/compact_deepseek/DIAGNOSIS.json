@@ -1,0 +1,166 @@
+{
+  "status": "POST_RUN_DESCRIPTIVE_ONLY",
+  "arms_on_six_both_success_pairs": {
+    "T": {
+      "matched_success_slots": 6,
+      "provider_tool_count": 10,
+      "provider_tool_schema_json_utf8_bytes": 4281,
+      "median_model_tool_calls": 14.5,
+      "median_submitted_chat_requests": 10.5,
+      "model_tool_counts": {
+        "study_check": 6,
+        "study_diff": 6,
+        "study_doc": 24,
+        "study_edit": 8,
+        "study_finish": 6,
+        "study_read": 21,
+        "study_revision": 6,
+        "study_search": 7,
+        "study_test": 6
+      },
+      "returned_error_envelopes": 2,
+      "shared_check_test_failures": 0
+    },
+    "N": {
+      "matched_success_slots": 6,
+      "provider_tool_count": 17,
+      "provider_tool_schema_json_utf8_bytes": 7978,
+      "median_model_tool_calls": 18.5,
+      "median_submitted_chat_requests": 13.0,
+      "model_tool_counts": {
+        "begin_transaction": 6,
+        "check_transaction": 6,
+        "commit_transaction": 6,
+        "inspect_project": 1,
+        "preview_semantic_diff": 6,
+        "read_function": 6,
+        "replace_function_body": 6,
+        "study_check": 7,
+        "study_diff": 3,
+        "study_doc": 25,
+        "study_finish": 6,
+        "study_read": 15,
+        "study_revision": 6,
+        "study_search": 6,
+        "study_test": 8
+      },
+      "returned_error_envelopes": 1,
+      "shared_check_test_failures": 2
+    }
+  },
+  "failed_slots": [
+    {
+      "id": "02-MM07-r2-T",
+      "stop_reason": "OBSERVATION_LIMIT_BETWEEN_REQUESTS",
+      "outcome": {
+        "correct": false,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.model.xml_error"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "CHECK_FAIL",
+        "regression": "CHECK_FAIL",
+        "tested_snapshot_sha256": "8093b7692d890ce536c9bad8aea63c6852c5f360767965a799cf41355ea4c42d",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "1da5837524636955179435a2ca75f11ab7446d47e82a95548ec0d9e69c5c31a5",
+        "air_published": false
+      },
+      "successful_native_commits": null,
+      "accepted_body_replacements": 0,
+      "accepted_body_replacements_changing_staged_revision": 0,
+      "error_code_envelope_counts": {},
+      "model_tool_counts": {
+        "study_revision": 1,
+        "study_read": 4,
+        "study_doc": 6,
+        "study_edit": 7,
+        "study_check": 9,
+        "study_write": 5,
+        "study_search": 1
+      }
+    },
+    {
+      "id": "07-MM07-r1-T",
+      "stop_reason": "OBSERVATION_LIMIT_BETWEEN_REQUESTS",
+      "outcome": {
+        "correct": false,
+        "scope": "UNKNOWN",
+        "goal": "CHECK_FAIL",
+        "regression": "CHECK_FAIL",
+        "reason": "unreadable candidate structure"
+      },
+      "successful_native_commits": null,
+      "accepted_body_replacements": 0,
+      "accepted_body_replacements_changing_staged_revision": 0,
+      "error_code_envelope_counts": {},
+      "model_tool_counts": {
+        "study_revision": 1,
+        "study_read": 7,
+        "study_doc": 5,
+        "study_search": 4,
+        "study_check": 11,
+        "study_edit": 9,
+        "study_write": 2
+      }
+    },
+    {
+      "id": "08-MM07-r1-N",
+      "stop_reason": "OBSERVATION_LIMIT_BETWEEN_REQUESTS",
+      "outcome": {
+        "correct": false,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [],
+          "unauthorized": []
+        },
+        "target_changed": false,
+        "goal": "TEST_FAIL",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "ec2c97097da979190242f0191b665c30048d3898f9adfb0bf2fec232a9ff5b14",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "f0f07af4859dfb0123aaaf41d49d6ddd79203301890d496604c6178a371b92d2",
+        "air_published": false
+      },
+      "successful_native_commits": 0,
+      "accepted_body_replacements": 1,
+      "accepted_body_replacements_changing_staged_revision": 1,
+      "error_code_envelope_counts": {
+        "E_AEP_002": 1,
+        "E_AEP_BODY_CHECK": 14,
+        "E_AEP_BODY_PARSE": 8,
+        "E_AEP_ENTITY_NOT_FOUND": 2,
+        "E_AIR_INVARIANT": 1,
+        "E_CALL_001": 4,
+        "E_DIAG": 6,
+        "E_TYPE_001": 5
+      },
+      "model_tool_counts": {
+        "study_revision": 1,
+        "study_doc": 6,
+        "study_read": 2,
+        "study_search": 1,
+        "begin_transaction": 1,
+        "inspect_project": 1,
+        "read_function": 1,
+        "inspect_entity": 2,
+        "replace_function_body": 24,
+        "preview_semantic_diff": 1,
+        "check_transaction": 1
+      }
+    }
+  ],
+  "total_backend_call_count": null,
+  "per_category_provider_tokens": null,
+  "limitations": [
+    "Logged schemas are bytes, not attributed provider tokens.",
+    "Error envelopes and common check/test failures are different metrics; Native admission errors cannot be equated to source compiler failures.",
+    "P34 internal Host inspection RPCs are not individually retained in this API trace; total backend call count is unavailable.",
+    "All raw Native model-dispatch receipts, scope snapshots and independent evaluation receipts remain retained privately."
+  ]
+}
