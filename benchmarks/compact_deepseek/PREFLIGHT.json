@@ -1,0 +1,208 @@
+{
+  "status": "PASS",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "raw_preflight_sha256": "30a5f6dc98a91808251156a11a9278c00d3a2e94be76eb497093516b589a746f",
+  "rows": [
+    {
+      "id": "probe-MM01-T",
+      "task": "MM01",
+      "arm": "T",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "demo.model.touch_size"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "c733480eb75b6c693be3ac9a662caf2a3fabb64d6bc91389a2a748fda28880a6",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "air_published": false
+      },
+      "evidence_sha256": "3bcddff6b117b500e70ddc070453937102fa5049fe3da9c6342e21a7443194f0"
+    },
+    {
+      "id": "probe-MM01-N",
+      "task": "MM01",
+      "arm": "N",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "demo.model.touch_size"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "d88842a62abd039bbfe52d0852701cda5b5fa078ee07ef82abaa91a0149a9ece",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "db9e4a7e50adc031d2a7e79930a02173b01d6c44fa7e5182a43f288846d2a252",
+        "air_published": true
+      },
+      "evidence_sha256": "ddf1e95d4685c5ffb2077cb678ae180ffb537cdda55e6b2b255977a92990e903"
+    },
+    {
+      "id": "probe-MM02-T",
+      "task": "MM02",
+      "arm": "T",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.xml.parse_prefix"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "785257d7d05b9025483cf0a098248e9ba07fb2d03be3a3953a98d82b7064d238",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "b414a22eeaac90b281f7ae267965713a8fa5e82d67aa28f5cdd0a3275931f139",
+        "air_published": false
+      },
+      "evidence_sha256": "cc74b8fc6becabb605e4a45946e1ffcab4b23570db25dede34e670d1f7a746b8"
+    },
+    {
+      "id": "probe-MM02-N",
+      "task": "MM02",
+      "arm": "N",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.xml.parse_prefix"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "c789bd4dd3a00b071567bafc10f688fdac5f3d9a6cea8d7dba1a42fc266dee0b",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "b414a22eeaac90b281f7ae267965713a8fa5e82d67aa28f5cdd0a3275931f139",
+        "air_published": true
+      },
+      "evidence_sha256": "588cd0edcf1b9d4fd5e33741ecf3b8f77c67606d41b0f911966db75313e6a793"
+    },
+    {
+      "id": "probe-MM04-T",
+      "task": "MM04",
+      "arm": "T",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "build.model.topo_order"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "c71eccdb5072ea3409ea7fd3c38e64a7ca034eed703d266f6c1848621a652a51",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "c7f82469587e996f0d6e52ba865fa3733b5db4ef8259bcf834428bbb25d16154",
+        "air_published": false
+      },
+      "evidence_sha256": "2d65620954c71f3766b2ae9491d36795d91fa4c8e31a24c6dde76f2ab9444b68"
+    },
+    {
+      "id": "probe-MM04-N",
+      "task": "MM04",
+      "arm": "N",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "build.model.topo_order"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "571e5bdcc724dcdb76665eb68df00f75d699154168fcbefdc37e93936886c6e2",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "c7f82469587e996f0d6e52ba865fa3733b5db4ef8259bcf834428bbb25d16154",
+        "air_published": true
+      },
+      "evidence_sha256": "007c86b801b56e19c5be2734df8c0f493c7d35b7bd0d762dcf6dd79c9a9de936"
+    },
+    {
+      "id": "probe-MM07-T",
+      "task": "MM07",
+      "arm": "T",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.model.xml_error"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "b43546aacee5c8b66f897b3205cce907a8d431e8ee9a95df398c2fc23c31d0b9",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "9fc9ca263287ffc215e18110d82e33d2e34171e712dd59fca1e8d667c5cc32b9",
+        "air_published": false
+      },
+      "evidence_sha256": "a269facc2471b9d04e687a78995ff99085f63342e1f45df88854f7a271394224"
+    },
+    {
+      "id": "probe-MM07-N",
+      "task": "MM07",
+      "arm": "N",
+      "status": "PASS",
+      "outcome": {
+        "correct": true,
+        "scope": "ALLOW",
+        "structural": {
+          "status": "ALLOW",
+          "changed": [
+            "store.model.xml_error"
+          ],
+          "unauthorized": []
+        },
+        "target_changed": true,
+        "goal": "PASS",
+        "regression": "PASS",
+        "tested_snapshot_sha256": "bb5ad90fb3707ff2abfda9a7f573892a25c27cb8c65188cbc26f0c309104fa8d",
+        "exact_test_receipt_matches": true,
+        "fresh_project_revision": "9fc9ca263287ffc215e18110d82e33d2e34171e712dd59fca1e8d667c5cc32b9",
+        "air_published": true
+      },
+      "evidence_sha256": "80589677e421da8b1b6646b2c1f3a67ab9ced3de2b7ca3fe0cfed0fad499a82c"
+    }
+  ]
+}
