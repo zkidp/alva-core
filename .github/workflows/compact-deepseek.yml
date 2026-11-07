@@ -1,0 +1,24 @@
+name: Compact DeepSeek runtime (zero CI models)
+on:
+  push:
+    branches: [codex/compact-maintenance-deepseek]
+  pull_request:
+    paths:
+      - 'benchmarks/compact_deepseek/**'
+      - '.github/workflows/compact-deepseek.yml'
+permissions:
+  contents: read
+jobs:
+  runtime-controls:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Shared contract and provider-loop controls, no network/model
+        run: python -m unittest benchmarks.compact_maintenance.test_study benchmarks.compact_deepseek.test_runtime -v
