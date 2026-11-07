@@ -1,0 +1,216 @@
+{
+  "status": "PASS",
+  "scope": "retained evidence consistency, not independent human oracle review",
+  "model_slots_started": 24,
+  "observed_records": 24,
+  "generation_calls_by_this_validator": 0,
+  "records": [
+    {
+      "id": "01-MM07-r2-N",
+      "record_sha256": "0d14912becf15c06c5b195c068808c825251ab9b7b792ed1359933875d1a3a73",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "2423cdf113bdc931077a0924397f70ae016436011d6fcaee7a37a6c8bffafb56"
+    },
+    {
+      "id": "02-MM07-r2-T",
+      "record_sha256": "45dc3b5d9d56bd3caeeeb44924b52a7a49b69feb7ada3940d15c8598f91daf29",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "d9c735e1e96e0dc5425a80d82fb3907cdeaa5a18c86274f8a9d725ef2418ca6f"
+    },
+    {
+      "id": "03-MM02-r2-N",
+      "record_sha256": "37b9480c03db41e44a4fc7ad1e2a61107a84ec2921b1ad21189fec856f788f7d",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "15896b08837d5fda61f2c32ac869c8cdee99d384a32975f4ad0b79c2605260f5",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "04-MM02-r2-T",
+      "record_sha256": "a14b48333f211544d18036af5849a1d539eaa843083ebe6bb0d07e30875c0259",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "a720570963255451f8baa3def990c43748fc1dd649c9e2d9cc43662ebd9f5bd2",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "05-MM06-r1-T",
+      "record_sha256": "0b9522a8e26b3041663c7dbfe88067838e9b31f02d2bd07192b346b0d4d09acc",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "e9e03a92e9bd66d009475807dfd642b77f2943569ffd1bdc86b21eac5852c104",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "06-MM06-r1-N",
+      "record_sha256": "ff3f4f06b8ce94bf382c66ee6d052d61d5d403c29133ba37b636d60a177203fc",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "b4fda3e723a5eccbee9a3a99ce4ac18ad023d4246c335d06792371b8be9bcccb",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "07-MM02-r1-T",
+      "record_sha256": "4e129acf2291a15dce83cda0dcc894c8069a2a165e25640992e5319ea5c78e6d",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "d3b1d0f00f861bccdaa839a8cf14e840e81d0b73b2c8718705d0126394ee37ed",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "08-MM02-r1-N",
+      "record_sha256": "0d20868cd36d2bc6a480851f20867fa98ca61f040af93447ce0a1be4131e6c6a",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "fdbe9d6626a88ca802f836bfa10761585dd4ccfb61e7ad1b0f2d861314b97679"
+    },
+    {
+      "id": "09-MM04-r1-T",
+      "record_sha256": "5e1c278a9361db60e40a63fda1c950c840b547f0542a78844e55fd6833bc20bb",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "a1a3acf60b9dd2d5cc622bb56f9482c2c0edabd4db370d362d673a4c1715da0b",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "10-MM04-r1-N",
+      "record_sha256": "6de43e2848489952103cbeb712b2a5c65ad99a633158cb8cbb6af06ccc1c3422",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "58f08e5eacaaf513ae19dd2a52f0789a265c8fb0c3209318f97654c96a20b1c8",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "11-MM04-r2-N",
+      "record_sha256": "124450f2c0297b30a4c5a83a3ac2c9abde59900bdb40444d9b79f581c0edec83",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "974fa4d8455f553d3a08c31ef048800a2105eb554e0e4b67621bd13fa331723e",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "12-MM04-r2-T",
+      "record_sha256": "51d8fa47cb81157c0ee6eb1c7e6533c5f7564b2bb25594d5b3f70facb95bc660",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "a477c8826bbf75888069cfc469de3e88a030baa53b6a74e01bbab5f6f315728e",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "13-MM01-r2-N",
+      "record_sha256": "7ee79db340cc5478577ee6e2c533568e06d97e746407976e1084b8885d396f97",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "7f6caf832c7e399d09a30406155d43acbe26fd6bd449a0eae2ae66c70b25f27c",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "14-MM01-r2-T",
+      "record_sha256": "92f7395bf712cd79fd368ad060d653b55fc183f64f329f1a38c751141e3df644",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "423b7f53f994a06584e69edc25abd55ceaeb4bb190de47e8803204a50686d651",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "15-MM01-r1-T",
+      "record_sha256": "fbeb6fe698e5b1743d7a61d771dea18e0bef2b0ed5465925715772e3cc10c3fe",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "8ca047466cd1e51caba314761f818f89dddfab72c6b0743d49fe5ec0d8a305e2",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "16-MM01-r1-N",
+      "record_sha256": "1a3b5feebf1cfcff45e0c72b2582412a1c5045e48ddd512d1584b0266b71415a",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "086cbe8e7d2e166e7e808dd148162d9c7af405026a70d493156a3a76b5dd26d9",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "17-MM05-r2-N",
+      "record_sha256": "8b2143434400e121768de2c0421c7ab111c55ef0b4db3b75f1e7fe960b524717",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "cd4a0e4e252c8964e3f471b20cdeb4ddff82ad4a0c5fbd2c993386750afc73f5",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "18-MM05-r2-T",
+      "record_sha256": "bbd2a7d42270bb82f3f008318b92f28df02c56bf7a944712c3634968508aef02",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "31109aea59f05b4b88eccf253831e490b7db5583831be66454686989835c614f",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "19-MM05-r1-T",
+      "record_sha256": "b6ccbf41bc2a4f2ebe9f090b1184789aaecf6177944205c4e2b2b5ed34e7a70c",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "983d7c2c9876eb06f444656c929d599a1124fae912f70462d8a89726008dd97d",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "20-MM05-r1-N",
+      "record_sha256": "939bc81775f7ce98393f4ca5eb5b5110bb38f4f936bddbba3bbdb14957cf50a9",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "fa6d75ea2e4ee7bc6650a75ceee26c66fc81bdbcb46762f62b8a92ac3ac78433",
+      "successful_completion_conjunction_verified": true
+    },
+    {
+      "id": "21-MM07-r1-T",
+      "record_sha256": "c50cdfcebc93138011e5c49da61a7d478db22f0ec099d2c4f13a48a72bd6a33e",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "6d59bd88863d1892b11fbbfe3b338cd9c9e1c7092bc4595eef258f890308bb10"
+    },
+    {
+      "id": "22-MM07-r1-N",
+      "record_sha256": "6e536e13918b2bb82d55f22de1b1250c63b2c4053b8b498141ec88b18557262c",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "009ccbf8158660687a222bdfea7d5d9add42365ba0d1a01c5fe236fa41211b42"
+    },
+    {
+      "id": "23-MM06-r2-N",
+      "record_sha256": "1198096bdf1ae8aa73074dcf228c497f77c2c52575a82be74456772cbd31628e",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "3ca6b3299d2471776c2220ff9caac26aa6d5f2f5639e02cb0adc718c3df72a0c"
+    },
+    {
+      "id": "24-MM06-r2-T",
+      "record_sha256": "7ccf1d4e219507746c12447671df4813a9d61b17834b88340c16ab495a026561",
+      "owner_cleanup_confirmed": true,
+      "exact_test_snapshot_bound": true,
+      "linux_evidence_sha256": "bfaf7915c391eeeea80f5a0fb60959807de267865fa17592d987ca0a37d4fb78"
+    }
+  ],
+  "sdk_identity_before_after_matches": true,
+  "frozen_python_runtime_bytes_unchanged": true,
+  "study_disposition": "INCONCLUSIVE_PROVIDER_LIMIT",
+  "valid_complete_comparison_claim": false,
+  "provider_fault_rows": [
+    "22-MM07-r1-N",
+    "23-MM06-r2-N",
+    "24-MM06-r2-T"
+  ],
+  "post_fault_extra_requests": 2,
+  "slot_replacements": 0,
+  "input_token_count_api_calls": 0,
+  "cli_identity": {
+    "start_check_matched_freeze": true,
+    "frozen_binary_sha256": "40ecc3d8b6899afd8f935a8cccb7d53ba41ffd7c199f679e186d30ddd0d0bf39",
+    "post_run_resolved_binary_sha256": "4b3286e35d7fe866c6b0eb3f07d7a4cdb5e96489576170dfd6b3a15aa1c67382",
+    "post_run_resolver_matches": false,
+    "post_run_version": "codex-cli 0.167.0-alpha.3.2",
+    "within_run_binary_change": "UNKNOWN; no per-slot executable stamp",
+    "original_resolved_path_now_present": false,
+    "all_slot_binary_identity_certified": false
+  }
+}

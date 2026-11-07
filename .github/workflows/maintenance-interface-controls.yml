@@ -1,0 +1,22 @@
+name: MIC-01 controls (no model calls)
+on:
+  push:
+    branches: [codex/maintenance-interface-comparison-pilot]
+  pull_request:
+    paths:
+      - 'benchmarks/maintenance_interface_comparison/**'
+      - '.github/workflows/maintenance-interface-controls.yml'
+permissions:
+  contents: read
+jobs:
+  controls:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest benchmarks.maintenance_interface_comparison.test_pilot benchmarks.maintenance_interface_comparison.test_provider_gate -v

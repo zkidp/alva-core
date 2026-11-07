@@ -1,0 +1,22 @@
+{
+  "runtime_commit": "9f1b2c06aec8540a004927f0333dc85c94e4e4c0",
+  "registration_commit": "46783923a855be47853bd72143eeae926192c48d",
+  "archives": [
+    {
+      "name": "runtime.zip",
+      "bytes": 435162,
+      "sha256": "0362750ffe5c68ce9fe1fc07cddbf645788db99787a0ea24534bb3dd9a5d6cbb"
+    },
+    {
+      "name": "MODEL-RAW.zip",
+      "bytes": 1454076,
+      "sha256": "1614c908f6f331f1a345be22ea762ffd17d49176a6bbeb378ceb1b343109d175"
+    },
+    {
+      "name": "PREPARATION-RAW.zip",
+      "bytes": 282303,
+      "sha256": "65a64b8febfde51442a9969bb24488e6b66207b00d8991abdbbe8ac63cdc12f6"
+    }
+  ],
+  "raw_policy": "Controlled local artifacts only; no credentials or authentication contexts included; raw transcripts not committed."
+}

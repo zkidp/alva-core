@@ -33,3 +33,32 @@ Original wave 01 JSON and direct diagnostics are retained in controlled local
 preparation evidence. Model generations so far: zero. These failures do not
 consume model slots and are not ordinary model task failures. Runtime and
 profile hashes must be frozen after preflight and before the first turn.
+
+## Model wave 01 and post-run limitations
+
+The paragraph above describes preparation only. Wave 01 submitted 24 turn
+requests: 21 ordinary outcomes (17 correct completions, four token observation
+interruptions), then three usageLimitExceeded outcomes. Slot 22 had already
+made 32 tools when quota ended its turn. Slots 23/24 made zero tools and have
+no reported usage. Upstream provider request count and dollars are unknown.
+
+**Protocol deviation:** the reused controller accepted terminal `failed` as an
+ordinary terminal status and the batch did not classify the common provider
+failure. It wrongly submitted two further scheduled requests after the first
+quota error. Preserve them; no replacement, extra turn, changed prompt,
+alternative account or later automatic resume. The primary disposition is
+INCONCLUSIVE_PROVIDER_LIMIT, not a clean 24-slot efficacy result.
+
+Post-run analysis adds provider_gate.py, its tests and safe_run.py. These are
+prospective repairs, NOT bytes used in wave 01. The safe entry refuses the old
+freeze before accessing a connection or generating a turn. A future separately
+authorized freeze must bind the repaired gate; it must not reuse this ledger.
+
+**Additional executable identity limitation:** the initial CLI hash matched the
+freeze. After the batch, the default resolver points to a different binary hash
+with the same 0.167.0-alpha.3.2 version string; the original cache path is gone.
+No per-slot executable stamps exist, so within-run change is UNKNOWN, not
+asserted. The driver inherited its launch environment, but this is insufficient
+to certify every subsequent resolution. SDK and all 145 Python runtime files
+still match. The future safe entry requires an explicit pinned CLI and before/
+after stamps per slot. No new live model run tests that repair here.
