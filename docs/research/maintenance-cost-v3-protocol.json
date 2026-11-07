@@ -1,0 +1,23 @@
+{
+  "schema": "maintenance-cost-engineering/v1",
+  "baseline": "Host V2 serial scope reads, three full AIR exports, full model-facing receipts",
+  "candidate": "Host V3 batch scope reads, one AIR export plus two digest rechecks, compact model-facing receipts/context encoding",
+  "tasks": ["MM01", "MM02", "MM04", "MM07"],
+  "repetitions": 3,
+  "order": "baseline,candidate for even repetitions; candidate,baseline for odd repetitions",
+  "models": 0,
+  "model_input_token_api_calls": 0,
+  "fixed": ["same compiler binary and SDK", "original source bundles", "original assertions", "P34 scope policy", "three successful agent actions", "fresh authority verification", "no cached test outcomes"],
+  "acceptance": {
+    "all_task_and_regression_tests_pass": true,
+    "exact_legacy_and_batch_snapshot_and_scope_decisions_match": true,
+    "native_call_reduction_each_task_minimum": 0.85,
+    "native_wire_byte_reduction_each_task_minimum": 0.25,
+    "model_facing_response_byte_reduction_each_task_minimum": 0.10,
+    "publication_response_byte_reduction_minimum": 0.60
+  },
+  "timing": "report all repetitions and paired ratios; no latency acceptance threshold on a shared host",
+  "nonclaims": ["provider token reduction", "dollar savings", "model success-rate advantage", "competitor superiority", "universal project coverage"],
+  "provider_usage": null,
+  "dollars": null
+}
