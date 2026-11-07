@@ -19,7 +19,9 @@ def digest(value):
 
 
 class GuardedNative:
-    def __init__(self, inner, policy, allowed_tools, sink=lambda event: None):
+    def __init__(self, inner, policy, allowed_tools, sink=lambda event: None, *, snapshot_tool=None):
+        if snapshot_tool not in (None, "inspect_scope_snapshot"):
+            raise ValueError("Unsupported trusted snapshot transport")
         self._inner = inner
         self._policy = copy.deepcopy(policy)
         self._authorized = frozenset(policy["authorized_functions"])
@@ -27,6 +29,7 @@ class GuardedNative:
         self._sink = sink
         self._lock = threading.RLock()
         self._baselines = {}
+        self._snapshot_tool = snapshot_tool
 
     def _forward(self, method, params, origin, **kwargs):
         answer = self._inner.request(method, params, **kwargs)
@@ -41,7 +44,16 @@ class GuardedNative:
         return response["structuredContent"]
 
     def _snapshot(self, tx):
-        project = self._read(tx, "inspect_project")
+        bulk = None
+        if self._snapshot_tool:
+            envelope = self._read(tx, self._snapshot_tool)
+            if set(envelope) != {"project", "nodes"} or not isinstance(envelope["project"], dict):
+                raise Unverified("INCOMPLETE_BULK_SNAPSHOT")
+            project, bulk = envelope["project"], envelope["nodes"]
+            if not isinstance(bulk, dict) or len(bulk) > 2048:
+                raise Unverified("INVALID_BULK_COVERAGE")
+        else:
+            project = self._read(tx, "inspect_project")
         if set(project) != {"modules", "project_revision"} or not isinstance(project["project_revision"], str) or not project["project_revision"]:
             raise Unverified("INCOMPLETE_PROJECT_DESCRIPTOR")
         modules = project.get("modules")
@@ -54,7 +66,9 @@ class GuardedNative:
                 return nodes[revision]
             if len(nodes) >= 2048:
                 raise Unverified("INSPECTION_BOUND_EXCEEDED")
-            node = self._read(tx, "inspect_entity", entity=revision)
+            node = self._read(tx, "inspect_entity", entity=revision) if bulk is None else bulk.get(revision)
+            if not isinstance(node, dict):
+                raise Unverified("MISSING_BULK_NODE")
             if node.get("revision") != revision or set(node) != {"revision", "kind", "entity", "fields", "slots"}:
                 raise Unverified("INCOMPLETE_NODE_DESCRIPTOR")
             if not isinstance(node["fields"], dict) or not isinstance(node["slots"], dict):
@@ -93,6 +107,8 @@ class GuardedNative:
                     "body": fn["slots"]["body"][0]}
         if not self._authorized <= set(snapshot["functions"]):
             raise Unverified("AUTHORIZED_FUNCTION_NOT_COVERED")
+        if bulk is not None and set(nodes) != set(bulk):
+            raise Unverified("EXTRANEOUS_BULK_NODES")
         snapshot["coverage_nodes"] = len(nodes)
         return snapshot
 

@@ -1,13 +1,16 @@
-name: Maintenance Host V2 (zero models)
+name: Maintenance Host and cost qualification (zero models)
 on:
   push:
-    branches: [codex/maintenance-host-v2]
+    branches: [codex/maintenance-host-v2, codex/maintenance-cost-v3]
   pull_request:
     paths:
       - 'alva/src/**'
       - 'integrations/codex/**'
       - 'integrations/skills/alva/**'
       - 'tests/mcp/host_workflow*'
+      - 'tests/mcp/host_cost_test.py'
+      - 'tests/integrations/test_scope_batch.py'
+      - 'docs/research/maintenance-cost-v3*'
       - 'docs/maintenance-host-v2.md'
       - '.github/workflows/maintenance-host-v2.yml'
 permissions:
@@ -46,6 +49,7 @@ jobs:
           python tests/mcp/maintenance_profile_test.py "$binary"
           python tests/mcp/host_workflow_test.py "$binary"
           python -m unittest tests.integrations.test_precommit_scope_guard -v
+          python -m unittest tests.integrations.test_scope_batch -v
           python tests/integrations/codex_plugin_test.py
           python tests/integrations/claude_code_plugin_test.py
           bash tests/run_conformance.sh
@@ -60,8 +64,18 @@ jobs:
             --toolchain "$(rustc --print sysroot)" \
             --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
             --output out/maintenance-host-v2/qualification.json
+      - name: Paired backend and model-facing byte cost acceptance
+        if: runner.os == 'Linux'
+        run: |
+          python tests/mcp/host_cost_test.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/maintenance-cost-v3/costs.json
       - uses: actions/upload-artifact@v4
         if: always() && runner.os == 'Linux'
         with:
           name: maintenance-host-v2-evidence
-          path: out/maintenance-host-v2/*.json
+          path: |
+            out/maintenance-host-v2/*.json
+            out/maintenance-cost-v3/*.json

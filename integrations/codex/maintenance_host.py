@@ -21,7 +21,7 @@ from integrations.codex.precommit_scope_guard import GuardedNative
 
 PRIVATE_OPERATIONS = frozenset(("begin_transaction", "read_function", "read_function_context",
     "replace_function_body", "inspect_project", "inspect_entity", "preview_semantic_diff",
-    "check_transaction", "export_transaction", "commit_transaction", "abort_transaction"))
+    "check_transaction", "export_transaction", "inspect_scope_snapshot", "commit_transaction", "abort_transaction"))
 
 TOOLS = [
     {"name": "read_target", "description": "Read an authorized function's current body, declaration and direct context. Reuse its view_id for changes; Host owns transactions.",
@@ -100,6 +100,7 @@ class AgentProcess(AepBridge):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.lines = queue.Queue()
         self.errors = bytearray()
+        self.transport_stats = {"request_bytes":0, "reply_bytes":0}
         def read():
             while line := self.process.stdout.readline(24 * 1024**2 + 1): self.lines.put(line)
             self.lines.put(None)
@@ -112,11 +113,14 @@ class AgentProcess(AepBridge):
         super().__init__(self._send, self._shutdown)
 
     def _send(self, request):
-        self.process.stdin.write(json.dumps(request).encode() + b"\n")
+        wire = json.dumps(request).encode() + b"\n"
+        self.transport_stats["request_bytes"] += len(wire)
+        self.process.stdin.write(wire)
         self.process.stdin.flush()
         try: line = self.lines.get(timeout=60)
         except queue.Empty: raise RuntimeError("HOST_NATIVE_TIMEOUT_OUTCOME_UNKNOWN") from None
         if not line or len(line) > 24 * 1024**2: raise RuntimeError("HOST_NATIVE_INVALID_OR_CLOSED_STREAM")
+        self.transport_stats["reply_bytes"] += len(line)
         return json.loads(line)
 
     def _shutdown(self):
@@ -134,23 +138,33 @@ class CountedNative:
     def __init__(self, inner, owner): self.inner, self.owner = inner, owner
     def request(self, method, params=None, **kwargs):
         self.owner.work["native_calls"] += 1
-        result = self.inner.request(method, params, **kwargs)
+        before = dict(getattr(self.inner, "transport_stats", {}))
+        start = time.monotonic()
+        try: result = self.inner.request(method, params, **kwargs)
+        finally:
+            self.owner.work["native_seconds"] += time.monotonic() - start
+            after = getattr(self.inner, "transport_stats", {})
+            for label in ("request_bytes", "reply_bytes"):
+                self.owner.work["native_wire_" + label] += after.get(label, 0) - before.get(label, 0)
         self.owner.work["native_reply_bytes"] += len(canonical(result))
         return result
     def close(self): return self.inner.close()
 
 
 class MaintenanceHost:
-    def __init__(self, native_factory, project, policy, source_loader, evaluator, *, ttl_seconds=900, clock=time.monotonic):
+    def __init__(self, native_factory, project, policy, source_loader, evaluator, *, ttl_seconds=900, clock=time.monotonic,
+                 bulk_scope=True, digest_rechecks=True):
         if ttl_seconds <= 0: raise ValueError("Positive view TTL required")
         self.factory, self.project = native_factory, str(project)
         self.policy = copy.deepcopy(policy)
         self.sources, self.evaluator = source_loader, evaluator
         self.ttl, self.clock = ttl_seconds, clock
+        self.bulk_scope, self.digest_rechecks = bulk_scope, digest_rechecks
         self.native = self.guard = self.tx = self.view = self.proposal = None
         self.blocked = None
         self.lock = threading.RLock()
         self.work = {"agent_tool_calls": 0, "native_calls": 0, "native_reply_bytes": 0,
+                     "native_wire_request_bytes":0, "native_wire_reply_bytes":0, "native_seconds":0.0,
                      "guard_reads": 0, "evaluation_runs": 0, "evaluation_seconds": 0.0}
 
     def _event(self, event):
@@ -183,12 +197,14 @@ class MaintenanceHost:
         finally:
             if native: native.close()
 
-    def _export(self):
-        data = self._call("export_transaction")
+    def _export(self, include_air=True):
+        data = self._call("export_transaction", **({"include_air":False} if not include_air else {}))
         if data.get("format") != "ALVA-AIR-1" or not re.fullmatch(r"[0-9a-f]{64}", data.get("project_revision", "")):
             raise RuntimeError("INVALID_DRAFT_DESCRIPTOR")
-        air = bytes.fromhex(data["air_hex"])
-        if len(air) > 8 * 1024**2 or sha(air) != data["air_sha256"]:
+        if not re.fullmatch(r"[0-9a-f]{64}", data.get("air_sha256", "")):
+            raise RuntimeError("INVALID_DRAFT_DIGEST")
+        air = bytes.fromhex(data.pop("air_hex")) if include_air else None
+        if include_air and (len(air) > 8 * 1024**2 or sha(air) != data["air_sha256"]):
             raise RuntimeError("DRAFT_BYTES_MISMATCH")
         return data, air
 
@@ -223,7 +239,8 @@ class MaintenanceHost:
         if not self.view or self.view["function"] != function:
             self._reset()
             self.native = self._new_native()
-            self.guard = GuardedNative(self.native, self.policy, PRIVATE_OPERATIONS, self._event)
+            self.guard = GuardedNative(self.native, self.policy, PRIVATE_OPERATIONS, self._event,
+                snapshot_tool="inspect_scope_snapshot" if self.bulk_scope else None)
             self.tx = self._call("begin_transaction", project=self.project)["transaction_id"]
             self.view = {"id": "view_" + secrets.token_hex(12), "function": function, "expires": self.clock() + self.ttl,
                          "source_digest": snapshot_digest(self._load_sources())}
@@ -269,7 +286,7 @@ class MaintenanceHost:
         checks = {k: result.get("checks", {}).get(k, "UNVERIFIED") for k in ("check", "build", "test")}
         if result.get("status") != "PASS" or any(checks.get(k) != "PASS" for k in ("check", "build", "test")):
             return {"status": "VALIDATION_FAILED", "checks": checks, "can_publish": False}
-        current, _ = self._export()
+        current, _ = self._export(include_air=not self.digest_rechecks)
         if current != exported:
             return {"status": "DRAFT_CHANGED_DURING_EVALUATION", "can_publish": False}
         proposal = {"id": "proposal_" + secrets.token_hex(12), "export": exported,
@@ -286,7 +303,7 @@ class MaintenanceHost:
         if not proposal or proposal["id"] != proposal_id:
             return {"status": "REJECTED", "reason": "UNKNOWN_OR_CONSUMED_PROPOSAL"}
         self.proposal = None  # Consume BEFORE dispatch, including conflicts/uncertain transport.
-        current, _ = self._export()
+        current, _ = self._export(include_air=not self.digest_rechecks)
         if current != proposal["export"] or self.evaluator.identity() != proposal["test_identity"]:
             return {"status": "REJECTED", "reason": "DRAFT_OR_TEST_IDENTITY_CHANGED"}
         if snapshot_digest(self._load_sources()) != self.view["source_digest"]:
@@ -363,6 +380,26 @@ def project_source_loader(manifest, inputs=None):
     return load
 
 
+def tool_result(value, *, compact=True):
+    """Model-facing receipt summary. Full trusted invocation/audit is retained
+    by the caller; hashes, Guard internals and accounting are not edit context.
+    """
+    if compact and value.get("status") == "READY":
+        value = copy.deepcopy(value)
+        context = value.get("context", {})
+        catalog = context.get("available_builtins")
+        if isinstance(catalog, list):
+            context["available_builtins"] = {entry["name"]:entry["arity"] for entry in catalog}
+    elif compact and value.get("status") in ("PUBLISHED", "PUBLISHED_UNVERIFIED"):
+        commit = value.get("commit", {})
+        value = {k:v for k,v in value.items() if k in ("status", "reason", "fresh_authority_matches")}
+        value.update(revision=commit.get("revision"), scope=commit.get("host_scope", {}).get("status"))
+    elif compact and value.get("status") == "PREPARED":
+        value = {k:v for k,v in value.items() if k != "test_receipt"}
+    return {"structuredContent":value,"content":[{"type":"text","text":json.dumps(value)}],
+            "isError":value.get("status") not in ("READY","PREPARED","PUBLISHED","UNCHANGED")}
+
+
 def serve(host, incoming, outgoing):
     """MCP STDIO Host entry. Legacy protocol negotiation; no raw Native route."""
     while line := incoming.readline(1024**2 + 1):
@@ -385,8 +422,7 @@ def serve(host, incoming, outgoing):
             params = request.get("params", {})
             if not isinstance(params, dict): params = {}
             value = host.invoke(params.get("name"), params.get("arguments"))
-            result = {"structuredContent":value,"content":[{"type":"text","text":json.dumps(value)}],
-                      "isError":value.get("status") not in ("READY","PREPARED","PUBLISHED","UNCHANGED")}
+            result = tool_result(value)
         else:
             outgoing.write(json.dumps({"jsonrpc":"2.0","id":request["id"],"error":{"code":-32601,"message":"Method not found"}}) + "\n")
             outgoing.flush(); continue

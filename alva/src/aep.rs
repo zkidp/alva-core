@@ -600,8 +600,13 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             None,
         ),
         spec(
-            "export_transaction",
+            "inspect_scope_snapshot",
             vec![], vec!["any"], vec![], vec!["transaction"], "inspection", "transaction",
+            "inspect_scope_snapshot", None,
+        ),
+        spec(
+            "export_transaction",
+            vec![], vec!["any"], vec![arg("include_air", "bool", false)], vec!["transaction"], "inspection", "transaction",
             "export_transaction", None,
         ),
         spec(

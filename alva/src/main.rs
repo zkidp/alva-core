@@ -2686,6 +2686,13 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err(e) => resp!(false, "null", &e),
                 }
             }
+            "inspect_scope_snapshot" => {
+                let s = need_session!();
+                match s.scope_snapshot() {
+                    Ok(value) => resp!(true, &value.to_string(), "complete reachable snapshot"),
+                    Err(e) => resp!(false, "null", &e),
+                }
+            }
             "export_transaction" => {
                 let s = need_session!();
                 let bytes = air::graph_to_bytes(&s.graph);
@@ -2693,13 +2700,16 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     resp!(false, "null", "E_AEP_EXPORT_LIMIT: maximum 8 MiB")
                 } else {
                     use sha2::{Digest, Sha256};
-                    let hex: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
+                    let mut value = serde_json::json!({"format":"ALVA-AIR-1",
+                        "air_sha256":format!("{:x}", Sha256::digest(&bytes)),
+                        "project_revision":s.graph.semantic_hash(),"base_revision":s.base_hash});
+                    if !matches!(req.get("include_air"), Some(Json::Bool(false))) {
+                        let hex: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
+                        value["air_hex"] = serde_json::Value::String(hex);
+                    }
                     resp!(
                         true,
-                        &serde_json::json!({"format":"ALVA-AIR-1", "air_hex":hex,
-                        "air_sha256":format!("{:x}", Sha256::digest(&bytes)),
-                        "project_revision":s.graph.semantic_hash(),"base_revision":s.base_hash})
-                        .to_string(),
+                        &value.to_string(),
                         "read-only staged snapshot; not published"
                     )
                 }

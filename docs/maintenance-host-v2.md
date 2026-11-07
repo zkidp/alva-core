@@ -98,3 +98,34 @@ their commands and fresh draft reads. Moving work behind the Host does not make
 that work free. Lower tool/schema overhead does not by itself establish a
 token, latency or cost advantage. See the deterministic qualification report
 in [research/maintenance-host-v2.md](research/maintenance-host-v2.md).
+
+## Cost-optimized transport
+
+The current Host defaults to one `inspect_scope_snapshot` call for each complete
+Guard snapshot. It receives all reachable node descriptors atomically from the
+current Core session and runs the same P34 structure, metadata and body checks.
+It still recollects before publication under the Guard lock. Missing, extra,
+malformed or oversized batch coverage fails closed without a serial fallback.
+Neither Native MCP profile exposes this private inspection.
+
+The first draft export includes AIR. Later consistency checks request only its
+digest descriptor; Core still serializes and hashes the exact current AIR, so
+changes to the full exported bytes are detected. This is not a cached revision
+shortcut. Test outcomes are not cached, and no behavior/authorization check is
+skipped.
+
+MCP output encodes the complete available builtin catalogue as `name: arity`
+rather than repeated `{name, arity}` objects. Prepared/publication responses
+return decision-relevant summaries, leaving internal receipt hashes, complete
+Guard evidence and work counters available to trusted programmatic `invoke`
+callers. This is not an automatic durable audit log. The actual published
+revision and fresh-verification status remain model-visible, including an
+already-published revision when fresh verification fails.
+
+The accounting now includes actual AEP request/reply line bytes and Native
+elapsed time in addition to adapter reply bytes. The paired engineering
+acceptance test uses the same compiler, SDK, original tasks and assertions for
+both the previous serial/full-export path and optimized path. It measures MCP
+response bytes, not provider tokens. See
+[the cost protocol](research/maintenance-cost-v3-protocol.json) and
+[results](research/maintenance-cost-v3.md) before making efficiency claims.

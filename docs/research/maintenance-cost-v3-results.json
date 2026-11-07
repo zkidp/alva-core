@@ -1,0 +1,1054 @@
+{
+  "status": "PASS",
+  "protocol_sha256": "15f41a0076f06e109d3f18b34bba6d0c4512115de9695f9c918653fa382bb6d4",
+  "alva_sha256": "6dae61835dc6e0fd7c5e5c9e9cf2e1f55c7dd0c6070ee22c5fbc36b54e6dbaa5",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "provider_usage": null,
+  "dollars": null,
+  "shared_uid_profile": true,
+  "schema": "maintenance-cost-engineering-summary/v1",
+  "implementation_base": "e0bbfe44f4cf8f88c791758687bf401580efef72",
+  "rows": [
+    {
+      "task": "MM01",
+      "bundle_sha256": "6b2fbdf1d0b7929cc239a2db810a35549228a613d5a778f93e4ae3d0e39ac090",
+      "median_wall_ratio": 0.984627813946452,
+      "median_native_time_ratio": 0.7701354772946915,
+      "trials": [
+        {
+          "repetition": 0,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.8982035928143712,
+            "wire_bytes": 0.46995691671729123,
+            "model_facing_bytes": 0.44992092778070636,
+            "publication_bytes": 0.8104222821203954
+          },
+          "wall_ratio": 0.9790130493585142,
+          "native_time_ratio": 0.6942503303895905,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.0337565699592233,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 167,
+                "native_reply_bytes": 214044,
+                "native_wire_request_bytes": 21101,
+                "native_wire_reply_bytes": 122110,
+                "native_seconds": 0.027916597202420235,
+                "guard_reads": 153,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.9189463499933481
+              },
+              "wire_bytes": 143211,
+              "model_facing_mcp_result_bytes": [
+                4333,
+                1029,
+                2226
+              ],
+              "model_facing_total_bytes": 7588,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 1.9910742212086916,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 151554,
+                "native_wire_request_bytes": 1601,
+                "native_wire_reply_bytes": 74307,
+                "native_seconds": 0.019381106831133366,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.898215857334435
+              },
+              "wire_bytes": 75908,
+              "model_facing_mcp_result_bytes": [
+                3115,
+                637,
+                422
+              ],
+              "model_facing_total_bytes": 4174,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 1,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "reductions": {
+            "native_calls": 0.8982035928143712,
+            "wire_bytes": 0.46995691671729123,
+            "model_facing_bytes": 0.44992092778070636,
+            "publication_bytes": 0.8104222821203954
+          },
+          "wall_ratio": 0.9950255511656074,
+          "native_time_ratio": 0.9539557410904835,
+          "runs": {
+            "candidate": {
+              "wall_seconds": 1.9781929040327668,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 151554,
+                "native_wire_request_bytes": 1601,
+                "native_wire_reply_bytes": 74307,
+                "native_seconds": 0.025639306753873825,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.8788375928997993
+              },
+              "wire_bytes": 75908,
+              "model_facing_mcp_result_bytes": [
+                3115,
+                637,
+                422
+              ],
+              "model_facing_total_bytes": 4174,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "baseline": {
+              "wall_seconds": 1.988082518801093,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 167,
+                "native_reply_bytes": 214044,
+                "native_wire_request_bytes": 21101,
+                "native_wire_reply_bytes": 122110,
+                "native_seconds": 0.026876830495893955,
+                "guard_reads": 153,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.8841602448374033
+              },
+              "wire_bytes": 143211,
+              "model_facing_mcp_result_bytes": [
+                4333,
+                1029,
+                2226
+              ],
+              "model_facing_total_bytes": 7588,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 2,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.8982035928143712,
+            "wire_bytes": 0.46995691671729123,
+            "model_facing_bytes": 0.44992092778070636,
+            "publication_bytes": 0.8104222821203954
+          },
+          "wall_ratio": 0.984627813946452,
+          "native_time_ratio": 0.7701354772946915,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.0329308584332466,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 167,
+                "native_reply_bytes": 214044,
+                "native_wire_request_bytes": 21101,
+                "native_wire_reply_bytes": 122110,
+                "native_seconds": 0.02732415311038494,
+                "guard_reads": 153,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.9286457728594542
+              },
+              "wire_bytes": 143211,
+              "model_facing_mcp_result_bytes": [
+                4333,
+                1029,
+                2226
+              ],
+              "model_facing_total_bytes": 7588,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 2.0016802670434117,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 151554,
+                "native_wire_request_bytes": 1601,
+                "native_wire_reply_bytes": 74307,
+                "native_seconds": 0.021043299697339535,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.9072642792016268
+              },
+              "wire_bytes": 75908,
+              "model_facing_mcp_result_bytes": [
+                3115,
+                637,
+                422
+              ],
+              "model_facing_total_bytes": 4174,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        }
+      ]
+    },
+    {
+      "task": "MM02",
+      "bundle_sha256": "352a8b6fa459942b8b1d5469a966a706498afa7a2abbc13c39c457dafb069faf",
+      "median_wall_ratio": 0.9655321443516068,
+      "median_native_time_ratio": 0.5021041911030791,
+      "trials": [
+        {
+          "repetition": 0,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.9718543046357616,
+            "wire_bytes": 0.4847670183887588,
+            "model_facing_bytes": 0.410127189824814,
+            "publication_bytes": 0.810762331838565
+          },
+          "wall_ratio": 0.9655321443516068,
+          "native_time_ratio": 0.5021041911030791,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.24879779946059,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 604,
+                "native_reply_bytes": 802831,
+                "native_wire_request_bytes": 78679,
+                "native_wire_reply_bytes": 456213,
+                "native_seconds": 0.08475571405142546,
+                "guard_reads": 590,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.076615011319518
+              },
+              "wire_bytes": 534892,
+              "model_facing_mcp_result_bytes": [
+                5075,
+                1029,
+                2230
+              ],
+              "model_facing_total_bytes": 8334,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 2.171286561526358,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 568733,
+                "native_wire_request_bytes": 1932,
+                "native_wire_reply_bytes": 273662,
+                "native_seconds": 0.04255619924515486,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.04956098459661
+              },
+              "wire_bytes": 275594,
+              "model_facing_mcp_result_bytes": [
+                3857,
+                637,
+                422
+              ],
+              "model_facing_total_bytes": 4916,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 1,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "reductions": {
+            "native_calls": 0.9718543046357616,
+            "wire_bytes": 0.4847670183887588,
+            "model_facing_bytes": 0.4102687140115163,
+            "publication_bytes": 0.8109318996415771
+          },
+          "wall_ratio": 0.9586527317393593,
+          "native_time_ratio": 0.4209648466026887,
+          "runs": {
+            "candidate": {
+              "wall_seconds": 2.206246664747596,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 568733,
+                "native_wire_request_bytes": 1932,
+                "native_wire_reply_bytes": 273662,
+                "native_seconds": 0.04115908872336149,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.0885894605889916
+              },
+              "wire_bytes": 275594,
+              "model_facing_mcp_result_bytes": [
+                3857,
+                637,
+                422
+              ],
+              "model_facing_total_bytes": 4916,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "baseline": {
+              "wall_seconds": 2.301403408870101,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 604,
+                "native_reply_bytes": 802831,
+                "native_wire_request_bytes": 78679,
+                "native_wire_reply_bytes": 456213,
+                "native_seconds": 0.0977732203900814,
+                "guard_reads": 590,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.1149898609146476
+              },
+              "wire_bytes": 534892,
+              "model_facing_mcp_result_bytes": [
+                5075,
+                1029,
+                2232
+              ],
+              "model_facing_total_bytes": 8336,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 2,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.9718543046357616,
+            "wire_bytes": 0.4847670183887588,
+            "model_facing_bytes": 0.410127189824814,
+            "publication_bytes": 0.810762331838565
+          },
+          "wall_ratio": 0.9706051838247018,
+          "native_time_ratio": 0.5632840313189407,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.2491588117554784,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 604,
+                "native_reply_bytes": 802831,
+                "native_wire_request_bytes": 78679,
+                "native_wire_reply_bytes": 456213,
+                "native_seconds": 0.07438545394688845,
+                "guard_reads": 590,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.089093502610922
+              },
+              "wire_bytes": 534892,
+              "model_facing_mcp_result_bytes": [
+                5075,
+                1029,
+                2230
+              ],
+              "model_facing_total_bytes": 8334,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 2.183045201934874,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 568733,
+                "native_wire_request_bytes": 1932,
+                "native_wire_reply_bytes": 273662,
+                "native_seconds": 0.04190013837069273,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.0646419022232294
+              },
+              "wire_bytes": 275594,
+              "model_facing_mcp_result_bytes": [
+                3857,
+                637,
+                422
+              ],
+              "model_facing_total_bytes": 4916,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        }
+      ]
+    },
+    {
+      "task": "MM04",
+      "bundle_sha256": "7ee7e3de3deae009458187d963f8045dcb9656b25d3e2acb95e6c8539361e74e",
+      "median_wall_ratio": 0.9588872112545458,
+      "median_native_time_ratio": 0.5558908439487161,
+      "trials": [
+        {
+          "repetition": 0,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.9861111111111112,
+            "wire_bytes": 0.48441871055884456,
+            "model_facing_bytes": 0.36116382036685646,
+            "publication_bytes": 0.8114387846291331
+          },
+          "wall_ratio": 0.9588872112545458,
+          "native_time_ratio": 0.6437647798291438,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.413141588680446,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 1224,
+                "native_reply_bytes": 1670810,
+                "native_wire_request_bytes": 160250,
+                "native_wire_reply_bytes": 946462,
+                "native_seconds": 0.1503397598862648,
+                "guard_reads": 1210,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.1620239447802305
+              },
+              "wire_bytes": 1106712,
+              "model_facing_mcp_result_bytes": [
+                6215,
+                1033,
+                2238
+              ],
+              "model_facing_total_bytes": 9486,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 2.313930608332157,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 1185736,
+                "native_wire_request_bytes": 2061,
+                "native_wire_reply_bytes": 568539,
+                "native_seconds": 0.09678344242274761,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.133172258734703
+              },
+              "wire_bytes": 570600,
+              "model_facing_mcp_result_bytes": [
+                4997,
+                641,
+                422
+              ],
+              "model_facing_total_bytes": 6060,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 1,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "reductions": {
+            "native_calls": 0.9861111111111112,
+            "wire_bytes": 0.48441871055884456,
+            "model_facing_bytes": 0.36102910164487556,
+            "publication_bytes": 0.8112701252236136
+          },
+          "wall_ratio": 0.9450265990278979,
+          "native_time_ratio": 0.49092499039459614,
+          "runs": {
+            "candidate": {
+              "wall_seconds": 2.3165972717106342,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 1185736,
+                "native_wire_request_bytes": 2061,
+                "native_wire_reply_bytes": 568539,
+                "native_seconds": 0.0776450028643012,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.1590682975947857
+              },
+              "wire_bytes": 570600,
+              "model_facing_mcp_result_bytes": [
+                4997,
+                641,
+                422
+              ],
+              "model_facing_total_bytes": 6060,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "baseline": {
+              "wall_seconds": 2.451356685720384,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 1224,
+                "native_reply_bytes": 1670810,
+                "native_wire_request_bytes": 160250,
+                "native_wire_reply_bytes": 946462,
+                "native_seconds": 0.15816062409430742,
+                "guard_reads": 1210,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.191713490523398
+              },
+              "wire_bytes": 1106712,
+              "model_facing_mcp_result_bytes": [
+                6215,
+                1033,
+                2236
+              ],
+              "model_facing_total_bytes": 9484,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 2,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.9861111111111112,
+            "wire_bytes": 0.48441871055884456,
+            "model_facing_bytes": 0.36116382036685646,
+            "publication_bytes": 0.8114387846291331
+          },
+          "wall_ratio": 0.9734206710075007,
+          "native_time_ratio": 0.5558908439487161,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.420397731475532,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 1224,
+                "native_reply_bytes": 1670810,
+                "native_wire_request_bytes": 160250,
+                "native_wire_reply_bytes": 946462,
+                "native_seconds": 0.15624335780739784,
+                "guard_reads": 1210,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.1633627843111753
+              },
+              "wire_bytes": 1106712,
+              "model_facing_mcp_result_bytes": [
+                6215,
+                1033,
+                2238
+              ],
+              "model_facing_total_bytes": 9486,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 2.356065183877945,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 1185736,
+                "native_wire_request_bytes": 2061,
+                "native_wire_reply_bytes": 568539,
+                "native_seconds": 0.08685425203293562,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 2.1894850060343742
+              },
+              "wire_bytes": 570600,
+              "model_facing_mcp_result_bytes": [
+                4997,
+                641,
+                422
+              ],
+              "model_facing_total_bytes": 6060,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        }
+      ]
+    },
+    {
+      "task": "MM07",
+      "bundle_sha256": "6b03233443ee91284d677d9e47b86e2791ce49580e1bd25fe78af6eafb77a6f2",
+      "median_wall_ratio": 0.9967211190357118,
+      "median_native_time_ratio": 0.6767731535404028,
+      "trials": [
+        {
+          "repetition": 0,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.915,
+            "wire_bytes": 0.47463843031417663,
+            "model_facing_bytes": 0.3899486007995431,
+            "publication_bytes": 0.8104222821203954
+          },
+          "wall_ratio": 1.0027743197255625,
+          "native_time_ratio": 0.6622895360388312,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.0562461242079735,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 200,
+                "native_reply_bytes": 279587,
+                "native_wire_request_bytes": 25866,
+                "native_wire_reply_bytes": 157916,
+                "native_seconds": 0.03236020635813475,
+                "guard_reads": 186,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.9467323841527104
+              },
+              "wire_bytes": 183782,
+              "model_facing_mcp_result_bytes": [
+                5498,
+                1031,
+                2226
+              ],
+              "model_facing_total_bytes": 8755,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 2.061950808390975,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 193281,
+                "native_wire_request_bytes": 2043,
+                "native_wire_reply_bytes": 94509,
+                "native_seconds": 0.021431826055049896,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.966724163852632
+              },
+              "wire_bytes": 96552,
+              "model_facing_mcp_result_bytes": [
+                4280,
+                639,
+                422
+              ],
+              "model_facing_total_bytes": 5341,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 1,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "reductions": {
+            "native_calls": 0.915,
+            "wire_bytes": 0.47463843031417663,
+            "model_facing_bytes": 0.3899486007995431,
+            "publication_bytes": 0.8104222821203954
+          },
+          "wall_ratio": 0.9961087533130243,
+          "native_time_ratio": 0.6767731535404028,
+          "runs": {
+            "candidate": {
+              "wall_seconds": 1.9887556936591864,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 193281,
+                "native_wire_request_bytes": 2043,
+                "native_wire_reply_bytes": 94509,
+                "native_seconds": 0.022033536806702614,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.8924603760242462
+              },
+              "wire_bytes": 96552,
+              "model_facing_mcp_result_bytes": [
+                4280,
+                639,
+                422
+              ],
+              "model_facing_total_bytes": 5341,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "baseline": {
+              "wall_seconds": 1.9965246636420488,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 200,
+                "native_reply_bytes": 279587,
+                "native_wire_request_bytes": 25866,
+                "native_wire_reply_bytes": 157916,
+                "native_seconds": 0.03255675360560417,
+                "guard_reads": 186,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.8866371279582381
+              },
+              "wire_bytes": 183782,
+              "model_facing_mcp_result_bytes": [
+                5498,
+                1031,
+                2226
+              ],
+              "model_facing_total_bytes": 8755,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        },
+        {
+          "repetition": 2,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "reductions": {
+            "native_calls": 0.915,
+            "wire_bytes": 0.47463843031417663,
+            "model_facing_bytes": 0.3898092082714498,
+            "publication_bytes": 0.810251798561151
+          },
+          "wall_ratio": 0.9967211190357118,
+          "native_time_ratio": 0.7067765019067491,
+          "runs": {
+            "baseline": {
+              "wall_seconds": 2.0179041819646955,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 200,
+                "native_reply_bytes": 279587,
+                "native_wire_request_bytes": 25866,
+                "native_wire_reply_bytes": 157916,
+                "native_seconds": 0.03167108818888664,
+                "guard_reads": 186,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.908450492657721
+              },
+              "wire_bytes": 183782,
+              "model_facing_mcp_result_bytes": [
+                5498,
+                1031,
+                2224
+              ],
+              "model_facing_total_bytes": 8753,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            },
+            "candidate": {
+              "wall_seconds": 2.011287714354694,
+              "host_work": {
+                "agent_tool_calls": 3,
+                "native_calls": 17,
+                "native_reply_bytes": 193281,
+                "native_wire_request_bytes": 2043,
+                "native_wire_reply_bytes": 94509,
+                "native_seconds": 0.02238438092172146,
+                "guard_reads": 3,
+                "evaluation_runs": 1,
+                "evaluation_seconds": 1.9148600669577718
+              },
+              "wire_bytes": 96552,
+              "model_facing_mcp_result_bytes": [
+                4280,
+                639,
+                422
+              ],
+              "model_facing_total_bytes": 5341,
+              "draft_checks": {
+                "check": "PASS",
+                "build": "PASS",
+                "test": "PASS"
+              },
+              "evaluation_work": {
+                "fresh_native_reads": 1,
+                "commands": 4
+              },
+              "final_task": "PASS",
+              "final_regression": "PASS",
+              "fresh_authority_matches": true
+            }
+          },
+          "scope_and_snapshot_evidence_identical": true
+        }
+      ]
+    }
+  ]
+}

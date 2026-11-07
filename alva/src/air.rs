@@ -4123,6 +4123,45 @@ impl EditSession {
         Ok((revision, body_revision, body, declaration))
     }
 
+    /// One bounded, read-only snapshot for the trusted scope collector. No
+    /// cached authorization: callers must obtain it again before commit.
+    pub fn scope_snapshot(&self) -> Result<serde_json::Value, String> {
+        let mut modules = BTreeMap::new();
+        for entity in &self.graph.module_entities {
+            modules.insert(
+                entity.clone(),
+                self.graph
+                    .heads
+                    .get(entity)
+                    .cloned()
+                    .ok_or("E_AEP_SCOPE_MISSING_HEAD")?,
+            );
+        }
+        let mut pending: Vec<_> = modules.values().cloned().collect();
+        let mut nodes = BTreeMap::new();
+        while let Some(revision) = pending.pop() {
+            if nodes.contains_key(&revision) {
+                continue;
+            }
+            if nodes.len() >= 2048 {
+                return Err("E_AEP_SCOPE_NODE_LIMIT".into());
+            }
+            let n = self.graph.get(&revision).ok_or("E_AEP_SCOPE_DANGLING")?;
+            pending.extend(n.slots.values().flatten().cloned());
+            // Reuse the existing external node/scalar encoding, including
+            // bytes, names and integral floats. Invalid encodings fail closed.
+            let descriptor: serde_json::Value =
+                serde_json::from_str(&node_to_json(n)).map_err(|_| "E_AEP_SCOPE_NODE_ENCODING")?;
+            nodes.insert(revision, descriptor);
+        }
+        let value = serde_json::json!({"project":{"modules":modules,
+            "project_revision":self.graph.semantic_hash()},"nodes":nodes});
+        if value.to_string().len() > 8 * 1024 * 1024 {
+            return Err("E_AEP_SCOPE_BYTE_LIMIT".into());
+        }
+        Ok(value)
+    }
+
     /// Trusted Host context, derived from the current graph, not task recipes.
     pub fn function_context(&self, function: &str) -> Result<serde_json::Value, String> {
         use std::collections::BTreeSet;
