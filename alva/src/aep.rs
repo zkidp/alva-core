@@ -21,6 +21,8 @@ pub enum ArgSchema {
     String(&'static str),
     Bool(&'static str),
     Revision(&'static str),
+    ExactRevision(&'static str),
+    BodySource(&'static str),
     EntityRef(&'static str),
     Symbol(&'static str),
     Enum(&'static str, &'static [&'static str]),
@@ -37,6 +39,8 @@ impl ArgSchema {
             Self::String(s)
             | Self::Bool(s)
             | Self::Revision(s)
+            | Self::ExactRevision(s)
+            | Self::BodySource(s)
             | Self::EntityRef(s)
             | Self::Symbol(s)
             | Self::Enum(s, _)
@@ -64,6 +68,14 @@ impl ArgSchema {
             Self::Flexible(_) => serde_json::json!({"description":description}),
             Self::Revision(_) => serde_json::json!({
                 "type":"string", "minLength":1, "description":description
+            }),
+            Self::ExactRevision(_) => serde_json::json!({
+                "type":"string", "pattern":"^[0-9a-f]{64}$", "minLength":64,
+                "maxLength":64, "description":description
+            }),
+            Self::BodySource(_) => serde_json::json!({
+                "type":"string", "minLength":1, "maxLength":65536,
+                "description":description
             }),
             Self::EntityRef(_)
             | Self::Symbol(_)
@@ -141,6 +153,8 @@ fn schema_for_shape(shape: &'static str) -> ArgSchema {
     match shape {
         "bool" => ArgSchema::Bool(shape),
         "revision" | "record-construction revision" => ArgSchema::Revision(shape),
+        "complete lowercase body revision" => ArgSchema::ExactRevision(shape),
+        "ALVA (body ...) fragment; maximum 65536 UTF-8 bytes" => ArgSchema::BodySource(shape),
         "entity-id|name" | "entity-id|qualified fn" | "hole-id" => ArgSchema::EntityRef(shape),
         "symbol" | "field" | "field name" | "target" => ArgSchema::Symbol(shape),
         "type" | "type string" | "type name" | "record type name" => ArgSchema::TypeExpr(shape),
@@ -174,6 +188,7 @@ fn schema_for_shape(shape: &'static str) -> ArgSchema {
         "string(pure|io)" => ArgSchema::Enum(shape, &["pure", "io"]),
         "io|clock|unsafe-ffi" => ArgSchema::Enum(shape, &["io", "clock", "unsafe-ffi"]),
         "string"
+        | "fully qualified function name"
         | "string(qualified module.fn)"
         | "qualified fn or builtin"
         | "module fn"
@@ -357,6 +372,17 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             "inspection",
             "entity",
             "inspect_entity entity=Job",
+            None,
+        ),
+        spec(
+            "read_function",
+            vec![],
+            vec!["function"],
+            vec![arg("function", "string(qualified module.fn)", true)],
+            vec!["transaction"],
+            "inspection",
+            "entity",
+            "read_function function=demo.model.size_of",
             None,
         ),
         spec(
@@ -571,6 +597,21 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             "mutation",
             "entity",
             "append_step function=queue.main.main step=<rev>",
+            None,
+        ),
+        spec(
+            "replace_function_body",
+            vec![],
+            vec!["function"],
+            vec![
+                arg("function", "fully qualified function name", true),
+                arg("expected_body_revision", "complete lowercase body revision", true),
+                arg("body", "ALVA (body ...) fragment; maximum 65536 UTF-8 bytes", true),
+            ],
+            vec!["transaction", "exact current body revision", "semantic check"],
+            "mutation",
+            "entity",
+            "replace_function_body function=demo.model.size_of expected_body_revision=<full-rev> body=\"(body (int 1))\"",
             None,
         ),
         spec(

@@ -1,0 +1,64 @@
+name: Declaration body editing (zero models)
+on:
+  push:
+    branches: [codex/declaration-body-edit-v1]
+  pull_request:
+    paths:
+      - 'alva/src/**'
+      - 'tests/mcp/maintenance*'
+      - 'docs/declaration-body-edit-v1.md'
+      - 'docs/research/declaration-body-edit-v1*'
+      - '.github/workflows/declaration-body-edit.yml'
+permissions:
+  contents: read
+jobs:
+  prototype:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compiler and legacy profile checks
+        working-directory: alva
+        run: |
+          cargo fmt --check
+          cargo clippy --locked -- -D warnings
+          cargo test --locked
+          cargo build --locked
+      - name: MCP default and maintenance profiles; real Guard and fresh AIR
+        run: |
+          binary=alva/target/debug/alva
+          if [[ "$RUNNER_OS" == Windows ]]; then binary="$binary.exe"; fi
+          python tests/mcp/mcp_protocol_test.py "$binary"
+          python tests/mcp/maintenance_profile_test.py "$binary"
+          python -m unittest tests.integrations.test_precommit_scope_guard -v
+      - name: Existing conformance checks
+        run: bash tests/run_conformance.sh
+      - name: Linux isolation dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - name: Original MM02 deterministic body edit and independent behavior
+        if: runner.os == 'Linux'
+        run: |
+          python tests/mcp/maintenance_mm02_test.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/body-edit-v1/mm02.json
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Linux'
+        with:
+          name: declaration-body-edit-evidence
+          path: out/body-edit-v1/*.json

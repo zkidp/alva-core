@@ -37,6 +37,38 @@ pub fn check_with_external(
     c.finalize()
 }
 
+/// Additional boundary check for the opt-in declaration body editor. Existing
+/// project checking does not compare a function's final expression to returns.
+/// Keep legacy checking unchanged; the new mutation validates its target too.
+pub fn check_body_return_with_external(
+    module: &Module,
+    external_fns: HashMap<String, ExtFn>,
+    external_types: HashMap<String, ExtType>,
+    function: &str,
+) -> Vec<Diag> {
+    let mut c = Checker::with_external(module, external_fns, external_types);
+    let Some(f) = module.fns.iter().find(|f| f.name == function) else {
+        return vec![Diag::error("body return check: function not found")];
+    };
+    c.current_fn = Some(f.name.clone());
+    let mut env = Env::new();
+    env.vars
+        .extend(f.params.iter().map(|(name, ty)| (name.clone(), ty_of(ty))));
+    env.effects = f.eff.clone();
+    env.is_pure = f.pure;
+    let mut result = Ty::Prim(Prim::Nil);
+    for expr in &f.body {
+        result = c.type_of(expr, &mut env);
+    }
+    c.unify(
+        result,
+        ty_of(&f.returns),
+        &f.span,
+        "function body return type",
+    );
+    c.finalize()
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Ty {
     Unknown,

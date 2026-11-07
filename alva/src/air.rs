@@ -1886,6 +1886,42 @@ fn quote(s: &str) -> String {
     format!("\"{}\"", s.replace('\\', "\\\\").replace('"', "\\\""))
 }
 
+/// Editable body and read-only declaration projection from the staged graph.
+pub fn function_source(g: &AirGraph, revision: &str) -> Result<(String, String, String), String> {
+    let node = g
+        .resolve(revision)
+        .filter(|n| n.kind == "function")
+        .ok_or("E_AEP_FUNCTION_NOT_FOUND")?;
+    let body = node
+        .slots
+        .get("body")
+        .filter(|s| s.len() == 1)
+        .and_then(|s| s.first())
+        .ok_or("E_AEP_INVALID_BODY_SLOT")?;
+    let block = g
+        .get(body)
+        .filter(|n| n.kind == "block")
+        .ok_or("E_AEP_INVALID_BODY_SLOT")?;
+    let steps = block.slots.get("steps").ok_or("E_AEP_INVALID_BODY_SLOT")?;
+    let fragment = format!(
+        "(body {})",
+        steps
+            .iter()
+            .map(|s| expr_air_to_sexpr(g, s))
+            .collect::<Vec<_>>()
+            .join(" ")
+    );
+    // Return the editable body once, separately from read-only declaration
+    // context. Repeating it in a full declaration wastes model context.
+    let rendered = node_to_sexpr(g, &node.revision);
+    let suffix = format!("    {fragment}\n  )\n");
+    let header = rendered
+        .strip_suffix(&suffix)
+        .ok_or("E_AEP_FUNCTION_PROJECTION")?;
+    let declaration = format!("{header}  )\n");
+    Ok((body.clone(), fragment, declaration))
+}
+
 pub fn module_to_sexpr(g: &AirGraph, module_id: &str) -> String {
     let n = match g.get(module_id) {
         Some(n) => n,
@@ -3803,6 +3839,16 @@ pub struct EditSession {
     pub errors: Vec<String>,
 }
 
+struct FunctionOccurrence {
+    module: String,
+    name: String,
+    module_entity: String,
+    entity: String,
+    module_node: AirNode,
+    index: usize,
+    original: AirNode,
+}
+
 impl EditSession {
     pub fn begin(graph: AirGraph, base_hash: String) -> Self {
         EditSession {
@@ -4014,6 +4060,173 @@ impl EditSession {
             Ok(())
         })?;
         Ok(self.graph.resolve_rev(&parent_rev).unwrap_or_default())
+    }
+
+    /// Resolve a unique declaration through its current module's function slot.
+    fn function_occurrence(&self, function: &str) -> Result<FunctionOccurrence, String> {
+        let (module, name) = function
+            .rsplit_once('.')
+            .filter(|(m, n)| !m.is_empty() && !n.is_empty() && !m.contains('/') && !n.contains('/'))
+            .ok_or("E_AEP_QUALIFIED_FUNCTION_REQUIRED: use module.name.function")?;
+        let module_entity = format!("module:{module}");
+        let entity = format!("{module_entity}/fn:{name}");
+        if !self.graph.module_entities.contains(&module_entity) {
+            return Err(format!("E_AEP_FUNCTION_NOT_FOUND: {function}"));
+        }
+        let module_node = self
+            .graph
+            .resolve(&module_entity)
+            .filter(|n| n.kind == "module")
+            .cloned()
+            .ok_or("E_AEP_INVALID_MODULE_HEAD")?;
+        if field_str(&module_node, "name") != module {
+            return Err("E_AEP_MODULE_IDENTITY_MISMATCH".into());
+        }
+        let functions = module_node
+            .slots
+            .get("functions")
+            .ok_or("E_AEP_INVALID_FUNCTION_SLOT")?;
+        let matches: Vec<_> = functions
+            .iter()
+            .enumerate()
+            .filter_map(|(i, revision)| {
+                self.graph
+                    .get(revision)
+                    .filter(|n| n.kind == "function" && field_str(n, "name") == name)
+                    .map(|n| (i, n.clone()))
+            })
+            .collect();
+        let (index, original) = match matches.as_slice() {
+            [one] => one.clone(),
+            [] => return Err(format!("E_AEP_FUNCTION_NOT_FOUND: {function}")),
+            _ => return Err(format!("E_AEP_AMBIGUOUS_FUNCTION: {function}")),
+        };
+        if self.graph.heads.get(&entity) != Some(&original.revision) {
+            return Err("E_AEP_DECLARATION_HEAD_MISMATCH".into());
+        }
+        Ok(FunctionOccurrence {
+            module: module.into(),
+            name: name.into(),
+            module_entity,
+            entity,
+            module_node,
+            index,
+            original,
+        })
+    }
+
+    pub fn read_function(
+        &self,
+        function: &str,
+    ) -> Result<(String, String, String, String), String> {
+        let occurrence = self.function_occurrence(function)?;
+        let revision = occurrence.original.revision;
+        let (body_revision, body, declaration) = function_source(&self.graph, &revision)?;
+        Ok((revision, body_revision, body, declaration))
+    }
+
+    /// Copy one declaration occurrence without mutating shared nodes. Parsing
+    /// and all candidate checks precede swapping the original session.
+    pub fn replace_function_body(
+        &mut self,
+        function: &str,
+        expected_body_revision: &str,
+        source: &str,
+    ) -> Result<(String, String), String> {
+        if expected_body_revision.len() != 64
+            || !expected_body_revision
+                .bytes()
+                .all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase())
+        {
+            return Err(
+                "E_AEP_EXACT_BODY_REVISION_REQUIRED: use the complete lowercase body revision"
+                    .into(),
+            );
+        }
+        let FunctionOccurrence {
+            module,
+            name,
+            module_entity,
+            entity,
+            module_node,
+            index,
+            original,
+        } = self.function_occurrence(function)?;
+        let old_body = original
+            .slots
+            .get("body")
+            .filter(|s| s.len() == 1)
+            .and_then(|s| s.first())
+            .ok_or("E_AEP_INVALID_BODY_SLOT")?;
+        if old_body != expected_body_revision {
+            return Err(format!(
+                "E_AEP_STALE_BODY_REVISION: expected {expected_body_revision}, current {old_body}"
+            ));
+        }
+        if source.len() > 65536 {
+            return Err("E_AEP_BODY_SOURCE_LIMIT: maximum 65536 UTF-8 bytes".into());
+        }
+        let limits = crate::s_expr::Limits::from_env();
+        let tree = crate::s_expr::parse_with_limits(source, &limits)
+            .map_err(|e| format!("E_AEP_BODY_PARSE: {}", e.message()))?;
+        let body = ast::body_from_tree(&tree).map_err(|ds| {
+            format!(
+                "E_AEP_BODY_PARSE: {}",
+                ds.iter()
+                    .map(|d| d.message.as_str())
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            )
+        })?;
+        let mut staged = self.clone();
+        let mut new_body = String::new();
+        let mut new_function = String::new();
+        staged.stage(|g| {
+            let steps = body.iter().map(|e| expr_to_air(g, e)).collect();
+            new_body = g.add(
+                "block",
+                "",
+                BTreeMap::new(),
+                BTreeMap::from([("steps".into(), steps)]),
+            );
+            let mut slots = original.slots.clone();
+            slots.insert("body".into(), vec![new_body.clone()]);
+            // A content-shared function's stored entity label can belong to
+            // another declaration. Preserve that metadata without moving its
+            // head; only the selected occurrence's head is reconnected.
+            let heads = g.heads.clone();
+            new_function = g.add("function", &original.entity, original.fields.clone(), slots);
+            g.heads = heads;
+            if g.get(&new_function).map(|n| &n.entity) != Some(&original.entity) {
+                return Err(
+                    "E_AEP_BODY_ENTITY_COLLISION: existing revision has different entity metadata"
+                        .into(),
+                );
+            }
+            g.heads.insert(entity.clone(), new_function.clone());
+            let mut slots = module_node.slots.clone();
+            slots
+                .get_mut("functions")
+                .ok_or("E_AEP_INVALID_FUNCTION_SLOT")?[index] = new_function.clone();
+            g.add("module", &module_entity, module_node.fields.clone(), slots);
+            Ok(())
+        })?;
+        let errors = staged.check();
+        if !errors.is_empty() {
+            return Err(format!("E_AEP_BODY_CHECK: {}", errors.join("; ")));
+        }
+        crate::project::check_graph_function_return(&staged.graph, &module, &name)
+            .map_err(|errors| format!("E_AEP_BODY_CHECK: {}", errors.join("; ")))?;
+        for (head, revision) in &self.graph.heads {
+            if head != &entity
+                && head != &module_entity
+                && staged.graph.heads.get(head) != Some(revision)
+            {
+                return Err(format!("E_AEP_BODY_SCOPE: non-target head changed: {head}"));
+            }
+        }
+        *self = staged;
+        Ok((new_function, new_body))
     }
 
     pub fn append_child(
@@ -4969,6 +5182,10 @@ fn extern_air_to_ast(g: &AirGraph, id: &str) -> Result<ast::ExternDef, String> {
         span,
     })
 }
+
+#[cfg(test)]
+#[path = "body_edit_tests.rs"]
+mod body_edit_tests;
 
 #[cfg(test)]
 mod tests {

@@ -897,6 +897,21 @@ fn parse_contract_expr(n: &Node) -> Result<Expr, Vec<Diag>> {
     }
 }
 
+/// Parse an explicit body fragment without accepting declarations or metadata.
+pub fn body_from_tree(n: &Node) -> Result<Vec<Expr>, Vec<Diag>> {
+    if !matches!(n, Node::List(items, _) if matches!(items.first(), Some(Node::Atom(Atom::Sym(s), _)) if s == "body"))
+    {
+        return Err(vec![Diag::error(
+            "expected exactly one (body ...) fragment",
+        )]);
+    }
+    let body = parse_body(n)?;
+    if body.is_empty() {
+        return Err(vec![Diag::error("body requires at least one expression")]);
+    }
+    Ok(body)
+}
+
 fn parse_body(n: &Node) -> Result<Vec<Expr>, Vec<Diag>> {
     let items = list_items(n);
     let mut out = Vec::new();

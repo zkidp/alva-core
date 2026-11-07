@@ -1,0 +1,121 @@
+{
+  "status": "PASS",
+  "kind": "DETERMINISTIC_PROTOTYPE_WITNESS",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "original_bundle_sha256": "352a8b6fa459942b8b1d5469a966a706498afa7a2abbc13c39c457dafb069faf",
+  "tools": [
+    "begin_transaction",
+    "inspect_project",
+    "read_function",
+    "inspect_entity",
+    "replace_function_body",
+    "preview_semantic_diff",
+    "check_transaction",
+    "commit_transaction",
+    "abort_transaction"
+  ],
+  "baseline_task": "TEST_FAIL",
+  "baseline_regression": "PASS",
+  "before_body_revisions": {
+    "store.xml.parse_prefix": "14a972cff2d1b88cd843e80c5fab0a8c19d80db7f2936fd3a724016c3b6168d9",
+    "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+    "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+    "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+    "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+    "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+    "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+    "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+    "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+  },
+  "staged_body_revisions": {
+    "store.xml.parse_prefix": "37d4de36ae0441ce924088130f155bab20ed693c2b6ca6f7fd7022fa07e3ea9b",
+    "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+    "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+    "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+    "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+    "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+    "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+    "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+    "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+  },
+  "fresh_body_revisions": {
+    "store.xml.parse_prefix": "37d4de36ae0441ce924088130f155bab20ed693c2b6ca6f7fd7022fa07e3ea9b",
+    "store.xml.parse_delimiter": "62e883ecbd8302c9f6683f0380c69a1054d6f8f26cc7ea40bd190a76db2ff672",
+    "store.xml.emit_common_prefix": "4fed2595705455b0348758cad3ec8e2d448e760ed1d510b48e47ed9474f2561d",
+    "store.xml.emit_leaf": "305370c99e9b137de3ba3d54cbf0904c83d88cbb48b80b1490ecd417a867c9c5",
+    "store.xml.list_buckets_xml": "5b0c084c2c651f14ce32446a38271c0f50dcab052ec1cc618ff2d6fbce8a8ef7",
+    "store.xml.list_objects_xml": "05c9387acdb866b20735419be6c51583f8657b518eccc5eececaca84e287b5db",
+    "store.model.text_response": "4e801a21a79a4d05425584aca603c66efaf2d2980c3a9a923fdb8fb1ba59e94a",
+    "store.model.xml_response": "5e62ae6ef141bac06d30007de309f7fcf226598b313c1a8f0dc1d9369b68bd3f",
+    "store.model.xml_error": "5a8cb90a65010bd201b52bbcbbd1938083124051b8102f1b71e859dcd637ba4e"
+  },
+  "changed_functions": [
+    "store.xml.parse_prefix"
+  ],
+  "preview": {
+    "diff": "CHANGED module store.xml\nCHANGED function store.xml.parse_prefix"
+  },
+  "check": {
+    "problems": []
+  },
+  "commit": {
+    "generation": 1,
+    "revision": "b414a22eeaac90b281f7ae267965713a8fa5e82d67aa28f5cdd0a3275931f139",
+    "host_scope": {
+      "status": "SCOPE_ALLOWED",
+      "changed_functions": [
+        "store.xml.parse_prefix"
+      ],
+      "unauthorized_functions": [],
+      "authorized_functions": [
+        "store.xml.parse_prefix"
+      ],
+      "baseline_sha256": "ce374870a53a4f284e78d35691a807b3508344d9954defc935b9776cec271712",
+      "staged_sha256": "e07a544c6012c64bbfbc4d589a97ef898533a6884cb75edcc22993d304fd7925",
+      "baseline_project_revision": "6bafc7d00f250d86e90714dd04aa033c3940937199f29fdf36980bba3e6e7c09",
+      "staged_project_revision": "b414a22eeaac90b281f7ae267965713a8fa5e82d67aa28f5cdd0a3275931f139",
+      "coverage_nodes": 197,
+      "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+    }
+  },
+  "actual_native_commits": 1,
+  "source_unchanged": true,
+  "initial_project": {
+    "modules": {
+      "module:store.model": "4f459da5ce9245ef12c22c776b97db07b8558d422f1c1ca367b2128768624ada",
+      "module:store.xml": "e7f98b55cdacb95b8c2537598e99ce35b0631c0e58be072ef0bcaff456a97e53"
+    },
+    "project_revision": "6bafc7d00f250d86e90714dd04aa033c3940937199f29fdf36980bba3e6e7c09"
+  },
+  "fresh_project": {
+    "modules": {
+      "module:store.model": "4f459da5ce9245ef12c22c776b97db07b8558d422f1c1ca367b2128768624ada",
+      "module:store.xml": "887961f2849b5b088bcfd776d59d87976de87c2655798b0c545eeee8bb7814f6"
+    },
+    "project_revision": "b414a22eeaac90b281f7ae267965713a8fa5e82d67aa28f5cdd0a3275931f139"
+  },
+  "task": "PASS",
+  "regression": "PASS",
+  "raw_evidence_sha256": "6ee24416b6c2953c1c10b4e94a0a562022c677a82570db032cdebcd390dce729",
+  "validation": {
+    "source_sha256": {
+      "alva/src/aep.rs": "430c8ffb90fed4142d67d1c6e69e54ca2ddd74a2f73b05f50b0978d8e3a1cbc5",
+      "alva/src/air.rs": "06ffd9acf0122898659fcd17005a74b35ad44a9fd3abe5511a12be526b6563cf",
+      "alva/src/ast.rs": "4866ca2cdf13c8d6f234ff6e59c199f278c9183a9cfe21e837f8b0ec7227c99f",
+      "alva/src/check.rs": "330f45e2caf2d3610638fdd5ee07686426d9131fe7ddf94f6bd5800d862545b0",
+      "alva/src/main.rs": "faea6b35e19809d19facc829146cb92988b8982745ae289c15c16012f0deef2d",
+      "alva/src/mcp.rs": "2a0e2bfe35d40d05067b1cf26bced5155a5256742704b4c7957c26cfcfba59b6",
+      "alva/src/project.rs": "4f5c8096f1e664a94fdc6094a10342dfcdcbc2008973e83f4e79e68cf1958ecf",
+      "alva/src/body_edit_tests.rs": "5610fd4598aff06b921a4f107be6bb05d2174d263d74980ed60f63becc0533e9",
+      "tests/mcp/maintenance_profile_test.py": "bd121df8cfb7350891acfc007750fbadf0e3cfc69bcfed002c86333e5dc74c01",
+      "tests/mcp/maintenance_mm02_test.py": "f61bfe1646cc7944cca077c0eeed5222182d6f127d97fbac017c7e943a48d967"
+    },
+    "binary_sha256": "e80e82224c2990ccbca8781b2dd9782fc0dd8de47df2cc568bfc8619a1f88ec9",
+    "final_exit": 0,
+    "mm02_exit": 0,
+    "legacy_guard_conformance_exit": 0,
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)"
+  },
+  "note": "Deterministic prototype witness; not model success or a token comparison."
+}

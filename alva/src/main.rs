@@ -1751,7 +1751,14 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     .or_else(|| req.get("name"))
                     .and_then(|v| v.as_str())
                     .unwrap_or("");
-                match canonical_entity_rev(&s.graph, "inspect_entity", "entity", id, &["any"]) {
+                // Exact revisions are snapshot reads, including shared named
+                // nodes. Entity-label remapping can read a different occurrence.
+                let resolved = if id.len() == 64 && s.graph.get(id).is_some() {
+                    Ok(id.to_string())
+                } else {
+                    canonical_entity_rev(&s.graph, "inspect_entity", "entity", id, &["any"])
+                };
+                match resolved {
                     Err(Some((r, msg))) => resp!(false, &r, &msg),
                     Err(None) => resp!(false, "null", &not_found(&s.graph, id)),
                     Ok(entity) => match s.graph.resolve(&entity).cloned() {
@@ -1947,6 +1954,23 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err(e) => resp!(false, "null", &e),
                 }
             }
+            "replace_function_body" => {
+                let s = need_session!();
+                let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+                let expected = req
+                    .get("expected_body_revision")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+                let body = req.get("body").and_then(|v| v.as_str()).unwrap_or("");
+                match s.replace_function_body(function, expected, body) {
+                    Ok((revision, body_revision)) => resp!(true, &format!(
+                        "{{\"function\":{},\"revision\":{},\"body_revision\":{}}}",
+                        json_str(function), json_str(&revision), json_str(&body_revision)), "body staged; not published"),
+                    Err(e) => resp!(false, &format!(
+                        "{{\"operation\":\"replace_function_body\",\"function\":{},\"recovery\":{{\"tool\":\"inspect_entity\",\"entity\":{}}}}}",
+                        json_str(function), json_str(function)), &e),
+                }
+            }
             "replace_expression" => {
                 let s = need_session!();
                 let position = req
@@ -2132,6 +2156,19 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Ok(())
                 })() {
                     Ok(()) => resp!(true, "{\"renamed\":true}", "ok"),
+                    Err(e) => resp!(false, "null", &e),
+                }
+            }
+            "read_function" => {
+                let s = need_session!();
+                let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+                match s.read_function(function) {
+                    Ok((revision, body_revision, body, declaration)) => {
+                        resp!(true, &serde_json::json!({
+                        "function": function, "revision": revision,
+                        "body_revision": body_revision, "body": body, "declaration": declaration
+                    }).to_string(), "read-only projection; replace only the body fragment")
+                    }
                     Err(e) => resp!(false, "null", &e),
                 }
             }

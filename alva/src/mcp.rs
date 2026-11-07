@@ -38,6 +38,19 @@ const MCP_TOOLS: &[&str] = &[
     "abort_transaction",
 ];
 
+// Opt-in task-level surface; the original 20-tool default stays unchanged.
+const MAINTENANCE_TOOLS: &[&str] = &[
+    "begin_transaction",
+    "inspect_project",
+    "read_function",
+    "inspect_entity",
+    "replace_function_body",
+    "preview_semantic_diff",
+    "check_transaction",
+    "commit_transaction",
+    "abort_transaction",
+];
+
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 enum ProtocolEra {
     #[default]
@@ -105,11 +118,12 @@ impl Drop for AgentChild {
 struct Gateway {
     active: Option<(String, AgentChild)>,
     next_transaction: u64,
+    maintenance: bool,
 }
 
 impl Gateway {
     fn call_tool(&mut self, name: &str, arguments: &Value) -> Result<Value, String> {
-        if !operation_exposed(name) {
+        if !operation_exposed_for(name, self.maintenance) {
             return Err(format!("E_MCP_UNKNOWN_TOOL: unknown tool '{name}'"));
         }
         let args = arguments
@@ -163,7 +177,7 @@ impl Gateway {
         }
         if name == "describe_operation" {
             if let Some(requested) = args.get("name").and_then(Value::as_str) {
-                if !operation_exposed(requested) {
+                if !operation_exposed_for(requested, self.maintenance) {
                     return Err(format!(
                         "E_MCP_OPERATION_NOT_EXPOSED: '{requested}' is not callable through MCP; use tools/list"
                     ));
@@ -178,7 +192,11 @@ impl Gateway {
         ensure_agent_ok(&response)?;
         let mut result = response.get("result").cloned().unwrap_or(Value::Null);
         if name == "applicable_operations" {
-            filter_applicable_operations(&mut result);
+            if self.maintenance {
+                filter_applicable_operations_for(&mut result, true);
+            } else {
+                filter_applicable_operations(&mut result);
+            }
         }
         if matches!(name, "commit_transaction" | "abort_transaction") {
             self.active = None;
@@ -188,18 +206,35 @@ impl Gateway {
 }
 
 fn filter_applicable_operations(result: &mut Value) {
+    filter_applicable_operations_for(result, false);
+}
+
+fn filter_applicable_operations_for(result: &mut Value, maintenance: bool) {
     let Some(object) = result.as_object_mut() else {
         return;
     };
     for key in ["inspection", "mutation", "context_operations"] {
         if let Some(operations) = object.get_mut(key).and_then(Value::as_array_mut) {
-            operations.retain(|operation| operation.as_str().is_some_and(operation_exposed));
+            operations.retain(|operation| {
+                operation
+                    .as_str()
+                    .is_some_and(|name| operation_exposed_for(name, maintenance))
+            });
         }
     }
 }
 
 fn operation_exposed(name: &str) -> bool {
-    MCP_TOOLS.contains(&name)
+    operation_exposed_for(name, false)
+}
+
+fn operation_exposed_for(name: &str, maintenance: bool) -> bool {
+    (if maintenance {
+        MAINTENANCE_TOOLS
+    } else {
+        MCP_TOOLS
+    })
+    .contains(&name)
         && crate::aep::lookup(name)
             .is_some_and(|spec| spec.gate.is_none_or(crate::aep::gate_enabled))
 }
@@ -336,6 +371,13 @@ fn tool_definition(name: &str) -> Option<Value> {
     if !operation_exposed(name) {
         return None;
     }
+    tool_definition_for(name, false)
+}
+
+fn tool_definition_for(name: &str, maintenance: bool) -> Option<Value> {
+    if !operation_exposed_for(name, maintenance) {
+        return None;
+    }
     let spec = crate::aep::lookup(name)?;
     let mut input_schema = crate::aep::operation_input_schema(spec);
     if name != "begin_transaction" {
@@ -372,6 +414,16 @@ fn list_tools(modern: bool) -> Value {
         .filter_map(|name| tool_definition(name))
         .collect();
     let mut result = json!({"tools":tools});
+    if modern {
+        result["ttlMs"] = json!(0);
+        result["cacheScope"] = json!("private");
+    }
+    result
+}
+
+fn maintenance_tools(modern: bool) -> Value {
+    let mut result = json!({"tools": MAINTENANCE_TOOLS.iter()
+        .filter_map(|name| tool_definition_for(name, true)).collect::<Vec<_>>()});
     if modern {
         result["ttlMs"] = json!(0);
         result["cacheScope"] = json!("private");
@@ -450,7 +502,15 @@ fn dispatch(
                 false,
             ))
         }
-        "tools/list" => Some(success(id, list_tools(modern), modern)),
+        "tools/list" => Some(success(
+            id,
+            if gateway.maintenance {
+                maintenance_tools(modern)
+            } else {
+                list_tools(modern)
+            },
+            modern,
+        )),
         "tools/call" => {
             let name = match request.pointer("/params/name").and_then(Value::as_str) {
                 Some(name) => name,
@@ -483,10 +543,27 @@ fn dispatch(
 }
 
 pub fn cmd_mcp() -> i32 {
+    let args: Vec<String> = std::env::args().skip(2).collect();
+    let maintenance = match args
+        .iter()
+        .map(String::as_str)
+        .collect::<Vec<_>>()
+        .as_slice()
+    {
+        [] | ["--profile", "native"] => false,
+        ["--profile", "maintenance"] => true,
+        _ => {
+            eprintln!("usage: alva mcp [--profile native|maintenance]");
+            return 2;
+        }
+    };
     let stdin = std::io::stdin();
     let stdout = std::io::stdout();
     let mut output = BufWriter::new(stdout.lock());
-    let mut gateway = Gateway::default();
+    let mut gateway = Gateway {
+        maintenance,
+        ..Gateway::default()
+    };
     let mut protocol_era = ProtocolEra::default();
     for line in stdin.lock().lines() {
         let line = match line {
@@ -524,6 +601,46 @@ pub fn cmd_mcp() -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn maintenance_profile_is_explicit_and_has_one_mutation_tool() {
+        let listed = maintenance_tools(false);
+        let names: Vec<_> = listed["tools"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|t| t["name"].as_str().unwrap())
+            .collect();
+        assert_eq!(names, MAINTENANCE_TOOLS);
+        assert_eq!(names.len(), 9);
+        assert!(!operation_exposed("replace_function_body"));
+        assert!(operation_exposed_for("replace_function_body", true));
+        assert!(!operation_exposed_for("change_field", true));
+        assert!(!operation_exposed_for("construct_expression", true));
+        let tool = tool_definition_for("replace_function_body", true).unwrap();
+        assert_eq!(
+            tool["inputSchema"]["required"],
+            json!([
+                "transaction_id",
+                "function",
+                "expected_body_revision",
+                "body"
+            ])
+        );
+        assert_eq!(tool["annotations"]["readOnlyHint"], false);
+        let mut gateway = Gateway {
+            maintenance: true,
+            ..Gateway::default()
+        };
+        assert!(gateway
+            .call_tool("change_field", &json!({}))
+            .unwrap_err()
+            .contains("UNKNOWN_TOOL"));
+        assert!(Gateway::default()
+            .call_tool("replace_function_body", &json!({}))
+            .unwrap_err()
+            .contains("UNKNOWN_TOOL"));
+    }
 
     #[test]
     fn tool_list_is_deterministic_and_hides_gated_a1() {
