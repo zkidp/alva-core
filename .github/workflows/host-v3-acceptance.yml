@@ -1,0 +1,33 @@
+name: Host V3 acceptance runtime (zero models)
+on:
+  push:
+    branches: [codex/host-v3-model-acceptance]
+  pull_request:
+    paths: ['benchmarks/host_v3_acceptance/**', '.github/workflows/host-v3-acceptance.yml']
+permissions:
+  contents: read
+jobs:
+  qualification:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - run: python -m unittest benchmarks.host_v3_acceptance.test_contract -v
+      - run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: All original tasks and source-proposal scope refusal; no provider
+        run: |
+          python benchmarks/host_v3_acceptance/preflight.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/host-v3-acceptance/preflight.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: host-v3-acceptance-no-model-preflight
+          path: out/host-v3-acceptance/*.json
