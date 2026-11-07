@@ -122,6 +122,11 @@ class GuardedNative:
         except Exception as exc:
             return {"status": "SCOPE_UNVERIFIED", "reason": type(exc).__name__ + ":" + str(exc)}
 
+    def preview_scope(self, transaction_id):
+        """Trusted Host preview; publication still rechecks under the same gate."""
+        with self._lock:
+            return self._decision(transaction_id)
+
     def request(self, method, params=None, **kwargs):
         # One gate covers every mutation, inspection and commit on this owned
         # session. The snapshot-to-forward interval is inside the same lock.

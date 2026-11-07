@@ -3841,7 +3841,6 @@ pub struct EditSession {
 
 struct FunctionOccurrence {
     module: String,
-    name: String,
     module_entity: String,
     entity: String,
     module_node: AirNode,
@@ -4106,7 +4105,6 @@ impl EditSession {
         }
         Ok(FunctionOccurrence {
             module: module.into(),
-            name: name.into(),
             module_entity,
             entity,
             module_node,
@@ -4123,6 +4121,84 @@ impl EditSession {
         let revision = occurrence.original.revision;
         let (body_revision, body, declaration) = function_source(&self.graph, &revision)?;
         Ok((revision, body_revision, body, declaration))
+    }
+
+    /// Trusted Host context, derived from the current graph, not task recipes.
+    pub fn function_context(&self, function: &str) -> Result<serde_json::Value, String> {
+        use std::collections::BTreeSet;
+        let occurrence = self.function_occurrence(function)?;
+        let mut pending = vec![occurrence.original.revision];
+        let mut visited = BTreeSet::new();
+        let mut calls = BTreeSet::new();
+        let mut types = BTreeSet::new();
+        while let Some(revision) = pending.pop() {
+            if !visited.insert(revision.clone()) {
+                continue;
+            }
+            if visited.len() > 4096 {
+                return Err("E_AEP_CONTEXT_LIMIT".into());
+            }
+            let n = self.graph.get(&revision).ok_or("E_AEP_CONTEXT_DANGLING")?;
+            if n.kind == "call" {
+                calls.insert(field_str(n, "name"));
+            }
+            if n.kind == "type_expr" && field_str(n, "shape") == "named" {
+                types.insert(field_str(n, "name"));
+            }
+            if matches!(n.kind.as_str(), "record" | "record_update") {
+                let name = field_str(n, "type");
+                if !name.is_empty() {
+                    types.insert(name);
+                }
+            }
+            pending.extend(n.slots.values().flatten().cloned());
+        }
+        let mut declarations = Vec::new();
+        let mut builtins = Vec::new();
+        for name in calls {
+            match crate::capability::resolve_capability(&name) {
+                crate::capability::CapabilityOutcome::Supported {
+                    cap: capability, ..
+                } => {
+                    builtins.push(
+                        serde_json::json!({"name":capability.canonical,"arity":capability.arity}),
+                    );
+                }
+                _ => {
+                    let qualified = if name.contains('.') {
+                        name.clone()
+                    } else {
+                        format!("{}.{name}", occurrence.module)
+                    };
+                    if let Ok((_, _, _, header)) = self.read_function(&qualified) {
+                        declarations
+                            .push(serde_json::json!({"function":qualified,"declaration":header}));
+                    }
+                }
+            }
+        }
+        let mut type_declarations = Vec::new();
+        for name in types {
+            let qualified = if name.contains('.') {
+                name.clone()
+            } else {
+                format!("{}.{name}", occurrence.module)
+            };
+            if let Some((module, local)) = qualified.rsplit_once('.') {
+                let entity = format!("module:{module}/type:{local}");
+                if let Some(node) = self.graph.resolve(&entity) {
+                    type_declarations.push(node_to_sexpr(&self.graph, &node.revision));
+                }
+            }
+        }
+        let available: Vec<_> = crate::capability::BUILTINS
+            .iter()
+            .map(|c| serde_json::json!({"name":c.canonical,"arity":c.arity}))
+            .collect();
+        Ok(
+            serde_json::json!({"types":type_declarations,"callees":declarations,"used_builtins":builtins,"available_builtins":available,
+            "boundary":"direct references in the current function; not complete effect/dependency analysis"}),
+        )
     }
 
     /// Copy one declaration occurrence without mutating shared nodes. Parsing
@@ -4144,8 +4220,7 @@ impl EditSession {
             );
         }
         let FunctionOccurrence {
-            module,
-            name,
+            module: _,
             module_entity,
             entity,
             module_node,
@@ -4172,10 +4247,7 @@ impl EditSession {
         let body = ast::body_from_tree(&tree).map_err(|ds| {
             format!(
                 "E_AEP_BODY_PARSE: {}",
-                ds.iter()
-                    .map(|d| d.message.as_str())
-                    .collect::<Vec<_>>()
-                    .join("; ")
+                ds.iter().map(|d| d.render()).collect::<Vec<_>>().join("; ")
             )
         })?;
         let mut staged = self.clone();
@@ -4215,8 +4287,6 @@ impl EditSession {
         if !errors.is_empty() {
             return Err(format!("E_AEP_BODY_CHECK: {}", errors.join("; ")));
         }
-        crate::project::check_graph_function_return(&staged.graph, &module, &name)
-            .map_err(|errors| format!("E_AEP_BODY_CHECK: {}", errors.join("; ")))?;
         for (head, revision) in &self.graph.heads {
             if head != &entity
                 && head != &module_entity

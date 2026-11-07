@@ -2686,6 +2686,36 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err(e) => resp!(false, "null", &e),
                 }
             }
+            "export_transaction" => {
+                let s = need_session!();
+                let bytes = air::graph_to_bytes(&s.graph);
+                if bytes.len() > 8 * 1024 * 1024 {
+                    resp!(false, "null", "E_AEP_EXPORT_LIMIT: maximum 8 MiB")
+                } else {
+                    use sha2::{Digest, Sha256};
+                    let hex: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
+                    resp!(
+                        true,
+                        &serde_json::json!({"format":"ALVA-AIR-1", "air_hex":hex,
+                        "air_sha256":format!("{:x}", Sha256::digest(&bytes)),
+                        "project_revision":s.graph.semantic_hash(),"base_revision":s.base_hash})
+                        .to_string(),
+                        "read-only staged snapshot; not published"
+                    )
+                }
+            }
+            "read_function_context" => {
+                let s = need_session!();
+                let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
+                match s.function_context(function) {
+                    Ok(value) => resp!(
+                        true,
+                        &value.to_string(),
+                        "direct context; not effect completeness"
+                    ),
+                    Err(e) => resp!(false, "null", &e),
+                }
+            }
             "check_transaction" => {
                 let s = need_session!();
                 let errs = s.check();

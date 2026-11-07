@@ -164,42 +164,6 @@ pub fn check_project_loaded(modules: Vec<LoadedModule>) -> Result<Vec<LoadedModu
     Ok(modules)
 }
 
-/// Additional declared-return check for the body editor's target function.
-pub fn check_graph_function_return(
-    g: &crate::air::AirGraph,
-    module: &str,
-    function: &str,
-) -> Result<(), Vec<String>> {
-    let modules = g
-        .module_entities
-        .iter()
-        .map(|entity| {
-            crate::air::air_to_module(g, entity)
-                .map(|module| LoadedModule {
-                    name: module.name.clone(),
-                    module,
-                })
-                .map_err(|e| vec![e])
-        })
-        .collect::<Result<Vec<_>, _>>()?;
-    let lm = modules
-        .iter()
-        .find(|lm| lm.name == module)
-        .ok_or_else(|| vec!["body return check: module not found".into()])?;
-    let (fns, types) = externals_of_deps(lm, &modules);
-    let diags = check::check_body_return_with_external(&lm.module, fns, types, function);
-    let errors: Vec<_> = diags
-        .iter()
-        .filter(|d| d.severity == "error")
-        .map(|d| d.render())
-        .collect();
-    if errors.is_empty() {
-        Ok(())
-    } else {
-        Err(errors)
-    }
-}
-
 /// Run the existing semantic checker with project dependency symbols.
 pub fn check_graph_semantic(g: &crate::air::AirGraph) -> Result<(), Vec<String>> {
     let mut modules = Vec::new();

@@ -1,0 +1,67 @@
+name: Maintenance Host V2 (zero models)
+on:
+  push:
+    branches: [codex/maintenance-host-v2]
+  pull_request:
+    paths:
+      - 'alva/src/**'
+      - 'integrations/codex/**'
+      - 'integrations/skills/alva/**'
+      - 'tests/mcp/host_workflow*'
+      - 'docs/maintenance-host-v2.md'
+      - '.github/workflows/maintenance-host-v2.yml'
+permissions:
+  contents: read
+jobs:
+  qualification:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compiler checks
+        working-directory: alva
+        run: |
+          cargo fmt --check
+          cargo clippy --locked -- -D warnings
+          cargo test --locked
+          cargo build --locked
+      - name: Legacy profiles, Host lifecycle and Skill packaging
+        run: |
+          binary=alva/target/debug/alva
+          if [[ "$RUNNER_OS" == Windows ]]; then binary="$binary.exe"; fi
+          python tests/mcp/mcp_protocol_test.py "$binary"
+          python tests/mcp/maintenance_profile_test.py "$binary"
+          python tests/mcp/host_workflow_test.py "$binary"
+          python -m unittest tests.integrations.test_precommit_scope_guard -v
+          python tests/integrations/codex_plugin_test.py
+          python tests/integrations/claude_code_plugin_test.py
+          bash tests/run_conformance.sh
+      - name: Linux isolation dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - name: Four original tasks with actual pre-publication isolated tests
+        if: runner.os == 'Linux'
+        run: |
+          python tests/mcp/host_workflow_linux.py \
+            --alva alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output out/maintenance-host-v2/qualification.json
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Linux'
+        with:
+          name: maintenance-host-v2-evidence
+          path: out/maintenance-host-v2/*.json

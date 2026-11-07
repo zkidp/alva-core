@@ -600,6 +600,16 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             None,
         ),
         spec(
+            "export_transaction",
+            vec![], vec!["any"], vec![], vec!["transaction"], "inspection", "transaction",
+            "export_transaction", None,
+        ),
+        spec(
+            "read_function_context",
+            vec![], vec!["function"], vec![arg("function", "string(qualified module.fn)", true)],
+            vec!["transaction"], "inspection", "entity", "read_function_context function=demo.model.size_of", None,
+        ),
+        spec(
             "replace_function_body",
             vec![],
             vec!["function"],

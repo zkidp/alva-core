@@ -27,6 +27,53 @@ pub fn check(module: &Module) -> Vec<Diag> {
     c.finalize()
 }
 
+#[cfg(test)]
+mod return_tests {
+    use super::*;
+    fn module(source: &str) -> Module {
+        let tree =
+            crate::s_expr::parse_with_limits(source, &crate::s_expr::Limits::default()).unwrap();
+        ast::from_tree(&tree).unwrap()
+    }
+    #[test]
+    fn return_mismatch_is_checked_equally_in_source_and_air() {
+        let m = module("(module (name \"ret\") (version \"1\") (fn f (params) (returns (prim i64)) (pure) (body (string \"bad\"))))");
+        let errors = check(&m);
+        assert!(errors
+            .iter()
+            .any(|d| d.code == "E_TYPE_001" && d.expected == ["i64"] && d.actual == ["string"]));
+        let g = crate::air::air_from_module(&m);
+        assert!(crate::project::check_graph_semantic(&g)
+            .unwrap_err()
+            .iter()
+            .any(|e| e.contains("function body return type")));
+    }
+    #[test]
+    fn implicit_ok_and_alias_returns_keep_their_language_semantics() {
+        for f in [
+            "(fn f (params) (returns (result (prim nil) (prim string))) (pure) (body (nil)))",
+            "(fn f (params) (returns Count) (pure) (body (int 1)))",
+            "(fn f (params) (returns (result Count (prim string))) (pure) (body (int 1)))",
+            "(fn f (params) (returns (result Count (prim string))) (pure) (body (ok (int 1))))",
+        ] {
+            let m = module(&format!(
+                "(module (name \"ret\") (version \"1\") (type Count (alias (prim i64))) {f})"
+            ));
+            assert!(check(&m).is_empty(), "{f}: {:?}", check(&m));
+            assert!(crate::project::check_graph_semantic(&crate::air::air_from_module(&m)).is_ok());
+        }
+    }
+    #[test]
+    fn argument_error_does_not_add_a_cascading_return_error() {
+        let m = module("(module (name \"ret\") (version \"1\") (fn f (params) (returns (prim i64)) (pure) (body (+ (string \"bad\") (int 1)))))");
+        let errors = check(&m);
+        assert!(!errors.is_empty());
+        assert!(!errors
+            .iter()
+            .any(|d| d.message.contains("function body return type")));
+    }
+}
+
 pub fn check_with_external(
     module: &Module,
     external_fns: HashMap<String, ExtFn>,
@@ -34,38 +81,6 @@ pub fn check_with_external(
 ) -> Vec<Diag> {
     let mut c = Checker::with_external(module, external_fns, external_types);
     c.run();
-    c.finalize()
-}
-
-/// Additional boundary check for the opt-in declaration body editor. Existing
-/// project checking does not compare a function's final expression to returns.
-/// Keep legacy checking unchanged; the new mutation validates its target too.
-pub fn check_body_return_with_external(
-    module: &Module,
-    external_fns: HashMap<String, ExtFn>,
-    external_types: HashMap<String, ExtType>,
-    function: &str,
-) -> Vec<Diag> {
-    let mut c = Checker::with_external(module, external_fns, external_types);
-    let Some(f) = module.fns.iter().find(|f| f.name == function) else {
-        return vec![Diag::error("body return check: function not found")];
-    };
-    c.current_fn = Some(f.name.clone());
-    let mut env = Env::new();
-    env.vars
-        .extend(f.params.iter().map(|(name, ty)| (name.clone(), ty_of(ty))));
-    env.effects = f.eff.clone();
-    env.is_pure = f.pure;
-    let mut result = Ty::Prim(Prim::Nil);
-    for expr in &f.body {
-        result = c.type_of(expr, &mut env);
-    }
-    c.unify(
-        result,
-        ty_of(&f.returns),
-        &f.span,
-        "function body return type",
-    );
     c.finalize()
 }
 
@@ -399,8 +414,39 @@ impl<'a> Checker<'a> {
         }
     }
 
+    fn return_type_aliases(&self, ty: Ty, depth: usize) -> Ty {
+        if depth >= 64 {
+            return Ty::Unknown;
+        }
+        match ty {
+            Ty::Named(ref name) => {
+                let kind = self
+                    .types
+                    .get(name)
+                    .map(|t| &t.kind)
+                    .or_else(|| self.external_types.get(name).map(|t| &t.kind));
+                if let Some(ast::TypeKind::Alias(inner)) = kind {
+                    self.return_type_aliases(ty_of(inner), depth + 1)
+                } else {
+                    ty
+                }
+            }
+            Ty::Vec(inner) => Ty::Vec(Box::new(self.return_type_aliases(*inner, depth + 1))),
+            Ty::Map(key, value) => Ty::Map(
+                Box::new(self.return_type_aliases(*key, depth + 1)),
+                Box::new(self.return_type_aliases(*value, depth + 1)),
+            ),
+            Ty::Result(ok, err) => Ty::Result(
+                Box::new(self.return_type_aliases(*ok, depth + 1)),
+                Box::new(self.return_type_aliases(*err, depth + 1)),
+            ),
+            other => other,
+        }
+    }
+
     fn check_fns(&mut self) {
         for f in &self.module.fns {
+            let diagnostic_start = self.diags.len();
             self.current_fn = Some(f.name.clone());
             if !valid_ident(&f.name) {
                 self.diags.push(Diag::error_at(
@@ -468,8 +514,25 @@ impl<'a> Checker<'a> {
             }
             env.effects = f.eff.clone();
             env.is_pure = f.pure;
+            let mut result = Ty::Prim(Prim::Nil);
             for e in &f.body {
-                let _ = self.type_of(e, &mut env);
+                result = self.type_of(e, &mut env);
+            }
+            if !self.diags[diagnostic_start..]
+                .iter()
+                .any(|d| d.severity == "error")
+            {
+                let mut expected = self.return_type_aliases(ty_of(&f.returns), 0);
+                let result = self.return_type_aliases(result, 0);
+                // Codegen wraps a plain tail in Ok for a declared Result.
+                // Check the success type in that case, retaining this language
+                // behavior rather than requiring an explicit (ok ...) form.
+                if matches!(f.returns, TypeExpr::Result(..)) && !matches!(result, Ty::Result(..)) {
+                    if let Ty::Result(ok, _) = expected {
+                        expected = *ok;
+                    }
+                }
+                self.unify(expected, result, &f.span, "function body return type");
             }
 
             let mut pre_env = Env::new();
