@@ -1,0 +1,26 @@
+name: Compact maintenance cost and protocol (zero models)
+on:
+  push:
+    branches: [codex/compact-maintenance-protocol]
+  pull_request:
+    paths:
+      - 'benchmarks/compact_maintenance/**'
+      - '.github/workflows/compact-maintenance-protocol.yml'
+permissions:
+  contents: read
+jobs:
+  contract-and-analysis:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate prospective design and input bindings
+        run: python -m benchmarks.compact_maintenance.register --check
+      - name: Cost normalization, tool contract and outcome screen regressions
+        run: python -m unittest benchmarks.compact_maintenance.test_study -v

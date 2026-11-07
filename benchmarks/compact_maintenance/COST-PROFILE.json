@@ -1,0 +1,2969 @@
+{
+  "schema": "mic02-cost-diagnosis/v1",
+  "status": "READ_ONLY_DESCRIPTIVE_ANALYSIS",
+  "archive_sha256": "1614c908f6f331f1a345be22ea762ffd17d49176a6bbeb378ceb1b343109d175",
+  "old_results_sha256": "566d8a92d30a2984446a5ba8ac333045616169453b4a9cb342c7fac5b5b1d346",
+  "old_results_hash_basis": "committed Git blob, independent of checkout line endings",
+  "model_generation_calls": 0,
+  "input_token_api_calls": 0,
+  "per_category_tokens": null,
+  "provider_requests": null,
+  "dollar_cost": null,
+  "limitations": [
+    "Bytes are canonicalized log payload sizes, not provider token attribution or exact prompt representation.",
+    "MCP text and structured content are separate metrics; their appearance in actual model context is not known.",
+    "Repeated replies and calls after errors may be necessary; they are not measured avoidable cost.",
+    "Eight both-success pairs are survivor-selected; prior quota and CLI-identity limitations remain.",
+    "Eligible arm aggregates have unequal denominators; use matched pairs for comparisons.",
+    "Historical backend logging is not a complete end-to-end Host execution trace."
+  ],
+  "rows": [
+    {
+      "id": "01-MM07-r2-N",
+      "task": "MM07",
+      "arm": "N",
+      "repeat": 2,
+      "correct": false,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 619048,
+        "inputTokens": 613813,
+        "cachedInputTokens": 580480,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 5235,
+        "reasoningOutputTokens": 1240
+      },
+      "completed_model_tool_items": 64,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 64,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 3,
+          "argument_utf8_bytes": 126,
+          "text_reply_utf8_bytes": 398,
+          "serialized_reply_utf8_bytes": 1027,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 318,
+          "text_reply_utf8_bytes": 32636,
+          "serialized_reply_utf8_bytes": 35850,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 350,
+          "text_reply_utf8_bytes": 8625,
+          "serialized_reply_utf8_bytes": 17689,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 348,
+          "text_reply_utf8_bytes": 1805,
+          "serialized_reply_utf8_bytes": 4019,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 32,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 5064,
+          "text_reply_utf8_bytes": 2528,
+          "serialized_reply_utf8_bytes": 7520,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 8,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1352,
+          "text_reply_utf8_bytes": 664,
+          "serialized_reply_utf8_bytes": 1944,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 42,
+          "text_reply_utf8_bytes": 77,
+          "serialized_reply_utf8_bytes": 232,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 1421,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 450,
+          "text_reply_utf8_bytes": 2105,
+          "serialized_reply_utf8_bytes": 2332,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 37,
+          "text_reply_utf8_bytes": 128,
+          "serialized_reply_utf8_bytes": 337,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "change_field": 6,
+        "check_transaction": 3,
+        "create_call": 20,
+        "create_literal": 9,
+        "create_reference": 3,
+        "describe_operation": 2,
+        "inspect_body": 4,
+        "inspect_project": 1,
+        "preview_semantic_diff": 1,
+        "replace_expression": 2,
+        "resolve_entity": 1,
+        "study": 10
+      },
+      "failed_model_tool_items": 4,
+      "calls_after_first_failed_item": 56,
+      "total_text_reply_utf8_bytes": 49003,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 60,
+      "backend_native_tool_requests": 54,
+      "backend_study_actions": 0,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "0d14912becf15c06c5b195c068808c825251ab9b7b792ed1359933875d1a3a73",
+      "linux_evidence_sha256": "2423cdf113bdc931077a0924397f70ae016436011d6fcaee7a37a6c8bffafb56"
+    },
+    {
+      "id": "02-MM07-r2-T",
+      "task": "MM07",
+      "arm": "T",
+      "repeat": 2,
+      "correct": false,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 614619,
+        "inputTokens": 610046,
+        "cachedInputTokens": 571520,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 4573,
+        "reasoningOutputTokens": 695
+      },
+      "completed_model_tool_items": 28,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 28,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 11,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 466,
+          "text_reply_utf8_bytes": 8065,
+          "serialized_reply_utf8_bytes": 10591,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 4,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 247,
+          "text_reply_utf8_bytes": 29815,
+          "serialized_reply_utf8_bytes": 32925,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 145,
+          "serialized_reply_utf8_bytes": 191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 10,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 12270,
+          "text_reply_utf8_bytes": 1240,
+          "serialized_reply_utf8_bytes": 1660,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 307,
+          "text_reply_utf8_bytes": 1982,
+          "serialized_reply_utf8_bytes": 2165,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 28
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 19,
+      "total_text_reply_utf8_bytes": 41247,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 23,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "45dc3b5d9d56bd3caeeeb44924b52a7a49b69feb7ada3940d15c8598f91daf29",
+      "linux_evidence_sha256": "d9c735e1e96e0dc5425a80d82fb3907cdeaa5a18c86274f8a9d725ef2418ca6f"
+    },
+    {
+      "id": "03-MM02-r2-N",
+      "task": "MM02",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 537041,
+        "inputTokens": 534003,
+        "cachedInputTokens": 501504,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 3038,
+        "reasoningOutputTokens": 539
+      },
+      "completed_model_tool_items": 32,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 32,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 111,
+          "text_reply_utf8_bytes": 186,
+          "serialized_reply_utf8_bytes": 374,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 179,
+          "text_reply_utf8_bytes": 27077,
+          "serialized_reply_utf8_bytes": 29832,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 156,
+          "text_reply_utf8_bytes": 6017,
+          "serialized_reply_utf8_bytes": 12204,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 10,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 700,
+          "text_reply_utf8_bytes": 5454,
+          "serialized_reply_utf8_bytes": 12160,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 4,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 591,
+          "text_reply_utf8_bytes": 316,
+          "serialized_reply_utf8_bytes": 940,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 211,
+          "text_reply_utf8_bytes": 83,
+          "serialized_reply_utf8_bytes": 243,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 157,
+          "text_reply_utf8_bytes": 460,
+          "serialized_reply_utf8_bytes": 664,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 1347,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 500,
+          "text_reply_utf8_bytes": 7394,
+          "serialized_reply_utf8_bytes": 7946,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "create_binary": 1,
+        "create_if": 1,
+        "create_literal": 1,
+        "create_reference": 1,
+        "describe_construction": 1,
+        "describe_operation": 6,
+        "inspect_body": 2,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1,
+        "resolve_entity": 1,
+        "study": 12
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 24,
+      "total_text_reply_utf8_bytes": 47264,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 26,
+      "backend_native_tool_requests": 20,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "37b9480c03db41e44a4fc7ad1e2a61107a84ec2921b1ad21189fec856f788f7d",
+      "linux_evidence_sha256": "15896b08837d5fda61f2c32ac869c8cdee99d384a32975f4ad0b79c2605260f5"
+    },
+    {
+      "id": "04-MM02-r2-T",
+      "task": "MM02",
+      "arm": "T",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 138706,
+        "inputTokens": 137295,
+        "cachedInputTokens": 123392,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1411,
+        "reasoningOutputTokens": 180
+      },
+      "completed_model_tool_items": 11,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 11,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 185,
+          "text_reply_utf8_bytes": 208,
+          "serialized_reply_utf8_bytes": 342,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 161,
+          "serialized_reply_utf8_bytes": 209,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 1109,
+          "serialized_reply_utf8_bytes": 1192,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1341,
+          "text_reply_utf8_bytes": 122,
+          "serialized_reply_utf8_bytes": 164,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 310,
+          "text_reply_utf8_bytes": 4232,
+          "serialized_reply_utf8_bytes": 4562,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 11
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 3,
+      "total_text_reply_utf8_bytes": 14321,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 7,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "a14b48333f211544d18036af5849a1d539eaa843083ebe6bb0d07e30875c0259",
+      "linux_evidence_sha256": "a720570963255451f8baa3def990c43748fc1dd649c9e2d9cc43662ebd9f5bd2"
+    },
+    {
+      "id": "05-MM06-r1-T",
+      "task": "MM06",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 125399,
+        "inputTokens": 124093,
+        "cachedInputTokens": 109312,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1306,
+        "reasoningOutputTokens": 94
+      },
+      "completed_model_tool_items": 11,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 11,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 185,
+          "text_reply_utf8_bytes": 208,
+          "serialized_reply_utf8_bytes": 342,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 145,
+          "serialized_reply_utf8_bytes": 191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 657,
+          "serialized_reply_utf8_bytes": 719,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1507,
+          "text_reply_utf8_bytes": 124,
+          "serialized_reply_utf8_bytes": 166,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 319,
+          "text_reply_utf8_bytes": 3847,
+          "serialized_reply_utf8_bytes": 4136,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 11
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 3,
+      "total_text_reply_utf8_bytes": 13470,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 7,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "0b9522a8e26b3041663c7dbfe88067838e9b31f02d2bd07192b346b0d4d09acc",
+      "linux_evidence_sha256": "e9e03a92e9bd66d009475807dfd642b77f2943569ffd1bdc86b21eac5852c104"
+    },
+    {
+      "id": "06-MM06-r1-N",
+      "task": "MM06",
+      "arm": "N",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 385569,
+        "inputTokens": 382960,
+        "cachedInputTokens": 359552,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2609,
+        "reasoningOutputTokens": 352
+      },
+      "completed_model_tool_items": 28,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 28,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 4,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 153,
+          "text_reply_utf8_bytes": 310,
+          "serialized_reply_utf8_bytes": 699,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 193,
+          "text_reply_utf8_bytes": 11292,
+          "serialized_reply_utf8_bytes": 11885,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 172,
+          "text_reply_utf8_bytes": 7160,
+          "serialized_reply_utf8_bytes": 14490,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 6,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 427,
+          "text_reply_utf8_bytes": 2159,
+          "serialized_reply_utf8_bytes": 4856,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 690,
+          "text_reply_utf8_bytes": 237,
+          "serialized_reply_utf8_bytes": 705,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 422,
+          "text_reply_utf8_bytes": 166,
+          "serialized_reply_utf8_bytes": 486,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 84,
+          "text_reply_utf8_bytes": 172,
+          "serialized_reply_utf8_bytes": 500,
+          "repeated_reply_utf8_bytes": 86
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 549,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 319,
+          "text_reply_utf8_bytes": 3314,
+          "serialized_reply_utf8_bytes": 3584,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 2,
+        "commit_transaction": 1,
+        "create_call": 2,
+        "create_if": 1,
+        "describe_operation": 3,
+        "inspect_body": 2,
+        "preview_semantic_diff": 2,
+        "replace_expression": 2,
+        "resolve_entity": 1,
+        "study": 10
+      },
+      "failed_model_tool_items": 2,
+      "calls_after_first_failed_item": 22,
+      "total_text_reply_utf8_bytes": 25087,
+      "repeated_reply_utf8_bytes": 86,
+      "backend_rpc_requests": 24,
+      "backend_native_tool_requests": 18,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "ff3f4f06b8ce94bf382c66ee6d052d61d5d403c29133ba37b636d60a177203fc",
+      "linux_evidence_sha256": "b4fda3e723a5eccbee9a3a99ce4ac18ad023d4246c335d06792371b8be9bcccb"
+    },
+    {
+      "id": "07-MM02-r1-T",
+      "task": "MM02",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 141217,
+        "inputTokens": 139808,
+        "cachedInputTokens": 125696,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1409,
+        "reasoningOutputTokens": 132
+      },
+      "completed_model_tool_items": 11,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 11,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 185,
+          "text_reply_utf8_bytes": 208,
+          "serialized_reply_utf8_bytes": 342,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 161,
+          "serialized_reply_utf8_bytes": 209,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 1269,
+          "serialized_reply_utf8_bytes": 1359,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1505,
+          "text_reply_utf8_bytes": 122,
+          "serialized_reply_utf8_bytes": 164,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 310,
+          "text_reply_utf8_bytes": 5624,
+          "serialized_reply_utf8_bytes": 6028,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 11
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 3,
+      "total_text_reply_utf8_bytes": 15873,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 7,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "4e129acf2291a15dce83cda0dcc894c8069a2a165e25640992e5319ea5c78e6d",
+      "linux_evidence_sha256": "d3b1d0f00f861bccdaa839a8cf14e840e81d0b73b2c8718705d0126394ee37ed"
+    },
+    {
+      "id": "08-MM02-r1-N",
+      "task": "MM02",
+      "arm": "N",
+      "repeat": 1,
+      "correct": false,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 600834,
+        "inputTokens": 594816,
+        "cachedInputTokens": 565120,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 6018,
+        "reasoningOutputTokens": 1966
+      },
+      "completed_model_tool_items": 40,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 40,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 84,
+          "text_reply_utf8_bytes": 30,
+          "serialized_reply_utf8_bytes": 210,
+          "repeated_reply_utf8_bytes": 15
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 9,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 828,
+          "text_reply_utf8_bytes": 18651,
+          "serialized_reply_utf8_bytes": 38115,
+          "repeated_reply_utf8_bytes": 8724
+        },
+        "navigation": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 368,
+          "text_reply_utf8_bytes": 3690,
+          "serialized_reply_utf8_bytes": 8013,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 11,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1850,
+          "text_reply_utf8_bytes": 869,
+          "serialized_reply_utf8_bytes": 2585,
+          "repeated_reply_utf8_bytes": 79
+        },
+        "node_mutation": {
+          "calls": 4,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 844,
+          "text_reply_utf8_bytes": 332,
+          "serialized_reply_utf8_bytes": 972,
+          "repeated_reply_utf8_bytes": 83
+        },
+        "preview": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 126,
+          "text_reply_utf8_bytes": 162,
+          "serialized_reply_utf8_bytes": 557,
+          "repeated_reply_utf8_bytes": 21
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 1505,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 310,
+          "text_reply_utf8_bytes": 5346,
+          "serialized_reply_utf8_bytes": 5730,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 37,
+          "text_reply_utf8_bytes": 128,
+          "serialized_reply_utf8_bytes": 337,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 2,
+        "create_binary": 2,
+        "create_call": 1,
+        "create_if": 4,
+        "create_literal": 2,
+        "create_reference": 2,
+        "describe_construction": 1,
+        "describe_operation": 1,
+        "inspect_body": 6,
+        "inspect_entity": 3,
+        "preview_semantic_diff": 3,
+        "replace_expression": 4,
+        "resolve_entity": 1,
+        "study": 6
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 34,
+      "total_text_reply_utf8_bytes": 37716,
+      "repeated_reply_utf8_bytes": 8922,
+      "backend_rpc_requests": 40,
+      "backend_native_tool_requests": 34,
+      "backend_study_actions": 0,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "0d20868cd36d2bc6a480851f20867fa98ca61f040af93447ce0a1be4131e6c6a",
+      "linux_evidence_sha256": "fdbe9d6626a88ca802f836bfa10761585dd4ccfb61e7ad1b0f2d861314b97679"
+    },
+    {
+      "id": "09-MM04-r1-T",
+      "task": "MM04",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 144002,
+        "inputTokens": 142402,
+        "cachedInputTokens": 131328,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1600,
+        "reasoningOutputTokens": 303
+      },
+      "completed_model_tool_items": 14,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 14,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 6,
+          "failed_calls": 4,
+          "argument_utf8_bytes": 365,
+          "text_reply_utf8_bytes": 427,
+          "serialized_reply_utf8_bytes": 677,
+          "repeated_reply_utf8_bytes": 128
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 145,
+          "serialized_reply_utf8_bytes": 191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 865,
+          "serialized_reply_utf8_bytes": 942,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1495,
+          "text_reply_utf8_bytes": 124,
+          "serialized_reply_utf8_bytes": 166,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 340,
+          "text_reply_utf8_bytes": 15884,
+          "serialized_reply_utf8_bytes": 16940,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 14
+      },
+      "failed_model_tool_items": 4,
+      "calls_after_first_failed_item": 7,
+      "total_text_reply_utf8_bytes": 25934,
+      "repeated_reply_utf8_bytes": 128,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 7,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "5e1c278a9361db60e40a63fda1c950c840b547f0542a78844e55fd6833bc20bb",
+      "linux_evidence_sha256": "a1a3acf60b9dd2d5cc622bb56f9482c2c0edabd4db370d362d673a4c1715da0b"
+    },
+    {
+      "id": "10-MM04-r1-N",
+      "task": "MM04",
+      "arm": "N",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 469638,
+        "inputTokens": 466366,
+        "cachedInputTokens": 440832,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 3272,
+        "reasoningOutputTokens": 427
+      },
+      "completed_model_tool_items": 36,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 36,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 111,
+          "text_reply_utf8_bytes": 186,
+          "serialized_reply_utf8_bytes": 374,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 156,
+          "text_reply_utf8_bytes": 7393,
+          "serialized_reply_utf8_bytes": 14956,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 10,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 691,
+          "text_reply_utf8_bytes": 5289,
+          "serialized_reply_utf8_bytes": 11832,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 8,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1129,
+          "text_reply_utf8_bytes": 677,
+          "serialized_reply_utf8_bytes": 1978,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 211,
+          "text_reply_utf8_bytes": 83,
+          "serialized_reply_utf8_bytes": 243,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 272,
+          "text_reply_utf8_bytes": 577,
+          "serialized_reply_utf8_bytes": 823,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 1495,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 451,
+          "text_reply_utf8_bytes": 6495,
+          "serialized_reply_utf8_bytes": 6993,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "construct_expression": 1,
+        "create_binary": 1,
+        "create_call": 2,
+        "create_if": 1,
+        "create_literal": 1,
+        "create_reference": 2,
+        "describe_construction": 1,
+        "describe_operation": 6,
+        "inspect_body": 2,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1,
+        "resolve_entity": 1,
+        "study": 12
+      },
+      "failed_model_tool_items": 2,
+      "calls_after_first_failed_item": 29,
+      "total_text_reply_utf8_bytes": 29448,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 30,
+      "backend_native_tool_requests": 24,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "6de43e2848489952103cbeb712b2a5c65ad99a633158cb8cbb6af06ccc1c3422",
+      "linux_evidence_sha256": "58f08e5eacaaf513ae19dd2a52f0789a265c8fb0c3209318f97654c96a20b1c8"
+    },
+    {
+      "id": "11-MM04-r2-N",
+      "task": "MM04",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 448940,
+        "inputTokens": 445992,
+        "cachedInputTokens": 423936,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2948,
+        "reasoningOutputTokens": 447
+      },
+      "completed_model_tool_items": 36,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 36,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 111,
+          "text_reply_utf8_bytes": 186,
+          "serialized_reply_utf8_bytes": 374,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 156,
+          "text_reply_utf8_bytes": 7392,
+          "serialized_reply_utf8_bytes": 14954,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 12,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 843,
+          "text_reply_utf8_bytes": 8074,
+          "serialized_reply_utf8_bytes": 17894,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 9,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1304,
+          "text_reply_utf8_bytes": 787,
+          "serialized_reply_utf8_bytes": 2281,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 211,
+          "text_reply_utf8_bytes": 83,
+          "serialized_reply_utf8_bytes": 243,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 42,
+          "text_reply_utf8_bytes": 78,
+          "serialized_reply_utf8_bytes": 234,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 372,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 340,
+          "text_reply_utf8_bytes": 16127,
+          "serialized_reply_utf8_bytes": 17191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "construct_expression": 2,
+        "create_binary": 1,
+        "create_call": 2,
+        "create_if": 1,
+        "create_literal": 1,
+        "create_reference": 2,
+        "describe_construction": 2,
+        "describe_operation": 7,
+        "inspect_body": 2,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1,
+        "resolve_entity": 1,
+        "study": 9
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 30,
+      "total_text_reply_utf8_bytes": 41475,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 33,
+      "backend_native_tool_requests": 27,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "124450f2c0297b30a4c5a83a3ac2c9abde59900bdb40444d9b79f581c0edec83",
+      "linux_evidence_sha256": "974fa4d8455f553d3a08c31ef048800a2105eb554e0e4b67621bd13fa331723e"
+    },
+    {
+      "id": "12-MM04-r2-T",
+      "task": "MM04",
+      "arm": "T",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 152286,
+        "inputTokens": 150905,
+        "cachedInputTokens": 129792,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1381,
+        "reasoningOutputTokens": 160
+      },
+      "completed_model_tool_items": 12,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 12,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 185,
+          "text_reply_utf8_bytes": 208,
+          "serialized_reply_utf8_bytes": 342,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 145,
+          "serialized_reply_utf8_bytes": 191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 865,
+          "serialized_reply_utf8_bytes": 942,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1495,
+          "text_reply_utf8_bytes": 124,
+          "serialized_reply_utf8_bytes": 166,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 451,
+          "text_reply_utf8_bytes": 4483,
+          "serialized_reply_utf8_bytes": 4827,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 12
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 3,
+      "total_text_reply_utf8_bytes": 14314,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 8,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "51d8fa47cb81157c0ee6eb1c7e6533c5f7564b2bb25594d5b3f70facb95bc660",
+      "linux_evidence_sha256": "a477c8826bbf75888069cfc469de3e88a030baa53b6a74e01bbab5f6f315728e"
+    },
+    {
+      "id": "13-MM01-r2-N",
+      "task": "MM01",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 508380,
+        "inputTokens": 505685,
+        "cachedInputTokens": 463872,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2695,
+        "reasoningOutputTokens": 478
+      },
+      "completed_model_tool_items": 28,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 28,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 111,
+          "text_reply_utf8_bytes": 186,
+          "serialized_reply_utf8_bytes": 374,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 179,
+          "text_reply_utf8_bytes": 27077,
+          "serialized_reply_utf8_bytes": 29832,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 154,
+          "text_reply_utf8_bytes": 3030,
+          "serialized_reply_utf8_bytes": 6230,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 7,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 477,
+          "text_reply_utf8_bytes": 2485,
+          "serialized_reply_utf8_bytes": 5623,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 531,
+          "text_reply_utf8_bytes": 237,
+          "serialized_reply_utf8_bytes": 705,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 211,
+          "text_reply_utf8_bytes": 83,
+          "serialized_reply_utf8_bytes": 243,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 272,
+          "text_reply_utf8_bytes": 575,
+          "serialized_reply_utf8_bytes": 819,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 613,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 336,
+          "text_reply_utf8_bytes": 1554,
+          "serialized_reply_utf8_bytes": 1750,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "create_binary": 1,
+        "create_if": 1,
+        "create_literal": 1,
+        "describe_operation": 4,
+        "inspect_body": 2,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1,
+        "resolve_entity": 1,
+        "study": 12
+      },
+      "failed_model_tool_items": 2,
+      "calls_after_first_failed_item": 21,
+      "total_text_reply_utf8_bytes": 35504,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 22,
+      "backend_native_tool_requests": 16,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "7ee79db340cc5478577ee6e2c533568e06d97e746407976e1084b8885d396f97",
+      "linux_evidence_sha256": "7f6caf832c7e399d09a30406155d43acbe26fd6bd449a0eae2ae66c70b25f27c"
+    },
+    {
+      "id": "14-MM01-r2-T",
+      "task": "MM01",
+      "arm": "T",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 219915,
+        "inputTokens": 218480,
+        "cachedInputTokens": 202240,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1435,
+        "reasoningOutputTokens": 161
+      },
+      "completed_model_tool_items": 12,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 12,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 185,
+          "text_reply_utf8_bytes": 208,
+          "serialized_reply_utf8_bytes": 342,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 179,
+          "text_reply_utf8_bytes": 27077,
+          "serialized_reply_utf8_bytes": 29832,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 161,
+          "serialized_reply_utf8_bytes": 209,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 714,
+          "serialized_reply_utf8_bytes": 800,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 613,
+          "text_reply_utf8_bytes": 124,
+          "serialized_reply_utf8_bytes": 166,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 336,
+          "text_reply_utf8_bytes": 1628,
+          "serialized_reply_utf8_bytes": 1832,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 12
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 3,
+      "total_text_reply_utf8_bytes": 29930,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 7,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "92f7395bf712cd79fd368ad060d653b55fc183f64f329f1a38c751141e3df644",
+      "linux_evidence_sha256": "423b7f53f994a06584e69edc25abd55ceaeb4bb190de47e8803204a50686d651"
+    },
+    {
+      "id": "15-MM01-r1-T",
+      "task": "MM01",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 214224,
+        "inputTokens": 212802,
+        "cachedInputTokens": 195840,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1422,
+        "reasoningOutputTokens": 176
+      },
+      "completed_model_tool_items": 15,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 15,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 4,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 138,
+          "text_reply_utf8_bytes": 953,
+          "serialized_reply_utf8_bytes": 1311,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 179,
+          "text_reply_utf8_bytes": 27077,
+          "serialized_reply_utf8_bytes": 29832,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 161,
+          "serialized_reply_utf8_bytes": 209,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 230,
+          "text_reply_utf8_bytes": 1427,
+          "serialized_reply_utf8_bytes": 1599,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 880,
+          "text_reply_utf8_bytes": 248,
+          "serialized_reply_utf8_bytes": 332,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 336,
+          "text_reply_utf8_bytes": 1628,
+          "serialized_reply_utf8_bytes": 1832,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 15
+      },
+      "failed_model_tool_items": 0,
+      "calls_after_first_failed_item": 0,
+      "total_text_reply_utf8_bytes": 31512,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 11,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "fbeb6fe698e5b1743d7a61d771dea18e0bef2b0ed5465925715772e3cc10c3fe",
+      "linux_evidence_sha256": "8ca047466cd1e51caba314761f818f89dddfab72c6b0743d49fe5ec0d8a305e2"
+    },
+    {
+      "id": "16-MM01-r1-N",
+      "task": "MM01",
+      "arm": "N",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 545602,
+        "inputTokens": 542757,
+        "cachedInputTokens": 492160,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2845,
+        "reasoningOutputTokens": 438
+      },
+      "completed_model_tool_items": 29,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 29,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 111,
+          "text_reply_utf8_bytes": 186,
+          "serialized_reply_utf8_bytes": 374,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 179,
+          "text_reply_utf8_bytes": 27077,
+          "serialized_reply_utf8_bytes": 29832,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 154,
+          "text_reply_utf8_bytes": 3030,
+          "serialized_reply_utf8_bytes": 6230,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 368,
+          "text_reply_utf8_bytes": 2844,
+          "serialized_reply_utf8_bytes": 6215,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 730,
+          "text_reply_utf8_bytes": 429,
+          "serialized_reply_utf8_bytes": 1249,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 211,
+          "text_reply_utf8_bytes": 83,
+          "serialized_reply_utf8_bytes": 243,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 272,
+          "text_reply_utf8_bytes": 575,
+          "serialized_reply_utf8_bytes": 819,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 613,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 500,
+          "text_reply_utf8_bytes": 1793,
+          "serialized_reply_utf8_bytes": 2059,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "construct_expression": 1,
+        "create_binary": 1,
+        "create_if": 1,
+        "create_literal": 1,
+        "create_reference": 1,
+        "describe_construction": 1,
+        "describe_operation": 1,
+        "inspect_body": 2,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1,
+        "resolve_entity": 1,
+        "study": 13
+      },
+      "failed_model_tool_items": 2,
+      "calls_after_first_failed_item": 21,
+      "total_text_reply_utf8_bytes": 36294,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 22,
+      "backend_native_tool_requests": 16,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "1a3b5feebf1cfcff45e0c72b2582412a1c5045e48ddd512d1584b0266b71415a",
+      "linux_evidence_sha256": "086cbe8e7d2e166e7e808dd148162d9c7af405026a70d493156a3a76b5dd26d9"
+    },
+    {
+      "id": "17-MM05-r2-N",
+      "task": "MM05",
+      "arm": "N",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 385972,
+        "inputTokens": 383064,
+        "cachedInputTokens": 336256,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2908,
+        "reasoningOutputTokens": 458
+      },
+      "completed_model_tool_items": 28,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 28,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 111,
+          "text_reply_utf8_bytes": 186,
+          "serialized_reply_utf8_bytes": 374,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 957,
+          "serialized_reply_utf8_bytes": 1999,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 6,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 455,
+          "text_reply_utf8_bytes": 6167,
+          "serialized_reply_utf8_bytes": 13384,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1037,
+          "text_reply_utf8_bytes": 463,
+          "serialized_reply_utf8_bytes": 1323,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 211,
+          "text_reply_utf8_bytes": 83,
+          "serialized_reply_utf8_bytes": 243,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 272,
+          "text_reply_utf8_bytes": 578,
+          "serialized_reply_utf8_bytes": 825,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 717,
+          "text_reply_utf8_bytes": 37,
+          "serialized_reply_utf8_bytes": 73,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 486,
+          "text_reply_utf8_bytes": 12624,
+          "serialized_reply_utf8_bytes": 13536,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "construct_expression": 2,
+        "create_binary": 1,
+        "create_literal": 2,
+        "describe_construction": 2,
+        "describe_operation": 1,
+        "inspect_body": 1,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1,
+        "resolve_entity": 1,
+        "study": 12
+      },
+      "failed_model_tool_items": 2,
+      "calls_after_first_failed_item": 21,
+      "total_text_reply_utf8_bytes": 29806,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 22,
+      "backend_native_tool_requests": 16,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "8b2143434400e121768de2c0421c7ab111c55ef0b4db3b75f1e7fe960b524717",
+      "linux_evidence_sha256": "cd4a0e4e252c8964e3f471b20cdeb4ddff82ad4a0c5fbd2c993386750afc73f5"
+    },
+    {
+      "id": "18-MM05-r2-T",
+      "task": "MM05",
+      "arm": "T",
+      "repeat": 2,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 171805,
+        "inputTokens": 170498,
+        "cachedInputTokens": 153856,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1307,
+        "reasoningOutputTokens": 173
+      },
+      "completed_model_tool_items": 12,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 12,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 185,
+          "text_reply_utf8_bytes": 208,
+          "serialized_reply_utf8_bytes": 342,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 145,
+          "serialized_reply_utf8_bytes": 191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 935,
+          "serialized_reply_utf8_bytes": 1016,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 717,
+          "text_reply_utf8_bytes": 124,
+          "serialized_reply_utf8_bytes": 166,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 486,
+          "text_reply_utf8_bytes": 12355,
+          "serialized_reply_utf8_bytes": 13265,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 12
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 3,
+      "total_text_reply_utf8_bytes": 22256,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 8,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "bbd2a7d42270bb82f3f008318b92f28df02c56bf7a944712c3634968508aef02",
+      "linux_evidence_sha256": "31109aea59f05b4b88eccf253831e490b7db5583831be66454686989835c614f"
+    },
+    {
+      "id": "19-MM05-r1-T",
+      "task": "MM05",
+      "arm": "T",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 161739,
+        "inputTokens": 160537,
+        "cachedInputTokens": 141184,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 1202,
+        "reasoningOutputTokens": 142
+      },
+      "completed_model_tool_items": 12,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 12,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 185,
+          "text_reply_utf8_bytes": 208,
+          "serialized_reply_utf8_bytes": 342,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 145,
+          "serialized_reply_utf8_bytes": 191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 115,
+          "text_reply_utf8_bytes": 1042,
+          "serialized_reply_utf8_bytes": 1128,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 828,
+          "text_reply_utf8_bytes": 124,
+          "serialized_reply_utf8_bytes": 166,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 482,
+          "text_reply_utf8_bytes": 9698,
+          "serialized_reply_utf8_bytes": 10440,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 12
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 3,
+      "total_text_reply_utf8_bytes": 19706,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 8,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "b6ccbf41bc2a4f2ebe9f090b1184789aaecf6177944205c4e2b2b5ed34e7a70c",
+      "linux_evidence_sha256": "983d7c2c9876eb06f444656c929d599a1124fae912f70462d8a89726008dd97d"
+    },
+    {
+      "id": "20-MM05-r1-N",
+      "task": "MM05",
+      "arm": "N",
+      "repeat": 1,
+      "correct": true,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 304682,
+        "inputTokens": 302167,
+        "cachedInputTokens": 285056,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2515,
+        "reasoningOutputTokens": 532
+      },
+      "completed_model_tool_items": 37,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 37,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 111,
+          "text_reply_utf8_bytes": 186,
+          "serialized_reply_utf8_bytes": 374,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 122,
+          "text_reply_utf8_bytes": 8471,
+          "serialized_reply_utf8_bytes": 8960,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 158,
+          "text_reply_utf8_bytes": 3108,
+          "serialized_reply_utf8_bytes": 6386,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 36,
+          "text_reply_utf8_bytes": 18,
+          "serialized_reply_utf8_bytes": 52,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 11,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 788,
+          "text_reply_utf8_bytes": 5866,
+          "serialized_reply_utf8_bytes": 13117,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 10,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1422,
+          "text_reply_utf8_bytes": 858,
+          "serialized_reply_utf8_bytes": 2500,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 211,
+          "text_reply_utf8_bytes": 83,
+          "serialized_reply_utf8_bytes": 243,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 157,
+          "text_reply_utf8_bytes": 463,
+          "serialized_reply_utf8_bytes": 670,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 485,
+          "text_reply_utf8_bytes": 12624,
+          "serialized_reply_utf8_bytes": 13536,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 79,
+          "text_reply_utf8_bytes": 222,
+          "serialized_reply_utf8_bytes": 604,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "check_transaction": 1,
+        "commit_transaction": 1,
+        "construct_expression": 2,
+        "create_binary": 4,
+        "create_call": 1,
+        "create_literal": 2,
+        "create_reference": 1,
+        "describe_construction": 2,
+        "describe_operation": 6,
+        "inspect_body": 2,
+        "preview_semantic_diff": 1,
+        "replace_expression": 1,
+        "resolve_entity": 1,
+        "study": 10
+      },
+      "failed_model_tool_items": 0,
+      "calls_after_first_failed_item": 0,
+      "total_text_reply_utf8_bytes": 31899,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 33,
+      "backend_native_tool_requests": 27,
+      "backend_study_actions": 2,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "939bc81775f7ce98393f4ca5eb5b5110bb38f4f936bddbba3bbdb14957cf50a9",
+      "linux_evidence_sha256": "fa6d75ea2e4ee7bc6650a75ceee26c66fc81bdbcb46762f62b8a92ac3ac78433"
+    },
+    {
+      "id": "21-MM07-r1-T",
+      "task": "MM07",
+      "arm": "T",
+      "repeat": 1,
+      "correct": false,
+      "evaluation_eligible": true,
+      "reported_usage": {
+        "totalTokens": 608825,
+        "inputTokens": 604109,
+        "cachedInputTokens": 578816,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 4716,
+        "reasoningOutputTokens": 781
+      },
+      "completed_model_tool_items": 28,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 28,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "check_test": {
+          "calls": 11,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 466,
+          "text_reply_utf8_bytes": 8135,
+          "serialized_reply_utf8_bytes": 10661,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 4,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 250,
+          "text_reply_utf8_bytes": 29898,
+          "serialized_reply_utf8_bytes": 32757,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 38,
+          "text_reply_utf8_bytes": 145,
+          "serialized_reply_utf8_bytes": 191,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 10,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 16760,
+          "text_reply_utf8_bytes": 1240,
+          "serialized_reply_utf8_bytes": 1660,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 2,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 307,
+          "text_reply_utf8_bytes": 1982,
+          "serialized_reply_utf8_bytes": 2165,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "study": 28
+      },
+      "failed_model_tool_items": 1,
+      "calls_after_first_failed_item": 20,
+      "total_text_reply_utf8_bytes": 41400,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 23,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "c50cdfcebc93138011e5c49da61a7d478db22f0ec099d2c4f13a48a72bd6a33e",
+      "linux_evidence_sha256": "6d59bd88863d1892b11fbbfe3b338cd9c9e1c7092bc4595eef258f890308bb10"
+    },
+    {
+      "id": "22-MM07-r1-N",
+      "task": "MM07",
+      "arm": "N",
+      "repeat": 1,
+      "correct": null,
+      "evaluation_eligible": false,
+      "reported_usage": {
+        "totalTokens": 345934,
+        "inputTokens": 342082,
+        "cachedInputTokens": 320384,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 3852,
+        "reasoningOutputTokens": 1270
+      },
+      "completed_model_tool_items": 32,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 32,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {
+        "documentation": {
+          "calls": 4,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 250,
+          "text_reply_utf8_bytes": 29898,
+          "serialized_reply_utf8_bytes": 32757,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 3,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 196,
+          "text_reply_utf8_bytes": 3558,
+          "serialized_reply_utf8_bytes": 7373,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 5,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 376,
+          "text_reply_utf8_bytes": 1965,
+          "serialized_reply_utf8_bytes": 4557,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 14,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 2446,
+          "text_reply_utf8_bytes": 1106,
+          "serialized_reply_utf8_bytes": 3290,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 5,
+          "failed_calls": 4,
+          "argument_utf8_bytes": 1054,
+          "text_reply_utf8_bytes": 235,
+          "serialized_reply_utf8_bytes": 855,
+          "repeated_reply_utf8_bytes": 114
+        },
+        "transaction": {
+          "calls": 1,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 37,
+          "text_reply_utf8_bytes": 128,
+          "serialized_reply_utf8_bytes": 337,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "by_tool": {
+        "applicable_operations": 1,
+        "begin_transaction": 1,
+        "create_call": 8,
+        "create_literal": 6,
+        "describe_operation": 3,
+        "inspect_body": 2,
+        "inspect_project": 1,
+        "replace_expression": 5,
+        "resolve_entity": 1,
+        "study": 4
+      },
+      "failed_model_tool_items": 4,
+      "calls_after_first_failed_item": 8,
+      "total_text_reply_utf8_bytes": 36890,
+      "repeated_reply_utf8_bytes": 114,
+      "backend_rpc_requests": 34,
+      "backend_native_tool_requests": 28,
+      "backend_study_actions": 0,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "6e536e13918b2bb82d55f22de1b1250c63b2c4053b8b498141ec88b18557262c",
+      "linux_evidence_sha256": "009ccbf8158660687a222bdfea7d5d9add42365ba0d1a01c5fe236fa41211b42"
+    },
+    {
+      "id": "23-MM06-r2-N",
+      "task": "MM06",
+      "arm": "N",
+      "repeat": 2,
+      "correct": null,
+      "evaluation_eligible": false,
+      "reported_usage": null,
+      "completed_model_tool_items": 0,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 0,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {},
+      "by_tool": {},
+      "failed_model_tool_items": 0,
+      "calls_after_first_failed_item": 0,
+      "total_text_reply_utf8_bytes": 0,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 6,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 0,
+      "observed_tools_list_responses": 2,
+      "native_schema_canonical_utf8_bytes": 12643,
+      "record_sha256": "1198096bdf1ae8aa73074dcf228c497f77c2c52575a82be74456772cbd31628e",
+      "linux_evidence_sha256": "3ca6b3299d2471776c2220ff9caac26aa6d5f2f5639e02cb0adc718c3df72a0c"
+    },
+    {
+      "id": "24-MM06-r2-T",
+      "task": "MM06",
+      "arm": "T",
+      "repeat": 2,
+      "correct": null,
+      "evaluation_eligible": false,
+      "reported_usage": null,
+      "completed_model_tool_items": 0,
+      "duplicate_terminal_events_ignored": 0,
+      "recorded_started_tool_calls": 0,
+      "unfinished_or_unrecorded_terminal_items": 0,
+      "by_category": {},
+      "by_tool": {},
+      "failed_model_tool_items": 0,
+      "calls_after_first_failed_item": 0,
+      "total_text_reply_utf8_bytes": 0,
+      "repeated_reply_utf8_bytes": 0,
+      "backend_rpc_requests": 0,
+      "backend_native_tool_requests": 0,
+      "backend_study_actions": 0,
+      "observed_tools_list_responses": 0,
+      "native_schema_canonical_utf8_bytes": null,
+      "record_sha256": "7ccf1d4e219507746c12447671df4813a9d61b17834b88340c16ab495a026561",
+      "linux_evidence_sha256": "bfaf7915c391eeeea80f5a0fb60959807de267865fa17592d987ca0a37d4fb78"
+    }
+  ],
+  "arms": {
+    "T": {
+      "eligible_slots": 11,
+      "by_category": {
+        "check_test": {
+          "calls": 53,
+          "failed_calls": 13,
+          "argument_utf8_bytes": 2730,
+          "text_reply_utf8_bytes": 19036,
+          "serialized_reply_utf8_bytes": 25634,
+          "repeated_reply_utf8_bytes": 128
+        },
+        "documentation": {
+          "calls": 28,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1709,
+          "text_reply_utf8_bytes": 173164,
+          "serialized_reply_utf8_bytes": 188066,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 9,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 324,
+          "text_reply_utf8_bytes": 162,
+          "serialized_reply_utf8_bytes": 468,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 11,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 418,
+          "text_reply_utf8_bytes": 1659,
+          "serialized_reply_utf8_bytes": 2173,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 10,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1150,
+          "text_reply_utf8_bytes": 8883,
+          "serialized_reply_utf8_bytes": 9697,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 30,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 39411,
+          "text_reply_utf8_bytes": 3716,
+          "serialized_reply_utf8_bytes": 4976,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 25,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 3984,
+          "text_reply_utf8_bytes": 63343,
+          "serialized_reply_utf8_bytes": 68192,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "both_success_slots": 8,
+      "both_success_by_category": {
+        "check_test": {
+          "calls": 28,
+          "failed_calls": 10,
+          "argument_utf8_bytes": 1613,
+          "text_reply_utf8_bytes": 2628,
+          "serialized_reply_utf8_bytes": 4040,
+          "repeated_reply_utf8_bytes": 128
+        },
+        "documentation": {
+          "calls": 18,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1090,
+          "text_reply_utf8_bytes": 104980,
+          "serialized_reply_utf8_bytes": 113424,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 8,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 288,
+          "text_reply_utf8_bytes": 144,
+          "serialized_reply_utf8_bytes": 416,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 8,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 304,
+          "text_reply_utf8_bytes": 1208,
+          "serialized_reply_utf8_bytes": 1582,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 9,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1035,
+          "text_reply_utf8_bytes": 7614,
+          "serialized_reply_utf8_bytes": 8338,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_mutation": {
+          "calls": 9,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 8876,
+          "text_reply_utf8_bytes": 1114,
+          "serialized_reply_utf8_bytes": 1492,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 19,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 3060,
+          "text_reply_utf8_bytes": 53755,
+          "serialized_reply_utf8_bytes": 57834,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "failed_model_tool_items": 13,
+      "completed_model_tool_items": 166,
+      "reported_usage": {
+        "totalTokens": 2692737,
+        "inputTokens": 2670975,
+        "cachedInputTokens": 2462976,
+        "outputTokens": 21762,
+        "reasoningOutputTokens": 2997
+      },
+      "both_success_medians": {
+        "reported_total_tokens": 157012.5,
+        "completed_model_tool_items": 12.0,
+        "total_text_reply_utf8_bytes": 20981.0,
+        "failed_model_tool_items": 1.0
+      }
+    },
+    "N": {
+      "eligible_slots": 10,
+      "by_category": {
+        "check_test": {
+          "calls": 30,
+          "failed_calls": 4,
+          "argument_utf8_bytes": 1140,
+          "text_reply_utf8_bytes": 2040,
+          "serialized_reply_utf8_bytes": 4554,
+          "repeated_reply_utf8_bytes": 15
+        },
+        "documentation": {
+          "calls": 27,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1658,
+          "text_reply_utf8_bytes": 167514,
+          "serialized_reply_utf8_bytes": 182031,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 29,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 2363,
+          "text_reply_utf8_bytes": 65363,
+          "serialized_reply_utf8_bytes": 133253,
+          "repeated_reply_utf8_bytes": 8724
+        },
+        "handoff": {
+          "calls": 8,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 288,
+          "text_reply_utf8_bytes": 144,
+          "serialized_reply_utf8_bytes": 416,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 77,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 5465,
+          "text_reply_utf8_bytes": 43833,
+          "serialized_reply_utf8_bytes": 97113,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 90,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 14348,
+          "text_reply_utf8_bytes": 7401,
+          "serialized_reply_utf8_bytes": 21786,
+          "repeated_reply_utf8_bytes": 79
+        },
+        "node_mutation": {
+          "calls": 21,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 4095,
+          "text_reply_utf8_bytes": 1743,
+          "serialized_reply_utf8_bytes": 5103,
+          "repeated_reply_utf8_bytes": 83
+        },
+        "preview": {
+          "calls": 23,
+          "failed_calls": 4,
+          "argument_utf8_bytes": 1696,
+          "text_reply_utf8_bytes": 3717,
+          "serialized_reply_utf8_bytes": 6143,
+          "repeated_reply_utf8_bytes": 107
+        },
+        "source_mutation": {
+          "calls": 9,
+          "failed_calls": 9,
+          "argument_utf8_bytes": 8632,
+          "text_reply_utf8_bytes": 333,
+          "serialized_reply_utf8_bytes": 657,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 26,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 4177,
+          "text_reply_utf8_bytes": 69376,
+          "serialized_reply_utf8_bytes": 74657,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 18,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 706,
+          "text_reply_utf8_bytes": 2032,
+          "serialized_reply_utf8_bytes": 5506,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "both_success_slots": 8,
+      "both_success_by_category": {
+        "check_test": {
+          "calls": 25,
+          "failed_calls": 1,
+          "argument_utf8_bytes": 930,
+          "text_reply_utf8_bytes": 1612,
+          "serialized_reply_utf8_bytes": 3317,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "documentation": {
+          "calls": 20,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1218,
+          "text_reply_utf8_bytes": 126407,
+          "serialized_reply_utf8_bytes": 137221,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "graph_inspection": {
+          "calls": 15,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1185,
+          "text_reply_utf8_bytes": 38087,
+          "serialized_reply_utf8_bytes": 77449,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "handoff": {
+          "calls": 8,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 288,
+          "text_reply_utf8_bytes": 144,
+          "serialized_reply_utf8_bytes": 416,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "navigation": {
+          "calls": 67,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 4749,
+          "text_reply_utf8_bytes": 38338,
+          "serialized_reply_utf8_bytes": 85081,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_construction": {
+          "calls": 47,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 7434,
+          "text_reply_utf8_bytes": 4004,
+          "serialized_reply_utf8_bytes": 11681,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "node_mutation": {
+          "calls": 9,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 1899,
+          "text_reply_utf8_bytes": 747,
+          "serialized_reply_utf8_bytes": 2187,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "preview": {
+          "calls": 19,
+          "failed_calls": 4,
+          "argument_utf8_bytes": 1528,
+          "text_reply_utf8_bytes": 3478,
+          "serialized_reply_utf8_bytes": 5354,
+          "repeated_reply_utf8_bytes": 86
+        },
+        "source_mutation": {
+          "calls": 7,
+          "failed_calls": 7,
+          "argument_utf8_bytes": 5706,
+          "text_reply_utf8_bytes": 259,
+          "serialized_reply_utf8_bytes": 511,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "source_read": {
+          "calls": 21,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 3417,
+          "text_reply_utf8_bytes": 61925,
+          "serialized_reply_utf8_bytes": 66595,
+          "repeated_reply_utf8_bytes": 0
+        },
+        "transaction": {
+          "calls": 16,
+          "failed_calls": 0,
+          "argument_utf8_bytes": 632,
+          "text_reply_utf8_bytes": 1776,
+          "serialized_reply_utf8_bytes": 4832,
+          "repeated_reply_utf8_bytes": 0
+        }
+      },
+      "failed_model_tool_items": 17,
+      "completed_model_tool_items": 358,
+      "reported_usage": {
+        "totalTokens": 4805706,
+        "inputTokens": 4771623,
+        "cachedInputTokens": 4448768,
+        "outputTokens": 34083,
+        "reasoningOutputTokens": 6877
+      },
+      "both_success_medians": {
+        "reported_total_tokens": 459289.0,
+        "completed_model_tool_items": 30.5,
+        "total_text_reply_utf8_bytes": 33701.5,
+        "failed_model_tool_items": 2.0
+      }
+    }
+  },
+  "both_success_pairs": [
+    {
+      "task": "MM01",
+      "repeat": 1,
+      "T": {
+        "reported_total_tokens": 214224,
+        "completed_model_tool_items": 15,
+        "total_text_reply_utf8_bytes": 31512,
+        "failed_model_tool_items": 0
+      },
+      "N": {
+        "reported_total_tokens": 545602,
+        "completed_model_tool_items": 29,
+        "total_text_reply_utf8_bytes": 36294,
+        "failed_model_tool_items": 2
+      }
+    },
+    {
+      "task": "MM01",
+      "repeat": 2,
+      "T": {
+        "reported_total_tokens": 219915,
+        "completed_model_tool_items": 12,
+        "total_text_reply_utf8_bytes": 29930,
+        "failed_model_tool_items": 1
+      },
+      "N": {
+        "reported_total_tokens": 508380,
+        "completed_model_tool_items": 28,
+        "total_text_reply_utf8_bytes": 35504,
+        "failed_model_tool_items": 2
+      }
+    },
+    {
+      "task": "MM02",
+      "repeat": 2,
+      "T": {
+        "reported_total_tokens": 138706,
+        "completed_model_tool_items": 11,
+        "total_text_reply_utf8_bytes": 14321,
+        "failed_model_tool_items": 1
+      },
+      "N": {
+        "reported_total_tokens": 537041,
+        "completed_model_tool_items": 32,
+        "total_text_reply_utf8_bytes": 47264,
+        "failed_model_tool_items": 1
+      }
+    },
+    {
+      "task": "MM04",
+      "repeat": 1,
+      "T": {
+        "reported_total_tokens": 144002,
+        "completed_model_tool_items": 14,
+        "total_text_reply_utf8_bytes": 25934,
+        "failed_model_tool_items": 4
+      },
+      "N": {
+        "reported_total_tokens": 469638,
+        "completed_model_tool_items": 36,
+        "total_text_reply_utf8_bytes": 29448,
+        "failed_model_tool_items": 2
+      }
+    },
+    {
+      "task": "MM04",
+      "repeat": 2,
+      "T": {
+        "reported_total_tokens": 152286,
+        "completed_model_tool_items": 12,
+        "total_text_reply_utf8_bytes": 14314,
+        "failed_model_tool_items": 1
+      },
+      "N": {
+        "reported_total_tokens": 448940,
+        "completed_model_tool_items": 36,
+        "total_text_reply_utf8_bytes": 41475,
+        "failed_model_tool_items": 1
+      }
+    },
+    {
+      "task": "MM05",
+      "repeat": 1,
+      "T": {
+        "reported_total_tokens": 161739,
+        "completed_model_tool_items": 12,
+        "total_text_reply_utf8_bytes": 19706,
+        "failed_model_tool_items": 1
+      },
+      "N": {
+        "reported_total_tokens": 304682,
+        "completed_model_tool_items": 37,
+        "total_text_reply_utf8_bytes": 31899,
+        "failed_model_tool_items": 0
+      }
+    },
+    {
+      "task": "MM05",
+      "repeat": 2,
+      "T": {
+        "reported_total_tokens": 171805,
+        "completed_model_tool_items": 12,
+        "total_text_reply_utf8_bytes": 22256,
+        "failed_model_tool_items": 1
+      },
+      "N": {
+        "reported_total_tokens": 385972,
+        "completed_model_tool_items": 28,
+        "total_text_reply_utf8_bytes": 29806,
+        "failed_model_tool_items": 2
+      }
+    },
+    {
+      "task": "MM06",
+      "repeat": 1,
+      "T": {
+        "reported_total_tokens": 125399,
+        "completed_model_tool_items": 11,
+        "total_text_reply_utf8_bytes": 13470,
+        "failed_model_tool_items": 1
+      },
+      "N": {
+        "reported_total_tokens": 385569,
+        "completed_model_tool_items": 28,
+        "total_text_reply_utf8_bytes": 25087,
+        "failed_model_tool_items": 2
+      }
+    }
+  ]
+}
