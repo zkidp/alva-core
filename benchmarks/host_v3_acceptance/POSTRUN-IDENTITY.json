@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "sdk_trees_unchanged": {
+    "toolchain": {
+      "files": 165,
+      "sha256": "ca76fe28e2887cc3f612240c6ae8678572c01698fe2eb8217500d29cecbbb6f0"
+    },
+    "registry": {
+      "files": 718,
+      "sha256": "9ed8de1f19d663aaedf0a6604e4c04877eea98d3f75c30cea6f349e45c4269f9"
+    }
+  },
+  "runtime_files_unchanged": 183,
+  "model_generation_calls": 0
+}

@@ -1,0 +1,143 @@
+{
+  "schema": "host-v3-postrun-diagnostics/v1",
+  "rows": [
+    {
+      "id": "MM01-T",
+      "active_seconds": 9.955404100008309,
+      "submitted_chat_requests": 5,
+      "model_tool_calls": {
+        "read_target": 1,
+        "study_doc": 2,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM01-V2",
+      "active_seconds": 12.130203900000197,
+      "submitted_chat_requests": 5,
+      "model_tool_calls": {
+        "read_target": 1,
+        "study_doc": 3,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM01-V3",
+      "active_seconds": 9.42626150000433,
+      "submitted_chat_requests": 5,
+      "model_tool_calls": {
+        "read_target": 1,
+        "study_doc": 2,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM02-V3",
+      "active_seconds": 8.25169299999834,
+      "submitted_chat_requests": 3,
+      "model_tool_calls": {
+        "read_target": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM02-V2",
+      "active_seconds": 13.437882600002922,
+      "submitted_chat_requests": 4,
+      "model_tool_calls": {
+        "read_target": 1,
+        "prepare_change": 2,
+        "publish_change": 1
+      },
+      "tool_errors": 1
+    },
+    {
+      "id": "MM02-T",
+      "active_seconds": 12.087859799998114,
+      "submitted_chat_requests": 3,
+      "model_tool_calls": {
+        "read_target": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM04-V2",
+      "active_seconds": 8.274120399990352,
+      "submitted_chat_requests": 3,
+      "model_tool_calls": {
+        "read_target": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM04-T",
+      "active_seconds": 14.128951599996071,
+      "submitted_chat_requests": 4,
+      "model_tool_calls": {
+        "read_target": 1,
+        "prepare_change": 2,
+        "publish_change": 1
+      },
+      "tool_errors": 1
+    },
+    {
+      "id": "MM04-V3",
+      "active_seconds": 8.2647866000043,
+      "submitted_chat_requests": 3,
+      "model_tool_calls": {
+        "read_target": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM07-V3",
+      "active_seconds": 25.757826100001694,
+      "submitted_chat_requests": 5,
+      "model_tool_calls": {
+        "read_target": 1,
+        "study_doc": 4,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "tool_errors": 0
+    },
+    {
+      "id": "MM07-T",
+      "active_seconds": 24.786153699998977,
+      "submitted_chat_requests": 7,
+      "model_tool_calls": {
+        "read_target": 1,
+        "study_doc": 3,
+        "prepare_change": 2,
+        "publish_change": 1
+      },
+      "tool_errors": 1
+    },
+    {
+      "id": "MM07-V2",
+      "active_seconds": 34.394787400000496,
+      "submitted_chat_requests": 7,
+      "model_tool_calls": {
+        "read_target": 1,
+        "study_doc": 4,
+        "prepare_change": 3,
+        "publish_change": 1
+      },
+      "tool_errors": 2
+    }
+  ]
+}

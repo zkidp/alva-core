@@ -1,0 +1,138 @@
+{
+  "status": "PASS",
+  "postrun_validator_sha256": "df55b65695c81db377188a2e7658e56190b95d7fb229e04cc83166453ab26ae7",
+  "freeze_sha256": "db9983df71909f92eff850a89405c5fc02314e022c8a717f7f7e80d99902e785",
+  "slots": 12,
+  "requests_verified": 54,
+  "actual_native_commits": 12,
+  "frozen_runtime_files_unchanged": 183,
+  "tamper_controls_detected": [
+    "initial_input",
+    "cached_subtraction",
+    "tool_argument",
+    "backend_receipt"
+  ],
+  "model_generation_calls": 0,
+  "rows": [
+    {
+      "id": "MM01-T",
+      "status": "PASS",
+      "requests_verified": 5,
+      "backend_sha256": "dcafa080d3ae564ea646e62c0bb2f3f93c3920a2973afb8cedb9b4d8092bafc5",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM01-V2",
+      "status": "PASS",
+      "requests_verified": 5,
+      "backend_sha256": "35b331133abb1539e7a6d9146159348c06c1f9913ba2bed791d21ff86dc0d068",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM01-V3",
+      "status": "PASS",
+      "requests_verified": 5,
+      "backend_sha256": "a6c0565a70a3da482f7f880f92cdb4530818f8e0f21c734dc2317ae71b9147d2",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM02-V3",
+      "status": "PASS",
+      "requests_verified": 3,
+      "backend_sha256": "3e061e1804b4d0b2c1ad940c32db02dba832e19c6e637ec786b7e9c8c235f7bb",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM02-V2",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "3e16ef7ef23301c94594797a2be28a6c1f196f735b4d93ece5f686bc193c2321",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM02-T",
+      "status": "PASS",
+      "requests_verified": 3,
+      "backend_sha256": "fcf9d784ff3bb8c5ca8eb92664a0fcfb4b4ccb8fc68a3e12ad06563e9ca8137c",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM04-V2",
+      "status": "PASS",
+      "requests_verified": 3,
+      "backend_sha256": "e5493a0490057ae43393edb1c025fcb2abfedb6db982d9916843f82a0b877aee",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM04-T",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "3166e34008fbff5b6d978d7a3abb2ac55e92c8bfb12acfee0888c2057ac72951",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM04-V3",
+      "status": "PASS",
+      "requests_verified": 3,
+      "backend_sha256": "9323e09dac789a1aabc6f8d32b67006d879a852bac780ae9dbce03261dd0bda5",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM07-V3",
+      "status": "PASS",
+      "requests_verified": 5,
+      "backend_sha256": "bf76d5a2dc3e41f111c166d97959a1a84e2d5e51b7e61145c8a7c34848f47b8d",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM07-T",
+      "status": "PASS",
+      "requests_verified": 7,
+      "backend_sha256": "9614d7075da21efd3569b0eec0a070686b796efd9af7828b889041ac5d4f3f50",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "MM07-V2",
+      "status": "PASS",
+      "requests_verified": 7,
+      "backend_sha256": "98566749e4bb538fca828520d6514dd3ca08965bcba6d2a400da53105cf7eccb",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    }
+  ]
+}
