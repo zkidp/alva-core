@@ -1,0 +1,1351 @@
+{
+  "status": "COMPLETED",
+  "model": "deepseek-flash",
+  "effort": "low",
+  "freeze_sha256": "09b9c301ddafac8f29ebe0c6a08fa125dc69698f072baa5274cb2041f278d315",
+  "model_sessions_started": 12,
+  "submitted_chat_requests": 54,
+  "input_token_api_calls": 0,
+  "provider_generation_requests": null,
+  "dollar_cost": null,
+  "arms": {
+    "T": {
+      "scheduled": 4,
+      "observed": 4,
+      "valid": 4,
+      "correct": 4,
+      "complete_usage_slots": 4,
+      "observed_complete_usage_sum": {
+        "totalTokens": 91109,
+        "inputTokens": 86295,
+        "cachedInputTokens": 70016,
+        "outputTokens": 4814,
+        "reasoningOutputTokens": 2578
+      },
+      "submitted_chat_requests": 20
+    },
+    "V3": {
+      "scheduled": 4,
+      "observed": 4,
+      "valid": 4,
+      "correct": 4,
+      "complete_usage_slots": 4,
+      "observed_complete_usage_sum": {
+        "totalTokens": 100277,
+        "inputTokens": 97032,
+        "cachedInputTokens": 75520,
+        "outputTokens": 3245,
+        "reasoningOutputTokens": 1723
+      },
+      "submitted_chat_requests": 14
+    },
+    "V4": {
+      "scheduled": 4,
+      "observed": 4,
+      "valid": 4,
+      "correct": 4,
+      "complete_usage_slots": 4,
+      "observed_complete_usage_sum": {
+        "totalTokens": 91896,
+        "inputTokens": 87131,
+        "cachedInputTokens": 71680,
+        "outputTokens": 4765,
+        "reasoningOutputTokens": 2764
+      },
+      "submitted_chat_requests": 20
+    }
+  },
+  "comparisons": {
+    "V3": {
+      "disposition": "EXPLORATORY_COST_ACCEPTANCE_PASS",
+      "both_success_pairs": 4,
+      "median_V4_over_control_total_tokens": 0.6538054251073484,
+      "pairs": [
+        {
+          "task": "H01",
+          "both_success_complete_usage": true,
+          "control_total": 24916,
+          "V4_total": 46358,
+          "ratio": 1.8605715203082356
+        },
+        {
+          "task": "H02",
+          "both_success_complete_usage": true,
+          "control_total": 24602,
+          "V4_total": 12355,
+          "ratio": 0.5021949435005284
+        },
+        {
+          "task": "H03",
+          "both_success_complete_usage": true,
+          "control_total": 25232,
+          "V4_total": 16797,
+          "ratio": 0.6657022828154724
+        },
+        {
+          "task": "H04",
+          "both_success_complete_usage": true,
+          "control_total": 25527,
+          "V4_total": 16386,
+          "ratio": 0.6419085673992243
+        }
+      ]
+    },
+    "T": {
+      "disposition": "NO_EXPLORATORY_COST_ADVANTAGE",
+      "both_success_pairs": 4,
+      "median_V4_over_control_total_tokens": 0.9959377436412157,
+      "pairs": [
+        {
+          "task": "H01",
+          "both_success_complete_usage": true,
+          "control_total": 41523,
+          "V4_total": 46358,
+          "ratio": 1.116441490258411
+        },
+        {
+          "task": "H02",
+          "both_success_complete_usage": true,
+          "control_total": 14113,
+          "V4_total": 12355,
+          "ratio": 0.8754339970240204
+        },
+        {
+          "task": "H03",
+          "both_success_complete_usage": true,
+          "control_total": 23723,
+          "V4_total": 16797,
+          "ratio": 0.7080470429540952
+        },
+        {
+          "task": "H04",
+          "both_success_complete_usage": true,
+          "control_total": 11750,
+          "V4_total": 16386,
+          "ratio": 1.3945531914893616
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "id": "H01-T",
+      "task": "H01",
+      "arm": "T",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 17.257570499990834,
+      "setup_seconds": 0.7710434999899007,
+      "finalization_seconds": 4.408140999992611,
+      "reported_usage": {
+        "totalTokens": 41523,
+        "inputTokens": 39855,
+        "cachedInputTokens": 31616,
+        "outputTokens": 1668,
+        "reasoningOutputTokens": 945
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 7,
+      "observed_tool_calls": 8,
+      "dispatched_tool_calls": 8,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.needs_build"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.needs_build"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "eb149eff63c8cbb2812d90e8816e58c3dc31bbf7e868ee5360fec00274623e47",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "34b5377fca7a517f46f90139c5c0899e396be381151b1c2f0cdd2f798b542fcb",
+          "coverage_nodes": 407,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 1191093,
+          "native_wire_request_bytes": 1724,
+          "native_wire_reply_bytes": 571095,
+          "native_seconds": 0.0928363548591733,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.1573921544477344
+        },
+        "tested_snapshot_sha256": "f96e8a7034ebf90bf4314e659cef655f1295221e5e7c49b589ac89d3b3992e4a",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 278166
+            },
+            "seconds": 0.026999705471098423
+          },
+          {
+            "origin": "text_source_import",
+            "native_calls": 6,
+            "native_wire_bytes": {
+              "request_bytes": 423,
+              "reply_bytes": 284733
+            },
+            "seconds": 0.04167225770652294
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 283628
+            },
+            "seconds": 0.030912354588508606
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "265b9a17dae426bac0584719da1bb20d32cd92814a6e91db2a09c0e8a95fbb0a",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H01-V3",
+      "task": "H01",
+      "arm": "V3",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 9.446677300002193,
+      "setup_seconds": 0.46845960000064224,
+      "finalization_seconds": 4.38207289998536,
+      "reported_usage": {
+        "totalTokens": 24916,
+        "inputTokens": 24109,
+        "cachedInputTokens": 16384,
+        "outputTokens": 807,
+        "reasoningOutputTokens": 506
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 3,
+      "observed_tool_calls": 3,
+      "dispatched_tool_calls": 3,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.needs_build"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.needs_build"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "0104bed0900c885e1b355e2710aa77e07ababb1e34a4db74d6c26c4e4e234924",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "18fecbb34ae499d305fd2e77007f5b5402006721ad125f0e261d2efd3bf9be1a",
+          "coverage_nodes": 406,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 1188599,
+          "native_wire_request_bytes": 1872,
+          "native_wire_reply_bytes": 569892,
+          "native_seconds": 0.09219378884881735,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.1259130192920566
+        },
+        "tested_snapshot_sha256": "719ed1f14323c0a39ad65a040d944eed5720a4d2fb7d2ec1334f19ae56e48acb",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 278166
+            },
+            "seconds": 0.027002808637917042
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 282762
+            },
+            "seconds": 0.0384214548394084
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "930fe3ddddc5214eee7137d7a1becb1840d96d64a88377a95279b28c2b41c6a0",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H01-V4",
+      "task": "H01",
+      "arm": "V4",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 20.583391099993605,
+      "setup_seconds": 0.43787190000875853,
+      "finalization_seconds": 4.404000900016399,
+      "reported_usage": {
+        "totalTokens": 46358,
+        "inputTokens": 44329,
+        "cachedInputTokens": 36736,
+        "outputTokens": 2029,
+        "reasoningOutputTokens": 1370
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 8,
+      "observed_tool_calls": 8,
+      "dispatched_tool_calls": 8,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.needs_build"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.needs_build"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "df9c7cee3493f7a70193462ab48c6f4b7552d4bd4e995712d0db21b335b5ac10",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "eb9a1439b454222662fa76c3b15667d2d6e20d5c66323729e1d8772235416c41",
+          "coverage_nodes": 404,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 1185159,
+          "native_wire_request_bytes": 1833,
+          "native_wire_reply_bytes": 568251,
+          "native_seconds": 0.09936936758458614,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.130658415146172
+        },
+        "tested_snapshot_sha256": "e1007d29fd959da7afb0a1698efc03c6191292f1114d9807d950c87589fb472c",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 278166
+            },
+            "seconds": 0.027096252888441086
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 281626
+            },
+            "seconds": 0.03097059391438961
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "008b413ac844fd88113e186e4186585ce3b3e917ea61b7878ffacc007aa5c819",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H02-V4",
+      "task": "H02",
+      "arm": "V4",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 8.835432299994864,
+      "setup_seconds": 0.4436098000151105,
+      "finalization_seconds": 4.388616799988085,
+      "reported_usage": {
+        "totalTokens": 12355,
+        "inputTokens": 11495,
+        "cachedInputTokens": 9856,
+        "outputTokens": 860,
+        "reasoningOutputTokens": 393
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 4,
+      "observed_tool_calls": 4,
+      "dispatched_tool_calls": 4,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "6f3d8ed3c4ac1c711766d0cf3a52c767511c1ebbb08d8db003bcf3c6c75649a0",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "a0da939271e5c80f6f71aa868c3f0be6b51829e004d3fd6760dbcf337d2f7311",
+          "coverage_nodes": 409,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 1198820,
+          "native_wire_request_bytes": 2050,
+          "native_wire_reply_bytes": 574830,
+          "native_seconds": 0.09953759238123894,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.137561128474772
+        },
+        "tested_snapshot_sha256": "319615b7f13e57424526d1ba411ff174e5770a3f444cd13b5da592729444720c",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 278166
+            },
+            "seconds": 0.02723163552582264
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 285654
+            },
+            "seconds": 0.036712358705699444
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "88b56089d0e729e169a5c6ce5685ff5a41556bafbd0359ef97e0adf2ccbee500",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H02-V3",
+      "task": "H02",
+      "arm": "V3",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 7.846486900001764,
+      "setup_seconds": 0.37929690000601113,
+      "finalization_seconds": 4.406672100012656,
+      "reported_usage": {
+        "totalTokens": 24602,
+        "inputTokens": 23964,
+        "cachedInputTokens": 18176,
+        "outputTokens": 638,
+        "reasoningOutputTokens": 260
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 3,
+      "observed_tool_calls": 3,
+      "dispatched_tool_calls": 3,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "1389a31f67404a9881900655bdbcd641905f01083c13faafda91bb8f9bde5cb6",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "e5dd1cfc6cf79f933ef08e7ce945049d57d6ae01accbca3911f58a2bf5c7d3fb",
+          "coverage_nodes": 403,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 1184826,
+          "native_wire_request_bytes": 2100,
+          "native_wire_reply_bytes": 568111,
+          "native_seconds": 0.09486458264291286,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.1577209616079926
+        },
+        "tested_snapshot_sha256": "f1ac713f6f5fe23d8a42b09944b055b7188b99e196158b092f431ccd8aeb75cc",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 278166
+            },
+            "seconds": 0.026959167793393135
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 281160
+            },
+            "seconds": 0.04024756979197264
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "6cbbc3b5df48724f867535a5530d57206795940a25ee5b1c66067ce91303511c",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H02-T",
+      "task": "H02",
+      "arm": "T",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 11.819799799995963,
+      "setup_seconds": 0.4559716999938246,
+      "finalization_seconds": 4.471768299990799,
+      "reported_usage": {
+        "totalTokens": 14113,
+        "inputTokens": 13066,
+        "cachedInputTokens": 10752,
+        "outputTokens": 1047,
+        "reasoningOutputTokens": 618
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 4,
+      "observed_tool_calls": 4,
+      "dispatched_tool_calls": 4,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "build.model.reverse_dependents"
+          ],
+          "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+          "staged_sha256": "2f1edba2f9da2161d58cfc0f345735fab453e8c017bc3762423507c8e89f1049",
+          "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+          "staged_project_revision": "33d3146cb177d3d37d2fa0f5577d73339ffe14145f579615b046ab1ff0e3cd4e",
+          "coverage_nodes": 408,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 1195624,
+          "native_wire_request_bytes": 2039,
+          "native_wire_reply_bytes": 573283,
+          "native_seconds": 0.09296661708503962,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.10415306314826
+        },
+        "tested_snapshot_sha256": "ad8b9627feab3f000f3c28aeacd5a66a69d8caf0cf58acfd094267b37dbbf04b",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 278166
+            },
+            "seconds": 0.026815282180905342
+          },
+          {
+            "origin": "text_source_import",
+            "native_calls": 6,
+            "native_wire_bytes": {
+              "request_bytes": 430,
+              "reply_bytes": 285995
+            },
+            "seconds": 0.0490399980917573
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 284626
+            },
+            "seconds": 0.030551119707524776
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "b7bb838a44ae5f31b3236fd4eca2434d8774ef5f68f11c13496efd6ba4a3d926",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H03-V3",
+      "task": "H03",
+      "arm": "V3",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 11.343098800018197,
+      "setup_seconds": 0.3915870999917388,
+      "finalization_seconds": 4.148413899994921,
+      "reported_usage": {
+        "totalTokens": 25232,
+        "inputTokens": 24240,
+        "cachedInputTokens": 20352,
+        "outputTokens": 992,
+        "reasoningOutputTokens": 585
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 4,
+      "observed_tool_calls": 6,
+      "dispatched_tool_calls": 6,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "store.metadata.get_object"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "store.metadata.get_object"
+          ],
+          "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+          "staged_sha256": "3c819dd335b3634d0591d64877d84f4ad261487bf61ae8e132198b022865f263",
+          "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+          "staged_project_revision": "81bc5c948f22f3ac1ac87853146be6d711b02adefe8b261413ba9125a32b7e11",
+          "coverage_nodes": 231,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 645009,
+          "native_wire_request_bytes": 1747,
+          "native_wire_reply_bytes": 309983,
+          "native_seconds": 0.06816698145121336,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.016809486784041
+        },
+        "tested_snapshot_sha256": "3bde6393b10e4b669f3288e72cedcc8477626ec1c35b6a54d1634f3d699f2cac",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147118
+            },
+            "seconds": 0.015135074034333229
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 153844
+            },
+            "seconds": 0.017092830501496792
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "630180e2c1dd510821063c1c3658aa80a870bce87e721a078747df63e3c04da3",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H03-T",
+      "task": "H03",
+      "arm": "T",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 14.515521499997703,
+      "setup_seconds": 0.4323789000045508,
+      "finalization_seconds": 4.1481357000011485,
+      "reported_usage": {
+        "totalTokens": 23723,
+        "inputTokens": 22581,
+        "cachedInputTokens": 19456,
+        "outputTokens": 1142,
+        "reasoningOutputTokens": 621
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 6,
+      "observed_tool_calls": 7,
+      "dispatched_tool_calls": 7,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "store.metadata.get_object"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "store.metadata.get_object"
+          ],
+          "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+          "staged_sha256": "e99cdbc4828dae0afd76d62bcee7da6eadb87287dcb465e8b73f5d30e23475ca",
+          "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+          "staged_project_revision": "bb9717757bd65cb9786398d01d716869f8e12e38f34b701cb20d824d9a05332e",
+          "coverage_nodes": 232,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 645061,
+          "native_wire_request_bytes": 1662,
+          "native_wire_reply_bytes": 309992,
+          "native_seconds": 0.06676781456917524,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.0051083704456687
+        },
+        "tested_snapshot_sha256": "1040ce99bc8bd3736cc21162a45bafbb191c5c2eafb54672358808d6e2f7779f",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147118
+            },
+            "seconds": 0.015108363702893257
+          },
+          {
+            "origin": "text_source_import",
+            "native_calls": 6,
+            "native_wire_bytes": {
+              "request_bytes": 425,
+              "reply_bytes": 154941
+            },
+            "seconds": 0.043998243287205696
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 153934
+            },
+            "seconds": 0.01816112920641899
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "7114e42286441be0ccdbcfaa83e41757cd32e1ced782bb3ec12adbaccacdba11",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H03-V4",
+      "task": "H03",
+      "arm": "V4",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 10.494629299995722,
+      "setup_seconds": 0.42400670002098195,
+      "finalization_seconds": 4.185498999984702,
+      "reported_usage": {
+        "totalTokens": 16797,
+        "inputTokens": 15971,
+        "cachedInputTokens": 12544,
+        "outputTokens": 826,
+        "reasoningOutputTokens": 366
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 4,
+      "observed_tool_calls": 6,
+      "dispatched_tool_calls": 6,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "store.metadata.get_object"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "store.metadata.get_object"
+          ],
+          "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+          "staged_sha256": "88e3c45bfa93b4155c3c42078c8d44c7830c1e78fa04239d32fe43f1fcf4f7e1",
+          "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+          "staged_project_revision": "8d7733a6408700d8bda0e79828e931cde58c86eacfd20aedcf08c8f558975475",
+          "coverage_nodes": 233,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 647795,
+          "native_wire_request_bytes": 1756,
+          "native_wire_reply_bytes": 311309,
+          "native_seconds": 0.06882014125585556,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 1.966900891624391
+        },
+        "tested_snapshot_sha256": "f866ae69707b46cb18fb76933433591cdc59df08f558f269beb45eb696c12581",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147118
+            },
+            "seconds": 0.015279454179108143
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 154800
+            },
+            "seconds": 0.01708040852099657
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "f487c31370fc32f82f3795f7a16f3eaf8a902875a6b939d09af0cbaddb589fd4",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H04-V4",
+      "task": "H04",
+      "arm": "V4",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 10.738356299989391,
+      "setup_seconds": 0.42410089998156764,
+      "finalization_seconds": 4.119794499973068,
+      "reported_usage": {
+        "totalTokens": 16386,
+        "inputTokens": 15336,
+        "cachedInputTokens": 12544,
+        "outputTokens": 1050,
+        "reasoningOutputTokens": 635
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 4,
+      "observed_tool_calls": 5,
+      "dispatched_tool_calls": 5,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "store.metadata.list_objects_page"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "store.metadata.list_objects_page"
+          ],
+          "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+          "staged_sha256": "cd855f8761072316e9ed2179c047cec751b3061bcccbf725c6d8f88e0bc18739",
+          "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+          "staged_project_revision": "7d79c13b724c915ae237040038e73d70497b503650f95eef4077d373dacff1c7",
+          "coverage_nodes": 222,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 628778,
+          "native_wire_request_bytes": 1812,
+          "native_wire_reply_bytes": 302227,
+          "native_seconds": 0.06685356423258781,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 2.00519051309675
+        },
+        "tested_snapshot_sha256": "1f6f4ac04ea9f29f7e800366d9af50f42d3eb4b20c2b29ef90dca20f140d1b0a",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147118
+            },
+            "seconds": 0.015230760909616947
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147860
+            },
+            "seconds": 0.016700285486876965
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "75687e8e5dc95ebba933cbbc52448bde957d1599dfc5b3764cfaeb3591458a3f",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H04-T",
+      "task": "H04",
+      "arm": "T",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 9.358481900009792,
+      "setup_seconds": 0.4232803999911994,
+      "finalization_seconds": 4.126279499992961,
+      "reported_usage": {
+        "totalTokens": 11750,
+        "inputTokens": 10793,
+        "cachedInputTokens": 8192,
+        "outputTokens": 957,
+        "reasoningOutputTokens": 394
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 3,
+      "observed_tool_calls": 4,
+      "dispatched_tool_calls": 4,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "store.metadata.list_objects_page"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "store.metadata.list_objects_page"
+          ],
+          "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+          "staged_sha256": "6517d36854e5f3eae68b350a607bd381ef7807f61f9476a828eb7cabe23bca28",
+          "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+          "staged_project_revision": "9daab212fbe851cb1370490becf0cd57b357efdc6fd0eb7a12c3d592eb74e0e0",
+          "coverage_nodes": 220,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 625198,
+          "native_wire_request_bytes": 1779,
+          "native_wire_reply_bytes": 300516,
+          "native_seconds": 0.06607894692569971,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 1.982930856756866
+        },
+        "tested_snapshot_sha256": "ce5d5b92c54efd931693eababa72e60cffc7e7b5de3217391901fe7c328df0fb",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147118
+            },
+            "seconds": 0.015465657226741314
+          },
+          {
+            "origin": "text_source_import",
+            "native_calls": 6,
+            "native_wire_bytes": {
+              "request_bytes": 432,
+              "reply_bytes": 147893
+            },
+            "seconds": 0.04378390684723854
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 146696
+            },
+            "seconds": 0.016934558749198914
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "f1082797061c2948d1fafaf06ee2f467604095f02f7f925633e7cf6e774ae501",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    },
+    {
+      "id": "H04-V3",
+      "task": "H04",
+      "arm": "V3",
+      "valid": true,
+      "correct": true,
+      "model_sessions_started": 1,
+      "terminal_confirmed": true,
+      "stop_reason": "PUBLISHED",
+      "active_seconds": 9.722348999988753,
+      "setup_seconds": 0.43451679998543113,
+      "finalization_seconds": 4.133371100004297,
+      "reported_usage": {
+        "totalTokens": 25527,
+        "inputTokens": 24719,
+        "cachedInputTokens": 20608,
+        "outputTokens": 808,
+        "reasoningOutputTokens": 372
+      },
+      "usage_complete": true,
+      "submitted_chat_requests": 4,
+      "observed_tool_calls": 6,
+      "dispatched_tool_calls": 6,
+      "infrastructure_hold": null,
+      "outcome": {
+        "correct": true,
+        "task": "PASS",
+        "regression": "PASS",
+        "scope": {
+          "status": "SCOPE_ALLOWED",
+          "changed_functions": [
+            "store.metadata.list_objects_page"
+          ],
+          "unauthorized_functions": [],
+          "authorized_functions": [
+            "store.metadata.list_objects_page"
+          ],
+          "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+          "staged_sha256": "54fd51604755f94d4c14bf6da84146a2174e04f343f44adeeb73d0e7a46339f2",
+          "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+          "staged_project_revision": "2159ef5d7ae60f283230c48570b4665765c5bd8e14dc873de52f5c11538738bf",
+          "coverage_nodes": 222,
+          "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+        },
+        "fresh_authority_matches": true,
+        "successful_publications": 1,
+        "host_work": {
+          "agent_tool_calls": 3,
+          "native_calls": 17,
+          "native_reply_bytes": 628778,
+          "native_wire_request_bytes": 1883,
+          "native_wire_reply_bytes": 302227,
+          "native_seconds": 0.06660173088312149,
+          "guard_reads": 3,
+          "evaluation_runs": 1,
+          "evaluation_seconds": 1.980740207247436
+        },
+        "tested_snapshot_sha256": "bd093fac527b43847dbcc15fccf63d4727281f0409bb84f7c2c831a661065817",
+        "original_sources_unchanged": true,
+        "backend_evaluation_runs": 1,
+        "draft_evaluation_work": [
+          {
+            "fresh_native_reads": 1,
+            "commands": 4
+          }
+        ],
+        "auxiliary_native_work": [
+          {
+            "origin": "setup",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147118
+            },
+            "seconds": 0.015201237984001637
+          },
+          {
+            "origin": "final_fresh_scope",
+            "native_calls": 4,
+            "native_wire_bytes": {
+              "request_bytes": 280,
+              "reply_bytes": 147860
+            },
+            "seconds": 0.01681713107973337
+          }
+        ],
+        "independent_final_commands": 6,
+        "cleanup_confirmed": true
+      },
+      "backend_sha256": "37285a811fdae0448da5837827221ed14c605813500a53a9fd408fb9493048bd",
+      "cleanup_confirmed": true,
+      "observed_models": [
+        "deepseek-flash"
+      ],
+      "system_fingerprints": [
+        "bc19ba97cbe016479903222bb1578db6"
+      ]
+    }
+  ],
+  "limits": [
+    "Four first-model-use requirements on two components, partly previously visible code; author-informed, no statistical or competitor superiority claim.",
+    "T is the matched source-proposal Host using the same protected Native publication pipeline.",
+    "All attempts/resources retained; paired cost statistics are success-conditioned.",
+    "Cached input remains in reported total. Missing reasoning breakdown remains null.",
+    "Provider aliases/fingerprints do not establish immutable weights."
+  ]
+}

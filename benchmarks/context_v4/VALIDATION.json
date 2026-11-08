@@ -1,0 +1,138 @@
+{
+  "status": "PASS",
+  "postrun_validator_sha256": "aed127bd4686fd60798660dd6ff489df1d23b57df3cf629f89dc18579c177816",
+  "freeze_sha256": "09b9c301ddafac8f29ebe0c6a08fa125dc69698f072baa5274cb2041f278d315",
+  "slots": 12,
+  "requests_verified": 54,
+  "actual_native_commits": 12,
+  "frozen_runtime_files_unchanged": 199,
+  "tamper_controls_detected": [
+    "initial_input",
+    "cached_subtraction",
+    "tool_argument",
+    "backend_receipt"
+  ],
+  "model_generation_calls": 0,
+  "rows": [
+    {
+      "id": "H01-T",
+      "status": "PASS",
+      "requests_verified": 7,
+      "backend_sha256": "265b9a17dae426bac0584719da1bb20d32cd92814a6e91db2a09c0e8a95fbb0a",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H01-V3",
+      "status": "PASS",
+      "requests_verified": 3,
+      "backend_sha256": "930fe3ddddc5214eee7137d7a1becb1840d96d64a88377a95279b28c2b41c6a0",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H01-V4",
+      "status": "PASS",
+      "requests_verified": 8,
+      "backend_sha256": "008b413ac844fd88113e186e4186585ce3b3e917ea61b7878ffacc007aa5c819",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H02-V4",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "88b56089d0e729e169a5c6ce5685ff5a41556bafbd0359ef97e0adf2ccbee500",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H02-V3",
+      "status": "PASS",
+      "requests_verified": 3,
+      "backend_sha256": "6cbbc3b5df48724f867535a5530d57206795940a25ee5b1c66067ce91303511c",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H02-T",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "b7bb838a44ae5f31b3236fd4eca2434d8774ef5f68f11c13496efd6ba4a3d926",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H03-V3",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "630180e2c1dd510821063c1c3658aa80a870bce87e721a078747df63e3c04da3",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H03-T",
+      "status": "PASS",
+      "requests_verified": 6,
+      "backend_sha256": "7114e42286441be0ccdbcfaa83e41757cd32e1ced782bb3ec12adbaccacdba11",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H03-V4",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "f487c31370fc32f82f3795f7a16f3eaf8a902875a6b939d09af0cbaddb589fd4",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H04-V4",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "75687e8e5dc95ebba933cbbc52448bde957d1599dfc5b3764cfaeb3591458a3f",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H04-T",
+      "status": "PASS",
+      "requests_verified": 3,
+      "backend_sha256": "f1082797061c2948d1fafaf06ee2f467604095f02f7f925633e7cf6e774ae501",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    },
+    {
+      "id": "H04-V3",
+      "status": "PASS",
+      "requests_verified": 4,
+      "backend_sha256": "37285a811fdae0448da5837827221ed14c605813500a53a9fd408fb9493048bd",
+      "actual_native_commits": 1,
+      "fresh_scope_matches_commit": true,
+      "independent_task": "PASS",
+      "independent_regression": "PASS"
+    }
+  ]
+}

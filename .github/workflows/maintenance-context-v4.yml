@@ -32,6 +32,7 @@ jobs:
           cargo test --locked --manifest-path alva/Cargo.toml
           cargo build --locked --manifest-path alva/Cargo.toml
           python -m unittest tests.integrations.test_maintenance_context tests.integrations.test_context_protocol -v
+          python -m unittest tests.integrations.test_context_v4_postrun -v
           binary=alva/target/debug/alva
           if [[ "$RUNNER_OS" == Windows ]]; then binary="$binary.exe"; fi
           python tests/mcp/context_reference_test.py "$binary"

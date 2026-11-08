@@ -1,0 +1,325 @@
+{
+  "rows": [
+    {
+      "id": "H01-T",
+      "active_seconds": 17.257570499990834,
+      "submitted_chat_requests": 7,
+      "tool_calls": {
+        "read_target": 1,
+        "read_source": 5,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [
+        {
+          "path": "src/model.alva",
+          "start": 300,
+          "count": 120
+        },
+        {
+          "path": "src/model.alva",
+          "start": 1,
+          "count": 140
+        },
+        {
+          "count": 100,
+          "path": "src/model.alva",
+          "start": 200
+        },
+        {
+          "count": 100,
+          "path": "src/model.alva",
+          "start": 100
+        },
+        {
+          "count": 100,
+          "path": "src/model.alva",
+          "start": 1
+        }
+      ],
+      "reference_reads": [],
+      "rejected_tools": [
+        {
+          "name": "read_source",
+          "status": "REJECTED",
+          "reason_code": "SOURCE_LINE_BOUND"
+        }
+      ]
+    },
+    {
+      "id": "H01-V3",
+      "active_seconds": 9.446677300002193,
+      "submitted_chat_requests": 3,
+      "tool_calls": {
+        "read_target": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [],
+      "reference_reads": [],
+      "rejected_tools": []
+    },
+    {
+      "id": "H01-V4",
+      "active_seconds": 20.583391099993605,
+      "submitted_chat_requests": 8,
+      "tool_calls": {
+        "read_target": 1,
+        "read_source": 5,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [
+        {
+          "path": "src/model.alva",
+          "start": 260,
+          "count": 120
+        },
+        {
+          "path": "src/model.alva",
+          "start": 1,
+          "count": 260
+        },
+        {
+          "path": "src/model.alva",
+          "start": 1,
+          "count": 120
+        },
+        {
+          "path": "src/model.alva",
+          "start": 121,
+          "count": 120
+        },
+        {
+          "path": "src/model.alva",
+          "start": 380,
+          "count": 120
+        }
+      ],
+      "reference_reads": [],
+      "rejected_tools": [
+        {
+          "name": "read_source",
+          "status": "REJECTED",
+          "reason_code": "SOURCE_LINE_BOUND"
+        }
+      ]
+    },
+    {
+      "id": "H02-V4",
+      "active_seconds": 8.835432299994864,
+      "submitted_chat_requests": 4,
+      "tool_calls": {
+        "read_target": 1,
+        "read_reference": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [],
+      "reference_reads": [
+        {
+          "document": "language",
+          "section": "collections"
+        }
+      ],
+      "rejected_tools": []
+    },
+    {
+      "id": "H02-V3",
+      "active_seconds": 7.846486900001764,
+      "submitted_chat_requests": 3,
+      "tool_calls": {
+        "read_target": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [],
+      "reference_reads": [],
+      "rejected_tools": []
+    },
+    {
+      "id": "H02-T",
+      "active_seconds": 11.819799799995963,
+      "submitted_chat_requests": 4,
+      "tool_calls": {
+        "read_target": 1,
+        "read_source": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [
+        {
+          "path": "src/model.alva",
+          "start": 200,
+          "count": 60
+        }
+      ],
+      "reference_reads": [],
+      "rejected_tools": []
+    },
+    {
+      "id": "H03-V3",
+      "active_seconds": 11.343098800018197,
+      "submitted_chat_requests": 4,
+      "tool_calls": {
+        "read_target": 1,
+        "read_reference": 3,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [],
+      "reference_reads": [
+        {
+          "document": "language",
+          "section": "results"
+        },
+        {
+          "document": "language",
+          "section": "body"
+        },
+        {
+          "document": "language",
+          "section": "bindings"
+        }
+      ],
+      "rejected_tools": []
+    },
+    {
+      "id": "H03-T",
+      "active_seconds": 14.515521499997703,
+      "submitted_chat_requests": 6,
+      "tool_calls": {
+        "read_target": 1,
+        "read_source": 1,
+        "read_reference": 3,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [
+        {
+          "path": "src/metadata.alva",
+          "count": 100
+        }
+      ],
+      "reference_reads": [
+        {
+          "document": "language",
+          "section": "results"
+        },
+        {
+          "document": "language",
+          "section": "body"
+        },
+        {
+          "document": "language",
+          "section": "bindings"
+        }
+      ],
+      "rejected_tools": []
+    },
+    {
+      "id": "H03-V4",
+      "active_seconds": 10.494629299995722,
+      "submitted_chat_requests": 4,
+      "tool_calls": {
+        "read_target": 1,
+        "read_source": 2,
+        "read_reference": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [
+        {
+          "path": "src/metadata.alva",
+          "start": 1,
+          "count": 120
+        },
+        {
+          "path": "src/metadata.alva",
+          "start": 121,
+          "count": 60
+        }
+      ],
+      "reference_reads": [
+        {
+          "document": "language",
+          "section": "results"
+        }
+      ],
+      "rejected_tools": []
+    },
+    {
+      "id": "H04-V4",
+      "active_seconds": 10.738356299989391,
+      "submitted_chat_requests": 4,
+      "tool_calls": {
+        "read_target": 1,
+        "read_source": 1,
+        "read_reference": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [
+        {
+          "path": "src/metadata.alva",
+          "start": 1,
+          "count": 120
+        }
+      ],
+      "reference_reads": [
+        {
+          "document": "language",
+          "section": "body"
+        }
+      ],
+      "rejected_tools": []
+    },
+    {
+      "id": "H04-T",
+      "active_seconds": 9.358481900009792,
+      "submitted_chat_requests": 3,
+      "tool_calls": {
+        "read_target": 1,
+        "read_source": 1,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [
+        {
+          "path": "src/metadata.alva",
+          "start": 1,
+          "count": 120
+        }
+      ],
+      "reference_reads": [],
+      "rejected_tools": []
+    },
+    {
+      "id": "H04-V3",
+      "active_seconds": 9.722348999988753,
+      "submitted_chat_requests": 4,
+      "tool_calls": {
+        "read_target": 1,
+        "read_reference": 3,
+        "prepare_change": 1,
+        "publish_change": 1
+      },
+      "source_reads": [],
+      "reference_reads": [
+        {
+          "document": "language",
+          "section": "body"
+        },
+        {
+          "document": "language",
+          "section": "collections"
+        },
+        {
+          "document": "language",
+          "section": "diagnostics"
+        }
+      ],
+      "rejected_tools": []
+    }
+  ]
+}
