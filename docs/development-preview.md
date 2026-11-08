@@ -6,7 +6,7 @@ Status checked **9 November 2026**. This page brings recent public work into the
 overview; it does **not** merge those implementations into `main` or the release.
 Links below pin actual commits, not a promise that a moving branch is stable.
 
-当前发布 CLI 为 `v0.14.1-preview.2`。下列维护能力仍在独立开发分支中；不要只安装发布包后
+当前发布 CLI 为 `v0.14.1-preview.3`。下列维护能力仍在独立开发分支中；不要只安装发布包后
 直接运行这些开发命令。英文复现文档中的命令、平台和依赖要求同样适用于中文读者。
 
 ## Guarded maintenance
