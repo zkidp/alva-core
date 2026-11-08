@@ -1,0 +1,18 @@
+(module
+  (name "model")
+  (version "1.0.0")
+  (export packs_required full_pack_units)
+
+  (fn packs_required
+    (params (param units (prim i64)) (param pack_size (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (and (>= (ref units) (int 0)) (> (ref pack_size) (int 0))))
+    (body (/ (ref units) (ref pack_size))))
+
+  (fn full_pack_units
+    (params (param units (prim i64)) (param pack_size (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (and (>= (ref units) (int 0)) (> (ref pack_size) (int 0))))
+    (body (* (/ (ref units) (ref pack_size)) (ref pack_size)))))

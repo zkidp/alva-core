@@ -1,0 +1,12 @@
+(module
+  (name "app")
+  (version "1.0.0")
+  (dep "model" "1.0.0")
+  (export order_packs)
+
+  (fn order_packs
+    (params (param units (prim i64)) (param pack_size (prim i64)))
+    (returns (prim i64))
+    (pure)
+    (pre (and (>= (ref units) (int 0)) (> (ref pack_size) (int 0))))
+    (body (call model.packs_required (ref units) (ref pack_size)))))
