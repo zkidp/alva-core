@@ -1,0 +1,22 @@
+name: Context transport continuation regression (no provider)
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/context_flash_resume/**'
+      - 'tests/integrations/test_context_flash_resume.py'
+      - 'tests/integrations/test_context_flash_dns_route.py'
+      - '.github/workflows/context-flash-resume.yml'
+permissions:
+  contents: read
+jobs:
+  controller:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest tests.integrations.test_context_flash_resume tests.integrations.test_context_flash_dns_route tests.integrations.test_context_flash_pilot tests.integrations.test_context_flash_closeout -v
