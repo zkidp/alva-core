@@ -23,9 +23,11 @@ def goals(ident):
 '''
     else:body=r'''
 #[test] fn nonnegative_pagination_never_overflows(){
- for (offset,limit,want) in [(0,i64::MAX,vec!["a","b","c"]),(1,i64::MAX,vec!["b","c"]),
-   (2,i64::MAX,vec!["c"]),(3,i64::MAX,vec![]),(i64::MAX,i64::MAX,vec![]),(0,0,vec![])] {
-  assert_eq!(m::list_objects_page(filled(),offset,limit),want);
+ let b=filled();let keys=m::list_objects(b.clone());
+ for (offset,limit) in [(0,i64::MAX),(1,i64::MAX),(2,i64::MAX),(3,i64::MAX),(i64::MAX,i64::MAX),(0,0)] {
+  let start=(offset as usize).min(keys.len());
+  let count=(limit as usize).min(keys.len()-start);
+  assert_eq!(m::list_objects_page(b.clone(),offset,limit),keys[start..start+count].to_vec());
  }
 }
 '''
@@ -36,9 +38,9 @@ def regressions(ident):
     body=r'''
 #[test] fn other_metadata_operations_survive(){
  let b=filled();assert_eq!(m::object_count(b.clone()),3);
- assert_eq!(m::list_objects(b.clone()),vec!["a","b","c"]);
- assert_eq!(m::list_objects_page(b.clone(),0,2),vec!["a","b"]);
- assert_eq!(m::list_objects_page(b.clone(),1,1),vec!["b"]);
+ let keys=m::list_objects(b.clone());let mut sorted=keys.clone();sorted.sort();assert_eq!(sorted,vec!["a","b","c"]);
+ assert_eq!(m::list_objects_page(b.clone(),0,2),keys[0..2].to_vec());
+ assert_eq!(m::list_objects_page(b.clone(),1,1),keys[1..2].to_vec());
  assert!(m::list_objects_page(b.clone(),8,2).is_empty());
  assert_eq!(m::state_label(m::ObjectState::Archived),"archived");
  let a=m::get_object(b.clone(),"a".into()).unwrap();assert_eq!(a.checksum,vec![1,2]);

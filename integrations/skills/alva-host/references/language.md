@@ -26,11 +26,14 @@ Named primitive types use `(prim i64)`, `(prim string)`, `(prim bool)`.
 
 Vectors: `(vec (prim string))`, `(vec (prim i64) (int 2) (int 4))`.
 Operations: `(len v)`, `(get v index)`, `(append v value)`,
-`(slice v start end)` with an exclusive end, `(range start end)`.
-A fold is `(fold item sequence (acc total (prim i64) (int 0))
-  (+ (ref total) (ref item)))`. It returns the accumulator, not a loop statement.
+`(slice v start end)` with an exclusive end.
+A fold is `(fold i (range (int 0) (int 3)) (acc total (prim i64) (int 0))
+  (+ (ref total) (ref i)))`. The range form is required here; arbitrary vector
+sequences are not accepted. Use `get` with the index when iterating a vector.
+The fold returns the accumulator, not a loop statement.
 Maps: `(map (prim string) (prim i64))`, `(keys m)`, `(contains m key)`,
-`(lookup m key)`, `(set m key value)`, `(remove m key)`.
+`(lookup m key)`, `(set m key value)`, `(remove m key)`. Maps use HashMap;
+key enumeration is not a lexical or insertion-order contract.
 Honor index/range bounds and arithmetic overflow constraints.
 
 ## records
@@ -43,7 +46,7 @@ preserving other fields. Use actual field types from the declaration.
 ## results
 
 Result values use `(ok value)` and `(err error)`. Inspection operations include
-`(is-ok result)`, `(is-err result)`, `(unwrap result)`, `(unwrap-err result)`.
+`(is-ok result)`, `(not (is-ok result))`, `(unwrap result)`, `(err-value result)`.
 Only unwrap the appropriate variant. An explicit Result return may wrap an
 ordinary final value in Ok, but explicit variants make branches clear.
 Enums: `(variant Flag enabled)` and
@@ -53,7 +56,7 @@ Use the actual enum type and cover its variants.
 ## strings
 
 Common forms are `(concat a b)`, `(split text separator)`,
-`(join parts separator)`, `(trim text)`, `(starts-with text prefix)`,
+`(join parts separator)`, `(ends-with text suffix)`,
 `(strip-prefix text prefix)`, `(to-string value)` and `(parse-int text)`.
 Consult compiler feedback for the actual supported operation/return type.
 Do not invent escaping, parsing or collection APIs from another language.

@@ -212,7 +212,15 @@ fn gen_fn(
     let last_is_result = f
         .body
         .last()
-        .map(|e| expr_produces_result(e, sigs))
+        .map(|e| {
+            let bindings = f
+                .params
+                .iter()
+                .filter(|(_, ty)| matches!(ty, TypeExpr::Result(..)))
+                .map(|(name, _)| name.clone())
+                .collect();
+            expr_produces_result(e, sigs, &bindings)
+        })
         .unwrap_or(false);
     let body = if returns_result && !last_is_result {
         format!("Ok({body})")
@@ -272,7 +280,11 @@ fn gen_extern(e: &ast::ExternDef) -> String {
 /// 判断表达式是否已经产生 result 类型（避免自动 Ok 包装）。
 /// 与旧启发式不同：Try 是“已展开”语义（值类型不是 Result），
 /// 因此不再计入；call/fold/if/block/let 均按签名与形状推导。
-fn expr_produces_result(e: &Expr, sigs: &SigTable) -> bool {
+fn expr_produces_result(
+    e: &Expr,
+    sigs: &SigTable,
+    bindings: &std::collections::HashSet<String>,
+) -> bool {
     match e {
         Expr::Call(name, _, _) => {
             if name == "lookup" {
@@ -288,12 +300,30 @@ fn expr_produces_result(e: &Expr, sigs: &SigTable) -> bool {
         Expr::Ok(..) | Expr::Err(..) | Expr::Lookup(..) | Expr::ParseInt(..) | Expr::Find(..) => {
             true
         }
-        Expr::If(_, t, e2, _) => expr_produces_result(t, sigs) || expr_produces_result(e2, sigs),
+        Expr::Ref(name, _) => bindings.contains(name),
+        Expr::If(_, t, e2, _) => {
+            expr_produces_result(t, sigs, bindings) || expr_produces_result(e2, sigs, bindings)
+        }
+        Expr::Match(_, _, cases, _) => cases
+            .iter()
+            .any(|(_, value)| expr_produces_result(value, sigs, bindings)),
         Expr::Block(exprs, _) => exprs
             .last()
-            .map(|x| expr_produces_result(x, sigs))
+            .map(|x| expr_produces_result(x, sigs, bindings))
             .unwrap_or(false),
-        Expr::Let(_, _, _, body, _) => expr_produces_result(body, sigs),
+        Expr::Let(name, declared, value, body, _) => {
+            let mut inner = bindings.clone();
+            let is_result = declared
+                .as_ref()
+                .map(|ty| matches!(ty, TypeExpr::Result(..)))
+                .unwrap_or_else(|| expr_produces_result(value, sigs, bindings));
+            if is_result {
+                inner.insert(name.clone());
+            } else {
+                inner.remove(name);
+            }
+            expr_produces_result(body, sigs, &inner)
+        }
         _ => false,
     }
 }

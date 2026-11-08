@@ -27,7 +27,7 @@ def register():
     functions=re.findall(r'^  \(fn ([a-z_]+)',source,re.M)
     types=re.findall(r'^  \(type ([A-Za-z_]+)',source,re.M)
     specs=[('H03','get_object','Return Err(nil) for an ObjectState.archived object, even if its key exists. Preserve active-object retrieval with all metadata, missing-key errors, storage/list/count operations, enum labels and other declarations. Only get_object body may change.'),
-        ('H04','list_objects_page','For every nonnegative i64 offset and limit, return the existing lexicographic key slice clamped to the available keys without integer overflow or panic, including i64::MAX. Preserve zero/ordinary pagination and every non-target function, including archived-object lookup. Keep existing contracts and change only list_objects_page body.')]
+        ('H04','list_objects_page','For every nonnegative i64 offset and limit, return a slice in the existing key enumeration order, clamped to available keys without integer overflow or panic, including i64::MAX. The order must agree with list_objects for the same bucket value; do not introduce sorting or assume lexicographic/insertion order across separately constructed buckets. Preserve ordinary pagination and every non-target function, including archived-object lookup. Keep existing contracts and change only list_objects_page body.')]
     for ident,target,requirement in specs:
         qualified='store.metadata.'+target
         tasks[ident]={'public_task':{'id':ident,'target':qualified,'requirement':requirement},'bundle':copy.deepcopy(bundle),
@@ -45,7 +45,9 @@ def register():
                 lines=data.decode().splitlines()
                 hits=[n+1 for n,line in enumerate(lines) if line.strip()=='(fn '+local]
                 if len(hits)==1:task['public_task']['source_location']={'path':path,'start':hits[0]}
-    result={'schema':'context-v4-task-registration/v1','selected_before_model_use':True,
+    result={'schema':'context-v4-task-registration/v3','selected_before_model_use':True,
+        'supersedes_rejected':['TASKS-REJECTED-v1.json','TASKS-REJECTED-v2.json'],
+        'pre_model_correction':'Compiler implementation uses HashMap and keys().cloned().collect(); preserve enumeration of the same bucket value without presuming global lexicographic or insertion order. Initial erroneous specifications retained. No model slot started.',
         'authorship':'Codex authored/qualified, not independent human holdout',
         'limits':'Four new maintenance targets; two components. H01/H02 component previously visible. No universal or independent-generalization claim.',
         'tasks':tasks,'model_generation_calls':0}
