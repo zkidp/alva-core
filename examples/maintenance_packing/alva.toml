@@ -1,0 +1,6 @@
+[project]
+name = "packing_demo"
+
+[modules]
+model = "src/model.alva"
+app = "src/app.alva"
