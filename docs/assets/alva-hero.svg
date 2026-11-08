@@ -111,5 +111,5 @@
   <rect x="1390" y="520" width="176" height="62" rx="18" class="card"/>
   <text x="1478" y="560" text-anchor="middle" class="sans body">WASM/WASI</text>
 
-  <text x="800" y="665" text-anchor="middle" class="sans title">Semantic editing instead of blind text patching</text>
+  <text x="800" y="665" text-anchor="middle" class="sans title">Inspect structure. Stage changes. Check before commit.</text>
 </svg>
