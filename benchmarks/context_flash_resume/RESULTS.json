@@ -1,0 +1,112 @@
+{
+  "status": "HOLD",
+  "original_overall_status": "INCOMPLETE_Q01_A_TRANSPORT_CENSORED",
+  "classification": "INCONCLUSIVE_INFRASTRUCTURE_HOLD",
+  "full_original_screen_evaluable": false,
+  "rows": [
+    {
+      "id": "Q01-B",
+      "task": "Q01",
+      "arm": "B",
+      "submitted_requests": 1,
+      "reported_usage": {
+        "cachedInputTokens": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "reasoningOutputTokens": null,
+        "totalTokens": null
+      },
+      "calls": 0,
+      "first_accepted_change": null,
+      "active_seconds": 9.25994829996489,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 0,
+        "unique_raw_bytes": 0
+      },
+      "stop_reason": null,
+      "infrastructure_hold": "ProviderFault:PROVIDER_TRANSPORT_URLError_OUTCOME_UNKNOWN_NO_RETRY",
+      "safe_transport_diagnostics": [
+        {
+          "exception_chain": [
+            {
+              "class": "ProviderFault"
+            },
+            {
+              "category": "DNS",
+              "class": "URLError"
+            },
+            {
+              "category": "DNS",
+              "class": "gaierror",
+              "errno": 11001
+            }
+          ],
+          "raw_text_retained": false
+        }
+      ],
+      "eligible": false,
+      "usage_complete": false,
+      "unknown_usage_attempts": 1,
+      "correct": false,
+      "task_result": "TEST_FAIL",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": false,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 0,
+        "evaluation_runs": 0,
+        "evaluation_seconds": 0.0,
+        "guard_reads": 0,
+        "native_calls": 0,
+        "native_reply_bytes": 0,
+        "native_seconds": 0.0,
+        "native_wire_reply_bytes": 0,
+        "native_wire_request_bytes": 0
+      },
+      "source_reads": 0,
+      "searches": 0,
+      "projection_deliveries": 0,
+      "projection_bytes": 0
+    }
+  ],
+  "task_triples": [
+    {
+      "task": "Q01",
+      "observed_continued_arms": [
+        "B"
+      ],
+      "A_disposition": "ORIGINAL_INFRASTRUCTURE_HOLD_EXCLUDED_NOT_RETRIED",
+      "eligible": false
+    },
+    {
+      "task": "Q02",
+      "observed_continued_arms": [],
+      "eligible": false
+    },
+    {
+      "task": "Q03",
+      "observed_continued_arms": [],
+      "eligible": false
+    }
+  ],
+  "BC_pairs": [],
+  "eligible_AC_pairs": 0,
+  "descriptive_median_C_over_A": null,
+  "descriptive_worst_C_over_A": null,
+  "continuation_requests_submitted": 1,
+  "prior_requests_submitted": 4,
+  "prior_unknown_usage_attempts": 1,
+  "all_scientific_total_tokens": null,
+  "retest_canary_requests_separate": 2,
+  "limitations": [
+    "Original Q01-A was not rerun/replaced; missing cost remains UNKNOWN",
+    "No complete 9-slot primary comparison or formal screen outcome",
+    "Single fresh session per remaining cell; authored tiny fixtures, not external/independent holdout tasks",
+    "Source-only acquisition control is not a full IDE/LSP",
+    "No statistical, causal or superiority claim"
+  ],
+  "amendment_commit": "16bda21ebafddd8bab19aec2f49a00d7fbad1e36"
+}

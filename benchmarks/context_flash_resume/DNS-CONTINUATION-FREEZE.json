@@ -1,0 +1,71 @@
+{
+  "schema": "context-flash-scoped-dns-continuation/v1",
+  "original_freeze_sha256": "476cf1e06882eb40e073a2be3d351bc35d3b86bf50f759bea65055b3d24b6bf9",
+  "previous_hold_preserved": [
+    "Q01-A",
+    "Q01-B"
+  ],
+  "second_results_sha256": "571ceeadb26589fbdf5cfbc2f100dc9fb57cfc4bb6c1a3fa2b0dc24d9daa6fdd",
+  "second_archive_sha256": "77d33082a2b5548d4d060b9f9c46d8d3cf3edeb66df95c629a8629829119b59e",
+  "schedule": [
+    {
+      "id": "Q01-C",
+      "task": "Q01",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-C",
+      "task": "Q02",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-A",
+      "task": "Q02",
+      "arm": "A"
+    },
+    {
+      "id": "Q02-B",
+      "task": "Q02",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-B",
+      "task": "Q03",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-C",
+      "task": "Q03",
+      "arm": "C"
+    },
+    {
+      "id": "Q03-A",
+      "task": "Q03",
+      "arm": "A"
+    }
+  ],
+  "route_address_sha256": "40ef12eb3f7e5699a47cba6c0b1184af480b5d96dacd1a9d5c30944a8d50204d",
+  "route_seconds": 300,
+  "route_source": "Current public A answer obtained with explicit nslookup against 1.1.1.1; API TLS hostname verified before any credential use. No global DNS change.",
+  "canary": {
+    "requests": 2,
+    "status": "PASS",
+    "total_tokens": 748,
+    "raw_sha256": "c8f5a6cb9d7a69882e77d480abc301be1e8955524e7514d42f5749884fe96ee9",
+    "unauthenticated_probes": 3
+  },
+  "controller_files": {
+    "benchmarks/context_flash_resume/analyze.py": "0d2e701fd12a45c32a481786446db764bb9842449c7ff5742a9d1bc5aad6513a",
+    "benchmarks/context_flash_resume/canary.py": "6fcc9f2798d4884874c15c07ad3ddb19b19f31ae3ab1b5a8aad718456c48dee7",
+    "benchmarks/context_flash_resume/dns_analyze.py": "ff17469e06bddf5eb7c25759df95ebbe734e397ef980059c5d49c11479e2df0b",
+    "benchmarks/context_flash_resume/dns_canary.py": "ce32b913a32cabfd91529b8ba508a876a1173a462c50ffbb30cfd36e530ca152",
+    "benchmarks/context_flash_resume/dns_continue.py": "dac98eed8bfe4fc861cc00ae8b7a42d3e340ab22677c3a3c42c5892cca874515",
+    "benchmarks/context_flash_resume/dns_route.py": "80c3f1eafb4eab828d765e9e599db8a04fe78f208411719c94d821ea96943608",
+    "benchmarks/context_flash_resume/register.py": "eb517e208c22baccb557fd18b8668babcea4385d50481afd1ad2fcc32f3f7959",
+    "benchmarks/context_flash_resume/runner.py": "467e741344b398064a72642cee49dccd7b13fe725e32d15ac989f72e2b51aaf4",
+    "benchmarks/context_flash_resume/transport.py": "bf497cbad7e515d160a161331c1c561ccf35ab47d2e58ee07c0f7db69f430a70"
+  },
+  "unchanged": "Exact task/model/thinking/initial requests/tools/mutation/evaluation/resource rules from original freeze",
+  "changed": "TCP connects to a process-local DNS answer, max 300s; URL/Host/SNI/certificate verification unchanged; redirects/foreign origins/proxies rejected; no request retry",
+  "analysis": "At most Q02/Q03 complete triples; Q01 A/B censored. Original nine-slot screen remains unevaluable. Full prior cost remains UNKNOWN."
+}

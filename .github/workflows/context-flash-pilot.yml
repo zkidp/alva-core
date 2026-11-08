@@ -1,0 +1,42 @@
+name: Context Flash pilot engineering (no provider)
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/context_flash_pilot/**'
+      - 'tests/integrations/test_context_flash_pilot.py'
+      - '.github/workflows/context-flash-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  controller:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest tests.integrations.test_context_flash_pilot tests.integrations.test_bounded_context_audit -v
+  real-host:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Nine deterministic fixture/condition qualifications, no model API
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          mkdir -p .local
+          python -m benchmarks.context_flash_pilot.freeze --alva alva/target/debug/alva --toolchain "$(rustc --print sysroot)" --registry "${CARGO_HOME:-$HOME/.cargo}/registry" --base "$(git rev-parse HEAD)" --output .local/context-pilot-qualification.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: context-flash-engineering
+          include-hidden-files: true
+          path: .local/context-pilot-qualification.json

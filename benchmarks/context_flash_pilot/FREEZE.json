@@ -1,0 +1,809 @@
+{
+  "schema": "context-flash-development/v1",
+  "status": "FROZEN_BEFORE_MODEL",
+  "authorship": "Codex-authored maintenance fixtures; not external real-repository or independent holdout samples",
+  "base": "7eafac51be06d3feca7984e14565131858c31527",
+  "tasks": {
+    "Q01": {
+      "public_task": {
+        "id": "Q01",
+        "target": "billing.charge",
+        "requirement": "Normalize negative subtotal and cap to zero; charge is the smaller normalized value. Preserve all non-target behavior and signatures."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 83,
+              "sha256": "692e9beefd0577ab1f775f98d5692dac09e781dc690fbcce5bf2e174c0c3f196",
+              "base64": "W3Byb2plY3RdCm5hbWU9ImNvbnRleHRfdHJpYWwiClttb2R1bGVzXQpiaWxsaW5nPSJiaWxsaW5nLmFsdmEiCmF1ZGl0PSJhdWRpdC5hbHZhIgo="
+            },
+            {
+              "path": "audit.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 133,
+              "sha256": "ddc6e03538849419b7abdd2e3b86621f18159957919a7e9f4676f35654e4096b",
+              "base64": "KG1vZHVsZSAobmFtZSAiYXVkaXQiKSAodmVyc2lvbiAiMSIpIChleHBvcnQgbGFiZWwpCiAoZm4gbGFiZWwgKHBhcmFtcykgKHJldHVybnMgKHByaW0gc3RyaW5nKSkgKHB1cmUpIChib2R5IChzdHJpbmcgInJlY2VpcHQtdjEiKSkpKQ=="
+            },
+            {
+              "path": "billing.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 290,
+              "sha256": "8ca687807c40f97370ce3791f90ad4925692ceee30c70bf24b51b9eae126f24d",
+              "base64": "KG1vZHVsZSAobmFtZSAiYmlsbGluZyIpICh2ZXJzaW9uICIxIikgKGV4cG9ydCBjaGFyZ2UgdGF4KQogKGZuIGNoYXJnZSAocGFyYW1zIChwYXJhbSBzdWJ0b3RhbCAocHJpbSBpNjQpKSAocGFyYW0gY2FwIChwcmltIGk2NCkpKSAocmV0dXJucyAocHJpbSBpNjQpKSAocHVyZSkKICAoYm9keSAocmVmIHN1YnRvdGFsKSkpCiAoZm4gdGF4IChwYXJhbXMgKHBhcmFtIGFtb3VudCAocHJpbSBpNjQpKSkgKHJldHVybnMgKHByaW0gaTY0KSkgKHB1cmUpIChib2R5ICgvIChyZWYgYW1vdW50KSAoaW50IDEwKSkpKSk="
+            }
+          ]
+        },
+        "payload_sha256": "514e93e91c2b226b9923eef0020605430e3f9746198d740b6ba3a7281cfa31c2"
+      },
+      "input_paths": [
+        "alva.toml",
+        "audit.alva",
+        "billing.alva"
+      ],
+      "crate": "context_trial",
+      "policy": {
+        "authorized_functions": [
+          "billing.charge"
+        ],
+        "modules": {
+          "billing": {
+            "functions": [
+              "charge",
+              "tax"
+            ],
+            "types": []
+          },
+          "audit": {
+            "functions": [
+              "label"
+            ],
+            "types": []
+          }
+        }
+      },
+      "assertions": {
+        "goal": "#[test] fn maintenance_goal(){for (s,c,e) in [(-4,10,0),(8,-2,0),(0,0,0),(4,8,4),(12,8,8),(9,9,9),(1000,17,17)] {assert_eq!(crate::billing::charge(s,c),e);}}",
+        "regression": "#[test] fn preserved_behavior(){assert_eq!(crate::billing::tax(250),25);assert_eq!(crate::audit::label(),\"receipt-v1\");}"
+      }
+    },
+    "Q02": {
+      "public_task": {
+        "id": "Q02",
+        "target": "shipping.quote",
+        "requirement": "A request with parcel mass <= 0 must quote zero. Otherwise use the existing rates.base charge, and add 20 only for a priority request. Preserve base pricing and the public quote_for adapter."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 104,
+              "sha256": "7f5422c748984ee41573716e84cf406a41c8941998193fdc6e8aae7dc36c55d6",
+              "base64": "W3Byb2plY3RdCm5hbWU9ImNvbnRleHRfdHJpYWwiClttb2R1bGVzXQptb2RlbD0ibW9kZWwuYWx2YSIKcmF0ZXM9InJhdGVzLmFsdmEiCnNoaXBwaW5nPSJzaGlwcGluZy5hbHZhIgo="
+            },
+            {
+              "path": "model.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 185,
+              "sha256": "fe6d6a81364fa4f6599fada13e07f02cacb6981ed595e92521e2d227e16491f8",
+              "base64": "KG1vZHVsZSAobmFtZSAibW9kZWwiKSAodmVyc2lvbiAiMSIpIChleHBvcnQgUGFyY2VsIFJlcXVlc3QpCiAodHlwZSBQYXJjZWwgKHJlY29yZCAoZmllbGQgbWFzcyAocHJpbSBpNjQpKSkpCiAodHlwZSBSZXF1ZXN0IChyZWNvcmQgKGZpZWxkIHBhcmNlbCBQYXJjZWwpIChmaWVsZCBwcmlvcml0eSAocHJpbSBib29sKSkpKSk="
+            },
+            {
+              "path": "rates.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 153,
+              "sha256": "3bf90289e8d13be77576c96fb7a898ece9bb30e26b9ce0344980527b30e8b1fd",
+              "base64": "KG1vZHVsZSAobmFtZSAicmF0ZXMiKSAodmVyc2lvbiAiMSIpIChleHBvcnQgYmFzZSkKIChmbiBiYXNlIChwYXJhbXMgKHBhcmFtIG1hc3MgKHByaW0gaTY0KSkpIChyZXR1cm5zIChwcmltIGk2NCkpIChwdXJlKSAoYm9keSAoKiAocmVmIG1hc3MpIChpbnQgMykpKSkp"
+            },
+            {
+              "path": "shipping.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 479,
+              "sha256": "f6a04eb6a4882c08dbfe8c31d7703c76983ab340141f3edab7a0c3a8cb72ba44",
+              "base64": "KG1vZHVsZSAobmFtZSAic2hpcHBpbmciKSAodmVyc2lvbiAiMSIpIChkZXAgIm1vZGVsIiAiMSIpIChkZXAgInJhdGVzIiAiMSIpIChleHBvcnQgcXVvdGUgcXVvdGVfZm9yKQogKGZuIHF1b3RlIChwYXJhbXMgKHBhcmFtIHJlcXVlc3QgbW9kZWwuUmVxdWVzdCkpIChyZXR1cm5zIChwcmltIGk2NCkpIChwdXJlKQogIChib2R5IChjYWxsIHJhdGVzLmJhc2UgKGZpZWxkIChmaWVsZCAocmVmIHJlcXVlc3QpICJwYXJjZWwiKSAibWFzcyIpKSkpCiAoZm4gcXVvdGVfZm9yIChwYXJhbXMgKHBhcmFtIG1hc3MgKHByaW0gaTY0KSkgKHBhcmFtIHByaW9yaXR5IChwcmltIGJvb2wpKSkgKHJldHVybnMgKHByaW0gaTY0KSkgKHB1cmUpCiAgKGJvZHkgKGNhbGwgcXVvdGUgKHJlY29yZCBtb2RlbC5SZXF1ZXN0IChwYXJjZWwgKHJlY29yZCBtb2RlbC5QYXJjZWwgKG1hc3MgKHJlZiBtYXNzKSkpKSAocHJpb3JpdHkgKHJlZiBwcmlvcml0eSkpKSkpKSk="
+            }
+          ]
+        },
+        "payload_sha256": "1027dfdd417274260a888c9c4defe911c34d82c7c9cba0e2db57ae79c127b72c"
+      },
+      "input_paths": [
+        "alva.toml",
+        "model.alva",
+        "rates.alva",
+        "shipping.alva"
+      ],
+      "crate": "context_trial",
+      "policy": {
+        "authorized_functions": [
+          "shipping.quote"
+        ],
+        "modules": {
+          "model": {
+            "functions": [],
+            "types": [
+              "Parcel",
+              "Request"
+            ]
+          },
+          "rates": {
+            "functions": [
+              "base"
+            ],
+            "types": []
+          },
+          "shipping": {
+            "functions": [
+              "quote",
+              "quote_for"
+            ],
+            "types": []
+          }
+        }
+      },
+      "assertions": {
+        "goal": "#[test] fn maintenance_goal(){for (m,p,e) in [(-1,true,0),(0,false,0),(0,true,0),(2,false,6),(2,true,26),(7,true,41)] {assert_eq!(crate::shipping::quote_for(m,p),e);}}",
+        "regression": "#[test] fn preserved_behavior(){for m in [0,1,2,7,100] {assert_eq!(crate::rates::base(m),m*3);}}"
+      }
+    },
+    "Q03": {
+      "public_task": {
+        "id": "Q03",
+        "target": "retry.delay",
+        "requirement": "For negative attempts return zero. For other attempts increase the existing policy.base delay by 3, capped at 20. Do not change policy.base or audit behavior."
+      },
+      "bundle": {
+        "payload": {
+          "schema": "alva-benchmark-freeze/v2",
+          "byte_policy": "exact-git-blob-no-normalization",
+          "entries": [
+            {
+              "path": "alva.toml",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 100,
+              "sha256": "e63d0f7d2c14066045e1f0e4bf07874384a315581125e8bb0df12ad8f9aa155c",
+              "base64": "W3Byb2plY3RdCm5hbWU9ImNvbnRleHRfdHJpYWwiClttb2R1bGVzXQpwb2xpY3k9InBvbGljeS5hbHZhIgpyZXRyeT0icmV0cnkuYWx2YSIKYXVkaXQ9ImF1ZGl0LmFsdmEiCg=="
+            },
+            {
+              "path": "audit.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 131,
+              "sha256": "ca0a34be1e221cea557a2046389d83dd413883246677d567e2209e633549595f",
+              "base64": "KG1vZHVsZSAobmFtZSAiYXVkaXQiKSAodmVyc2lvbiAiMSIpIChleHBvcnQgbGFiZWwpCiAoZm4gbGFiZWwgKHBhcmFtcykgKHJldHVybnMgKHByaW0gc3RyaW5nKSkgKHB1cmUpIChib2R5IChzdHJpbmcgInJldHJ5LXYxIikpKSk="
+            },
+            {
+              "path": "policy.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 176,
+              "sha256": "c3ca4372e2f3b0711415f4f1ac8b0b3e570d8c8d7ed2737197405e697b64c264",
+              "base64": "KG1vZHVsZSAobmFtZSAicG9saWN5IikgKHZlcnNpb24gIjEiKSAoZXhwb3J0IGJhc2UpCiAoZm4gYmFzZSAocGFyYW1zIChwYXJhbSBhdHRlbXB0cyAocHJpbSBpNjQpKSkgKHJldHVybnMgKHByaW0gaTY0KSkgKHB1cmUpCiAgKGJvZHkgKCsgKCogKHJlZiBhdHRlbXB0cykgKGludCAyKSkgKGludCA1KSkpKSk="
+            },
+            {
+              "path": "retry.alva",
+              "origin": {
+                "kind": "authored_public_fixture"
+              },
+              "length": 191,
+              "sha256": "69211214f9dbc7f66d8a2f267243e1d766651db1cfd426f9e5ee987a40525043",
+              "base64": "KG1vZHVsZSAobmFtZSAicmV0cnkiKSAodmVyc2lvbiAiMSIpIChkZXAgInBvbGljeSIgIjEiKSAoZXhwb3J0IGRlbGF5KQogKGZuIGRlbGF5IChwYXJhbXMgKHBhcmFtIGF0dGVtcHRzIChwcmltIGk2NCkpKSAocmV0dXJucyAocHJpbSBpNjQpKSAocHVyZSkKICAoYm9keSAoY2FsbCBwb2xpY3kuYmFzZSAocmVmIGF0dGVtcHRzKSkpKSk="
+            }
+          ]
+        },
+        "payload_sha256": "ad3ee81a2c6291da7f51066b1dc5934cf3f8c5910be2a19894d5f074b0d63b0c"
+      },
+      "input_paths": [
+        "alva.toml",
+        "audit.alva",
+        "policy.alva",
+        "retry.alva"
+      ],
+      "crate": "context_trial",
+      "policy": {
+        "authorized_functions": [
+          "retry.delay"
+        ],
+        "modules": {
+          "policy": {
+            "functions": [
+              "base"
+            ],
+            "types": []
+          },
+          "retry": {
+            "functions": [
+              "delay"
+            ],
+            "types": []
+          },
+          "audit": {
+            "functions": [
+              "label"
+            ],
+            "types": []
+          }
+        }
+      },
+      "assertions": {
+        "goal": "#[test] fn maintenance_goal(){for (n,e) in [(-2,0),(-1,0),(0,8),(1,10),(3,14),(6,20),(10,20),(100,20)] {assert_eq!(crate::retry::delay(n),e);}}",
+        "regression": "#[test] fn preserved_behavior(){for n in [0,1,10,100] {assert_eq!(crate::policy::base(n),2*n+5);}assert_eq!(crate::audit::label(),\"retry-v1\");}"
+      }
+    }
+  },
+  "instructions": "Maintain only the authorized ALVA target body under the public requirement.\nUse the advertised source/context/reference tools as needed; complete public source and shared documentation remain accessible.\nread_target provides the view_id. prepare_change accepts one full ALVA (body ...) fragment, not an entire function/module.\nHost owns revision/scope control, isolated compiler/build/behavior checks and publication. Repair rejected candidates within the same view.\nPublish the PREPARED proposal once with publish_change. Preparation is not publication. A published-but-unverified result is not success.\nNo shell, arbitrary filesystem, evaluator source, test changes, other sessions or operator recovery are available.\nFinite tests and bounded structural context are not completeness proofs; use source fallback when needed.\nLimits: 12 generation requests, 36 dispatched tool calls, 480 active seconds, 120000 cumulative reported-token observation threshold, 4096 output cap, 131072 serialized request bytes. Token observation is NOT a provider hard cumulative limit. Completed responses drain legal actions subject to tool/wall/safety limits, then no next request if exhausted.\nNormal completion without publication or a resource stop ends this single attempt. No retries or replacements.\n",
+  "host_skill": "---\nname: alva-host\ndescription: Maintain an authorized ALVA function through the protected maintenance Host. Use only when read_target, prepare_change and publish_change are advertised.\n---\n\n# ALVA maintenance Host\n\n1. Read the authorized qualified function with `read_target`. Its body and\n   declaration are current semantic context; retain its opaque `view_id`.\n2. Submit a complete `(body ...)` fragment to `prepare_change`. Review the\n   returned diff and require `PREPARED`, passing checks and `can_publish`.\n3. Publish that `proposal_id` once. Require `PUBLISHED` and fresh authority\n   verification before reporting success. Preparation alone does not publish.\n\nHost owns transactions, revisions, scope checks, isolated tests and Native\npublication. Edit only the authorized body; preserve declarations, types,\ncontracts, non-target functions and regression requirements.\n\nFor syntax, use the small language sections in `read_reference` when available.\nRead only what is needed. This profile does not require the general Native/CLI\ntransaction tutorial or hello-message example. Full references remain available.\nUse `read_source` only when missing public source context is needed; its\nimport projection is not the current staged AIR body. Tool schemas override\nincompatible examples. A source-proposal Host may advertise exact text edits\ninstead of a body argument; follow its actual schema and edit acknowledgement.\n\nOn a rejected body, repair within the same view. After expiry/conflict, read\nagain. A failed preparation invalidates older proposals. Never replay a\nconsumed proposal. Preserve and report a published-but-unverified revision;\nunknown publication outcomes require reconciliation, not an automatic retry.\n\nDo not bypass the Host with raw Native commits, source writes or private AEP\noperations. Finite tests and bounded direct context are not completeness proofs.\n",
+  "reference_docs": {
+    "host": "---\nname: alva-host\ndescription: Maintain an authorized ALVA function through the protected maintenance Host. Use only when read_target, prepare_change and publish_change are advertised.\n---\n\n# ALVA maintenance Host\n\n1. Read the authorized qualified function with `read_target`. Its body and\n   declaration are current semantic context; retain its opaque `view_id`.\n2. Submit a complete `(body ...)` fragment to `prepare_change`. Review the\n   returned diff and require `PREPARED`, passing checks and `can_publish`.\n3. Publish that `proposal_id` once. Require `PUBLISHED` and fresh authority\n   verification before reporting success. Preparation alone does not publish.\n\nHost owns transactions, revisions, scope checks, isolated tests and Native\npublication. Edit only the authorized body; preserve declarations, types,\ncontracts, non-target functions and regression requirements.\n\nFor syntax, use the small language sections in `read_reference` when available.\nRead only what is needed. This profile does not require the general Native/CLI\ntransaction tutorial or hello-message example. Full references remain available.\nUse `read_source` only when missing public source context is needed; its\nimport projection is not the current staged AIR body. Tool schemas override\nincompatible examples. A source-proposal Host may advertise exact text edits\ninstead of a body argument; follow its actual schema and edit acknowledgement.\n\nOn a rejected body, repair within the same view. After expiry/conflict, read\nagain. A failed preparation invalidates older proposals. Never replay a\nconsumed proposal. Preserve and report a published-but-unverified revision;\nunknown publication outcomes require reconciliation, not an automatic retry.\n\nDo not bypass the Host with raw Native commits, source writes or private AEP\noperations. Finite tests and bounded direct context are not completeness proofs.\n",
+    "language": "# ALVA body reference\n\nThese are generic language forms, not a task solution. Names below are examples;\nuse actual declarations and types returned by the compiler. The Host accepts\none body fragment, not a module/function declaration. Builtin aliases may also\nappear under `call` in imported programs; direct builtin forms are unambiguous.\n\n## body\n\n`(body expression...)` returns its final expression. Typical values are\n`(int 3)`, `(float 1.5)`, `(bool true)`, `(string \"text\")`, `(nil)` and\n`(ref local_name)`. Strings are double-quoted; escape quotes as `\\\"` and\nbackslashes as `\\\\`. User functions use `(call module.function arg...)`.\nDo not send Markdown fences or a whole function as the body argument.\n\n## bindings\n\n`(let name value body)` binds a local in its body. An explicit type is also\nallowed: `(let count (prim i64) (int 2) (+ (ref count) (int 1)))`.\n`(if condition then_expression else_expression)` needs compatible branches.\nArithmetic/comparisons use `(+ a b)`, `(- a b)`, `(* a b)`, `(/ a b)`,\n`(== a b)`, `(< a b)`, `(>= a b)`. Boolean forms include `and`, `or`, `not`.\nNamed primitive types use `(prim i64)`, `(prim string)`, `(prim bool)`.\n\n## collections\n\nVectors: `(vec (prim string))`, `(vec (prim i64) (int 2) (int 4))`.\nOperations: `(len v)`, `(get v index)`, `(append v value)`,\n`(slice v start end)` with an exclusive end.\nA fold is `(fold i (range (int 0) (int 3)) (acc total (prim i64) (int 0))\n  (+ (ref total) (ref i)))`. The range form is required here; arbitrary vector\nsequences are not accepted. Use `get` with the index when iterating a vector.\nThe fold returns the accumulator, not a loop statement.\nMaps: `(map (prim string) (prim i64))`, `(keys m)`, `(contains m key)`,\n`(lookup m key)`, `(set m key value)`, `(remove m key)`. Maps use HashMap;\nkey enumeration is not a lexical or insertion-order contract.\nHonor index/range bounds and arithmetic overflow constraints.\n\n## records\n\nRecord types are named; access a field with `(field value \"field_name\")`.\nConstruct `(record Item (value expression) (label expression))` with every\nrequired field. Update with `(record-update Item base (value expression))`,\npreserving other fields. Use actual field types from the declaration.\n\n## results\n\nResult values use `(ok value)` and `(err error)`. Inspection operations include\n`(is-ok result)`, `(not (is-ok result))`, `(unwrap result)`, `(err-value result)`.\nOnly unwrap the appropriate variant. An explicit Result return may wrap an\nordinary final value in Ok, but explicit variants make branches clear.\nEnums: `(variant Flag enabled)` and\n`(match Flag value (case enabled yes_expression) (case disabled no_expression))`.\nUse the actual enum type and cover its variants.\n\n## strings\n\nCommon forms are `(concat a b)`, `(split text separator)`,\n`(join parts separator)`, `(ends-with text suffix)`,\n`(strip-prefix text prefix)`, `(to-string value)` and `(parse-int text)`.\nConsult compiler feedback for the actual supported operation/return type.\nDo not invent escaping, parsing or collection APIs from another language.\n\n## diagnostics\n\nUse the returned error code and position to repair the submitted fragment.\nParse errors leave the prior draft intact; type/scope rejections do not\nauthorize publication. A failed behavior test supplies status, not its hidden\nassertions. A new preparation always invalidates an older passing proposal.\nAfter a conflict or expired view, call `read_target` again. Preserve all guards\nand task/regression assertions while repairing a candidate.\n",
+    "legacy_skill": "---\nname: alva\ndescription: Inspect, edit, check, and build ALVA language projects through the ALVA MCP server or installed CLI transactional semantic interface. Use for work on ALVA programs; do not use for maintaining the ALVA compiler implementation itself.\n---\n\n# ALVA semantic workflow\n\nUse ALVA's semantic control plane as the primary interface to an ALVA project.\nDo not begin by reading the whole repository, inferring its complete source\nlayout, or applying a large text patch to `.alva` files.\n\n## Select the exposed profile first\n\nUse the tools actually advertised by the Host. The following profile routes\ntake precedence over the general transaction path and reference examples.\nNever call a tool that is absent from the advertised profile.\n\n- **Maintenance Host** (`read_target`, `prepare_change`, `publish_change`):\n  call `read_target` with the authorized qualified function name. Use its\n  declaration, current body and direct context to prepare a `(body ...)`\n  fragment. Call `prepare_change` with its `view_id`; the Host owns revisions,\n  transactions, authorization and isolated draft tests. Inspect the returned\n  diff and require `PREPARED`, passing checks and `can_publish` before calling\n  `publish_change` with that proposal's ID. A prepared draft is not published.\n  On a body rejection, revise using the same view; on expiry or conflict,\n  read the target again. Proposals are single-use. Report\n  `PUBLISHED_UNVERIFIED` or an unknown publication outcome honestly; do not\n  retry publication or claim success. Do not bypass this route with raw Native\n  commits, source writes or private AEP operations.\n- **Maintenance Native** (`read_function`, `replace_function_body` with the\n  transaction tools): begin a transaction, read the qualified function, retain\n  its body revision and replace only its body. Preview, check and commit or\n  abort with the returned transaction ID. Use only this profile's advertised\n  operations; it does not include the general discovery/construction tools.\n  Run the trusted task tests and verify fresh AIR after publication.\n- **General Native / CLI**: use the required path below. This remains the\n  default plugin profile; installing the Skill does not enable the Host.\n\nDirect context is a bounded neighborhood, not a complete effect or dependency\nproof. Use compiler feedback to repair missing or invalid references. Keep\nauthorization and the task's regression requirements unchanged.\n\n## General Native / CLI required path\n\n1. Run `alva doctor`. A missing Rust/Cargo toolchain blocks native `build` and\n   `run`, but does not block semantic inspection, editing, or checking with the\n   prebuilt ALVA binary.\n2. Locate the relevant `alva.toml` and determine authority. If\n   `alva-air/current` exists beside it, AIR is authoritative. Otherwise the\n   first successful semantic commit creates AIR authority from the source\n   projection; surface that transition before mutating.\n3. Prefer the ALVA MCP tools when the host exposes them. Otherwise start one\n   persistent `alva agent` process and use the CLI JSON-lines fallback. Begin\n   with `begin_transaction` using the manifest path. With MCP, retain the\n   returned `transaction_id` and pass it to every later ALVA tool call.\n4. Resolve the target with `resolve_entity`; use `kind` and `module` to resolve\n   ambiguity instead of guessing.\n5. Inspect only the semantic neighborhood needed for the task with\n   `inspect_project`, `inspect_module`, `inspect_function`, `inspect_body`, or\n   `inspect_entity`. Use standalone `alva view dependencies|callers` when an AIR\n   file and those relationships are relevant.\n6. Call `applicable_operations` on the resolved named entity. Before mutation,\n   call `describe_operation`; for typed construction also call\n   `describe_construction`. Treat these executable discovery responses as the\n   source of truth, not a remembered operation schema.\n7. Apply the smallest staged semantic mutation. Use returned entity and\n   revision IDs; never edit raw `.air` bytes or invent slot names.\n8. Review `preview_semantic_diff`, then run `check_transaction`.\n9. On failure, use `error_code`, `result`, `diagnostics`, and only then\n   `message` to make a targeted repair. Re-resolve stale entities and re-run\n   discovery rather than silently substituting an ID.\n10. Call `commit_transaction` only after the staged check passes. Otherwise\n    call `abort_transaction`. Afterward run\n    `alva project check <alva.toml> --json` and any task-relevant build or\n    tests. An ALVA transaction commit is not a Git commit; inspect repository\n    changes and create a Git commit only when the user requested one.\n\nRead [references/workflow.md](references/workflow.md) before performing a\nsemantic edit. Read [references/diagnostics.md](references/diagnostics.md) when\nany CLI or transaction operation fails. Read\n[references/examples.md](references/examples.md) for a concrete hello-message\nedit or when request/response shape is unclear.\n\n## Boundaries\n\n- In transaction profiles, keep one explicit transaction from begin through commit or abort. With MCP,\n  pass its `transaction_id` on every call; with the CLI fallback, keep one\n  persistent `alva agent` process. Revisions may become stale after mutation.\n- Do not enable experimental capability gates unless the user explicitly asks.\n- Do not treat `.alva` text as authoritative after graph authority exists.\n- If the registry exposes no operation capable of the requested change, report\n  the missing semantic operation. Do not fabricate a tool or silently fall\n  back to broad source rewriting.\n- Do not copy non-public research material or internal project history into an\n  ALVA project or its public artifacts.\n",
+    "workflow": "# Semantic-edit workflow\n\n## Preflight and authority\n\nRun:\n\n```text\nalva doctor\n```\n\nLocate the nearest relevant `alva.toml` without recursively reading source\ncontents. Inspect the manifest and the existence of `alva-air/current` beside\nit:\n\n- present: AIR generations are authoritative; `.alva` files are projections;\n- absent: `begin_transaction` imports the manifest's source modules, and the\n  first `commit_transaction` creates `alva-air/current` plus a generation.\n\nThe second case is an authority transition, not an ordinary text-file update.\nMention it before mutation and expect new graph-store files in version-control\nstatus. Never patch generation files directly.\n\n## Prefer MCP when available\n\nIf the host exposes ALVA MCP tools, use them directly. Start with\n`begin_transaction`, retain its explicit `transaction_id`, and include that\nhandle in every inspection, discovery, mutation, check, and finish call. Do not\nsubstitute shell invocations for available semantic MCP tools.\n\nThe MCP server exposes the same AEP registry and AIR transaction implementation\nas the CLI fallback. Treat each tool's advertised input schema as authoritative.\nAlways end a transaction with `commit_transaction` or `abort_transaction`.\n\n## CLI fallback: keep one JSON-lines session\n\nWhen MCP is not available, launch `alva agent` as a persistent child process\nwith writable stdin and readable stdout. Send exactly one JSON object per line\nand read exactly one JSON response per request. Keep the process alive through\ndiscovery, mutation, checking, and commit or abort.\n\nStart with a request ID that makes transcripts easy to audit:\n\n```json\n{\"request_id\":\"begin-1\",\"tool\":\"begin_transaction\",\"project\":\"/workspace/alva.toml\"}\n```\n\nEvery response is a JSON envelope. Confirm `ok` before consuming `result` and\nretain the returned project revision. Do not require a hard-coded\n`protocol_version`; use the version returned by the installed binary.\n\n## Discover before changing\n\nResolve a named target explicitly:\n\n```json\n{\"request_id\":\"resolve-1\",\"tool\":\"resolve_entity\",\"name\":\"main\",\"kind\":\"function\",\"module\":\"hello\"}\n```\n\nIf the result is ambiguous, choose only from the structured candidates and\nretry with `kind` and/or `module`. Then inspect the narrowest useful view:\n\n```json\n{\"request_id\":\"inspect-1\",\"tool\":\"inspect_body\",\"function\":\"hello.main\"}\n{\"request_id\":\"ops-1\",\"tool\":\"applicable_operations\",\"entity\":\"hello.main\"}\n```\n\n`applicable_operations` is for named entities. Expression revisions discovered\ninside a body can be inspected with `inspect_entity`, but may not themselves be\nresolvable as named entities.\n\nBefore using a returned operation, retrieve its executable schema:\n\n```json\n{\"request_id\":\"describe-1\",\"tool\":\"describe_operation\",\"name\":\"change_field\"}\n```\n\nFor typed construction, also retrieve the kind-specific schema and candidate\nbindings:\n\n```json\n{\"request_id\":\"construct-schema-1\",\"tool\":\"describe_construction\",\"kind\":\"record_update\",\"include_candidates\":true}\n```\n\nUse the response's canonical name, required arguments, preconditions, effects,\nand examples. Do not maintain a separate remembered list of operation\narguments.\n\n## Stage, review, and finish\n\nApply the smallest mutation using the current revision IDs. After any mutation,\nassume affected ancestor revisions may have changed. Re-resolve named entities\nbefore a subsequent edit instead of recycling an old revision.\n\nReview and check within the same process:\n\n```json\n{\"request_id\":\"diff-1\",\"tool\":\"preview_semantic_diff\"}\n{\"request_id\":\"check-1\",\"tool\":\"check_transaction\"}\n```\n\nCommit only when the response to `check_transaction` has `ok: true`:\n\n```json\n{\"request_id\":\"commit-1\",\"tool\":\"commit_transaction\"}\n```\n\nIf the task is cancelled, the intended edit cannot be expressed through the\ndiscovered interface, or validation cannot be repaired safely, end the staged\nsession without changing authority:\n\n```json\n{\"request_id\":\"abort-1\",\"tool\":\"abort_transaction\"}\n```\n\nAfter a successful semantic commit, run:\n\n```text\nalva project check /workspace/alva.toml --json\n```\n\nSuccessful JSON-mode checking can produce no output; use its exit status. Run\n`project build`, program tests, or `run` only when relevant and when `doctor`\nshowed the required Rust/Cargo toolchain. Finally inspect Git status. The AEP\ncommit writes authoritative program state; a Git commit remains a separate,\nuser-authorized repository action.\n",
+    "diagnostics": "# Diagnostics and recovery\n\n## Read the structured envelope first\n\nFor every `alva agent` response, inspect fields in this order:\n\n1. `ok`\n2. `error_code`\n3. `result`\n4. `diagnostics`\n5. `message`\n\nUse `message` as supporting detail, not as the primary machine contract when a\nstructured field supplies the same information. A failed staged operation is\natomic; do not assume it partially applied.\n\n## Common recovery paths\n\n- `E_AEP_AMBIGUOUS_ENTITY`: inspect `result.candidates`; retry\n  `resolve_entity` with an exact candidate plus `kind` or `module`.\n- `E_AEP_ENTITY_NOT_FOUND`, operand-not-found, or stale-revision errors:\n  re-resolve the named entity and re-inspect its current body. Never silently\n  refresh a revision by choosing the nearest-looking candidate.\n- `E_AEP_UNKNOWN_TOOL`: use candidates in `result`, then call\n  `describe_operation` on the intended canonical operation. A hidden\n  experimental operation is unavailable, not permission to enable its gate.\n- `E_AEP_BAD_REQUEST` or an invalid friendly position: call\n  `describe_operation` and use its required arguments or\n  `expected_positions` recovery data.\n- Construction incomplete/type mismatch: inspect `result.missing`,\n  `result.expected`, `result.actual`, and candidate bindings; re-run\n  `describe_construction` before retrying.\n- `E_AEP_CONFLICT`: another process changed authority after this transaction\n  began. Abort, begin a new transaction, resolve again, and re-evaluate the\n  change against the new project revision.\n\nDo not retry an identical failed mutation without new information.\n\n## Checker failures\n\n`check_transaction` keeps the transaction staged when validation fails. Use\nthe returned envelope and checker detail to inspect the implicated semantic\nentities, repair through described operations, and check again. Abort if a safe\nsemantic repair is not available.\n\nFor committed authority or source-only diagnostics, run:\n\n```text\nalva project check /path/to/alva.toml --json\nalva check /path/to/module.alva --json\n```\n\nThe project command consumes AIR when `alva-air/current` exists. JSON-mode\nfailures contain a `diagnostics` array with stable codes and structured fields\nsuch as function, expected, and actual. Fix the represented semantic cause;\ndo not suppress diagnostics or edit generated output.\n\n## Stop conditions\n\nAbort and report the blocker when:\n\n- authority is corrupt or cannot be verified;\n- the requested semantic operation is absent from registry discovery;\n- only an experimental gated operation could perform the change and the user\n  did not request enabling it;\n- repeated resolution produces genuine ambiguity that user intent cannot\n  distinguish;\n- validation cannot pass without expanding the requested change.\n",
+    "examples": "# Example: change a hello message semantically\n\nAssume `/workspace/hello/alva.toml` declares module `hello` with function\n`main`. Prefer the ALVA MCP server and include the `transaction_id` returned by\n`begin_transaction` in every later tool call. The JSON below shows the\nequivalent CLI fallback wire shape; keep those requests in one persistent\n`alva agent` process.\n\n## 1. Begin and discover\n\n```json\n{\"request_id\":\"begin\",\"tool\":\"begin_transaction\",\"project\":\"/workspace/hello/alva.toml\"}\n{\"request_id\":\"resolve-main\",\"tool\":\"resolve_entity\",\"name\":\"main\",\"kind\":\"function\",\"module\":\"hello\"}\n{\"request_id\":\"ops-main\",\"tool\":\"applicable_operations\",\"entity\":\"hello.main\"}\n{\"request_id\":\"body-main\",\"tool\":\"inspect_body\",\"function\":\"hello.main\"}\n```\n\nThe body view identifies the current string literal and its revision without\nrequiring the agent to read the complete source file. Save the exact literal\nrevision from this response as `<literal-revision>`.\n\nDiscover the mutation contract rather than assuming its parameters:\n\n```json\n{\"request_id\":\"describe-change\",\"tool\":\"describe_operation\",\"name\":\"change_field\"}\n{\"request_id\":\"inspect-literal\",\"tool\":\"inspect_entity\",\"entity\":\"<literal-revision>\"}\n```\n\nConfirm that the inspected node is the intended string literal and that its\ncurrent `value` matches the message being changed.\n\n## 2. Stage the semantic edit\n\nUse the schema returned by `describe_operation`:\n\n```json\n{\"request_id\":\"change-message\",\"tool\":\"change_field\",\"entity\":\"<literal-revision>\",\"field\":\"value\",\"value\":\"hello from ALVA\"}\n```\n\nDo not edit `.alva`, a generation file, or a raw AIR slot. The mutation returns\nthe new node revision while keeping the change staged.\n\n## 3. Review, validate, and commit\n\n```json\n{\"request_id\":\"diff\",\"tool\":\"preview_semantic_diff\"}\n{\"request_id\":\"check\",\"tool\":\"check_transaction\"}\n```\n\nConfirm that the diff contains only the intended semantic change and that the\ncheck response has `ok: true`. Then commit the ALVA transaction:\n\n```json\n{\"request_id\":\"commit\",\"tool\":\"commit_transaction\"}\n```\n\nIf either review or checking is unsatisfactory, send `abort_transaction`\ninstead.\n\n## 4. Verify outside the session\n\n```text\nalva project check /workspace/hello/alva.toml --json\nalva project build /workspace/hello/alva.toml\n```\n\nRun the build only when it is part of the task and Rust/Cargo are available.\nInspect Git status and confirm that the authoritative `alva-air` generation\u2014not\nan unrelated source or generated-output patch\u2014contains the intended change.\n",
+    "legacy_language": "# alva \u2014\u2014 AI \u539f\u751f\u8bed\u8a00\u5de5\u5177\u94fe v0.14.1 Developer Preview\n\n\u5de5\u4f5c\u540d\uff0c\u968f\u65f6\u53ef\u6539\u3002\u5f53\u524d\u5305\u7248\u672c\u4e3a `0.14.1-preview.2`\uff1b\u9884\u89c8\u7248 API \u4ecd\u53ef\u80fd\u53d8\u5316\u3002\n\n\u9884\u7f16\u8bd1 binary\u3001\u6821\u9a8c\u548c\u53ca\u5b89\u88c5\u65b9\u5f0f\u89c1\u4ed3\u5e93\u6839\u76ee\u5f55 `README.md`\u3002`check`\u3001AIR/AEP\n\u548c semantic views \u4e0d\u8981\u6c42\u672c\u673a\u5b89\u88c5 Rust\uff1b`build`/`run` \u4ecd\u9700 Rust \u548c Cargo\u3002\n\n## \u6784\u5efa\n\n```\ncargo build --release\n```\n\n## \u4f7f\u7528\n\n```\nalva check  examples/hello.alva            # \u8bed\u6cd5 + \u8bed\u4e49 + \u5951\u7ea6\u68c0\u67e5\nalva check  examples/hello.alva --json     # \u7ed3\u6784\u5316\u8bca\u65ad\uff08JSON\uff09\nalva build  examples/hello.alva            # \u751f\u6210 Rust \u5e76\u7f16\u8bd1 native\nalva build  examples/hello.alva --target wasm\nalva build  examples/calc.alva --test      # \u751f\u6210 + \u7f16\u8bd1 + \u8dd1\u5c5e\u6027\u6d4b\u8bd5\nalva build  examples/calculator.alva --test   # \u8ba1\u7b97\u5668\uff08fold \u5faa\u73af + \u96c6\u5408\uff09\nalva build  examples/pi.alva --release     # \u03c0 \u57fa\u51c6\uff08release \u6784\u5efa\uff0c\u6027\u80fd\u5bf9\u6bd4\uff09\nalva build  examples/pi.alva --bench --release  # \u8dd1\u57fa\u51c6\uff1a10 \u8f6e min/max/avg + \u9884\u7b97\u65ad\u8a00\nalva build  examples/calculator.alva --bench    # \u57fa\u51c6\u4e5f\u53ef\u4ee5\u5728 debug \u4e0b\u8dd1\nalva build  examples/store_metadata.alva --test # \u5bf9\u8c61\u5b58\u50a8\u5143\u6570\u636e\u6838\u5fc3\uff08enum+match+map+\u5951\u7ea6\uff09\nalva build  examples/store_checksum.alva --test # \u5bf9\u8c61\u6821\u9a8c\uff08use rust + extern FFI \u63a5 blake3\uff09\nalva build  examples/store_server.alva          # S3 \u98ce\u683c\u5bf9\u8c61\u5b58\u50a8\u670d\u52a1\u5668\nalva run    examples/hello.alva            # \u7f16\u8bd1\u5e76\u8fd0\u884c\nalva run    examples/calculator.alva       # \u8fd0\u884c\u8ba1\u7b97\u5668\n\n## \u5bf9\u8c61\u5b58\u50a8\u670d\u52a1\u5668\u6f14\u793a\n\n```\nalva build examples/store_server.alva\n.\\out\\store_server\\target\\debug\\store_server.exe   # \u76d1\u542c 127.0.0.1:9000\n\ncurl -X PUT http://127.0.0.1:9000/test/hello.txt -d \"hello world\"\ncurl http://127.0.0.1:9000/test/hello.txt\ncurl -X DELETE http://127.0.0.1:9000/test/hello.txt\n```\n\n\u652f\u6301\uff1aPUT/GET/DELETE \u5bf9\u8c61\u3001\u5efa\u6876\u3001\u5217\u6876\u3001\u5217\u5bf9\u8c61\uff1b404 \u8fd4\u56de S3 \u98ce\u683c XML \u9519\u8bef\u3002\n**SigV4 \u8ba4\u8bc1\u5df2\u542f\u7528**\uff1a\u8bf7\u6c42\u5fc5\u987b\u643a\u5e26 AWS4-HMAC-SHA256 \u7b7e\u540d\uff08AK: test / SK: testtest\uff09\uff0c\u672a\u7b7e\u540d\u8bf7\u6c42\u8fd4\u56de 403\u3002\n\n## rclone \u4e92\u64cd\u4f5c\u6d4b\u8bd5\uff08\u5df2\u901a\u8fc7\uff09\n\n```\n[localstore]\ntype = s3\nprovider = Other\nendpoint = http://127.0.0.1:9000\naccess_key_id = test\nsecret_access_key = testtest\nforce_path_style = true\n\nrclone --config rclone.conf copy <\u672c\u5730\u76ee\u5f55> localstore:bucket   # \u76ee\u5f55\u540c\u6b65\uff08\u542b\u5d4c\u5957\uff09\nrclone --config rclone.conf check <\u672c\u5730\u76ee\u5f55> localstore:bucket   # \u6570\u636e\u4e00\u81f4\u6027\u6821\u9a8c\uff1a0 differences\nrclone --config rclone.conf cat localstore:bucket/sub/file.txt   # \u5d4c\u5957\u8bfb\u53d6\nrclone --config rclone.conf ls / lsf -R / deletefile / rmdir\n```\n\n\u5df2\u9a8c\u8bc1\uff1a85MB \u5927\u6587\u4ef6\u4e0a\u4f20\u4e0b\u8f7d\u5b57\u8282\u7ea7\u4e00\u81f4\u3001\u5d4c\u5957\u76ee\u5f55\u3001ListObjectsV2\uff08prefix/delimiter/CommonPrefixes\uff09\u3001HEAD \u5927\u5c0f\u3002\n```\n\n## \u5f53\u524d\u80fd\u529b\n\n- S-expression \u6e90\u7801\uff08\u524d\u7f00\u5f0f\uff0c\u65e0\u8fd0\u7b97\u7b26\u4f18\u5148\u7ea7\u6b67\u4e49\uff09\n- \u6a21\u5757\uff1a`name` `version` `cap` `export` `use rust`\n- \u7c7b\u578b\uff1a`record` + \u5185\u5efa\u7c7b\u578b + `result<T,E>`\n- \u51fd\u6570\uff1a`pre` `post` \u5951\u7ea6\uff08\u7f16\u8bd1\u4e3a debug_assert\uff09\u3001`pure`\u3001`eff`\n- \u8868\u8fbe\u5f0f\uff1a\u5b57\u9762\u91cf\u3001\u8c03\u7528\u3001\u4e8c\u5143\u8fd0\u7b97\u3001`if`\u3001`let`\u3001`block`\u3001\u8bb0\u5f55\u6784\u9020/\u8bbf\u95ee\u3001`raise`\u3001`try/catch`\u3001`ok`/`err`\n- \u96c6\u5408\u4e0e\u5faa\u73af\uff1a`vec`\u3001`len`\u3001`get`\u3001`append`\u3001`as` \u7c7b\u578b\u8f6c\u6362\u3001`fold` \u7eaf\u6298\u53e0\u5faa\u73af\n- \u5185\u5efa\uff1a`sys.now_ms`\uff08\u8ba1\u65f6\uff09\u3001`io.print_debug`\n- `test` \u2192 Rust `#[test]`\n- `bench` \u2192 \u81ea\u52a8 10 \u8f6e + min/max/avg \u62a5\u544a + `(budget (ms n))` \u6027\u80fd\u9884\u7b97\u65ad\u8a00\uff08\u8d85\u9884\u7b97\u5931\u8d25\uff09\n- \u7ed3\u6784\u5316\u8bca\u65ad\uff1a`--json` \u8f93\u51fa\u673a\u5668\u53ef\u8bfb\u9519\u8bef\u62a5\u544a\n- \u8d44\u6e90\u9650\u5236\uff1a\u9632\u6b62\u6076\u610f/\u610f\u5916\u5de8\u5927\u8f93\u5165\u538b\u57ae\u89e3\u6790\u5668\uff08\u9ed8\u8ba4\u89c1\u4e0b\uff0c`ALVA_MAX_*` \u73af\u5883\u53d8\u91cf\u53ef\u8c03\uff09\n\n## \u8d44\u6e90\u9650\u5236\n\n| \u73af\u5883\u53d8\u91cf | \u9ed8\u8ba4 | \u8d85\u9650\u8bca\u65ad\u7801 |\n|---|---|---|\n| `ALVA_MAX_AST_DEPTH` | 512 | `E_PARSE_002` |\n| `ALVA_MAX_AST_NODES` | 100000 | `E_PARSE_003` |\n| `ALVA_MAX_SOURCE_BYTES` | 8388608 | `E_PARSE_004` |\n| `ALVA_MAX_LITERAL_BYTES` | 262144 | `E_PARSE_005` |\n| `ALVA_MAX_ATOM_BYTES` | 4096 | `E_PARSE_006` |\n\n\u793a\u4f8b\uff1a`ALVA_MAX_AST_DEPTH=64 alva check examples/hello.alva`\u3002golden tests \u7528\u540c\u6837\u673a\u5236\u4ee5\u5c0f\u6587\u4ef6\u9a8c\u8bc1\u6bcf\u4e2a\u9650\u503c\uff08`tests/limits/`\uff09\u3002\n\n## \u6301\u4e45\u5316\u5bf9\u8c61\u5b58\u50a8\uff08v0.3\uff09\n\n`examples/store_split` \u7684 S3 \u670d\u52a1\u5668\u73b0\u5728\u4f7f\u7528\u78c1\u76d8\u6301\u4e45\u5316\u5b58\u50a8\uff0c\u4e0d\u518d\u4f9d\u8d56\u5185\u5b58 map\uff1a\n\n```text\n<data-root>/            # \u9ed8\u8ba4 ./store-data\uff0c\u53ef\u7528 ALVA_DATA_ROOT \u8986\u76d6\n  blobs/sha256/ab/<sha256>      # \u5185\u5bb9\u5bfb\u5740 blob\uff08\u4e0d\u53ef\u53d8\uff09\n  objects/<bucket-hash>/<key-hash>.json   # \u5bf9\u8c61\u5143\u6570\u636e\uff08\u539f\u5b50\u63d0\u4ea4\uff09\n  tmp/                      # \u4e34\u65f6\u6587\u4ef6\uff08\u5d29\u6e83\u540e\u7531\u6062\u590d\u6e05\u7406\uff09\n  quarantine/               # \u635f\u574f/\u5b64\u7acb\u5143\u6570\u636e\u9694\u79bb\u533a\n```\n\n\u4fdd\u8bc1\uff1a\n\n- PUT \u6309\"\u4e34\u65f6 blob \u2192 \u5199\u5165+\u54c8\u5e0c \u2192 fsync \u2192 \u539f\u5b50 rename \u2192 fsync \u76ee\u5f55 \u2192 \u4e34\u65f6\u5143\u6570\u636e \u2192 \u5199\u5165 \u2192 fsync \u2192 \u539f\u5b50 rename \u2192 fsync \u76ee\u5f55\"\u63d0\u4ea4\uff1b\n- \u5d29\u6e83\u540e\u53ea\u53ef\u80fd\u51fa\u73b0\"\u5bf9\u8c61\u4e0d\u5b58\u5728\"\u6216\"\u5b8c\u6574\u5bf9\u8c61\"\uff08old-or-new\uff09\uff0c\u4e0d\u5b58\u5728\u534a\u5bf9\u8c61\uff1b\n- metadata \u6c38\u8fdc\u4e0d\u6307\u5411\u672a\u6301\u4e45\u5316\u7684 blob\uff1b\u6062\u590d\u65f6\u6821\u9a8c\u683c\u5f0f\u7248\u672c\u5e76\u9694\u79bb\u635f\u574f/\u7f3a\u5931 blob \u7684\u5143\u6570\u636e\uff1b\n- bucket/key \u7ecf SHA-256 \u7f16\u7801\u8fdb\u8def\u5f84\uff0c`../`\u3001\u53cd\u659c\u6760\u3001Unicode\u3001\u63a7\u5236\u5b57\u7b26\u65e0\u6cd5\u8d8a\u51fa data root\uff1b\n- \u540c\u5185\u5bb9\u91cd\u590d\u4e0a\u4f20\u590d\u7528\u540c\u4e00 blob\uff08\u5185\u5bb9\u5bfb\u5740\u53bb\u91cd\uff09\uff1b\n- \u542f\u52a8\u65f6\u6267\u884c\u6062\u590d + \u5b64\u513f blob GC\uff1b\n- \u7ed3\u6784\u5316\u9519\u8bef\u7801 `E_STORAGE_001..010`\uff08\u8def\u5f84\u4e0d\u5b89\u5168 / \u5199\u5931\u8d25 / fsync \u5931\u8d25 / \u539f\u5b50\u63d0\u4ea4\u5931\u8d25 / \u5143\u6570\u636e\u635f\u574f / \u7f3a\u5931 blob / \u6821\u9a8c\u548c\u4e0d\u5339\u914d / \u6062\u590d\u5931\u8d25 / \u4e0d\u5b58\u5728 / bucket \u975e\u7a7a\uff09\u3002\n\n\u9a8c\u8bc1\uff1a`tests/storage/durable_test.py` \u8986\u76d6 12 \u9879\u9a8c\u6536\uff08\u91cd\u542f\u6301\u4e45\u5316\u3001DELETE \u6301\u4e45\u5316\u3001overwrite old-or-new\u30016 \u4e2a failpoint \u5d29\u6e83\u4e00\u81f4\u6027\u3001\u7f3a\u5931 blob \u9694\u79bb\u3001\u635f\u574f blob \u68c0\u6d4b\u3001\u8def\u5f84\u7a7f\u8d8a\u3001\u5e76\u53d1\u8bfb\u5199\u3001\u53bb\u91cd\u3001GC\u300185MB \u5b57\u8282\u7ea7\u56de\u73af\u3001rclone \u91cd\u542f\u524d\u540e\u96f6\u5dee\u5f02\uff09\u3002`ALVA_DURABLE_FULL=1` \u65f6\u8fd0\u884c 85MB \u4e0e rclone \u7528\u4f8b\u3002\n\n\u5c1a\u672a\u652f\u6301\uff08\u660e\u786e\u4e0d\u5ba3\u79f0\uff09\uff1a\n\n- \u5206\u5e03\u5f0f\u4e00\u81f4\u6027 / \u591a\u526f\u672c / MinIO \u7b49\u4ef7\u80fd\u529b\uff1b\n- \u591a\u8fdb\u7a0b\u5e76\u53d1\u5199\u5165\u9501\uff08\u5f53\u524d\u5355\u7ebf\u7a0b\u670d\u52a1\u5668\uff0c\u4e32\u884c\u5904\u7406\u8bf7\u6c42\uff09\uff1b\n- \u5206\u7247\u4e0a\u4f20 Multipart\u3001\u7248\u672c\u7ba1\u7406\u3001\u751f\u547d\u5468\u671f\u7b56\u7565\u3001IAM\uff1b\n- blob \u5f15\u7528\u8ba1\u6570\uff08GC \u4e3a\u5168\u91cf\u626b\u63cf\uff0c\u5355\u5b9e\u4f8b\u9002\u7528\uff09\uff1b\n- \u670d\u52a1\u7aef\u52a0\u5bc6\u4e0e\u81ea\u5b9a\u4e49\u5143\u6570\u636e\u3002\n\n## Source-less Typed Program Construction\uff08v0.5\uff09\n\n\u7a0b\u5e8f\u7684**\u6743\u5a01\u8868\u793a**\u662f\u7c7b\u578b\u5316 AST/Merkle \u56fe\uff08AIR\uff09\uff0c\u4e0d\u518d\u662f\u624b\u5199 S-expression \u6587\u672c\uff1a\n\n- `alva air export <project>`\uff1a\u9879\u76ee \u2192 `.air`\uff08\u786e\u5b9a\u6027\u4e8c\u8fdb\u5236\uff0c\u8282\u70b9 ID = \u5185\u5bb9\u5bfb\u5740\n  Merkle \u54c8\u5e0c\uff0c\u4e0d\u4f9d\u8d56\u884c\u53f7/\u7f29\u8fdb/\u6ce8\u91ca\uff09\uff1b`alva air verify` \u6821\u9a8c\u5b8c\u6574\u6027\uff1b\n  `alva air import` \u751f\u6210 canonical `.alva` \u6295\u5f71\uff1b`alva air diff` \u8f93\u51fa\u8bed\u4e49 diff\uff1b\n  `alva air view --json` \u8f93\u51fa\u786e\u5b9a\u6027 JSON \u8c03\u8bd5\u89c6\u56fe\u3002\n- `alva edit`\uff1aAEP \u7ed3\u6784\u5316\u7f16\u8f91\u534f\u8bae\uff08stdin JSON-lines\uff09\u2014\u2014begin/create_node/\n  create_hole/replace_node/replace_slot/append_child/bind_symbol/rename_symbol/\n  delete_entity/check/commit/abort/snapshot\u3002\u6240\u6709\u5199\u64cd\u4f5c\u4f7f\u7528\u7a33\u5b9a node ID\uff1b\n  commit \u524d\u8fd0\u884c\u771f\u5b9e checker\uff0c\u9a8c\u8bc1\u5931\u8d25\u4e0d\u5199\u5165\u4efb\u4f55\u6587\u4ef6\uff08\u4e8b\u52a1\u539f\u5b50\u6027\uff09\u3002\n- `alva hole inspect|candidates|fill`\uff1atyped holes\uff0c\u5019\u9009\u6309\u4f5c\u7528\u57df/\u7c7b\u578b\u52a8\u6001\u751f\u6210\u3002\n- `alva view module|function|dependencies|callers|impact`\uff1a\u6309 token \u9884\u7b97\u7684\u8bed\u4e49\u89c6\u56fe\uff0c\n  \u4e0d\u8981\u6c42 Agent \u8bfb\u53d6\u5b8c\u6574\u6e90\u7801\u3002\n- S-expression \u964d\u7ea7\u4e3a import \u683c\u5f0f + \u53ea\u8bfb canonical \u6295\u5f71\uff1bAEP \u8def\u5f84\u4e2d\u4e0d\u5b58\u5728\u62ec\u53f7\u914d\u5bf9\u95ee\u9898\u3002\n\n\u9a8c\u8bc1\uff1a`tests/air/air_test.py`\uff08\u56de\u73af\u54c8\u5e0c\u7a33\u5b9a\u3001AEP \u4e8b\u52a1\u3001\u8bed\u4e49 diff\u3001\u89c6\u56fe\u3001holes\uff09\u3002\n`benchmarks/abc/run_abc.py` \u662f A/B/C \u5199\u5165\u65b9\u5f0f\u5b9e\u9a8c\u9aa8\u67b6\uff08\u771f\u5b9e\u6a21\u578b\u6d4b\u91cf\u5f85\u9694\u79bb Agent \u57fa\u7840\u8bbe\u65bd\uff09\u3002\n\n## AIR Integrity and Authority Hardening\uff08v0.5.1\uff09\n\n- **EntityId \u4e0e RevisionHash \u5206\u79bb**\uff1a\u547d\u540d\u5b9e\u4f53\uff08module/type/fn/extern/param/field/\u2026\uff09\n  \u4f7f\u7528\u7a33\u5b9a `entity`\uff08\u5982 `module:store.model/fn:put_object`\uff09\uff0c\u8282\u70b9 `revision` \u662f\n  \u5185\u5bb9\u5bfb\u5740 Merkle \u54c8\u5e0c\uff1b\u540c\u540d\u540c\u578b\u7684\u5171\u4eab\u5b50\u6811\u53ea\u5b58\u4e00\u4efd revision\uff0c\u591a\u4e2a entity \u53ef\u6307\u5411\n  \u540c\u4e00 revision\uff08entity \u662f\u7d22\u5f15\uff0c\u4e0d\u662f\u5185\u5bb9\uff09\u3002\n- **\u4e0d\u53ef\u53d8 path-copy**\uff1a\u6bcf\u6b21\u7f16\u8f91\u540e\u81ea\u6a21\u5757\u5934\u81ea\u5e95\u5411\u4e0a\u91cd\u7b97\u7956\u5148 revision\uff08\u5185\u5bb9\u5bfb\u5740\u4fdd\u8bc1\n  \u672a\u53d8\u5316\u5b50\u6811 revision \u4e0d\u53d8\uff09\uff0c**\u6bcf\u6b21 AEP \u64cd\u4f5c\u540e\u7acb\u5373\u5168\u91cf verify**\uff08\u53ef\u8fbe revision \u6811\n  \u5168\u90e8\u54c8\u5e0c\u4e00\u81f4\u3001\u65e0\u60ac\u6302\u69fd\u5f15\u7528\u3001head \u5747\u5b58\u5728\uff09\u3002\n- **.air \u6210\u4e3a\u6743\u5a01\u5b58\u50a8**\uff1a`alva-air/current`\uff08\u539f\u5b50 CURRENT \u6307\u9488\uff09+ `gen-<n>.air`\n  generation \u6587\u4ef6\uff1bcommit \u53ea\u5199\u6743\u5a01\u5b58\u50a8\uff0c`.alva` \u4ec5\u7528\u4e8e import/export\uff1b\n  `alva project check/build` \u5728\u5b58\u5728\u6743\u5a01\u5b58\u50a8\u65f6**\u76f4\u63a5\u6d88\u8d39 AIR**\uff08air_to_ast \u91cd\u5efa\uff0c\n  \u4e0d\u7ecf\u6587\u672c\uff09\u3002\n- **commit \u524d\u91cd\u65b0\u9a8c\u8bc1 base revision**\uff1a\u6743\u5a01\u5b58\u50a8 revision \u4e0e begin \u65f6 base \u4e0d\u4e00\u81f4\n  \u5373\u62d2\u7edd\uff08\u5e76\u53d1\u51b2\u7a81\uff09\uff1bgeneration \u9012\u589e + CURRENT \u539f\u5b50\u66f4\u65b0\uff0c\u5d29\u6e83\u4e0d\u4f1a\u6307\u5411\u534a\u5199\u6587\u4ef6\u3002\n- **\u6bcf node kind \u7684 field/slot schema**\uff1a`create_node` \u6309 schema \u6821\u9a8c\u5fc5\u9700/\u5141\u8bb8\u7684\n  fields \u4e0e slots\uff0c\u672a\u77e5 kind/\u5b57\u6bb5/\u69fd\u4e00\u5f8b\u62d2\u7edd\u3002\n- **hole \u4f7f\u7528\u51c6\u786e lexical scope**\uff1a\u6cbf\u7956\u5148\u8def\u5f84\u6536\u96c6\u7ed1\u5b9a\uff08\u4ec5 hole \u4f4d\u4e8e binding body\n  \u5185\u65f6\u53ef\u89c1\uff09+ \u5916\u5c42\u51fd\u6570\u53c2\u6570\u3002\n- **\u534f\u8bae\u8f93\u51fa\u7ed3\u6784\u5316 JSON**\uff1a`{\"ok\":bool,\"result\":{...},\"message\":\"...\"}`\u3002\n- **\u6d4b\u8bd5**\uff1a\u56de\u73af\u54c8\u5e0c\u7a33\u5b9a\u3001\u6bcf\u6b21\u64cd\u4f5c\u540e invariant\u3001\u635f\u574f generation \u62d2\u7edd\u3001\n  \u5d29\u6e83\u5b89\u5168\uff08\u6e38\u79bb generation \u4e0d\u52a8 CURRENT\uff09\u3001\u5e76\u53d1 stale-base \u62d2\u7edd\u3001\u89c6\u56fe\u3001lexical\n  scope holes\uff08`tests/air/air_test.py`\uff09\u3002\n\n## AIR Adversarial Safety\uff08v0.5.2\uff09\n\n- **\u65e0 panic**\uff1a\u5168\u90e8\u8282\u70b9\u8bbf\u95ee\u8d70\u5b89\u5168\u8bbf\u95ee\u5668\uff1b\u60ac\u6302\u5b50\u5f15\u7528\u8fd4\u56de\n  `E_AIR_DANGLING_CHILD`\uff08\u542b parent revision/entity/slot/child\uff09\uff1b\u635f\u574f AIR\n  \u5728 `air verify`/`project check`/`project build` \u7a33\u5b9a\u5931\u8d25\u4e0d\u5d29\u6e83\u3002\n- **DAG \u73af\u68c0\u6d4b**\uff1a\u8fed\u4ee3\u5f0f white/gray/black\uff0c`E_AIR_CYCLE`\uff1bself/two-node/deep\n  \u73af\u5747\u68c0\u51fa\uff0c\u5171\u4eab DAG \u4e0d\u8bef\u62a5\uff1brebuild/reachable/\u5e8f\u5217\u5316/AIR\u2192AST \u4e0d\u9012\u5f52\u5931\u63a7\uff1b\n  \u73af\u68c0\u6d4b\u5728 mutation \u63d0\u4ea4\u524d\u6267\u884c\u3002\n- **\u6bcf\u64cd\u4f5c\u539f\u5b50\u56de\u6eda**\uff1a\u6240\u6709 mutation \u8d70 staging graph\uff08clone\u2192apply\u2192rebuild\u2192\n  verify\u2192schema\u2192cycle\u2192swap\uff09\uff0c\u5931\u8d25\u540e\u8bed\u4e49\u54c8\u5e0c\u3001heads\u3001\u8282\u70b9\u6570\u4e0d\u53d8\uff0c\u540e\u7eed\u64cd\u4f5c\u53ef\u7ee7\u7eed\u3002\n- **Typed node schema**\uff1aFieldSpec/SlotSpec\uff08value type\u3001child kind\u3001cardinality\uff09\uff0c\n  `function.returns/body`\u3001`param.type`\u3001`if.cond/then/else`\u3001`binding.value/body`\u3001\n  `call.args`\u3001`block.steps` \u7b49\u4e25\u683c\u6821\u9a8c\uff1btype slot \u62d2\u7edd expression\uff0cexpression\n  slot \u62d2\u7edd module/type/function\uff1b\u7a33\u5b9a `E_AEP_001..007` \u7801\u3002\n- **\u8de8\u8fdb\u7a0b commit \u9501**\uff1alockdir \u4e92\u65a5 + \u9501\u5185\u91cd\u8bfb CURRENT/\u9a8c\u8bc1 base/\u5206\u914d generation/\n  \u5199 gen temp/fsync/\u539f\u5b50 rename/fsync \u76ee\u5f55/\u5199 CURRENT temp/fsync/\u539f\u5b50 rename/\n  fsync \u76ee\u5f55\uff1b\u5e76\u53d1\u63d0\u4ea4\u53ea\u6709\u4e00\u4e2a\u6210\u529f\uff0c\u53e6\u4e00\u4e2a `E_AEP_CONFLICT`\uff0cgeneration \u4e0d\u8986\u76d6\u3002\n- **AIR \u8f93\u5165\u786c\u5316**\uff1a\u6587\u4ef6/\u8282\u70b9/\u5b57\u6bb5/\u69fd/\u5b57\u7b26\u4e32/\u6df1\u5ea6\u4e0a\u9650\uff1b\u4e25\u683c UTF-8\uff1b\u5c3e\u968f\u5783\u573e\u62d2\u7edd\uff1b\n  \u91cd\u590d revision/entity \u62d2\u7edd\uff1bfuzz\uff08\u968f\u673a\u5b57\u8282\u4e0d panic\uff09+ serialize\u2192deserialize\n  canonical + mutation \u6210\u529f\u5fc5 verify/\u5931\u8d25\u56fe\u4e0d\u53d8\u3002\n- **lexical scope \u5b9e\u6d4b**\uff1ahole \u63d2\u5165\u771f\u5b9e AST \u4f4d\u7f6e\uff0c\u9a8c\u8bc1 binding \u4ec5 body \u53ef\u89c1\u3001\n  \u540e\u58f0\u660e\u4e0d\u53ef\u89c1\u3001if/match \u5206\u652f\u4e0d\u6cc4\u6f0f\u3001fold/loop \u7d2f\u52a0\u5668\u4ec5 body \u53ef\u89c1\u3001\u53c2\u6570\u53ef\u89c1\u3001\n  \u5916\u5c42\u53ef\u89c1\u5185\u5c42\u3001\u5185\u5c42\u4e0d\u6cc4\u9732\u5916\u5c42\u3002\n\n## Agent Runtime\uff08v0.6\uff09\n\n`alva agent` \u63d0\u4f9b\u7248\u672c\u5316 Agent \u5de5\u5177\u5c42\uff0821 \u4e2a\u5de5\u5177\uff09\uff1ainspect_project/module/\nfunction/entity\u3001list_candidates\u3001begin_transaction\u3001create_literal/reference/\ncall/binding/block\u3001append_step\u3001replace_expression\u3001add_function\u3001change_field\u3001\nrename_entity\u3001check_transaction\u3001preview_semantic_diff\u3001commit_transaction\u3001\nabort_transaction\u3002\n\n- \u53c2\u6570\u4e25\u683c schema\uff1b\u54cd\u5e94 `{protocol_version:\"0.6\", ok, result, diagnostics}`\uff0c\n  \u652f\u6301 request_id/op_index\uff1bID \u4e0d\u5728 message \u5b57\u7b26\u4e32\u4e2d\u7f16\u7801\uff1b\n- \u6bcf\u4e2a\u64cd\u4f5c\u8fd4\u56de entity/revision/project revision\uff1b\n- Agent \u4e0d\u9700\u8981\u77e5\u9053 AIR \u5185\u90e8 slot \u540d\u6216 Value \u679a\u4e3e\uff08friendly positions \u6620\u5c04\uff09\uff1b\n- \u6a21\u5f0f C \u7981\u6b62 `.alva` \u6587\u4ef6\u8bbf\u95ee\uff08\u5de5\u4f5c\u533a\u53ea\u542b\u6743\u5a01 AIR store\uff09\u3002\n\n`alva mcp` \u5728\u540c\u4e00 binary \u4e2d\u63d0\u4f9b\u5171\u4eab STDIO MCP adapter\u3002\u5b83\u540c\u65f6\u517c\u5bb9 2025\ninitialize handshake \u4e0e 2026-07-28 per-request metadata\uff0c\u5e76\u628a\u5de5\u5177\u8c03\u7528\u8f6c\u4ea4\u7ed9\u540c\u4e00\nAEP registry / AIR transaction implementation\u3002MCP \u4e8b\u52a1\u4e0d\u4f9d\u8d56\u9690\u85cf transport\nsession\uff1a`begin_transaction` \u8fd4\u56de\u663e\u5f0f `transaction_id`\uff0c\u540e\u7eed\u8c03\u7528\u5fc5\u987b\u643a\u5e26\u8be5 handle\u3002\n\u914d\u7f6e\u4e0e v1 tool surface \u89c1 [`integrations/mcp/README.md`](../integrations/mcp/README.md)\u3002\n"
+  },
+  "provider_tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "read_target",
+        "description": "Read the authorized current target body/declaration and view_id for the shared protected change workflow. Context varies by acquisition condition.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "function"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "prepare_change",
+        "description": "Prepare an ALVA (body ...) fragment using view_id. Host checks scope and tests the isolated draft. Does not publish. On rejection revise using the same view_id.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "view_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65536
+            }
+          },
+          "required": [
+            "view_id",
+            "body"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "publish_change",
+        "description": "Publish one successfully prepared proposal_id. Host rechecks the exact draft, test identity, source base and authorization, then verifies fresh AIR. A proposal is single-use.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "proposal_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "proposal_id"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "read_reference",
+        "description": "Read a shared public reference by section, or index/all. Host language sections: body, bindings, collections, records, results, strings, diagnostics. General Native tutorials are optional for this Host profile.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "document": {
+              "type": "string",
+              "enum": [
+                "host",
+                "language",
+                "legacy_skill",
+                "workflow",
+                "diagnostics",
+                "examples",
+                "legacy_language"
+              ]
+            },
+            "section": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "document",
+            "section"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "read_source",
+        "description": "Read public source lines only when needed. Import source is not staged AIR. Returns exact text and next_start; cannot read AIR, tests/evaluators outside the supplied source bundle, or arbitrary files.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "start": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "search_source",
+        "description": "Literal search across all public source. Exact matching lines, source hashes, and line positions; at most 40 hits, with explicit more_available.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_symbols",
+        "description": "Generic complete module, function and type-name catalog for this fixed source component. Names only, no task ranking.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      }
+    }
+  ],
+  "model": "deepseek-flash",
+  "api_parameters": {
+    "thinking": {
+      "type": "enabled"
+    },
+    "reasoning_effort": "low",
+    "max_tokens": 4096,
+    "stream": false
+  },
+  "limits": {
+    "requests": 12,
+    "tools": 36,
+    "token_observation": 120000,
+    "output_cap": 4096,
+    "request_bytes": 131072,
+    "active_seconds": 480,
+    "request_timeout": 90,
+    "concurrency": 1
+  },
+  "sdk": {
+    "alva_sha256": "cc652843102be3ffef4bb84f69b1a851bff229c8eb603b14ced827008626dd49",
+    "rustc_sha256": "3690cc576ede140504698405d5d8fa3826aaadbe71699c6c4ed0a565d6f493e2"
+  },
+  "runtime": {
+    "benchmarks/bounded_context_audit/accounting.py": "2b6cc2e3c9a81113c76ce6aea8c34ac4789a8881b818517b28de5f5b4c4d73f9",
+    "benchmarks/bounded_context_audit/experiments.py": "7c67d9bbfe6a785d6e0eb7655f48825d7c80741ec74fa32576d4ac7160cb9264",
+    "benchmarks/compact_deepseek/analyze.py": "95b01e67866b5bdfec9703eccdc8afa213bd41a62c5dd111928a95669a26ae4d",
+    "benchmarks/compact_deepseek/api.py": "da58e569cdf891954107260053499d852cc0f66d53ed19e74e2e938d3582d9dc",
+    "benchmarks/compact_deepseek/diagnose.py": "1df7a6f14f3e67f5303528db9f24f48ce0362cae98615a4c4287c354aea283e2",
+    "benchmarks/compact_deepseek/freeze.py": "d5052ce743d20d89662c5550ba2ace9f10071542c8af26f5577adbe512da4b6d",
+    "benchmarks/compact_deepseek/preflight.py": "4aa80036d1a9847edbc1be117240502535f7b84aa749ad023fd1dd1337f5da53",
+    "benchmarks/compact_deepseek/runner.py": "e92fa0df6e0f87608f39843cf520b7ab7aa65ee7e278a954c2ca61d177503393",
+    "benchmarks/compact_deepseek/runtime.py": "8d4faa4064100e8f8d3a7134f2ce7e1bbad23a5f3673098cf2bbc179a0612caa",
+    "benchmarks/compact_deepseek/safe_entry.py": "e7a60a14bfb96097a5cf439a59352cf57ffaa5db2000d57f1191779a5e71ce9a",
+    "benchmarks/compact_deepseek/service.py": "ca815d111d70f806047dac3ca21cb1ce9d6436f3de20dd5fb5658e2dcefa35b9",
+    "benchmarks/compact_deepseek/test_postrun.py": "3f169763b6177f7141f589b1423cfac49a4a3f292df6d7c253b4439479b0cb11",
+    "benchmarks/compact_deepseek/test_runtime.py": "065ace85f99c8628b80dca50a6d98ace5fc17b51e0d1b408198078227fad343e",
+    "benchmarks/compact_deepseek/validate_evidence.py": "995b457f9c0627695c931e3248275a918d7b438b7a8ad7c32d480f4d005b7d50",
+    "benchmarks/compact_maintenance/contract.py": "e9aa882eaee79d312d71eaf5333c43566688a1599f7a1d60b2ca099a468c7dbe",
+    "benchmarks/compact_maintenance/cost_profile.py": "4139cf295435a9d339a0238abb13c46120d8337fd27670676bbcaa59f3329816",
+    "benchmarks/compact_maintenance/register.py": "1eb6ada614cbaf655fea734d8391dcfca2a55d5e71906a81a1cb97218d769aa4",
+    "benchmarks/compact_maintenance/score.py": "4851504ff7bd6f7a196c78b55722df82742e8b86e292e4f6e7af3c910ee44582",
+    "benchmarks/compact_maintenance/test_study.py": "e27327d55204cbf744cdb88f47c1ca1b6b0633616c3172e635982cf731ef78ee",
+    "benchmarks/context_flash_pilot/analyze.py": "3ffe873e70fdd9a87c04937336da90c0c654ce046417ff0ba21d95fa83cef0d5",
+    "benchmarks/context_flash_pilot/freeze.py": "14faff26373cbc1468976f2886200eee3b922e41ddc40548ad3aa25ca47e4425",
+    "benchmarks/context_flash_pilot/prepare.py": "6b1656a3231735f851297bd09d216f2d9998a7fe053810f606c78ca06f4dba84",
+    "benchmarks/context_flash_pilot/runner.py": "8d71042fe9de49eaae750cee10833e0532f1008f7b9dfab60bfb4c662e5ffe46",
+    "benchmarks/context_flash_pilot/service.py": "37008fc70133be16bb4f3ffd4e7e9cfc836d87e44b9ea176cc8102adcddc7d6b",
+    "benchmarks/context_flash_pilot/tasks.py": "67748c5f4e21fc6099ba286d3733067334fdb79d255370d66e8572ad44c27084",
+    "benchmarks/context_v4/analyze.py": "5eac2d8a678dff5a632618237266af307ab1e9dc58a382c3e3fb1c74333bd1b4",
+    "benchmarks/context_v4/assertions.py": "9f546bfed05769e7efbb57b1e827c7f96099b9f1293a20444a932baaaad1a1e4",
+    "benchmarks/context_v4/freeze.py": "cdc8a697587845c2f5c2573fb120f1a62a463160ca9f0207e9f370d27409a87d",
+    "benchmarks/context_v4/preflight.py": "8461fc554f0590760e9031f0ca867caecf2a131055e8dbc1fb377cfc80012c00",
+    "benchmarks/context_v4/protocol.py": "bd6a99a708178e51ac3db18d3f0e555c7ca003b6b7422ab714eb5a3f9193478b",
+    "benchmarks/context_v4/register.py": "c140de8d8c853f03dfd14f30b50c200d9bf85050f68a25e5a1746110023a8fae",
+    "benchmarks/context_v4/runner.py": "c6855524188bde5d4c6b854ce84492165096ae7205eddd2189d4ce2ed1d70edf",
+    "benchmarks/context_v4/safe_entry.py": "cc99551678b938cc5513aa181a270474df66c08d3b0f8d0fc0b4ea35e31fc5d6",
+    "benchmarks/context_v4/service.py": "30074d2d71e67211e1e8f9607021f4eb8f4b1110df494550fcb1626802983e88",
+    "benchmarks/context_v4/witnesses.py": "6a65d5622edb61535fd351619a0d0b0387aac12bff259f84324134f0c6407921",
+    "benchmarks/cross_language/common.py": "ab1af9a353cfc4a0ca9f858197f89281382e8bcaec770c50ee2343f5e31dcae4",
+    "benchmarks/cross_language/controller.py": "aeed97208f81e528a38e46c982206f8b8f51e8de5a260183bb307316050e145e",
+    "benchmarks/cross_language/execute.py": "80ef9da024a52772abef3dd7207ba489ae6aa4a517ec83bf8e1fb50c5e087474",
+    "benchmarks/cross_language/final/01-HE3-A.py": "3fad6b57997b6aa197b87f895d7c6603d423faef647c6ce4ca78b2a3997a7919",
+    "benchmarks/cross_language/final/03-HE42-A.py": "1b5832159eb6ac5f82d7b133468a81933c44aaee9a2aebc38d80d17e1fb33c65",
+    "benchmarks/cross_language/final/09-HE23-A.py": "1af94775a11759924a3f7900b9dbfde9a2bf97a63dd498e7be36b83dcc9951d3",
+    "benchmarks/cross_language/final/11-HE41-A.py": "9851da8ea139d74249c893108f561a53a225446f134c4d59f88b7063e1759b15",
+    "benchmarks/cross_language/prepare.py": "a63329bf925387f129bf2e2223669abf86138480ad7603bf4359c90671c9a913",
+    "benchmarks/cross_language/replay.py": "017d94577cfd05ff1b871c49c1213a51c043fac4c445aafca842ecbd4a6c6ab0",
+    "benchmarks/cross_language/summarize.py": "a30632016a1ca23e02f684b3f416cefbd9bedcc44a03044ad77da91d5e3cd506",
+    "benchmarks/cross_language/tasks.py": "19a508c133260a17a4659f83191a77c1eb0cf6ae440a8b44323ec8eaf54dea79",
+    "benchmarks/cross_language/test_controller.py": "a512f20d9cfe4ec897697c76c4c2cc9e94a8178f0770beec0fe713cdef22bd62",
+    "benchmarks/host_v3_acceptance/analyze.py": "2f3d7e60b8772e24e79e57356dad90b76931743d73906eae325e2282d44fe1b5",
+    "benchmarks/host_v3_acceptance/freeze.py": "3eba05acffbf92852c7b7f4d9e2578240b7244cf5f2f5b6bd120a1c74d0da0b1",
+    "benchmarks/host_v3_acceptance/preflight.py": "b4d7e64a0c89c8f6c206806ace45ac0860bc07954d02eece2fbe6413c0065274",
+    "benchmarks/host_v3_acceptance/protocol.py": "488d96ef3b486bb8dae052f4021f1a9e6edbf5cee30810e1241ec900c2ae74e6",
+    "benchmarks/host_v3_acceptance/runner.py": "8e7c81b30e74b3600abe2489ac46d7d9688788a073a455f9896538db4aa089af",
+    "benchmarks/host_v3_acceptance/safe_entry.py": "3c1ec3c217d8879405644433c971100aa8743a71acb9a9f2510aa7ae4915186d",
+    "benchmarks/host_v3_acceptance/service.py": "6138112d2456e8dda6e84a30cf5a0c922e687a64448389288e79d1a0851f52ef",
+    "benchmarks/host_v3_acceptance/test_contract.py": "e8584ed55f5588a529bbc06c421e5eeb1eef1b2e766e9d26266a347c31197b32",
+    "benchmarks/maintenance_design/feasibility.py": "7e56817bed4524fee214f81476fc841e57f5e2e5659ca15baecf0138a439dd06",
+    "benchmarks/maintenance_design/test_design.py": "19da0cbc69316d558e3743691533ea7d13ab616b93e87f32f5b0017b936afe92",
+    "benchmarks/maintenance_design/witnesses.py": "fa81e534a486855d6ff4d60f1f5eefbc187a061ed95c1426d46e44f24662a756",
+    "benchmarks/maintenance_interface_comparison/analyze.py": "842cc5eadabcd5ab4e336f2a35015e82faa510ac09ad2493c58094071bde893c",
+    "benchmarks/maintenance_interface_comparison/freeze.py": "2a19f5f0625442780d0636d29445297c3c7da21232361ee9f908196ef58a16db",
+    "benchmarks/maintenance_interface_comparison/linux_profile.py": "ca33542692a392e5ce64c84394de79b60c189eb3bd120623c08dadc8b1d89175",
+    "benchmarks/maintenance_interface_comparison/owner.py": "e4e966885db912706dd4a4f09eee8c7e33381cd8e2a21da6df5c6809a3c27f0c",
+    "benchmarks/maintenance_interface_comparison/pilot.py": "7d7f82e1bbcee122ac6902d804c64758a02bdfd8565a0fcd054a6592e252841e",
+    "benchmarks/maintenance_interface_comparison/prepare.py": "9b23149832cbfc271f7f8c91e40dca8214753a07a68bf6129ead316a61c41697",
+    "benchmarks/maintenance_interface_comparison/prlimit_profile.py": "37c7eed6d613de02f0229ad5c0bce5e97d496bb7d142c0f8911fc9fa10b33e71",
+    "benchmarks/maintenance_interface_comparison/provider_gate.py": "1deb1ca8b55b384d554b463bb50ed129340381f8a841a506386ad404bd4a3b0b",
+    "benchmarks/maintenance_interface_comparison/relay.py": "d73c73c8f1b03a9ff98e3d8d515d48e3a0fed55c40a62157cf91d39a62ec9e13",
+    "benchmarks/maintenance_interface_comparison/remote_preflight.py": "1b698cce7af5a0f9db557106f5e3d136db5a5c849007261a8835fb75a111741c",
+    "benchmarks/maintenance_interface_comparison/restore_runtime.py": "2b70f1925bf74697fd3c329185ed2fdb66ffa9c257f26bfa2f97a7d456c66512",
+    "benchmarks/maintenance_interface_comparison/safe_run.py": "ef98c446344032e2ef8e2efc034c9f0bf0d0cc87c086a08f45286cdc25431b5d",
+    "benchmarks/maintenance_interface_comparison/service.py": "9db5a3bf254d4f2120959c83b6e0f1db9fdfe6f988c7fffc0206a02d1440748d",
+    "benchmarks/maintenance_interface_comparison/technical_probe.py": "cd4eb0500e80a80f402d2601564e42ff5d7f689c40a668eed4f8a517aa9eedef",
+    "benchmarks/maintenance_interface_comparison/test_pilot.py": "3b7e1daa8284baed391d8d9e2839b345443000befe832e884583a70d5c66866c",
+    "benchmarks/maintenance_interface_comparison/test_provider_gate.py": "7bc05cd3423837450750a73b278b7d12906cad1a47abe76c09debf63df3e23c2",
+    "benchmarks/maintenance_interface_comparison/validate.py": "cf92aecfe57db4969abaa2435cbceacd432e3dad2c349868dd63ee0500533577",
+    "benchmarks/mm01_pilot/analyze.py": "33ae18658bd3bc41604f56243f96cf9e7fc3daf8ca235b4c60b2fa9525e10f8c",
+    "benchmarks/mm01_pilot/ci_exact_runtime.py": "86933324be3a01075a6b3ad9c7f068ea413d3d3df30a328f374ffc48b7b602f2",
+    "benchmarks/mm01_pilot/evaluator.py": "3a611258ff3b86fe03d93d4a3290d2e4ec1445e391e5498836f7d2cdbbfd5909",
+    "benchmarks/mm01_pilot/inside.py": "af2d65d0d714676c9cdd69712078f09fc2aa3f256a832f4d99879d90ac6dec31",
+    "benchmarks/mm01_pilot/pilot.py": "2eda47b580fe3bb32b4a96690cf4378b328c23bc54bf9836f65cc07a1494bffc",
+    "benchmarks/mm01_pilot/service.py": "0c3bc430e390b43c401a5847e3ab30bed86ff33db08de5d9fb1322f1dc14bdff",
+    "benchmarks/mm01_pilot/test_pilot.py": "1660fb0caf1f98b035a83552e577702ac6531cf1c021995958548142803149dc",
+    "benchmarks/native_mcp_skill/native_coverage.py": "ad0cb112057c59379aef16a9b4bab463598a1813e88ca34a4d77866c57e73733",
+    "benchmarks/native_mcp_skill/phase_a.py": "c150a33eb5b512a688b4e06f9d7b278724c852a50669cc9153e9341c157fe930",
+    "benchmarks/native_mcp_skill/proxy.py": "44291e87125c694e18f1b88022672fc4d2ffc9d767636c6f14bbae75a0d713ba",
+    "benchmarks/native_mcp_skill/test_integration.py": "31de73c30000d6ec22e725290363dc5480a8c48f3785dc1a047d57bf0bc6512f",
+    "benchmarks/native_prospective/analyze.py": "b4a0da388e5564866c3530d37181eaaad030c333d7dffa3b82339b4a4957d0cd",
+    "benchmarks/native_prospective/inside.py": "deab97c7711411c8038353225debe52669b33550eb8105c6e484964a29af3343",
+    "benchmarks/native_prospective/pilot.py": "ec83509d9bd0ddda2c390b2161ee3ca2f9f363ed3524820bde3ebda2b4ed67ad",
+    "benchmarks/native_prospective/service.py": "a58f7b9dd610eb8ba862caab84205f5ce61153b966ecd386b9409a7871d88f23",
+    "benchmarks/native_prospective/test_pilot.py": "15201a705b704a01186f134cf7d472b8bfb54826d749fead738ab76e2dbb363b",
+    "benchmarks/p27_bottleneck/audit.py": "29fa874e007382f9fd47a3e60c757f1b16fef8d54cfa75f4773b20732e6b4287",
+    "benchmarks/p27_bottleneck/test_audit.py": "7a03027e75173dea65ec6fae1ffc7dfe5b880183185d0f691f0accf585ecb7a4",
+    "benchmarks/p28_optional_descriptor/analyze.py": "3e2dcb315b99340f5202b5540c743a1ce027c9851087c9e1340b94d89218dd7d",
+    "benchmarks/p28_optional_descriptor/ci_exact_runtime.py": "2887479ed1cc15e101494a0263fea2e5f55d2ec1f0b1527a9ee3bc0671bffe41",
+    "benchmarks/p28_optional_descriptor/observer.py": "3d8bd72866896a7e22546806c9daef3e78ad0e4393864f2e95975a932e9e0707",
+    "benchmarks/p28_optional_descriptor/pilot.py": "5c6982189ec1135d0d268973dad94c79e20b36d63dccf615b2c291f2d89256e5",
+    "benchmarks/p28_optional_descriptor/service.py": "eb31c941eeb008abc78155671f4c6b23fffc51372cf097a4ce98796447bf18ec",
+    "benchmarks/p28_optional_descriptor/test_pilot.py": "44b41cc89fa74d97515cd8c60e89c60e37fdf42bd37d5c012dd9549a79bdeab8",
+    "benchmarks/p28_optional_descriptor/validate_linux.py": "7298007dfcd85784a559c8270ad79c9ee8f9ef15b1dee3789d9468cb6ec72598",
+    "benchmarks/p32_native_mm01/analyze.py": "087080facee28188f9c193480b1084bcbe8347499b9f757515da7ccf9fed7e48",
+    "benchmarks/p32_native_mm01/ci_exact_runtime.py": "e24a598f73e8487d9d5ea9392c623f5f17fab3cda666f67af042261009152e07",
+    "benchmarks/p32_native_mm01/ci_portable.py": "e859d44b40061149aaa0727a21a1340b8b57bf098a48795cadab6111209c3987",
+    "benchmarks/p32_native_mm01/pilot.py": "f4f67d2542f32b07e1e4285d174a74b6af0e6a72a6c2757b4aec88e2b928d543",
+    "benchmarks/p32_native_mm01/test_pilot.py": "78374befc89c253df65b9f944fb7074cdc38d0ad30c48ca2338a5d8289231e02",
+    "benchmarks/p33_shared_scope/publish.py": "eb1ba8d8aa24d91d494bc5c9d606d3643db25cdfa7eecacd95ef568301df7c72",
+    "benchmarks/p33_shared_scope/reproduce.py": "3cd2eddc8f0fed1503676367f0c88095ed147923669e2eeb98f4e6faaaaf1b8d",
+    "benchmarks/p33_shared_scope/test_scope.py": "c314e404095e4c7181c8e347c2951044a5427010e6d57b9af82e6d69327e423a",
+    "benchmarks/p34_scope_guard/cases.py": "7e64dd0a4d3fae4a91372d7d9610cc3f3019d8da26984babdb70ed62a92ad33d",
+    "benchmarks/p34_scope_guard/publish.py": "b7171843d9fbb8dbb03414d9233e7a5a6a7f0cdae2293836fc596208ca32a144",
+    "benchmarks/p34_scope_guard/service.py": "7161ce441e50dbbd80ff111003374011c47fd5a74606a2bb50974a41d5719983",
+    "benchmarks/p34_scope_guard/verify_host.py": "a7f6e4a65287f8399b0cde47632be9bc6abf465466808b182cdad1b8f5ab7978",
+    "benchmarks/p34_scope_guard/verify_native.py": "4c0d2f7a65ac12a1446f7fbba6ed893e15af0c6afaf439acccafc691d3d25885",
+    "benchmarks/p35_occurrence_scope/reproduce.py": "3e5787ce9cf9090b5c7fa411e03d7ef3feb289e2e0ad19d49a037d1ca7238358",
+    "benchmarks/p36_mm02_native_model/analyze.py": "0b489e66f08923cb3cf31c4bb73b059166f741e4fbd1c5a2712c69d016082408",
+    "benchmarks/p36_mm02_native_model/pilot.py": "201effb449e5c54492d6112a5be578c7130b6930e8fa255fcb53b29d4f54a9a2",
+    "benchmarks/p36_mm02_native_model/publish.py": "1888fa1e5f29dd60b138950fb0adc3028f83e4a8246d9f50beb7835b21599c6e",
+    "benchmarks/p36_mm02_native_model/remote.py": "655129a0c71784623de599349c5512ac3d95368881aab8dfdc60491cece7991b",
+    "benchmarks/p36_mm02_native_model/service.py": "48bb9464f7cff27ba592f987094757a0dbdc26ac4e245814b5d8dcd86aa8099f",
+    "benchmarks/p36_mm02_native_model/ssh_startup_probe.py": "398927719e0a07fbafe681e1280518cad8c94dbe17fbe16122ec4484fa1a88e2",
+    "benchmarks/p36_mm02_native_model/startup_owner.py": "ac7883643947bd2d6d783b00e346f5bdcd58907d64dda8336ef609b5b0ad60b8",
+    "benchmarks/p36_mm02_native_model/test_pilot.py": "292a72e123e5a0b51feb340471bdcff475ff0c721e231d45e680a1321cc9e950",
+    "benchmarks/p36_mm02_native_model/test_startup_cleanup.py": "e8488dfbc0ba053769f08d1f67dcd9556959a6e8ff3a1f8bf7c7142d3f054917",
+    "benchmarks/p36_mm02_native_model/validate.py": "4fd860e4d34facc9a98e72227bc08b3970556146c36b2c99e86380d0391e2162",
+    "benchmarks/p36_mm02_native_model/verify_postrun.py": "3e7864129ef380ecf9ba55c7d2b0b5570235b0c7ea7b6b25f96e136b16fc476b",
+    "benchmarks/p37_maintenance_qualification/assertions.py": "49f04e70c86c8d91f15b99f941af78acc3d61c9479b0775274ded74d6d81491e",
+    "benchmarks/p37_maintenance_qualification/inputs.py": "dc95647161b766b5946c7622811b2583b0121b4f6b9944933ae2ebf8912fc0f9",
+    "benchmarks/p37_maintenance_qualification/publish.py": "fb994415c36c28869bc5954e5662cd29db5b5c069092cacc780aaf92d21ac01c",
+    "benchmarks/p37_maintenance_qualification/qualification.py": "33ddb444d5e7b6030ac965203f16d91c74675e2851c195dad25b15062cb11e07",
+    "benchmarks/p37_maintenance_qualification/register.py": "57769153cce1783855c353ffca8fca218448f130c1d9ffb1e377a52ac602a634",
+    "benchmarks/p37_maintenance_qualification/test_qualification.py": "046cb1853153ad9e10c58800cbbfd2fe450ca29baf2b09d19ebda979aa664ac8",
+    "benchmarks/p37_maintenance_qualification/witnesses.py": "b9f82b754695966101689558731d3269522c9491cf8e83c53930c04514d008c6",
+    "benchmarks/p38_authorized_effect_contract/mechanisms.py": "7f049e1f871b000b5df296aa3357742c81117b9102ad96697159935eee723b05",
+    "benchmarks/p38_authorized_effect_contract/study.py": "9e4622873df5bb699029098c9cc3a826ed76fd1455d55dc65201d150eda50674",
+    "benchmarks/p38_authorized_effect_contract/test_study.py": "01dc48755251d5594f255254c366ede40f66126f6a2de3f7d7fd986a8da427f1",
+    "benchmarks/p38_authorized_effect_contract/validate_evidence.py": "5c6a7113205b471a8dd8cb2181b8f8385748d5ead7189f375f899e8ff3299f1f",
+    "benchmarks/rdr02_treatment_realization/analyze.py": "48806c293d12466db00753427c269a72909f0b5f72bc2007598a763c486d1b20",
+    "benchmarks/rdr02_treatment_realization/evidence.py": "f6b8bf702da19179b57cafd97339a58012251280527a5e9b83b4967e5a3cdf3b",
+    "benchmarks/rdr02_treatment_realization/test_analysis.py": "3d52f2f84fecde946e8a325ec56197ccc0d8a77c4479b8a22ed56f07314196eb",
+    "benchmarks/rdr02_treatment_realization/validate.py": "1629945d57906bb41aa4644fd200b07a89b8c25123cc2c4793775d63bf50d582",
+    "integrations/benchmark_runtime_v2/__init__.py": "73dd0050a062b36dd8386d2bfaeade37eb9e0fa2a474c660a4cbe7680390825c",
+    "integrations/benchmark_runtime_v2/freeze.py": "be01bff6893781daa3a6bd3bfdde90b5f9db1c3cb1f511b44d7a730918f170ea",
+    "integrations/benchmark_runtime_v2/persistent.py": "71fd2e1d4c1b438583c3972242984f23213267f4781337278c0e7ed3f9d12421",
+    "integrations/benchmark_runtime_v2/sandbox.py": "8e50592d4b6101aff446138e2f6a52b0fce973b5bbcf11256017c1fa5e9d3d51",
+    "integrations/codex/bounded_target_context.py": "dabafdd96db6cb4a48a27b437c05fae0f533dfd89cdba769aee714bd84018cc6",
+    "integrations/codex/maintenance_context.py": "c6f2b4d87540fa2614fcda43c21bab9cd5b9100faa68edef38a6f2a678404525",
+    "integrations/codex/maintenance_evaluator.py": "547ed1748eb79f0060ea0a4afa3fcf3af3191f54a2f0137a44157ca8fbf27c62",
+    "integrations/codex/maintenance_host.py": "3b9dc58af7e8dc181533231b6fa955352abca916cf4a9729ab2e707b9f54a065",
+    "integrations/codex/native_commit_authorization.py": "a0fba82cef2e27f4e6f81b0c1cd22b1ccb2660000272dfa426fa591582a4830c",
+    "integrations/codex/precommit_scope_guard.py": "66ee5868bbc0e90815794efd77faf4d561b6f9b0052cd0d0e9a4b6b124582176",
+    "integrations/python_guard/__init__.py": "8949bddde32a9e5b8191a689476f9dca226d59147f9a271d8655065d2726cc85",
+    "integrations/python_guard/__main__.py": "344d70bea0a3ef574a05869443ecb5aebf4cefb3991e1f514c9aab6040e4f61d",
+    "integrations/python_guard/guard.py": "2f572c2a78ff8f507d93c317327fa39bfa39244fc4f1b2398c6abf3900d69575",
+    "integrations/python_guard/patch.py": "14d6518d74e51a0b8ddb339399f7acfb425e6507be1caa12e4a7a3427c94d7be",
+    "integrations/python_guard/runner.py": "9333f068522e32bdead639f607c5ff07bed90854e93e880d7ee2daacc8cd06dc",
+    "integrations/python_guard_codex/__init__.py": "8bbf4115b31d7b009908838ba87a7b42c741a7b78d3d44a9caa3bdeb4e41a828",
+    "integrations/python_guard_codex/__main__.py": "54dd2848e29e6ca4b6472e3cc85607338e5ad2184ce16b75e9f826898987e84a",
+    "integrations/python_guard_codex/workflow.py": "af44fed85394149d764407d4b113ba9cab04254a58fe18caa3a4f77597752383"
+  },
+  "qualification": [
+    {
+      "task": "Q01",
+      "arm": "A",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q01",
+      "arm": "B",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q01",
+      "arm": "C",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q02",
+      "arm": "A",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q02",
+      "arm": "B",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q02",
+      "arm": "C",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q03",
+      "arm": "A",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q03",
+      "arm": "B",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "task": "Q03",
+      "arm": "C",
+      "baseline_goal": "TEST_FAIL",
+      "baseline_regression": "PASS",
+      "engineering_publication": "PASS",
+      "independent_final": "PASS",
+      "source_unchanged": true
+    }
+  ],
+  "runtime_python": "3.14.4",
+  "schedule": [
+    {
+      "id": "Q01-A",
+      "task": "Q01",
+      "arm": "A"
+    },
+    {
+      "id": "Q01-B",
+      "task": "Q01",
+      "arm": "B"
+    },
+    {
+      "id": "Q01-C",
+      "task": "Q01",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-C",
+      "task": "Q02",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-A",
+      "task": "Q02",
+      "arm": "A"
+    },
+    {
+      "id": "Q02-B",
+      "task": "Q02",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-B",
+      "task": "Q03",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-C",
+      "task": "Q03",
+      "arm": "C"
+    },
+    {
+      "id": "Q03-A",
+      "task": "Q03",
+      "arm": "A"
+    }
+  ],
+  "screens": {
+    "all_pairs_reported": true,
+    "correct_not_lower_than_A": true,
+    "median_total_C_over_A_at_most": 0.75,
+    "worst_total_C_over_A_at_most": 1.5,
+    "raw_source_reduction": true,
+    "note": "Exploratory engineering screen; no significance/generalization; failures not removed from total-cost accounting"
+  },
+  "surface_limits": "A is a matched source-acquisition control with literal search and generic symbol index, not a full IDE/LSP baseline; identical structured body mutation in all arms. No broad conventional-tool superiority claim.",
+  "initial_inputs": {
+    "Q01": [
+      {
+        "role": "system",
+        "content": "Maintain only the authorized ALVA target body under the public requirement.\nUse the advertised source/context/reference tools as needed; complete public source and shared documentation remain accessible.\nread_target provides the view_id. prepare_change accepts one full ALVA (body ...) fragment, not an entire function/module.\nHost owns revision/scope control, isolated compiler/build/behavior checks and publication. Repair rejected candidates within the same view.\nPublish the PREPARED proposal once with publish_change. Preparation is not publication. A published-but-unverified result is not success.\nNo shell, arbitrary filesystem, evaluator source, test changes, other sessions or operator recovery are available.\nFinite tests and bounded structural context are not completeness proofs; use source fallback when needed.\nLimits: 12 generation requests, 36 dispatched tool calls, 480 active seconds, 120000 cumulative reported-token observation threshold, 4096 output cap, 131072 serialized request bytes. Token observation is NOT a provider hard cumulative limit. Completed responses drain legal actions subject to tool/wall/safety limits, then no next request if exhausted.\nNormal completion without publication or a resource stop ends this single attempt. No retries or replacements.\n\n---\nname: alva-host\ndescription: Maintain an authorized ALVA function through the protected maintenance Host. Use only when read_target, prepare_change and publish_change are advertised.\n---\n\n# ALVA maintenance Host\n\n1. Read the authorized qualified function with `read_target`. Its body and\n   declaration are current semantic context; retain its opaque `view_id`.\n2. Submit a complete `(body ...)` fragment to `prepare_change`. Review the\n   returned diff and require `PREPARED`, passing checks and `can_publish`.\n3. Publish that `proposal_id` once. Require `PUBLISHED` and fresh authority\n   verification before reporting success. Preparation alone does not publish.\n\nHost owns transactions, revisions, scope checks, isolated tests and Native\npublication. Edit only the authorized body; preserve declarations, types,\ncontracts, non-target functions and regression requirements.\n\nFor syntax, use the small language sections in `read_reference` when available.\nRead only what is needed. This profile does not require the general Native/CLI\ntransaction tutorial or hello-message example. Full references remain available.\nUse `read_source` only when missing public source context is needed; its\nimport projection is not the current staged AIR body. Tool schemas override\nincompatible examples. A source-proposal Host may advertise exact text edits\ninstead of a body argument; follow its actual schema and edit acknowledgement.\n\nOn a rejected body, repair within the same view. After expiry/conflict, read\nagain. A failed preparation invalidates older proposals. Never replay a\nconsumed proposal. Preserve and report a published-but-unverified revision;\nunknown publication outcomes require reconciliation, not an automatic retry.\n\nDo not bypass the Host with raw Native commits, source writes or private AEP\noperations. Finite tests and bounded direct context are not completeness proofs.\n"
+      },
+      {
+        "role": "user",
+        "content": "{\"task\": {\"id\": \"Q01\", \"target\": \"billing.charge\", \"requirement\": \"Normalize negative subtotal and cap to zero; charge is the smaller normalized value. Preserve all non-target behavior and signatures.\"}, \"source_paths\": [\"alva.toml\", \"audit.alva\", \"billing.alva\"]}"
+      }
+    ],
+    "Q02": [
+      {
+        "role": "system",
+        "content": "Maintain only the authorized ALVA target body under the public requirement.\nUse the advertised source/context/reference tools as needed; complete public source and shared documentation remain accessible.\nread_target provides the view_id. prepare_change accepts one full ALVA (body ...) fragment, not an entire function/module.\nHost owns revision/scope control, isolated compiler/build/behavior checks and publication. Repair rejected candidates within the same view.\nPublish the PREPARED proposal once with publish_change. Preparation is not publication. A published-but-unverified result is not success.\nNo shell, arbitrary filesystem, evaluator source, test changes, other sessions or operator recovery are available.\nFinite tests and bounded structural context are not completeness proofs; use source fallback when needed.\nLimits: 12 generation requests, 36 dispatched tool calls, 480 active seconds, 120000 cumulative reported-token observation threshold, 4096 output cap, 131072 serialized request bytes. Token observation is NOT a provider hard cumulative limit. Completed responses drain legal actions subject to tool/wall/safety limits, then no next request if exhausted.\nNormal completion without publication or a resource stop ends this single attempt. No retries or replacements.\n\n---\nname: alva-host\ndescription: Maintain an authorized ALVA function through the protected maintenance Host. Use only when read_target, prepare_change and publish_change are advertised.\n---\n\n# ALVA maintenance Host\n\n1. Read the authorized qualified function with `read_target`. Its body and\n   declaration are current semantic context; retain its opaque `view_id`.\n2. Submit a complete `(body ...)` fragment to `prepare_change`. Review the\n   returned diff and require `PREPARED`, passing checks and `can_publish`.\n3. Publish that `proposal_id` once. Require `PUBLISHED` and fresh authority\n   verification before reporting success. Preparation alone does not publish.\n\nHost owns transactions, revisions, scope checks, isolated tests and Native\npublication. Edit only the authorized body; preserve declarations, types,\ncontracts, non-target functions and regression requirements.\n\nFor syntax, use the small language sections in `read_reference` when available.\nRead only what is needed. This profile does not require the general Native/CLI\ntransaction tutorial or hello-message example. Full references remain available.\nUse `read_source` only when missing public source context is needed; its\nimport projection is not the current staged AIR body. Tool schemas override\nincompatible examples. A source-proposal Host may advertise exact text edits\ninstead of a body argument; follow its actual schema and edit acknowledgement.\n\nOn a rejected body, repair within the same view. After expiry/conflict, read\nagain. A failed preparation invalidates older proposals. Never replay a\nconsumed proposal. Preserve and report a published-but-unverified revision;\nunknown publication outcomes require reconciliation, not an automatic retry.\n\nDo not bypass the Host with raw Native commits, source writes or private AEP\noperations. Finite tests and bounded direct context are not completeness proofs.\n"
+      },
+      {
+        "role": "user",
+        "content": "{\"task\": {\"id\": \"Q02\", \"target\": \"shipping.quote\", \"requirement\": \"A request with parcel mass <= 0 must quote zero. Otherwise use the existing rates.base charge, and add 20 only for a priority request. Preserve base pricing and the public quote_for adapter.\"}, \"source_paths\": [\"alva.toml\", \"model.alva\", \"rates.alva\", \"shipping.alva\"]}"
+      }
+    ],
+    "Q03": [
+      {
+        "role": "system",
+        "content": "Maintain only the authorized ALVA target body under the public requirement.\nUse the advertised source/context/reference tools as needed; complete public source and shared documentation remain accessible.\nread_target provides the view_id. prepare_change accepts one full ALVA (body ...) fragment, not an entire function/module.\nHost owns revision/scope control, isolated compiler/build/behavior checks and publication. Repair rejected candidates within the same view.\nPublish the PREPARED proposal once with publish_change. Preparation is not publication. A published-but-unverified result is not success.\nNo shell, arbitrary filesystem, evaluator source, test changes, other sessions or operator recovery are available.\nFinite tests and bounded structural context are not completeness proofs; use source fallback when needed.\nLimits: 12 generation requests, 36 dispatched tool calls, 480 active seconds, 120000 cumulative reported-token observation threshold, 4096 output cap, 131072 serialized request bytes. Token observation is NOT a provider hard cumulative limit. Completed responses drain legal actions subject to tool/wall/safety limits, then no next request if exhausted.\nNormal completion without publication or a resource stop ends this single attempt. No retries or replacements.\n\n---\nname: alva-host\ndescription: Maintain an authorized ALVA function through the protected maintenance Host. Use only when read_target, prepare_change and publish_change are advertised.\n---\n\n# ALVA maintenance Host\n\n1. Read the authorized qualified function with `read_target`. Its body and\n   declaration are current semantic context; retain its opaque `view_id`.\n2. Submit a complete `(body ...)` fragment to `prepare_change`. Review the\n   returned diff and require `PREPARED`, passing checks and `can_publish`.\n3. Publish that `proposal_id` once. Require `PUBLISHED` and fresh authority\n   verification before reporting success. Preparation alone does not publish.\n\nHost owns transactions, revisions, scope checks, isolated tests and Native\npublication. Edit only the authorized body; preserve declarations, types,\ncontracts, non-target functions and regression requirements.\n\nFor syntax, use the small language sections in `read_reference` when available.\nRead only what is needed. This profile does not require the general Native/CLI\ntransaction tutorial or hello-message example. Full references remain available.\nUse `read_source` only when missing public source context is needed; its\nimport projection is not the current staged AIR body. Tool schemas override\nincompatible examples. A source-proposal Host may advertise exact text edits\ninstead of a body argument; follow its actual schema and edit acknowledgement.\n\nOn a rejected body, repair within the same view. After expiry/conflict, read\nagain. A failed preparation invalidates older proposals. Never replay a\nconsumed proposal. Preserve and report a published-but-unverified revision;\nunknown publication outcomes require reconciliation, not an automatic retry.\n\nDo not bypass the Host with raw Native commits, source writes or private AEP\noperations. Finite tests and bounded direct context are not completeness proofs.\n"
+      },
+      {
+        "role": "user",
+        "content": "{\"task\": {\"id\": \"Q03\", \"target\": \"retry.delay\", \"requirement\": \"For negative attempts return zero. For other attempts increase the existing policy.base delay by 3, capped at 20. Do not change policy.base or audit behavior.\"}, \"source_paths\": [\"alva.toml\", \"audit.alva\", \"policy.alva\", \"retry.alva\"]}"
+      }
+    ]
+  },
+  "controller_python_sha256": "467014615a5255aca450ae88100dd2caf887da87657f00e3c2171ec44a685aec",
+  "controller_python_version": "3.14.0",
+  "initial_request_sha256": {
+    "Q01": "4cad7fb352059b5a0d726de7db4debc18a614bc94ca1a8cdd73d4a0d7ea234d0",
+    "Q02": "70e27c86a3f5da32d6a686be2abd1aca479f193216117b71987cdb9313c162c3",
+    "Q03": "00adfa78d9985575fc07f547e2e859f73deb97305ff3cbe1c72b746a9c325e86"
+  },
+  "canary": {
+    "classification": "NON_SCIENTIFIC_TOY",
+    "result": "PASS",
+    "requests": 2,
+    "reported_model": "deepseek-flash",
+    "reported_total_tokens": 748,
+    "thinking": "enabled",
+    "reasoning_effort": "low",
+    "tool_continuation": "PASS"
+  },
+  "pre_freeze_corrections": [
+    "Q02 initial nominal alias/i64 mismatch fixed before model use with nested records; no Core change",
+    "WSL cannot resolve Windows linked-worktree Git metadata; trusted base SHA passed explicitly and controller Git verifies pushed freeze"
+  ]
+}

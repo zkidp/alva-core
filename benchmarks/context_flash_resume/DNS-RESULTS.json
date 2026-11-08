@@ -1,0 +1,496 @@
+{
+  "status": "COMPLETED_SEVEN_REMAINING",
+  "original_overall_status": "INCOMPLETE_Q01_A_TRANSPORT_CENSORED",
+  "classification": "DESCRIPTIVE_PARTIAL_CONTINUATION_ONLY",
+  "full_original_screen_evaluable": false,
+  "rows": [
+    {
+      "id": "Q01-C",
+      "task": "Q01",
+      "arm": "C",
+      "submitted_requests": 5,
+      "reported_usage": {
+        "cachedInputTokens": 13568,
+        "inputTokens": 15960,
+        "outputTokens": 736,
+        "reasoningOutputTokens": 218,
+        "totalTokens": 16696
+      },
+      "calls": 8,
+      "first_accepted_change": {
+        "actual_tokens": 12377,
+        "raw_source_delivered": 290,
+        "request": 4,
+        "unique_raw_source": 290
+      },
+      "active_seconds": 9.404402200016193,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 290,
+        "unique_raw_bytes": 290
+      },
+      "stop_reason": "PUBLISHED",
+      "infrastructure_hold": null,
+      "safe_transport_diagnostics": null,
+      "eligible": true,
+      "usage_complete": true,
+      "unknown_usage_attempts": 0,
+      "correct": true,
+      "task_result": "PASS",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": true,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 3,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.809743280000001,
+        "guard_reads": 3,
+        "native_calls": 20,
+        "native_reply_bytes": 103207,
+        "native_seconds": 0.013581251999998045,
+        "native_wire_reply_bytes": 51530,
+        "native_wire_request_bytes": 1768
+      },
+      "source_reads": 1,
+      "searches": 0,
+      "projection_deliveries": 1,
+      "projection_bytes": 620
+    },
+    {
+      "id": "Q02-C",
+      "task": "Q02",
+      "arm": "C",
+      "submitted_requests": 8,
+      "reported_usage": {
+        "cachedInputTokens": 27520,
+        "inputTokens": 31712,
+        "outputTokens": 1146,
+        "reasoningOutputTokens": 505,
+        "totalTokens": 32858
+      },
+      "calls": 12,
+      "first_accepted_change": {
+        "actual_tokens": 26725,
+        "raw_source_delivered": 632,
+        "request": 7,
+        "unique_raw_source": 632
+      },
+      "active_seconds": 13.865201900014654,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 632,
+        "unique_raw_bytes": 632
+      },
+      "stop_reason": "PUBLISHED",
+      "infrastructure_hold": null,
+      "safe_transport_diagnostics": null,
+      "eligible": true,
+      "usage_complete": true,
+      "unknown_usage_attempts": 0,
+      "correct": true,
+      "task_result": "PASS",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": true,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 3,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.0906721740000016,
+        "guard_reads": 3,
+        "native_calls": 20,
+        "native_reply_bytes": 160206,
+        "native_seconds": 0.015079195999994965,
+        "native_wire_reply_bytes": 78603,
+        "native_wire_request_bytes": 1838
+      },
+      "source_reads": 2,
+      "searches": 3,
+      "projection_deliveries": 1,
+      "projection_bytes": 1211
+    },
+    {
+      "id": "Q02-A",
+      "task": "Q02",
+      "arm": "A",
+      "submitted_requests": 6,
+      "reported_usage": {
+        "cachedInputTokens": 15104,
+        "inputTokens": 17358,
+        "outputTokens": 841,
+        "reasoningOutputTokens": 315,
+        "totalTokens": 18199
+      },
+      "calls": 10,
+      "first_accepted_change": {
+        "actual_tokens": 14007,
+        "raw_source_delivered": 817,
+        "request": 5,
+        "unique_raw_source": 817
+      },
+      "active_seconds": 10.22753230005037,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 817,
+        "unique_raw_bytes": 817
+      },
+      "stop_reason": "PUBLISHED",
+      "infrastructure_hold": null,
+      "safe_transport_diagnostics": null,
+      "eligible": true,
+      "usage_complete": true,
+      "unknown_usage_attempts": 0,
+      "correct": true,
+      "task_result": "PASS",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": true,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 3,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.0972970149999952,
+        "guard_reads": 3,
+        "native_calls": 17,
+        "native_reply_bytes": 130290,
+        "native_seconds": 0.013705295000001172,
+        "native_wire_reply_bytes": 64150,
+        "native_wire_request_bytes": 1602
+      },
+      "source_reads": 3,
+      "searches": 0,
+      "projection_deliveries": 0,
+      "projection_bytes": 0
+    },
+    {
+      "id": "Q02-B",
+      "task": "Q02",
+      "arm": "B",
+      "submitted_requests": 5,
+      "reported_usage": {
+        "cachedInputTokens": 12416,
+        "inputTokens": 14557,
+        "outputTokens": 820,
+        "reasoningOutputTokens": 375,
+        "totalTokens": 15377
+      },
+      "calls": 7,
+      "first_accepted_change": {
+        "actual_tokens": 11264,
+        "raw_source_delivered": 479,
+        "request": 4,
+        "unique_raw_source": 479
+      },
+      "active_seconds": 10.097364200046286,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 479,
+        "unique_raw_bytes": 479
+      },
+      "stop_reason": "PUBLISHED",
+      "infrastructure_hold": null,
+      "safe_transport_diagnostics": null,
+      "eligible": true,
+      "usage_complete": true,
+      "unknown_usage_attempts": 0,
+      "correct": true,
+      "task_result": "PASS",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": true,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 3,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.167005157999995,
+        "guard_reads": 3,
+        "native_calls": 17,
+        "native_reply_bytes": 132236,
+        "native_seconds": 0.011921913999998424,
+        "native_wire_reply_bytes": 65078,
+        "native_wire_request_bytes": 1627
+      },
+      "source_reads": 1,
+      "searches": 0,
+      "projection_deliveries": 0,
+      "projection_bytes": 0
+    },
+    {
+      "id": "Q03-B",
+      "task": "Q03",
+      "arm": "B",
+      "submitted_requests": 4,
+      "reported_usage": {
+        "cachedInputTokens": 8960,
+        "inputTokens": 10648,
+        "outputTokens": 572,
+        "reasoningOutputTokens": 208,
+        "totalTokens": 11220
+      },
+      "calls": 6,
+      "first_accepted_change": {
+        "actual_tokens": 7688,
+        "raw_source_delivered": 191,
+        "request": 3,
+        "unique_raw_source": 191
+      },
+      "active_seconds": 6.410474800039083,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 191,
+        "unique_raw_bytes": 191
+      },
+      "stop_reason": "PUBLISHED",
+      "infrastructure_hold": null,
+      "safe_transport_diagnostics": null,
+      "eligible": true,
+      "usage_complete": true,
+      "unknown_usage_attempts": 0,
+      "correct": true,
+      "task_result": "PASS",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": true,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 3,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.116872664000006,
+        "guard_reads": 3,
+        "native_calls": 17,
+        "native_reply_bytes": 85849,
+        "native_seconds": 0.01171675000001926,
+        "native_wire_reply_bytes": 42898,
+        "native_wire_request_bytes": 1498
+      },
+      "source_reads": 1,
+      "searches": 0,
+      "projection_deliveries": 0,
+      "projection_bytes": 0
+    },
+    {
+      "id": "Q03-C",
+      "task": "Q03",
+      "arm": "C",
+      "submitted_requests": 5,
+      "reported_usage": {
+        "cachedInputTokens": 13568,
+        "inputTokens": 16115,
+        "outputTokens": 668,
+        "reasoningOutputTokens": 182,
+        "totalTokens": 16783
+      },
+      "calls": 8,
+      "first_accepted_change": {
+        "actual_tokens": 12519,
+        "raw_source_delivered": 176,
+        "request": 4,
+        "unique_raw_source": 176
+      },
+      "active_seconds": 8.167529600090347,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 176,
+        "unique_raw_bytes": 176
+      },
+      "stop_reason": "PUBLISHED",
+      "infrastructure_hold": null,
+      "safe_transport_diagnostics": null,
+      "eligible": true,
+      "usage_complete": true,
+      "unknown_usage_attempts": 0,
+      "correct": true,
+      "task_result": "PASS",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": true,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 3,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.1156624460000018,
+        "guard_reads": 3,
+        "native_calls": 20,
+        "native_reply_bytes": 101791,
+        "native_seconds": 0.008725969999986205,
+        "native_wire_reply_bytes": 50755,
+        "native_wire_request_bytes": 1704
+      },
+      "source_reads": 1,
+      "searches": 1,
+      "projection_deliveries": 1,
+      "projection_bytes": 824
+    },
+    {
+      "id": "Q03-A",
+      "task": "Q03",
+      "arm": "A",
+      "submitted_requests": 4,
+      "reported_usage": {
+        "cachedInputTokens": 8064,
+        "inputTokens": 9291,
+        "outputTokens": 587,
+        "reasoningOutputTokens": 233,
+        "totalTokens": 9878
+      },
+      "calls": 5,
+      "first_accepted_change": {
+        "actual_tokens": 6804,
+        "raw_source_delivered": 0,
+        "request": 3,
+        "unique_raw_source": 0
+      },
+      "active_seconds": 6.94902960001491,
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 0,
+        "unique_raw_bytes": 0
+      },
+      "stop_reason": "PUBLISHED",
+      "infrastructure_hold": null,
+      "safe_transport_diagnostics": null,
+      "eligible": true,
+      "usage_complete": true,
+      "unknown_usage_attempts": 0,
+      "correct": true,
+      "task_result": "PASS",
+      "regression": "PASS",
+      "scope": "SCOPE_ALLOWED",
+      "fresh_authority_matches": true,
+      "source_unchanged": true,
+      "host_work": {
+        "agent_tool_calls": 3,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.1198769720000001,
+        "guard_reads": 3,
+        "native_calls": 17,
+        "native_reply_bytes": 89449,
+        "native_seconds": 0.013795694999984676,
+        "native_wire_reply_bytes": 44619,
+        "native_wire_request_bytes": 1567
+      },
+      "source_reads": 0,
+      "searches": 0,
+      "projection_deliveries": 0,
+      "projection_bytes": 0
+    }
+  ],
+  "task_triples": [
+    {
+      "task": "Q01",
+      "observed_continued_arms": [
+        "C"
+      ],
+      "A_disposition": "ORIGINAL_INFRASTRUCTURE_HOLD_EXCLUDED_NOT_RETRIED",
+      "eligible": false
+    },
+    {
+      "task": "Q02",
+      "observed_continued_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "eligible": true,
+      "total_tokens": {
+        "C": 32858,
+        "A": 18199,
+        "B": 15377
+      },
+      "correct": {
+        "C": true,
+        "A": true,
+        "B": true
+      },
+      "unique_raw_bytes": {
+        "C": 632,
+        "A": 817,
+        "B": 479
+      },
+      "raw_delivered_bytes": {
+        "C": 632,
+        "A": 817,
+        "B": 479
+      },
+      "C_over_A": 1.8054838177921864
+    },
+    {
+      "task": "Q03",
+      "observed_continued_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "eligible": true,
+      "total_tokens": {
+        "B": 11220,
+        "C": 16783,
+        "A": 9878
+      },
+      "correct": {
+        "B": true,
+        "C": true,
+        "A": true
+      },
+      "unique_raw_bytes": {
+        "B": 191,
+        "C": 176,
+        "A": 0
+      },
+      "raw_delivered_bytes": {
+        "B": 191,
+        "C": 176,
+        "A": 0
+      },
+      "C_over_A": 1.699028143348856
+    }
+  ],
+  "BC_pairs": [
+    {
+      "task": "Q02",
+      "B_correct": true,
+      "C_correct": true,
+      "C_over_B": 2.1368277297262144
+    },
+    {
+      "task": "Q03",
+      "B_correct": true,
+      "C_correct": true,
+      "C_over_B": 1.4958110516934047
+    }
+  ],
+  "eligible_AC_pairs": 2,
+  "descriptive_median_C_over_A": 1.7522559805705211,
+  "descriptive_worst_C_over_A": 1.8054838177921864,
+  "continuation_requests_submitted": 37,
+  "prior_requests_submitted": 4,
+  "prior_unknown_usage_attempts": 2,
+  "all_scientific_total_tokens": null,
+  "retest_canary_requests_separate": 2,
+  "limitations": [
+    "Original Q01-A was not rerun/replaced; missing cost remains UNKNOWN",
+    "No complete 9-slot primary comparison or formal screen outcome",
+    "Single fresh session per remaining cell; authored tiny fixtures, not external/independent holdout tasks",
+    "Source-only acquisition control is not a full IDE/LSP",
+    "No statistical, causal or superiority claim"
+  ],
+  "previous_second_wave": {
+    "slot": "Q01-B",
+    "status": "HOLD",
+    "requests_submitted": 1,
+    "received_responses": 0,
+    "reason": "URLError -> gaierror errno 11001 (DNS)"
+  },
+  "Q01_B_also_censored": true,
+  "amendment_commit": "01f19776953d33f436606f5d04d860e7c98c6930",
+  "non_scientific_canary_requests_all_waves": 6,
+  "transport_note": "Process-local validated DNS route; no global DNS changes, TLS bypass, or request retry. Not a permanent OS DNS repair."
+}
