@@ -5,6 +5,7 @@ on:
       - 'benchmarks/context_flash_resume/**'
       - 'tests/integrations/test_context_flash_resume.py'
       - 'tests/integrations/test_context_flash_dns_route.py'
+      - 'tests/integrations/test_context_flash_resume_analysis.py'
       - '.github/workflows/context-flash-resume.yml'
 permissions:
   contents: read
@@ -19,4 +20,4 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m unittest tests.integrations.test_context_flash_resume tests.integrations.test_context_flash_dns_route tests.integrations.test_context_flash_pilot tests.integrations.test_context_flash_closeout -v
+      - run: python -m unittest tests.integrations.test_context_flash_resume tests.integrations.test_context_flash_dns_route tests.integrations.test_context_flash_resume_analysis tests.integrations.test_context_flash_pilot tests.integrations.test_context_flash_closeout -v
