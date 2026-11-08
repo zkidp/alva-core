@@ -141,7 +141,50 @@ performance or global novelty claim is adopted from the report.
 
 ## Decision and next necessary work
 
-If the six scenarios agree, the supported statement is operational overlap in
+### Actual deterministic result
+
+The full run on 2026-11-09 passed on Ubuntu 26.04/WSL, Python 3.14.4,
+Rust 1.98.0, Git 2.53.0 and bubblewrap 0.11.1:
+
+| Scenario | Text final publication | ALVA final publication |
+| --- | --- | --- |
+| Correct | PUBLISHED | PUBLISHED |
+| Malformed | REJECTED | REJECTED |
+| Behavior wrong | REJECTED | REJECTED |
+| Failed reprepare | REJECTED | REJECTED |
+| Source changed | REJECTED: SOURCE_BASE_CHANGED | REJECTED: SOURCE_CHANGED_READ_TARGET |
+| Authority changed | REJECTED: old-ref update failed | PUBLISH_REJECTED: E_AEP_CONFLICT |
+
+Both concurrent winners were preserved and independently passed tests. Only
+the correct primary candidate published; rejection does not complete the task:
+without a concurrent winner, the original behavior remains task-failing. The
+unpaired protected-helper edit check/build/tests all passed, but its source scope
+was rejected. No Native full-source rejection is claimed for that probe.
+
+The first development run completed all six pairs but failed the last unpaired
+probe due to an extra closing parenthesis in this new driver. It is retained
+locally, not reclassified as an ALVA failure. After the one-character correction,
+the entire driver passed in a new output directory. No historical freeze or
+model slot was changed or repeated. Results SHA256:
+
+- Incomplete development result:
+  `d8e14409c7619d9c64dc9358a907c593f0aab91825b1711718853976834d00a4`.
+- Complete local result:
+  `c71901963a877eae0f00b63e7ab86fdb66c3c005ce41eb5eb95723195068bf9c`.
+- Complete-run driver:
+  `ea0333c9aaef978e7f0061079cef067e6cd1c1ec46e0e62df941c9aa42092cc2`.
+- Exact source input snapshot:
+  `bfbe99a515f5ba8b2302a09f122a5b84c4a7a2b824f7f56ab27acd2b2a5340ce`.
+
+Windows and Linux each passed four real Git unit tests. These unit tests label
+their evaluator stub explicitly; only the Linux integration driver uses actual
+compiler/build/behavior checks. New CI reruns that full driver and saves its own
+runtime evidence as artifacts; local hashes above do not imply identical timing,
+random proposal IDs, result hashes or toolchain bytes across machines.
+
+### Bounded conclusion
+
+The six scenarios agree. The supported statement is operational overlap in
 this example: an explicit strong source/Git/test pipeline can bind checked bytes
 and reject stale publication too. It does not prove systems equivalent, establish
 user value, or invalidate ALVA's engineering reliability. A larger experiment is
