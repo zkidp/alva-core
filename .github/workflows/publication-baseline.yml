@@ -1,0 +1,47 @@
+name: Publication boundary feasibility
+on:
+  pull_request:
+    paths:
+      - 'scripts/publication_baseline_feasibility.py'
+      - 'tests/integrations/test_publication_baseline.py'
+      - 'docs/research/guarded-publication-feasibility.md'
+      - 'docs/research/maintenance-non-author-walkthrough.md'
+      - '.github/workflows/publication-baseline.yml'
+permissions:
+  contents: read
+jobs:
+  git-boundary:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest tests.integrations.test_publication_baseline -v
+  actual-publication:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+      - run: cargo build --locked --manifest-path alva/Cargo.toml
+      - name: Real Git and actual Host, same trusted behavior checks
+        shell: bash
+        run: |
+          python scripts/publication_baseline_feasibility.py \
+            --alva "$PWD/alva/target/debug/alva" \
+            --toolchain "$(rustc --print sysroot)" \
+            --registry "${CARGO_HOME:-$HOME/.cargo}/registry" \
+            --output "$PWD/.local/publication"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: publication-boundary-local-results
+          path: .local/publication/
