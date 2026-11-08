@@ -57,9 +57,12 @@ apply. Candidate AIR becomes authority only through the existing publish action.
 The successful result is read from fresh authority, independently evaluated,
 projected into a separate source project and evaluated again.
 
-All candidate parsing/checking/building/execution uses existing Linux OS
-isolation. The trusted Git driver only stores/reads fixture bytes and updates its
-new local ref; it never runs candidate hooks, shell or code. Neither path mutates
+Candidate builds and behavior execution, plus source-only parse/check evaluation,
+use existing Linux OS isolation. Native graph/body parsing and transactions use
+the existing Host's trusted `AgentProcess` on the host; this is not a claim that
+the entire three-action server runs inside the P23 sandbox. No isolation boundary
+is newly strengthened here. The trusted Git driver only stores/reads fixture bytes
+and updates its new local ref; it never runs candidate hooks, shell or code. Neither path mutates
 the checkout containing this example. Output directories must be new.
 
 | Scripted scenario | Expected controlled publication |
