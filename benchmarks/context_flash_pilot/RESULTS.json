@@ -1,0 +1,148 @@
+{
+  "status": "HOLD",
+  "freeze_commit": "1fac9d9c10f2bb2c17db11bb4be59b4aff757886",
+  "freeze_sha256": "476cf1e06882eb40e073a2be3d351bc35d3b86bf50f759bea65055b3d24b6bf9",
+  "classification": "INCONCLUSIVE_INFRASTRUCTURE_HOLD",
+  "rows": [
+    {
+      "id": "Q01-A",
+      "task": "Q01",
+      "arm": "A",
+      "submitted_requests": 4,
+      "calls": 4,
+      "first_generation_utc": "2026-11-08T18:59:41.091289+00:00",
+      "last_request_admission": {
+        "ordinal": 4,
+        "output_cap": 4096,
+        "prior_reported_total": 7762,
+        "remaining_seconds": 472.83946789999027,
+        "request_bytes": 14827,
+        "tools_dispatched": 4
+      },
+      "first_accepted_change": {
+        "actual_tokens": 7762,
+        "raw_source_delivered": 290,
+        "request": 3,
+        "unique_raw_source": 290
+      },
+      "reported_usage": {
+        "cachedInputTokens": 3968,
+        "inputTokens": 7257,
+        "outputTokens": 505,
+        "reasoningOutputTokens": 180,
+        "totalTokens": 7762
+      },
+      "source_exposure": {
+        "duplicate_raw_bytes": 0,
+        "limitation": "Exact source tool bytes only; target body/context representations are separately retained, not treated as raw source",
+        "raw_delivered_bytes": 290,
+        "unique_raw_bytes": 290
+      },
+      "active_seconds": 18.379576800041832,
+      "stop_reason": null,
+      "infrastructure_hold": "ProviderFault:PROVIDER_TRANSPORT_URLError_OUTCOME_UNKNOWN_NO_RETRY",
+      "correct": false,
+      "task_status": "TEST_FAIL",
+      "regression": "PASS",
+      "fresh_authority_matches": false,
+      "original_sources_unchanged": true,
+      "scope": "SCOPE_ALLOWED",
+      "host_work": {
+        "agent_tool_calls": 2,
+        "evaluation_runs": 1,
+        "evaluation_seconds": 1.4324203549999766,
+        "guard_reads": 2,
+        "native_calls": 12,
+        "native_reply_bytes": 64175,
+        "native_seconds": 0.010532208999990189,
+        "native_wire_reply_bytes": 32213,
+        "native_wire_request_bytes": 1292
+      },
+      "read_source_calls": 1,
+      "search_calls": 0,
+      "context_deliveries": 0,
+      "rejected_calls": 0,
+      "request_count": 3,
+      "target_representation_bytes": 21,
+      "projection_bytes": 0,
+      "usage_complete_for_submitted_requests": false,
+      "usage_scope": "Received responses only; missing attempt usage UNKNOWN, not zero",
+      "unknown_usage_attempts": 1,
+      "model_performance_eligible": false,
+      "interpretation": "Operational final authority outcome, not an eligible agent-failure outcome under infrastructure HOLD"
+    }
+  ],
+  "pairs": [
+    {
+      "task": "Q01",
+      "observed_arms": [
+        "A"
+      ]
+    },
+    {
+      "task": "Q02",
+      "observed_arms": []
+    },
+    {
+      "task": "Q03",
+      "observed_arms": []
+    }
+  ],
+  "median_C_over_A": null,
+  "worst_C_over_A": null,
+  "C_raw_delivery_lower_aggregate": false,
+  "C_correct_not_lower": false,
+  "scientific_requests_submitted": 4,
+  "canary_requests_separate": 2,
+  "limitations": [
+    "Codex-authored maintenance fixtures; not external real-repository or independent holdout samples",
+    "A is a matched source-acquisition control with literal search and generic symbol index, not a full IDE/LSP baseline; identical structured body mutation in all arms. No broad conventional-tool superiority claim.",
+    "Parsed provider JSON retained; raw HTTP response wire not captured",
+    "Single attempt per task/condition, no significance or causal/generalization claim",
+    "Raw source bytes exclude structured representations; both retained separately; provider totals include all context"
+  ],
+  "not_started_slots": [
+    {
+      "id": "Q01-B",
+      "task": "Q01",
+      "arm": "B"
+    },
+    {
+      "id": "Q01-C",
+      "task": "Q01",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-C",
+      "task": "Q02",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-A",
+      "task": "Q02",
+      "arm": "A"
+    },
+    {
+      "id": "Q02-B",
+      "task": "Q02",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-B",
+      "task": "Q03",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-C",
+      "task": "Q03",
+      "arm": "C"
+    },
+    {
+      "id": "Q03-A",
+      "task": "Q03",
+      "arm": "A"
+    }
+  ],
+  "post_execution_reporting_clarification": "Received usage is not full spend when a submitted request has unknown outcome; no raw/frozen record changed.",
+  "batch_total_token_cost": null
+}
