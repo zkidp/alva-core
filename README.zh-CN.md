@@ -6,7 +6,7 @@
 ALVA 提供基于 Rust 的编译器、结构化语义编辑和本地 MCP 接入；实验中的维护工作流进一步由可信 Host
 控制修改范围、行为检查及发布。
 
-[![开发预览](https://img.shields.io/badge/preview-v0.14.1--preview.2-635BFF)](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2)
+[![开发预览](https://img.shields.io/badge/preview-v0.14.1--preview.3-635BFF)](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.3)
 [![CI](https://github.com/zkidp/alva-core/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zkidp/alva-core/actions/workflows/ci.yml)
 [![许可证](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
@@ -55,14 +55,20 @@ publish_change    → PUBLISHED           范围允许，发布后重读权威�
 
 ### 1. 安装 CLI
 
-当前 CLI 开发预览版：**`v0.14.1-preview.2`**。安装器通过 `SHA256SUMS.txt`
+当前 CLI 开发预览版：**`v0.14.1-preview.3`**。安装器通过 `SHA256SUMS.txt`
 核对下载包。运行远程脚本前请先审阅；也可以从
-[Release 页面](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2) 手动下载。
+[Release 页面](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.3) 手动下载。
+
+**直接下载安装包：**
+[Windows x64 (.zip)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-windows-x86_64.zip) ·
+[Linux x64 (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-linux-x86_64.tar.gz) ·
+[macOS Apple Silicon (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-macos-aarch64.tar.gz) ·
+[SHA-256 校验和](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/SHA256SUMS.txt)
 
 **Windows x64：PowerShell**
 
 ```powershell
-irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/scripts/install.ps1 | iex
 alva --version
 alva doctor
 ```
@@ -70,7 +76,7 @@ alva doctor
 **Linux x64 / macOS Apple Silicon：终端**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/scripts/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 alva --version
 alva doctor
@@ -85,13 +91,13 @@ alva doctor
 
 ```powershell
 # Windows PowerShell
-irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva -OutFile hello.alva
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/alva/examples/hello.alva -OutFile hello.alva
 alva check hello.alva
 ```
 
 ```bash
 # Linux / macOS
-curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva
+curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/alva/examples/hello.alva
 alva check hello.alva
 ```
 

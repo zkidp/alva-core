@@ -7,7 +7,7 @@
 
 | Path | Requirements | What you get |
 | --- | --- | --- |
-| CLI `v0.14.1-preview.2` | Windows x64, Linux x64 or macOS Apple Silicon | Prebuilt compiler and Native MCP; Rust/Cargo additionally needed to build generated code |
+| CLI `v0.14.1-preview.3` | Windows x64, Linux x64 or macOS Apple Silicon | Prebuilt compiler and Native MCP; Rust/Cargo additionally needed to build generated code |
 | Build current `main` | Rust and Cargo | This checkout, not all open PRs |
 | Guarded maintenance development checkout | Linux/WSL, Python, Rust, bubblewrap and prlimit, trusted scope/tests | Separate [version-pinned walkthrough](development-preview.md#guarded-maintenance); no native Windows/macOS evaluator fallback |
 
@@ -20,7 +20,7 @@ installers. If you prefer to inspect them first:
 
 ```powershell
 # Windows: save, inspect, then execute according to your local script policy.
-irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.ps1 -OutFile install-alva.ps1
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/scripts/install.ps1 -OutFile install-alva.ps1
 Get-Content .\install-alva.ps1
 # Run the reviewed script; do not change machine-wide execution policy.
 & .\install-alva.ps1
@@ -28,7 +28,7 @@ Get-Content .\install-alva.ps1
 
 ```bash
 # Linux x64 / macOS Apple Silicon
-curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.sh -o install-alva.sh
+curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/scripts/install.sh -o install-alva.sh
 less install-alva.sh
 sh install-alva.sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -38,7 +38,7 @@ Installers check archive hashes. Windows normally installs under
 `%LOCALAPPDATA%\Programs\Alva\bin`; Unix defaults to `$HOME/.local/bin`.
 Use `ALVA_INSTALL_DIR` to select another directory. For manual installation,
 download the correct archive and `SHA256SUMS.txt` from the
-[same release](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2).
+[same release](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.3).
 The GitHub "Source code" archive is not a prebuilt binary package.
 
 ## Build from source / 从源码构建

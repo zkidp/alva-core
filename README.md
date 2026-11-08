@@ -7,7 +7,7 @@ ALVA combines a Rust-backed compiler, semantic editing tools and local MCP
 integrations. Its experimental maintenance workflow adds Host-owned scope and
 behavior checks before publication.
 
-[![Developer Preview](https://img.shields.io/badge/preview-v0.14.1--preview.2-635BFF)](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2)
+[![Developer Preview](https://img.shields.io/badge/preview-v0.14.1--preview.3-635BFF)](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.3)
 [![CI](https://github.com/zkidp/alva-core/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zkidp/alva-core/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
@@ -59,15 +59,21 @@ study or a released CLI command.
 
 ### 1. Install the CLI
 
-Current CLI Developer Preview: **`v0.14.1-preview.2`**. Installers verify release
+Current CLI Developer Preview: **`v0.14.1-preview.3`**. Installers verify release
 archives against `SHA256SUMS.txt`. Review remote scripts before running them;
-[manual downloads](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2)
+[manual downloads](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.3)
 are also available.
+
+**Download a package:**
+[Windows x64 (.zip)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-windows-x86_64.zip) ·
+[Linux x64 (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-linux-x86_64.tar.gz) ·
+[macOS Apple Silicon (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-macos-aarch64.tar.gz) ·
+[SHA-256 checksums](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/SHA256SUMS.txt)
 
 **Windows x64 — PowerShell**
 
 ```powershell
-irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/scripts/install.ps1 | iex
 alva --version
 alva doctor
 ```
@@ -75,7 +81,7 @@ alva doctor
 **Linux x64 / macOS Apple Silicon — terminal**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/scripts/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 alva --version
 alva doctor
@@ -91,13 +97,13 @@ Download the sample into a new directory:
 
 ```powershell
 # Windows PowerShell
-irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva -OutFile hello.alva
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/alva/examples/hello.alva -OutFile hello.alva
 alva check hello.alva
 ```
 
 ```bash
 # Linux / macOS
-curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva
+curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.3/alva/examples/hello.alva
 alva check hello.alva
 ```
 

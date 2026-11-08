@@ -6,7 +6,7 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 PAGES = ("README.md", "README.zh-CN.md", "docs/getting-started.md", "docs/development-preview.md")
-VERSION = "v0.14.1-preview.2"
+VERSION = "v0.14.1-preview.3"
 
 
 def slug(heading):
