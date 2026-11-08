@@ -1,0 +1,5 @@
+[project]
+name = "metadata_holdout"
+
+[modules]
+"store.metadata" = "src/metadata.alva"
