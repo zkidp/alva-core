@@ -1,0 +1,85 @@
+{
+  "schema": "context-flash-authorized-continuation/v1",
+  "authorization": "User requested connectivity retest and continuation; do not retry interrupted Q01-A",
+  "original_freeze_sha256": "476cf1e06882eb40e073a2be3d351bc35d3b86bf50f759bea65055b3d24b6bf9",
+  "prior_archive_sha256": "d04ead765699cf4050616250e373f50b151186c73e0b8371bc37325a90523260",
+  "prior_results_sha256": "97b96bbbdd90682aaedde8b8690ce6bba66e0b4fd5e56e63f27a9ad8e31eafab",
+  "schedule": [
+    {
+      "id": "Q01-B",
+      "task": "Q01",
+      "arm": "B"
+    },
+    {
+      "id": "Q01-C",
+      "task": "Q01",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-C",
+      "task": "Q02",
+      "arm": "C"
+    },
+    {
+      "id": "Q02-A",
+      "task": "Q02",
+      "arm": "A"
+    },
+    {
+      "id": "Q02-B",
+      "task": "Q02",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-B",
+      "task": "Q03",
+      "arm": "B"
+    },
+    {
+      "id": "Q03-C",
+      "task": "Q03",
+      "arm": "C"
+    },
+    {
+      "id": "Q03-A",
+      "task": "Q03",
+      "arm": "A"
+    }
+  ],
+  "model_inputs_tools_budget_unchanged": true,
+  "original_interrupted_slot": "Q01-A",
+  "original_slot_retried": false,
+  "connectivity": {
+    "endpoint": "https://api.deepseek.com",
+    "model_generation_calls": 0,
+    "proxy_schemes_present": [],
+    "dns": {
+      "status": "PASS",
+      "address_count": 1
+    },
+    "direct_tls": {
+      "status": "PASS",
+      "tls_version": "TLSv1.3"
+    },
+    "urllib_unauthenticated_https": {
+      "status": "PASS_TRANSPORT",
+      "http_status": 401
+    }
+  },
+  "canary": {
+    "requests": 2,
+    "status": "PASS",
+    "reported_model": "deepseek-flash",
+    "total_received_tokens": 752,
+    "raw_sha256": "4a7cb09de8cfdb676f06bfb588e61a2d76142f1794254181fccad305cf31557d"
+  },
+  "additive_files": {
+    "benchmarks/context_flash_resume/analyze.py": "0d2e701fd12a45c32a481786446db764bb9842449c7ff5742a9d1bc5aad6513a",
+    "benchmarks/context_flash_resume/canary.py": "6fcc9f2798d4884874c15c07ad3ddb19b19f31ae3ab1b5a8aad718456c48dee7",
+    "benchmarks/context_flash_resume/register.py": "eb517e208c22baccb557fd18b8668babcea4385d50481afd1ad2fcc32f3f7959",
+    "benchmarks/context_flash_resume/runner.py": "467e741344b398064a72642cee49dccd7b13fe725e32d15ac989f72e2b51aaf4",
+    "benchmarks/context_flash_resume/transport.py": "bf497cbad7e515d160a161331c1c561ccf35ab47d2e58ee07c0f7db69f430a70"
+  },
+  "execution": "Same frozen conversation/WSL service; DiagnosticAPI calls original API and only observes exceptions; no transport retry or request mutation",
+  "analysis": "Q01-A remains censored; no complete original 9-slot success/cost score. Report all eight continued slots and available Q02/Q03 A/B/C pairs descriptively; no full-screen success classification."
+}
