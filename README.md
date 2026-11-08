@@ -1,232 +1,181 @@
 # ALVA
 
-**A compiler and semantic editing runtime for AI coding agents.**
+### Semantic editing and checked program changes for coding agents
 
-ALVA lets agents inspect and change programs through typed semantic operations
-instead of blind source-text patching. Edits are staged, checked, reviewed as a
-semantic diff, and committed transactionally. Valid programs compile to Rust
-for native or WASM/WASI targets.
+Inspect a program, prepare a change, check it, and explicitly commit a revision.
+ALVA combines a Rust-backed compiler, semantic editing tools and local MCP
+integrations. Its experimental maintenance workflow adds Host-owned scope and
+behavior checks before publication.
 
-[![Release](https://img.shields.io/github/v/release/zkidp/alva-core?include_prereleases&label=release)](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2)
+[![Developer Preview](https://img.shields.io/badge/preview-v0.14.1--preview.2-635BFF)](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2)
 [![CI](https://github.com/zkidp/alva-core/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zkidp/alva-core/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-[Quickstart](#quickstart) · [MCP](#connect-through-mcp) ·
-[Codex](integrations/codex/README.md) ·
-[Claude Code](integrations/claude-code/README.md) ·
-[Releases](https://github.com/zkidp/alva-core/releases)
+English | [简体中文](README.zh-CN.md)
+
+[Quickstart](#quickstart) · [Connect an agent](#connect-your-coding-agent) ·
+[Examples](#examples) · [Latest development](docs/development-preview.md) ·
+[Releases](https://github.com/zkidp/alva-core/releases) ·
+[Questions / issues](https://github.com/zkidp/alva-core/issues)
+
+> **Developer Preview, not a production guarantee.** The released CLI and the
+> newer guarded-maintenance prototype are different versions. Installing the
+> release does not install unmerged PR features. See the
+> [version-specific development guide](docs/development-preview.md).
+
+## What can I do with it?
+
+| Your goal | Start here |
+| --- | --- |
+| Try the language and compiler | [Install and check a small program](#quickstart); no API key needed |
+| Give an agent structured program tools | [MCP, Codex and Claude Code](#connect-your-coding-agent) |
+| Inspect dependencies, stage and review changes | [Native transaction workflow](#how-a-change-works) |
+| Try trusted checks before publishing a bounded repair | [Public packing walkthrough](docs/development-preview.md#guarded-maintenance): opt-in development checkout, Linux only |
+| Understand actual evidence and limitations | [Development status](docs/development-preview.md), not a claim of higher Agent correctness |
+
+## Workflow preview
 
 <p align="center">
-  <img src="docs/assets/alva-hero.svg"
-       alt="ALVA semantic editing pipeline from coding agent through typed operations and transactions to Rust, native, and WASM targets">
+  <img src="docs/assets/alva-hero.svg" alt="Native ALVA workflow: inspect, discover typed operations, stage, check and commit, then generate Rust for native or WASM targets">
 </p>
+
+The **newer, opt-in maintenance Host** presents three actions instead of graph
+internals. The public scripted walkthrough observes:
+
+```text
+read_target       → READY
+prepare_change    → REJECTED             malformed body; not published
+prepare_change    → VALIDATION_FAILED    behavior test failed; not published
+prepare_change    → PREPARED             repaired candidate passes trusted checks
+publish_change    → PUBLISHED            scope allowed; fresh authority reread
+source handoff    → independently checked source-only project
+```
+
+This is an author-scripted engineering example, **not** an Agent success-rate
+study or a released CLI command.
+[Open its exact version and prerequisites](docs/development-preview.md#guarded-maintenance).
 
 ## Quickstart
 
-The current Developer Preview is **`v0.14.1-preview.2`**. The installers
-download the matching release archive and verify it against
-`SHA256SUMS.txt`.
+### 1. Install the CLI
 
-### Windows x64
+Current CLI Developer Preview: **`v0.14.1-preview.2`**. Installers verify release
+archives against `SHA256SUMS.txt`. Review remote scripts before running them;
+[manual downloads](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.2)
+are also available.
+
+**Windows x64 — PowerShell**
 
 ```powershell
-irm https://raw.githubusercontent.com/zkidp/alva-core/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.ps1 | iex
 alva --version
 alva doctor
+```
+
+**Linux x64 / macOS Apple Silicon — terminal**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/scripts/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+alva --version
+alva doctor
+```
+
+The compiler/MCP binary does not require Python or a model account.
+Building generated programs also requires **Rust and Cargo**. The experimental
+isolated maintenance evaluator has separate Linux prerequisites.
+
+### 2. Check your first program
+
+Download the sample into a new directory:
+
+```powershell
+# Windows PowerShell
 irm https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva -OutFile hello.alva
 alva check hello.alva
 ```
 
-### Linux x64
-
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/main/scripts/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-alva --version
-alva doctor
+# Linux / macOS
 curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva
 alva check hello.alva
 ```
 
-### macOS Apple Silicon
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/zkidp/alva-core/main/scripts/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-alva --version
-alva doctor
-curl -fsSLO https://raw.githubusercontent.com/zkidp/alva-core/v0.14.1-preview.2/alva/examples/hello.alva
-alva check hello.alva
-```
-
-The prebuilt binary is sufficient for checking, semantic editing, semantic
-views, typed construction, and graph inspection. `alva build` and `alva run`
-generate and compile Rust, so they also require Rust and Cargo. For WASM/WASI:
-
-```bash
-rustup target add wasm32-wasip1
-```
-
-Run `alva doctor` at any time to inspect the installed and optional toolchain
-components. Release archives and checksums are available on
-[GitHub Releases](https://github.com/zkidp/alva-core/releases).
-
-## Why semantic editing?
-
-Most coding agents work through a text loop:
-
-```text
-read files → infer structure → patch text → parse → type-check → repair
-```
-
-ALVA exposes program structure directly:
-
-```text
-resolve → inspect → discover operations → stage → diff → check → commit
-```
-
-The second workflow gives an agent typed operation schemas, stable entity and
-revision identities, narrow semantic views, structured diagnostics, and an
-explicit transaction boundary. Invalid work can be rejected or aborted without
-partially changing the authoritative program.
-
-**What if AI agents stopped editing source code?** ALVA explores that question
-by making semantic operations—not line-oriented patches—the primary editing
-interface.
-
-## What ALVA provides
-
-| Area | Current capability |
-| --- | --- |
-| Compiler | `.alva` parsing and semantic checking, Rust code generation, native builds, and WASM/WASI output |
-| Language | Records, enums, exhaustive match, vectors, maps, `result<T, E>`, contracts, property tests, benchmarks, and typed Rust FFI |
-| Semantic runtime | Content-addressed program revisions, transactional edits, stale-revision detection, structural verification, crash-safe generations, and cross-process commit locking |
-| Agent interface | Entity, dependency, caller, and body views; typed operation discovery and construction; semantic diff; structured diagnostics |
-| Integrations | Local STDIO MCP server, canonical agent Skill, and thin Codex and Claude Code plugin packages |
-
-## A semantic edit in one transaction
-
-An MCP-capable agent uses the tool schemas returned by the installed ALVA
-binary. A typical edit follows this sequence:
-
-```text
-begin_transaction(alva.toml)
-  → resolve_entity
-  → inspect_body
-  → applicable_operations
-  → describe_operation / describe_construction
-  → stage the smallest typed mutation
-  → preview_semantic_diff
-  → check_transaction
-  → commit_transaction  # or abort_transaction
-```
-
-Every call after `begin_transaction` carries its explicit `transaction_id`.
-The agent discovers valid operations and their arguments at runtime instead of
-relying on a second, hand-maintained command schema. See the
-[canonical ALVA Skill](integrations/skills/alva/SKILL.md) for the complete
-MCP-first, CLI-fallback workflow.
-
-## Connect through MCP
-
-The installed `alva` binary includes a local STDIO MCP server:
-
-```text
-alva mcp
-```
-
-Configure an MCP host with command `alva` and arguments `["mcp"]`. The server
-uses the same AEP operation registry and AIR transaction implementation as the
-CLI, so the transport does not create a second semantic interface.
-
-Claude Code can register it directly:
-
-```bash
-claude mcp add --transport stdio alva -- alva mcp
-```
-
-For protocol details and host configuration, see the
-[MCP guide](integrations/mcp/README.md).
-
-## Coding-agent integrations
-
-Both packages reuse the same canonical Skill and start the independently
-installed `alva mcp` server. They do not fork the editing workflow or bundle a
-separate compiler.
-
-| Host | Install from a repository clone | Guide |
-| --- | --- | --- |
-| Codex | `codex plugin marketplace add integrations/codex`<br>`codex plugin add alva@alva` | [Codex integration](integrations/codex/README.md) |
-| Claude Code | `claude plugin marketplace add ./integrations/claude-code`<br>`claude plugin install alva@alva` | [Claude Code integration](integrations/claude-code/README.md) |
-
-Install ALVA first and ensure `alva doctor` succeeds in the environment
-inherited by the coding-agent host.
-
-## Real examples
-
-The repository includes two multi-module systems that exercise the toolchain
-beyond small language samples:
-
-- [`examples/store_split/`](examples/store_split/) implements an S3-style
-  object store with PUT, GET, DELETE, HEAD, SigV4 authentication, persistent
-  content-addressed blobs, atomic metadata commits, crash recovery, checksums,
-  deduplication, and garbage collection.
-- [`examples/build_system/`](examples/build_system/) implements an incremental
-  build graph with content-based caching, deterministic topological ordering,
-  reverse invalidation, persistence, restart, and crash-safe promotion.
-
-Smaller programs are available under [`alva/examples/`](alva/examples/).
-
-## How it works
-
-<p align="center">
-  <img src="docs/assets/alva-architecture.svg"
-       alt="ALVA architecture connecting coding agents through semantic views, typed operations and transactions to Rust native and WASM targets">
-</p>
-
-ALVA stores authoritative programs as typed, content-addressed graphs with
-stable named entities, immutable path-copy updates, explicit dependencies, and
-deterministic serialization. Source text remains useful as an import and
-projection format; semantic operations provide the controlled mutation path
-when graph authority is enabled.
-
-## Developer Preview status
-
-ALVA is an active Developer Preview, not a production-ready toolchain. The
-compiler, semantic runtime, MCP server, and integrations are usable today, but
-APIs, operation schemas, and storage formats may change between preview
-releases. Pin a release when reproducibility matters.
-
-The project does not claim to replace established application languages or
-that semantic editing eliminates every need for source text. It provides a
-concrete system for building and evaluating an agent-oriented programming
-workflow.
-
-## Build from source
-
-Requirements: a Rust toolchain and Cargo.
-
-```bash
-git clone https://github.com/zkidp/alva-core.git
-cd alva-core/alva
-cargo build --release
-./target/release/alva --version
-./target/release/alva check examples/hello.alva
-./target/release/alva run examples/hello.alva
-```
-
-Expected output:
+With Rust/Cargo installed, run `alva run hello.alva`. Expected program output:
 
 ```text
 hello, ai-native world
 ```
 
-## Contributing
+Next: [multi-module projects, source builds and troubleshooting](docs/getting-started.md).
 
-Issues, focused pull requests, examples, and critical feedback are welcome.
-See [`AGENTS.md`](AGENTS.md) for the repository map, public boundary, and checks
-expected before a change is committed.
+## Connect your coding agent
+
+Install ALVA first. The agent must inherit a `PATH` containing `alva`.
+
+| Host | Entry | Instructions |
+| --- | --- | --- |
+| Local STDIO MCP host | command: `alva`, arguments: `["mcp"]` | [MCP guide](integrations/mcp/README.md) |
+| Codex | Thin plugin with the shared ALVA Skill | [Install from a clone](integrations/codex/README.md) |
+| Claude Code | `claude mcp add --transport stdio alva -- alva mcp` | [MCP or plugin setup](integrations/claude-code/README.md) |
+
+Packages reuse the same compiler and [canonical Skill](integrations/skills/alva/SKILL.md),
+not a second runtime. Agent accounts and permissions are configured separately.
+Tool discovery is not proof of task completion; destructive operations still
+depend on the host's authorization policy.
+
+## How a change works
+
+The released Native interface exposes explicit transactions:
+
+```text
+begin_transaction → resolve / inspect → discover valid operations
+                  → stage → semantic diff → check → commit or abort
+```
+
+Keep the returned `transaction_id` for subsequent calls. Use the schemas actually
+advertised by the installed MCP server: its surface may be narrower than the CLI
+registry, especially on older releases.
+
+Private candidates and committed authority are distinct, with stale-write
+protection. A check or commit **does not prove task behavior**; independent tests
+remain necessary. AIR publication and source projection are separate operations.
+
+## Examples
+
+| Example | What it exercises | Availability |
+| --- | --- | --- |
+| [Small programs](alva/examples/) | Hello world, collections, contracts and more | This checkout |
+| [Incremental build system](examples/build_system/) | Ordering, caching, invalidation, persistence and restart | This checkout; see its [README](examples/build_system/README.md) |
+| [Object-store workload](examples/store_split/) | Multi-module storage, authentication and recovery | This checkout; not a production service |
+| [Packing maintenance](docs/development-preview.md#guarded-maintenance) | Rejection, repair, guarded publication and source handoff | Pinned development checkout, not the release |
+| [JSON Pointer / Patch component](docs/development-preview.md#other-opt-in-work) | Native JSON component and Python caller | Separate development branch, not this checkout |
+
+## Status and boundaries
+
+- **CLI preview:** `.alva` checking, Rust code generation, semantic operations,
+  transactional editing and local MCP. Native/WASM builds require the matching
+  Rust toolchain.
+- **Development prototypes:** guarded maintenance, Python Guard, bounded context
+  and components. [Exact versions and entry points](docs/development-preview.md).
+- **Not established:** broad Agent correctness gains, superiority to Python or
+  strong Git/tests workflows, arbitrary cross-language semantic transactions,
+  complete behavioral proofs, or malicious-code isolation from ordinary CLI use.
+
+ALVA is not a drop-in editor for arbitrary Python/TypeScript repositories.
+Experimental Python Guard validates patches without creating Python AIR.
+Trusted-local checks and temporary directories are not security sandboxes.
+Preview APIs and storage formats may change; pin the version you use.
+
+## Documentation and contributing
+
+[Getting started](docs/getting-started.md) · [Latest development and evidence](docs/development-preview.md) ·
+[Architecture](docs/assets/alva-architecture.svg) · [Agent Skill](integrations/skills/alva/SKILL.md)
+
+Focused bugs, examples and usability feedback are welcome. Include your OS,
+`alva --version`, `alva doctor` and exact command; remove credentials and private
+source. See [AGENTS.md](AGENTS.md) for contributor checks and public boundaries.
 
 ## License
 
-ALVA is licensed under the [Apache License 2.0](LICENSE).
+[Apache License 2.0](LICENSE).
