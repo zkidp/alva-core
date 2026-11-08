@@ -64,6 +64,12 @@ archives against `SHA256SUMS.txt`. Review remote scripts before running them;
 [manual downloads](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.3)
 are also available.
 
+**Download a package:**
+[Windows x64 (.zip)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-windows-x86_64.zip) ·
+[Linux x64 (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-linux-x86_64.tar.gz) ·
+[macOS Apple Silicon (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-macos-aarch64.tar.gz) ·
+[SHA-256 checksums](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/SHA256SUMS.txt)
+
 **Windows x64 — PowerShell**
 
 ```powershell

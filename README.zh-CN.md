@@ -59,6 +59,12 @@ publish_change    → PUBLISHED           范围允许，发布后重读权威�
 核对下载包。运行远程脚本前请先审阅；也可以从
 [Release 页面](https://github.com/zkidp/alva-core/releases/tag/v0.14.1-preview.3) 手动下载。
 
+**直接下载安装包：**
+[Windows x64 (.zip)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-windows-x86_64.zip) ·
+[Linux x64 (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-linux-x86_64.tar.gz) ·
+[macOS Apple Silicon (.tar.gz)](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/alva-v0.14.1-preview.3-macos-aarch64.tar.gz) ·
+[SHA-256 校验和](https://github.com/zkidp/alva-core/releases/download/v0.14.1-preview.3/SHA256SUMS.txt)
+
 **Windows x64：PowerShell**
 
 ```powershell
