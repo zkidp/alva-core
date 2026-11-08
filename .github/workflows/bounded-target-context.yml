@@ -1,0 +1,50 @@
+name: Bounded target dependencies (zero models)
+on:
+  pull_request:
+    paths:
+      - 'integrations/codex/bounded_target_context.py'
+      - 'tests/integrations/test_bounded_target_context.py'
+      - 'tests/mcp/bounded_target_context_test.py'
+      - 'docs/bounded-target-context.md'
+      - 'docs/maintenance-engineering-baseline.md'
+      - '.github/workflows/bounded-target-context.yml'
+permissions:
+  contents: read
+jobs:
+  prototype:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Compiler and unchanged Host controls
+        run: |
+          cargo fmt --check --manifest-path alva/Cargo.toml
+          cargo clippy --locked --manifest-path alva/Cargo.toml -- -D warnings
+          cargo test --locked --manifest-path alva/Cargo.toml
+          cargo build --locked --manifest-path alva/Cargo.toml
+          python -m unittest tests.integrations.test_bounded_target_context tests.integrations.test_maintenance_context tests.integrations.test_precommit_scope_guard tests.integrations.test_scope_batch -v
+          binary=alva/target/debug/alva
+          if [[ "$RUNNER_OS" == Windows ]]; then binary="$binary.exe"; fi
+          python tests/mcp/bounded_target_context_test.py "$binary"
+          python tests/mcp/host_workflow_test.py "$binary"
+          python tests/mcp/mcp_protocol_test.py "$binary"
+          python tests/mcp/maintenance_profile_test.py "$binary"
+      - name: Actual Linux-isolated draft behavior (not a receipt stub)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          python tests/mcp/bounded_target_context_test.py alva/target/debug/alva \
+            --toolchain "$(rustc --print sysroot)" --registry "${CARGO_HOME:-$HOME/.cargo}/registry"
