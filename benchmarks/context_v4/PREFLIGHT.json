@@ -1,0 +1,319 @@
+{
+  "status": "PASS",
+  "model_generation_calls": 0,
+  "rows": [
+    {
+      "id": "H01-T",
+      "task": "H01",
+      "arm": "T",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "build.model.needs_build"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "build.model.needs_build"
+        ],
+        "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+        "staged_sha256": "c6793b7d066a6ca56bf5bebedad9b2ec8fbbe43676b1e3b7ea9e6203dae1aceb",
+        "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+        "staged_project_revision": "997899976163806d6b934cbc8fc57413e9a891d45d93015db96a13461866609e",
+        "coverage_nodes": 403,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H01-V3",
+      "task": "H01",
+      "arm": "V3",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "build.model.needs_build"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "build.model.needs_build"
+        ],
+        "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+        "staged_sha256": "c6793b7d066a6ca56bf5bebedad9b2ec8fbbe43676b1e3b7ea9e6203dae1aceb",
+        "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+        "staged_project_revision": "997899976163806d6b934cbc8fc57413e9a891d45d93015db96a13461866609e",
+        "coverage_nodes": 403,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H01-V4",
+      "task": "H01",
+      "arm": "V4",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "build.model.needs_build"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "build.model.needs_build"
+        ],
+        "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+        "staged_sha256": "c6793b7d066a6ca56bf5bebedad9b2ec8fbbe43676b1e3b7ea9e6203dae1aceb",
+        "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+        "staged_project_revision": "997899976163806d6b934cbc8fc57413e9a891d45d93015db96a13461866609e",
+        "coverage_nodes": 403,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H02-V4",
+      "task": "H02",
+      "arm": "V4",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+        "staged_sha256": "9d91b85242abb2789218d6a885770a7895f869bc7ad25558007a9dfb96436979",
+        "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+        "staged_project_revision": "e195038a6f061bab4ec92fa1487c4d4ee6c6eb1617900647b57e43d4d6493e90",
+        "coverage_nodes": 401,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H02-V3",
+      "task": "H02",
+      "arm": "V3",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+        "staged_sha256": "9d91b85242abb2789218d6a885770a7895f869bc7ad25558007a9dfb96436979",
+        "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+        "staged_project_revision": "e195038a6f061bab4ec92fa1487c4d4ee6c6eb1617900647b57e43d4d6493e90",
+        "coverage_nodes": 401,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H02-T",
+      "task": "H02",
+      "arm": "T",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "build.model.reverse_dependents"
+        ],
+        "baseline_sha256": "48c59646da9232959f32b8ccbfa38c98ee57f08c3a34f4affa5d1a5149a836fe",
+        "staged_sha256": "9d91b85242abb2789218d6a885770a7895f869bc7ad25558007a9dfb96436979",
+        "baseline_project_revision": "b6433ee378f16cd90b7a989504a944a9c11f9fe64be483ada65c30ebc41c9399",
+        "staged_project_revision": "e195038a6f061bab4ec92fa1487c4d4ee6c6eb1617900647b57e43d4d6493e90",
+        "coverage_nodes": 401,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H03-V3",
+      "task": "H03",
+      "arm": "V3",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.metadata.get_object"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.metadata.get_object"
+        ],
+        "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+        "staged_sha256": "8dbce84640c4f68aadd1e827e0deb0caacb3ce05b214472a12d88f9d775c0f49",
+        "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+        "staged_project_revision": "8ac6f145d4f0b4b3e1f553ab44397eb025a1ae7a41708262870742e715ed2b88",
+        "coverage_nodes": 235,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H03-T",
+      "task": "H03",
+      "arm": "T",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.metadata.get_object"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.metadata.get_object"
+        ],
+        "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+        "staged_sha256": "8dbce84640c4f68aadd1e827e0deb0caacb3ce05b214472a12d88f9d775c0f49",
+        "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+        "staged_project_revision": "8ac6f145d4f0b4b3e1f553ab44397eb025a1ae7a41708262870742e715ed2b88",
+        "coverage_nodes": 235,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H03-V4",
+      "task": "H03",
+      "arm": "V4",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.metadata.get_object"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.metadata.get_object"
+        ],
+        "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+        "staged_sha256": "8dbce84640c4f68aadd1e827e0deb0caacb3ce05b214472a12d88f9d775c0f49",
+        "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+        "staged_project_revision": "8ac6f145d4f0b4b3e1f553ab44397eb025a1ae7a41708262870742e715ed2b88",
+        "coverage_nodes": 235,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H04-V4",
+      "task": "H04",
+      "arm": "V4",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.metadata.list_objects_page"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.metadata.list_objects_page"
+        ],
+        "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+        "staged_sha256": "78e2aaf1951179910a2c67f669cf8b2fbf9abc95a2816db28b06f64dba6afeee",
+        "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+        "staged_project_revision": "505699eca55b77019d6020db6bed85cb26c2aa3120f5e85c81b1d9f66822fd22",
+        "coverage_nodes": 224,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H04-T",
+      "task": "H04",
+      "arm": "T",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.metadata.list_objects_page"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.metadata.list_objects_page"
+        ],
+        "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+        "staged_sha256": "78e2aaf1951179910a2c67f669cf8b2fbf9abc95a2816db28b06f64dba6afeee",
+        "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+        "staged_project_revision": "505699eca55b77019d6020db6bed85cb26c2aa3120f5e85c81b1d9f66822fd22",
+        "coverage_nodes": 224,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    },
+    {
+      "id": "H04-V3",
+      "task": "H04",
+      "arm": "V3",
+      "status": "PASS",
+      "task_test": "PASS",
+      "regression": "PASS",
+      "scope": {
+        "status": "SCOPE_ALLOWED",
+        "changed_functions": [
+          "store.metadata.list_objects_page"
+        ],
+        "unauthorized_functions": [],
+        "authorized_functions": [
+          "store.metadata.list_objects_page"
+        ],
+        "baseline_sha256": "193d3bb6a835330d9cd5d2e83e526f6e85c1969734fb78e90da3da5c70a8c816",
+        "staged_sha256": "78e2aaf1951179910a2c67f669cf8b2fbf9abc95a2816db28b06f64dba6afeee",
+        "baseline_project_revision": "aa679d630571aef8601f4cc99d0d8a6edb958b25df78a02b1a026d64a8194848",
+        "staged_project_revision": "505699eca55b77019d6020db6bed85cb26c2aa3120f5e85c81b1d9f66822fd22",
+        "coverage_nodes": 224,
+        "scope": "FIXED_COMPONENT_FUNCTION_BODIES_ONLY"
+      },
+      "fresh_authority_matches": true,
+      "cleanup_confirmed": true
+    }
+  ],
+  "production_context_test": "PASS"
+}
