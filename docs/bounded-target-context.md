@@ -109,6 +109,14 @@ accepted edit, UNKNOWN on missing snapshot data without weakening Host gates,
 and actual scoped commit/fresh read. An unchanged ContextHost receives no new
 dependency object. Existing Host rejection/stale/receipt regressions also run.
 
+Actual local checks: Windows Python 3.14.0 / Rust 1.97.1 passes 35 unchanged
+Rust units, fmt/clippy/build, 21 new/related Python units and the actual Core,
+Host lifecycle and Native profile tests. Independent WSL Ubuntu 26.04 / Python
+3.14.4 / Rust 1.98.0 / bubblewrap 0.11.1 passes seven projection units and the
+real Linux-isolated compilation/behavior/Guard-publication fixture. A separate
+generic two-module read confirms nested dependency names resolve in the owning
+callee module. No old paid study or historical qualification wave was run.
+
 This branch does not rerun any consumed experimental freeze, tune MM/W02 tasks,
 implement body-span patches, change default context delivery or start new paid
 studies. The next decision needs an independent review of this bounded prototype,

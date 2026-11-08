@@ -13,7 +13,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from integrations.codex.bounded_target_context import BoundedTargetHost
+from integrations.codex.bounded_target_context import BoundedTargetHost, project_context
 from integrations.codex.maintenance_context import ContextHost, TOOLS, serve
 from integrations.codex.maintenance_host import AgentProcess, MaintenanceHost, project_source_loader
 from tests.mcp.host_workflow_test import ReceiptEvaluator
@@ -28,7 +28,39 @@ SOURCE = '''(module (name "m") (version "1") (export target helper)
    (body (call helper (ref item)))))'''
 
 
+def cross_module_read(binary):
+    with tempfile.TemporaryDirectory(prefix="bounded-cross-module-") as tmp:
+        root = Path(tmp)
+        (root / "alva.toml").write_text('[project]\nname="cross_context"\n[modules]\nmodel="model.alva"\napi="api.alva"\n', encoding="utf-8")
+        (root / "model.alva").write_text('''(module (name "model") (version "1") (export Item helper)
+ (type Flag (enum (variant on) (variant off)))
+ (type Alias (alias Flag))
+ (type Item (record (field flag Alias)))
+ (fn helper (params (param item Item)) (returns (prim i64)) (pure) (body (int 7))))''', encoding="utf-8")
+        (root / "api.alva").write_text('''(module (name "api") (version "1") (dep "model" "1") (export target)
+ (fn target (params (param item model.Item)) (returns (prim i64)) (pure)
+ (body (call model.helper (ref item)))))''', encoding="utf-8")
+        native = AgentProcess(binary)
+        def call(name, **args):
+            answer = native.request("tools/call", {"name": name, "arguments": args})
+            assert not answer.get("isError"), answer
+            return answer["structuredContent"]
+        try:
+            tx = call("begin_transaction", project=str(root / "alva.toml"))["transaction_id"]
+            snapshot = call("inspect_scope_snapshot", transaction_id=tx)
+            context = call("read_function_context", transaction_id=tx, function="api.target")
+            projected = project_context(snapshot, "api.target", {b["name"] for b in context["available_builtins"]})
+            assert projected["status"] == "COMPLETE_WITHIN_BOUNDARY", projected
+            assert [t["name"] for t in projected["types"]] == ["model.Alias", "model.Flag", "model.Item"]
+            assert projected["callees"][0]["function"] == "model.helper"
+            call("abort_transaction", transaction_id=tx)
+            assert not (root / "alva-air/current").exists()
+        finally:
+            native.close()
+
+
 def run(binary, sdk=None):
+    cross_module_read(binary)
     with tempfile.TemporaryDirectory(prefix="bounded-dependencies-") as tmp:
         root = Path(tmp)
         (root / "alva.toml").write_text('[project]\nname="context_demo"\n[modules]\nm="m.alva"\n', encoding="utf-8")
