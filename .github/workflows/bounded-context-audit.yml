@@ -1,0 +1,54 @@
+name: Bounded context evidence experiments
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/bounded_context_audit/**'
+      - 'tests/integrations/test_bounded_context_audit.py'
+      - '.github/workflows/bounded-context-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deterministic:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Unchanged compiler and affected Host regressions
+        run: |
+          cargo fmt --check --manifest-path alva/Cargo.toml
+          cargo clippy --locked --manifest-path alva/Cargo.toml -- -D warnings
+          cargo test --locked --manifest-path alva/Cargo.toml
+          cargo build --locked --manifest-path alva/Cargo.toml
+          python -m unittest tests.integrations.test_bounded_context_audit tests.integrations.test_bounded_target_context tests.integrations.test_maintenance_context tests.integrations.test_precommit_scope_guard -v
+      - name: Actual Linux isolated behavior
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y bubblewrap util-linux
+          python benchmarks/bounded_context_audit/experiments.py --alva alva/target/debug/alva --output .local/context-audit --toolchain "$(rustc --print sysroot)" --registry "${CARGO_HOME:-$HOME/.cargo}/registry"
+      - name: Windows real Core fact inspection only
+        if: runner.os == 'Windows'
+        run: python benchmarks/bounded_context_audit/experiments.py --alva alva/target/debug/alva.exe --output .local/context-audit
+      - name: Offline historical accounting
+        run: python benchmarks/bounded_context_audit/accounting.py --output .local/context-accounting.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: context-audit-${{ matrix.os }}
+          include-hidden-files: true
+          path: |
+            .local/context-audit/RESULTS.json
+            .local/context-accounting.json
