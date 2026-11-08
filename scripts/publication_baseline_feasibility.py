@@ -302,9 +302,10 @@ def run(sdk, output):
         neighbor = candidate_source(base, CORRECT)
         neighbor["src/model.alva"] = neighbor["src/model.alva"].replace(
             b"(body (* (/ (ref units) (ref pack_size)) (ref pack_size)))",
-            b"(body (+ (* (/ (ref units) (ref pack_size)) (ref pack_size)) (int 0))))")
+            b"(body (+ (* (/ (ref units) (ref pack_size)) (ref pack_size)) (int 0)))")
         checked = source_evaluation(sdk, evaluator, neighbor)
         allowed = allowed_source_change(base, neighbor)
+        report["unpaired_scope_probe_evaluation"] = checked
         if allowed or checked["status"] != "PASS": raise RuntimeError("NEIGHBOR_PROBE_MISMATCH")
         report["unpaired_scope_probe"] = {"checks": checked["checks"], "text_byte_scope_allowed": allowed,
             "native": "NOT_REPRESENTABLE_BY_THREE_ACTION_INPUT", "not_a_native_rejection_measurement": True}
