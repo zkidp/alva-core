@@ -5197,6 +5197,10 @@ fn write_generated(gen: &codegen::Generated, out_dir: &str) -> Result<PathBuf, (
         eprintln!("error: cannot write Cargo.toml: {e}");
         return Err(());
     }
+    if let Err(e) = codegen::write_runtime(&out_root) {
+        eprintln!("error: cannot write generated runtime: {e}");
+        return Err(());
+    }
     println!("generated {}", out_root.join(rs_name).display());
     Ok(out_root)
 }

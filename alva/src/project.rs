@@ -341,13 +341,14 @@ pub fn codegen_project(
     cargo.push_str(&format!("name = \"{crate_name}\"\n"));
     cargo.push_str("version = \"0.1.0\"\n");
     cargo.push_str("edition = \"2021\"\n\n[dependencies]\n");
+    cargo.push_str(codegen::RUNTIME_DEPENDENCY);
     let mut deps: HashMap<String, String> = HashMap::new();
     for lm in modules {
         for (c, v) in &lm.module.rust_deps {
             deps.insert(c.clone(), v.clone());
         }
     }
-    // glue 的 fs 原语依赖 sha2（内容寻址校验），对所有生成 crate 提供。
+    // Preserve the dependency available to existing extern Rust snippets.
     deps.entry("sha2".to_string())
         .or_insert_with(|| "0.10".to_string());
     for (c, v) in deps {
@@ -371,6 +372,7 @@ pub fn codegen_project(
         }
     }
 
+    codegen::write_runtime(&root).map_err(|e| e.to_string())?;
     std::fs::write(root.join("Cargo.toml"), &cargo).map_err(|e| e.to_string())?;
     if has_main {
         let mut main = String::from(
