@@ -33,6 +33,34 @@ def new(bulk=True):
 
 
 class Tests(unittest.TestCase):
+    def test_declaration_heads_allow_only_authorized_body_changes(self):
+        for mutation, expected in (
+            (lambda g: g["a"]["slots"].update(body=["new-body"]), "SCOPE_ALLOWED"),
+            (lambda g: g["b"]["slots"].update(body=["new-body"]), "SCOPE_VIOLATION"),
+            (lambda g: g["a"]["slots"].update(pre=["new-contract"]), "SCOPE_UNVERIFIED"),
+            (lambda g: g["m"]["slots"].update(externs=["new-extern"]), "SCOPE_UNVERIFIED"),
+        ):
+            inner, policy = fixture()
+            inner.graph["m"]["slots"]["externs"] = ["original-extern"]
+            request = inner.request
+
+            def with_heads(method, params, **kwargs):
+                if params.get("name") != "inspect_scope_heads":
+                    return request(method, params, **kwargs)
+                return {"isError": False, "structuredContent": {
+                    "project": {"modules": {"module:m": "m"}, "project_revision": "project"},
+                    "module_order": ["module:m"],
+                    "nodes": {r: copy.deepcopy(inner.graph[r]) for r in ("m", "a", "b")},
+                }}
+
+            inner.request = with_heads
+            guard = GuardedNative(inner, policy, {"begin_transaction", "commit_transaction"},
+                                  snapshot_tool="inspect_scope_heads")
+            guard.tool("begin_transaction", {})
+            mutation(inner.graph)
+            self.assertEqual(guard.preview_scope("tx")["status"], expected)
+            self.assertNotIn("inspect_entity", inner.calls)
+
     def test_decisions_and_snapshot_digests_match_legacy(self):
         def body(g):g['a']['slots']['body']=['a1']
         def spill(g):g['b']['slots']['body']=['b1']

@@ -21,7 +21,8 @@ from integrations.codex.precommit_scope_guard import GuardedNative
 
 PRIVATE_OPERATIONS = frozenset(("begin_transaction", "read_function", "read_function_context",
     "replace_function_body", "inspect_project", "inspect_entity", "preview_semantic_diff",
-    "check_transaction", "export_transaction", "inspect_scope_snapshot", "commit_transaction", "abort_transaction"))
+    "check_transaction", "export_transaction", "inspect_scope_snapshot", "inspect_scope_heads",
+    "commit_transaction", "abort_transaction"))
 
 TOOLS = [
     {"name": "read_target", "description": "Read an authorized function's current body, declaration and direct context. Reuse its view_id for changes; Host owns transactions.",
@@ -204,7 +205,7 @@ class MaintenanceHost:
         if not re.fullmatch(r"[0-9a-f]{64}", data.get("air_sha256", "")):
             raise RuntimeError("INVALID_DRAFT_DIGEST")
         air = bytes.fromhex(data.pop("air_hex")) if include_air else None
-        if include_air and (len(air) > 8 * 1024**2 or sha(air) != data["air_sha256"]):
+        if include_air and (len(air) > 10 * 1024**2 or sha(air) != data["air_sha256"]):
             raise RuntimeError("DRAFT_BYTES_MISMATCH")
         return data, air
 
@@ -240,7 +241,7 @@ class MaintenanceHost:
             self._reset()
             self.native = self._new_native()
             self.guard = GuardedNative(self.native, self.policy, PRIVATE_OPERATIONS, self._event,
-                snapshot_tool="inspect_scope_snapshot" if self.bulk_scope else None)
+                snapshot_tool="inspect_scope_heads" if self.bulk_scope else None)
             self.tx = self._call("begin_transaction", project=self.project)["transaction_id"]
             self.view = {"id": "view_" + secrets.token_hex(12), "function": function, "expires": self.clock() + self.ttl,
                          "source_digest": snapshot_digest(self._load_sources())}

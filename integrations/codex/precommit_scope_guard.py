@@ -20,7 +20,7 @@ def digest(value):
 
 class GuardedNative:
     def __init__(self, inner, policy, allowed_tools, sink=lambda event: None, *, snapshot_tool=None):
-        if snapshot_tool not in (None, "inspect_scope_snapshot"):
+        if snapshot_tool not in (None, "inspect_scope_snapshot", "inspect_scope_heads"):
             raise ValueError("Unsupported trusted snapshot transport")
         self._inner = inner
         self._policy = copy.deepcopy(policy)
@@ -45,13 +45,17 @@ class GuardedNative:
 
     def _snapshot(self, tx):
         bulk = None
+        module_order = None
+        heads_only = self._snapshot_tool == "inspect_scope_heads"
         if self._snapshot_tool:
             envelope = self._read(tx, self._snapshot_tool)
-            if set(envelope) != {"project", "nodes"} or not isinstance(envelope["project"], dict):
+            keys = {"project", "nodes", "module_order"} if heads_only else {"project", "nodes"}
+            if set(envelope) != keys or not isinstance(envelope["project"], dict):
                 raise Unverified("INCOMPLETE_BULK_SNAPSHOT")
             project, bulk = envelope["project"], envelope["nodes"]
-            if not isinstance(bulk, dict) or len(bulk) > 2048:
+            if not isinstance(bulk, dict) or (not heads_only and len(bulk) > 2048):
                 raise Unverified("INVALID_BULK_COVERAGE")
+            module_order = envelope.get("module_order")
         else:
             project = self._read(tx, "inspect_project")
         if set(project) != {"modules", "project_revision"} or not isinstance(project["project_revision"], str) or not project["project_revision"]:
@@ -60,11 +64,16 @@ class GuardedNative:
         expected = self._policy["modules"]
         if not isinstance(modules, dict) or set(modules) != {"module:" + m for m in expected}:
             raise Unverified("MODULE_COVERAGE_MISMATCH")
+        if heads_only and (
+            not isinstance(module_order, list) or len(module_order) != len(modules)
+            or set(module_order) != set(modules)
+        ):
+            raise Unverified("MODULE_ORDER_MISMATCH")
         nodes = {}
         def walk(revision):
             if revision in nodes:
                 return nodes[revision]
-            if len(nodes) >= 2048:
+            if not heads_only and len(nodes) >= 2048:
                 raise Unverified("INSPECTION_BOUND_EXCEEDED")
             node = self._read(tx, "inspect_entity", entity=revision) if bulk is None else bulk.get(revision)
             if not isinstance(node, dict):
@@ -77,23 +86,28 @@ class GuardedNative:
             for children in node["slots"].values():
                 if not isinstance(children, list) or not all(isinstance(c, str) for c in children):
                     raise Unverified("INVALID_SLOT_DESCRIPTOR")
-                for child in children:
-                    walk(child)
+                if not heads_only:
+                    for child in children:
+                        walk(child)
             return node
         snapshot = {"modules": {}, "functions": {}, "project_revision": project.get("project_revision")}
+        if heads_only:
+            snapshot["module_order"] = module_order
         for module, trusted in expected.items():
             node = walk(modules["module:" + module])
             if node["kind"] != "module" or node["fields"].get("name") != module:
                 raise Unverified("MODULE_IDENTITY_MISMATCH")
             if set(node["slots"]) != {"functions", "types", "tests", "externs", "benches"}:
                 raise Unverified("UNSUPPORTED_MODULE_STRUCTURE")
-            if node["slots"]["externs"] or node["slots"]["benches"]:
+            if not heads_only and (node["slots"]["externs"] or node["slots"]["benches"]):
                 raise Unverified("UNSUPPORTED_EXTERN_OR_BENCH_DECLARATIONS")
-            functions = [nodes[x] for x in node["slots"]["functions"]]
-            types = [nodes[x] for x in node["slots"]["types"]]
+            functions = [walk(x) for x in node["slots"]["functions"]]
+            types = [walk(x) for x in node["slots"]["types"]]
             if [n["fields"].get("name") for n in functions] != trusted["functions"] or any(n["kind"] != "function" for n in functions):
                 raise Unverified("FUNCTION_COVERAGE_MISMATCH:" + module)
-            if [n["fields"].get("name") for n in types] != trusted["types"]:
+            if [n["fields"].get("name") for n in types] != trusted["types"] or (
+                heads_only and any(n["kind"] != "type" for n in types)
+            ):
                 raise Unverified("TYPE_COVERAGE_MISMATCH:" + module)
             snapshot["modules"][module] = {"fields": node["fields"], "entity": node["entity"],
                 "function_order": trusted["functions"], "other_slots": {k: v for k, v in node["slots"].items() if k != "functions"}}
@@ -118,6 +132,8 @@ class GuardedNative:
             return {"status": "SCOPE_UNVERIFIED", "reason": (baseline or {}).get("error", "NO_TRUSTED_BASELINE")}
         try:
             staged = self._snapshot(tx)
+            if staged.get("module_order") != baseline.get("module_order"):
+                raise Unverified("MODULE_ORDER_CHANGED")
             if staged["modules"] != baseline["modules"]:
                 raise Unverified("MODULE_INTERFACE_OR_DECLARATION_STRUCTURE_CHANGED")
             if set(staged["functions"]) != set(baseline["functions"]):

@@ -4195,6 +4195,54 @@ impl EditSession {
         Ok((revision, body_revision, body, declaration))
     }
 
+    /// Inspect declaration occurrences and their Merkle links for Host scope
+    /// checks. A child revision commits to the entire subtree below it.
+    pub fn scope_heads(&self) -> Result<serde_json::Value, String> {
+        let mut modules = BTreeMap::new();
+        let mut nodes = BTreeMap::new();
+        for entity in &self.graph.module_entities {
+            let head = self
+                .graph
+                .heads
+                .get(entity)
+                .ok_or("E_AEP_SCOPE_MISSING_HEAD")?;
+            let module = self.graph.get(head).ok_or("E_AEP_SCOPE_DANGLING")?;
+            if module.kind != "module" {
+                return Err("E_AEP_SCOPE_MODULE_KIND".into());
+            }
+            modules.insert(entity, head);
+            for revision in std::iter::once(head)
+                .chain(module.slots.get("functions").into_iter().flatten())
+                .chain(module.slots.get("types").into_iter().flatten())
+            {
+                let node = self.graph.get(revision).ok_or("E_AEP_SCOPE_DANGLING")?;
+                let declaration = match node.kind.as_str() {
+                    "function" => Some("fn"),
+                    "type" => Some("type"),
+                    _ => None,
+                };
+                if let Some(kind) = declaration {
+                    let id = format!("{entity}/{kind}:{}", field_str(node, "name"));
+                    if self.graph.heads.get(&id) != Some(revision) {
+                        return Err("E_AEP_SCOPE_DECLARATION_HEAD_MISMATCH".into());
+                    }
+                }
+                let descriptor: serde_json::Value = serde_json::from_str(&node_to_json(node))
+                    .map_err(|_| "E_AEP_SCOPE_NODE_ENCODING")?;
+                nodes.insert(revision, descriptor);
+            }
+        }
+        let value = serde_json::json!({
+            "project": {"modules": modules, "project_revision": self.graph.semantic_hash()},
+            "module_order": self.graph.module_entities,
+            "nodes": nodes
+        });
+        if value.to_string().len() > 8 * 1024 * 1024 {
+            return Err("E_AEP_SCOPE_BYTE_LIMIT".into());
+        }
+        Ok(value)
+    }
+
     /// One bounded, read-only snapshot for the trusted scope collector. No
     /// cached authorization: callers must obtain it again before commit.
     pub fn scope_snapshot(&self) -> Result<serde_json::Value, String> {

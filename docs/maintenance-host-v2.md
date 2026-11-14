@@ -101,14 +101,16 @@ in [research/maintenance-host-v2.md](research/maintenance-host-v2.md).
 
 ## Cost-optimized transport
 
-The current Host defaults to one `inspect_scope_snapshot` call for each complete
-Guard snapshot. It receives all reachable node descriptors atomically from the
-current Core session and runs the same P34 structure, metadata and body checks.
+The current Host defaults to one `inspect_scope_heads` call per Guard snapshot.
+It receives the module order and the module, function and type declarations
+from the current Core session. The Guard compares Merkle revisions for function
+bodies and the subtrees referenced by signatures, contracts and other declarations.
 It still recollects before publication under the Guard lock. Missing, extra,
 malformed or oversized batch coverage fails closed without a serial fallback.
 Neither Native MCP profile exposes this private inspection.
 
-The first draft export includes AIR. Later consistency checks request only its
+The first draft export includes AIR and accepts up to 10 MiB of binary AIR.
+Later consistency checks request only its
 digest descriptor; Core still serializes and hashes the exact current AIR, so
 changes to the full exported bytes are detected. This is not a cached revision
 shortcut. Test outcomes are not cached, and no behavior/authorization check is
