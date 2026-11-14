@@ -617,7 +617,7 @@ fn cmd_air(rest: &[String]) -> i32 {
     match sub {
         "project-compact" => {
             let (Some(file), Some(entity)) = (rest.get(1), rest.get(2)) else {
-                eprintln!("usage: alva air project-compact <air-file> <module>");
+                eprintln!("usage: alva air project-compact <air-file> <module> [--multiline]");
                 return 2;
             };
             let entity = format!("module:{}", entity.trim_start_matches("module:"));
@@ -625,7 +625,11 @@ fn cmd_air(rest: &[String]) -> i32 {
                 .and_then(|graph| air::air_to_module(&graph, &entity))
             {
                 Ok(module) => {
-                    print!("{}", compact::module(&module));
+                    if rest.iter().any(|arg| arg == "--multiline") {
+                        print!("{}", compact::module_multiline(&module));
+                    } else {
+                        print!("{}", compact::module(&module));
+                    }
                     0
                 }
                 Err(error) => {
@@ -2184,11 +2188,15 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                 let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
                 let projection = match req.get("projection").and_then(|v| v.as_str()) {
                     None | Some("sexpr") => s.read_function(function),
-                    Some("compact") => s.read_compact_function(function),
+                    Some("compact" | "compact_multiline") => s.read_compact_function(function),
                     Some(_) => Err("E_AEP_UNKNOWN_PROJECTION".into()),
                 };
                 match projection {
-                    Ok((revision, body_revision, body, declaration)) => {
+                    Ok((revision, body_revision, mut body, declaration)) => {
+                        if req.get("projection").and_then(Json::as_str) == Some("compact_multiline")
+                        {
+                            body = compact::multiline(&body);
+                        }
                         resp!(true, &serde_json::json!({
                         "function": function, "revision": revision,
                         "body_revision": body_revision, "body": body, "declaration": declaration

@@ -383,7 +383,7 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             vec!["function"],
             vec![
                 arg("function", "string(qualified module.fn)", true),
-                arg("projection", "string (sexpr or compact)", false),
+                arg("projection", "string (sexpr, compact, or compact_multiline)", false),
             ],
             vec!["transaction"],
             "inspection",

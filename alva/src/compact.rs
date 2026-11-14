@@ -223,6 +223,49 @@ pub fn body(xs: &[Expr]) -> String {
     format!("{{ {} }}", sequence(xs))
 }
 
+/// Change whitespace only, leaving string literals and quoted names intact.
+pub fn multiline(source: &str) -> String {
+    let mut out = String::new();
+    let mut quote = None;
+    let mut escaped = false;
+    let mut depth = 0usize;
+    let mut column = 0usize;
+    let mut previous = '\n';
+    let mut chars = source.chars().peekable();
+    while let Some(c) = chars.next() {
+        if let Some(delimiter) = quote {
+            if escaped {
+                escaped = false;
+            } else if c == '\\' {
+                escaped = true;
+            } else if c == delimiter {
+                quote = None;
+            }
+        } else {
+            if c == ' ' {
+                let closes = chars.peek() == Some(&'}');
+                if closes || matches!(previous, '{' | ';') || (previous == ',' && column >= 72) {
+                    out.push('\n');
+                    let indent = 2 * (depth.saturating_sub(usize::from(closes))).min(12);
+                    out.extend(std::iter::repeat_n(' ', indent));
+                    column = indent;
+                    continue;
+                }
+            }
+            match c {
+                '"' | '`' => quote = Some(c),
+                '{' => depth += 1,
+                '}' => depth = depth.saturating_sub(1),
+                _ => {}
+            }
+        }
+        out.push(c);
+        column = if c == '\n' { 0 } else { column + 1 };
+        previous = c;
+    }
+    out
+}
+
 fn expression(e: &Expr, min: u8) -> String {
     use Expr::{Err as ErrExpr, Ok as OkExpr, *};
     let show = |e| expression(e, 0);
@@ -513,6 +556,14 @@ pub fn type_decl(t: &ast::TypeDef) -> String {
 }
 
 pub fn module(m: &ast::Module) -> String {
+    render_module(m, false)
+}
+
+pub fn module_multiline(m: &ast::Module) -> String {
+    render_module(m, true)
+}
+
+fn render_module(m: &ast::Module, multi: bool) -> String {
     let mut out = format!(
         "module {} version {};\n",
         ident(&m.name),
@@ -540,8 +591,15 @@ pub fn module(m: &ast::Module) -> String {
     for t in &m.types {
         writeln!(out, "{};", type_decl(t)).unwrap();
     }
+    let names: Vec<_> = m.fns.iter().map(|f| f.name.as_str()).collect();
     for f in &m.fns {
-        writeln!(out, "{} {}", declaration(f), body(&f.body)).unwrap();
+        let code = body(&f.body);
+        let code = if multi {
+            multiline(&qualify_colliding_aliases(&code, &names))
+        } else {
+            code
+        };
+        writeln!(out, "{} {code}", declaration(f)).unwrap();
     }
     for f in &m.exts {
         writeln!(

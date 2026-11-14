@@ -159,7 +159,7 @@ class MaintenanceHost:
     def __init__(self, native_factory, project, policy, source_loader, evaluator, *, ttl_seconds=900, clock=time.monotonic,
                  bulk_scope=True, digest_rechecks=True, projection="sexpr", lean_reads=False):
         if ttl_seconds <= 0: raise ValueError("Positive view TTL required")
-        if projection not in ("sexpr", "compact"): raise ValueError("Unknown body projection")
+        if projection not in ("sexpr", "compact", "compact_multiline"): raise ValueError("Unknown body projection")
         self.projection = projection
         self.lean_reads = lean_reads
         self.factory, self.project = native_factory, str(project)
@@ -269,12 +269,13 @@ class MaintenanceHost:
             self.view = {"id": secrets.token_hex(6) if component else "view_" + secrets.token_hex(12), "function": function, "expires": self.clock() + self.ttl,
                          "source_digest": snapshot_digest(self._load_sources()),
                          "base_revision": begun.get("project_revision")}
-        projection = {"projection": self.projection} if self.projection == "compact" else {}
+        projection = {"projection": self.projection} if self.projection != "sexpr" else {}
         info = self._call("read_function", function=function, **projection)
         if component:
             return {"status": "READY", "view_id": self.view["id"],
                     "code": info["declaration"] + " " + info["body"]}
-        context = self._call("read_function_context", function=function, **projection)
+        context = self._call("read_function_context", function=function,
+                             **({"projection": "compact"} if projection else {}))
         self.view.setdefault("initial_body_revision", info["body_revision"])
         if self.lean_reads or component:
             context = {key: context[key] for key in ("types", "callees", "used_builtins")
