@@ -143,7 +143,9 @@ class ContextHost:
                 result = self._search(args)
             else:
                 result=self.host.invoke(name,args)
-                if name=='read_target' and result.get('status')=='READY' and not self.host.lean_reads:
+                if name=='read_target' and result.get('status')=='READY' and not (
+                    self.host.lean_reads or self.component_scoped
+                ):
                     result['body_syntax']=self.references.sections['language']['body']
             self.work['context_reply_bytes']+=len(json.dumps(result).encode())
             return result

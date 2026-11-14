@@ -280,9 +280,13 @@ class MaintenanceHost:
         if self.lean_reads or component:
             context = {key: context[key] for key in ("types", "callees", "used_builtins")
                        if context.get(key)}
-            return {"status": "READY", "view_id": self.view["id"], "function": function,
-                    "declaration": info["declaration"], "body": info["body"],
-                    "context": context}
+            result = {"status": "READY", "view_id": self.view["id"],
+                      "declaration": info["declaration"], "body": info["body"]}
+            if not component:
+                result["function"] = function
+            if context or not component:
+                result["context"] = context
+            return result
         return {"status": "READY", "view_id": self.view["id"], "function": function,
                 "declaration": info["declaration"], "body": info["body"], "context": context,
                 "view_state": "DRAFT" if info["body_revision"] != self.view["initial_body_revision"] else "BASE_SNAPSHOT",
