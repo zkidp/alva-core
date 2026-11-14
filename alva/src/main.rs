@@ -2724,6 +2724,26 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err(e) => resp!(false, "null", &e),
                 }
             }
+            "search_functions" => {
+                let s = need_session!();
+                let query = req
+                    .get("query")
+                    .and_then(|value| value.as_str())
+                    .unwrap_or("");
+                let result = match req.get("offset") {
+                    None => s.search_functions(query, 0),
+                    Some(Json::Num(offset))
+                        if (0.0..=1_000_000.0).contains(offset) && offset.fract() == 0.0 =>
+                    {
+                        s.search_functions(query, *offset as usize)
+                    }
+                    _ => Err("E_AEP_SEARCH_OFFSET: use an integer from 0 to 1000000".into()),
+                };
+                match result {
+                    Ok(value) => resp!(true, &value.to_string(), "bounded declaration search"),
+                    Err(error) => resp!(false, "null", &error),
+                }
+            }
             "inspect_scope_snapshot" => {
                 let s = need_session!();
                 match s.scope_snapshot() {

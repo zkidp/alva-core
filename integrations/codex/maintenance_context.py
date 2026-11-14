@@ -59,6 +59,14 @@ READ_TOOLS=[
      'inputSchema':{'type':'object','properties':{'path':{'type':'string','minLength':1},'start':{'type':'integer','minimum':1},
         'count':{'type':'integer','minimum':1,'maximum':120}},'required':['path'],'additionalProperties':False}}]
 TOOLS=copy.deepcopy(MUTATIONS)+READ_TOOLS
+SEARCH_TOOL = {
+    "name": "search_functions",
+    "description": "Find public function declarations by query words and referenced identifiers; returns up to 20 ranked results and a continuation offset.",
+    "inputSchema": {"type": "object", "properties": {
+        "query": {"type": "string", "minLength": 1, "maxLength": 256},
+        "offset": {"type": "integer", "minimum": 0, "maximum": 1000000},
+    }, "required": ["query"], "additionalProperties": False},
+}
 
 
 def source_read(files,args,authority='IMPORT_SOURCE_NOT_STAGED_AIR'):
@@ -83,15 +91,44 @@ def source_read(files,args,authority='IMPORT_SOURCE_NOT_STAGED_AIR'):
 
 
 class ContextHost:
-    def __init__(self,host):
+    def __init__(self,host,*,semantic_search=False):
         self.host=host;self.references=References();self.lock=threading.RLock()
+        self.tools = [*TOOLS, SEARCH_TOOL] if semantic_search else TOOLS
+        self.semantic_search = semantic_search
         self.work={'reference_reads':0,'source_reads':0,'context_reply_bytes':0}
+
+    def _search(self, args):
+        if (not isinstance(args, dict) or set(args) - {"query", "offset"}
+                or not isinstance(args.get("query"), str) or not 0 < len(args["query"].encode()) <= 256
+                or type(args.get("offset", 0)) is not int or not 0 <= args.get("offset", 0) <= 1_000_000):
+            return {"status": "REJECTED", "reason": "INVALID_SEARCH_ARGUMENTS"}
+        with self.host.lock:
+            native = self.host._new_native()
+            tx = None
+            try:
+                def call(name, **arguments):
+                    response = native.request("tools/call", {"name": name, "arguments": arguments})
+                    if response["isError"]:
+                        raise ValueError(response["structuredContent"].get("error", "SEARCH_FAILED"))
+                    return response["structuredContent"]
+                tx = call("begin_transaction", project=self.host.project)["transaction_id"]
+                return {"status": "SEARCH", **call("search_functions", transaction_id=tx, **args)}
+            except ValueError as error:
+                return {"status": "REJECTED", "reason": str(error)}
+            finally:
+                try:
+                    if tx:
+                        call("abort_transaction", transaction_id=tx)
+                finally:
+                    native.close()
     def invoke(self,name,args):
         with self.lock:
             if name=='read_reference':
                 result=self.references.read(args);self.work['reference_reads']+=1
             elif name=='read_source':
                 result=source_read(self.host._load_sources(),args);self.work['source_reads']+=1
+            elif name == "search_functions" and self.semantic_search:
+                result = self._search(args)
             else:
                 result=self.host.invoke(name,args)
                 if name=='read_target' and result.get('status')=='READY' and not self.host.lean_reads:
@@ -113,13 +150,13 @@ def serve(host,incoming,outgoing):
         method=req.get('method')
         if method=='initialize':value={'protocolVersion':'2025-11-25','capabilities':{'tools':{}},
             'serverInfo':{'name':'alva-context-host','version':'0.2'},'instructions':host.references.docs['host']}
-        elif method=='tools/list':value={'tools':TOOLS}
+        elif method=='tools/list':value={'tools':getattr(host,'tools',TOOLS)}
         elif method=='ping':value={}
         elif method=='tools/call':
             params=req.get('params',{});params=params if isinstance(params,dict) else {}
             result=host.invoke(params.get('name'),params.get('arguments'))
             value=tool_result(result)
-            if result.get('status') in ('SOURCE','REFERENCE'):value['isError']=False
+            if result.get('status') in ('SOURCE','REFERENCE','SEARCH'):value['isError']=False
         else:
             outgoing.write(json.dumps({'jsonrpc':'2.0','id':req['id'],'error':{'code':-32601,'message':'Method not found'}})+'\n');outgoing.flush();continue
         outgoing.write(json.dumps({'jsonrpc':'2.0','id':req['id'],'result':value})+'\n');outgoing.flush()
@@ -134,6 +171,7 @@ if __name__=='__main__':
     host=ContextHost(MaintenanceHost(lambda:AgentProcess(sdk.alva),config['project'],config['policy'],
         project_source_loader(config['project'],config.get('inputs')),
         LinuxProjectEvaluator(sdk,config['crate'],assertions=config.get('assertions','')),
-        projection=config.get('projection','sexpr'),lean_reads=config.get('lean_reads',False)))
+        projection=config.get('projection','sexpr'),lean_reads=config.get('lean_reads',False)),
+        semantic_search=config.get('semantic_search',False))
     try:serve(host,sys.stdin,sys.stdout)
     finally:host.close()

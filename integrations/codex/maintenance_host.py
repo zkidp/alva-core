@@ -21,7 +21,7 @@ from integrations.codex.precommit_scope_guard import GuardedNative
 
 PRIVATE_OPERATIONS = frozenset(("begin_transaction", "read_function", "read_function_context",
     "replace_function_body", "inspect_project", "inspect_entity", "preview_semantic_diff",
-    "check_transaction", "export_transaction", "inspect_scope_snapshot", "inspect_scope_heads",
+    "check_transaction", "export_transaction", "inspect_scope_snapshot", "inspect_scope_heads", "search_functions",
     "commit_transaction", "abort_transaction"))
 
 TOOLS = [

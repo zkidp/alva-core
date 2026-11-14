@@ -4195,6 +4195,81 @@ impl EditSession {
         Ok((revision, body_revision, body, declaration))
     }
 
+    /// Find declarations by qualified name and directly referenced semantic
+    /// identifiers. Never return source bodies or detached historical nodes.
+    pub fn search_functions(
+        &self,
+        query: &str,
+        offset: usize,
+    ) -> Result<serde_json::Value, String> {
+        fn words(text: &str) -> impl Iterator<Item = &str> {
+            text.split(|c: char| !c.is_ascii_alphanumeric())
+                .filter(|word| !word.is_empty())
+        }
+        let terms: HashSet<_> = words(query).map(str::to_ascii_lowercase).collect();
+        if terms.is_empty() || terms.len() > 16 || query.len() > 256 {
+            return Err("E_AEP_SEARCH_QUERY: use 1–16 words and at most 256 bytes".into());
+        }
+        let mut matches = Vec::new();
+        for entity in &self.graph.module_entities {
+            let module = self
+                .graph
+                .resolve(entity)
+                .ok_or("E_AEP_SCOPE_MISSING_HEAD")?;
+            let module_name = field_str(module, "name");
+            for rev in module.slots.get("functions").into_iter().flatten() {
+                let node = self.graph.get(rev).ok_or("E_AEP_SCOPE_DANGLING")?;
+                let qualified = format!("{module_name}.{}", field_str(node, "name"));
+                let direct = words(&qualified)
+                    .filter(|word| terms.contains(&word.to_ascii_lowercase()))
+                    .count();
+                let mut matched = HashSet::new();
+                let mut pending: Vec<_> = node.slots.values().flatten().collect();
+                let mut seen = HashSet::new();
+                while let Some(rev) = pending.pop() {
+                    if !seen.insert(rev) {
+                        continue;
+                    }
+                    let child = self.graph.get(rev).ok_or("E_AEP_SCOPE_DANGLING")?;
+                    for field in ["name", "type", "variant"] {
+                        if let Some(Value::Str(value)) = child.fields.get(field) {
+                            for word in words(value) {
+                                let word = word.to_ascii_lowercase();
+                                if terms.contains(&word) {
+                                    matched.insert(word);
+                                }
+                            }
+                        }
+                    }
+                    pending.extend(child.slots.values().flatten());
+                }
+                let score = direct * 4 + matched.len();
+                if score > 0 {
+                    matches.push((std::cmp::Reverse(score), qualified, rev));
+                }
+            }
+        }
+        matches.sort_unstable();
+        let mut rows = Vec::new();
+        let mut bytes = 0;
+        for (score, function, revision) in matches.iter().skip(offset).take(20) {
+            let row =
+                serde_json::json!({"function": function, "revision": revision, "score": score.0});
+            bytes += row.to_string().len();
+            if bytes > 12_000 {
+                break;
+            }
+            rows.push(row);
+        }
+        let end = offset.saturating_add(rows.len());
+        if rows.is_empty() && end < matches.len() {
+            return Err("E_AEP_SEARCH_RESULT_LIMIT".into());
+        }
+        Ok(
+            serde_json::json!({"matches": rows, "next_offset": (end < matches.len()).then_some(end)}),
+        )
+    }
+
     pub fn read_compact_function(
         &self,
         function: &str,

@@ -21,6 +21,21 @@ fn body(g: &AirGraph, entity: &str) -> String {
 }
 
 #[test]
+fn semantic_search_is_ranked_bounded_and_pageable() {
+    let names: Vec<_> = (0..24).map(|i| format!("state_{i}")).collect();
+    let names: Vec<_> = names.iter().map(String::as_str).collect();
+    let session = EditSession::begin(graph("demo", &names), String::new());
+    let first = session.search_functions("State", 0).unwrap();
+    assert_eq!(first["matches"].as_array().unwrap().len(), 20);
+    assert_eq!(first["next_offset"], 20);
+    let last = session.search_functions("state", 20).unwrap();
+    assert_eq!(last["matches"].as_array().unwrap().len(), 4);
+    assert!(last["next_offset"].is_null());
+    let refs = session.search_functions("x", 0).unwrap();
+    assert_eq!(refs["matches"][0]["score"], 1);
+}
+
+#[test]
 fn compact_body_round_trips_calls_literals_and_legacy_expressions() {
     let graph = graph("demo", &["a", "b"]);
     let mut session = EditSession::begin(graph, "base".into());
