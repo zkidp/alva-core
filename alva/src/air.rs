@@ -3904,6 +3904,126 @@ struct FunctionOccurrence {
 }
 
 impl EditSession {
+    /// Replace existing declarations in a private candidate and check the
+    /// combined project before exposing any of the edits to the session.
+    pub fn stage_declarations(
+        &mut self,
+        modules: &[String],
+        edits: Vec<(String, String, String)>,
+    ) -> Result<(), String> {
+        if edits.is_empty() || edits.len() > 64 {
+            return Err("E_AEP_BATCH_SIZE: expected 1–64 declaration edits".into());
+        }
+        let mut changed = BTreeMap::new();
+        let mut seen = HashSet::new();
+        for (kind, target, source) in edits {
+            let (module, name) = target.rsplit_once('.').ok_or("E_AEP_BATCH_TARGET")?;
+            if !modules.iter().any(|m| m == module) {
+                return Err("E_AEP_COMPONENT_SCOPE".into());
+            }
+            if !seen.insert((kind == "type", target.clone())) {
+                return Err("E_AEP_DUPLICATE_BATCH_TARGET".into());
+            }
+            let entity = format!("module:{module}");
+            let base = match changed.entry(entity.clone()) {
+                std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
+                std::collections::btree_map::Entry::Vacant(entry) => {
+                    entry.insert(air_to_module(&self.graph, &entity)?)
+                }
+            };
+            let limits = crate::s_expr::Limits::from_env();
+            match kind.as_str() {
+                "body" => {
+                    let body = crate::compact::parse_body_with_functions(
+                        &source,
+                        &limits,
+                        &base.fns.iter().map(|f| f.name.as_str()).collect::<Vec<_>>(),
+                    )
+                    .map_err(|e| format!("{}: {e}", e.code()))?;
+                    base.fns
+                        .iter_mut()
+                        .find(|f| f.name == name)
+                        .ok_or("E_AEP_BATCH_TARGET")?
+                        .body = body;
+                }
+                "function" | "type" => {
+                    let mut fragment = crate::compact::parse_module(
+                        &format!("module proposal version \"0.0.0\";\n{source}"),
+                        &limits,
+                    )
+                    .map_err(|e| format!("{}: {e}", e.code()))?;
+                    if !fragment.exts.is_empty()
+                        || !fragment.tests.is_empty()
+                        || !fragment.benches.is_empty()
+                        || !fragment.exports.is_empty()
+                        || !fragment.caps.is_empty()
+                        || !fragment.deps.is_empty()
+                        || !fragment.rust_deps.is_empty()
+                    {
+                        return Err("E_AEP_BATCH_UNSUPPORTED_DECLARATION".into());
+                    }
+                    if kind == "function"
+                        && fragment.fns.len() == 1
+                        && fragment.types.is_empty()
+                        && fragment.fns[0].name == name
+                    {
+                        *base
+                            .fns
+                            .iter_mut()
+                            .find(|f| f.name == name)
+                            .ok_or("E_AEP_BATCH_TARGET")? = fragment.fns.pop().unwrap();
+                    } else if kind == "type"
+                        && fragment.types.len() == 1
+                        && fragment.fns.is_empty()
+                        && fragment.types[0].name == name
+                    {
+                        *base
+                            .types
+                            .iter_mut()
+                            .find(|t| t.name == name)
+                            .ok_or("E_AEP_BATCH_TARGET")? = fragment.types.pop().unwrap();
+                    } else {
+                        return Err("E_AEP_BATCH_UNSUPPORTED_DECLARATION".into());
+                    }
+                }
+                _ => return Err("E_AEP_BATCH_UNSUPPORTED_DECLARATION".into()),
+            }
+        }
+        let mut candidate = self.graph.clone();
+        for (entity, module) in changed {
+            let projected = air_from_module(&module);
+            let before = self.graph.resolve(&entity).ok_or("E_AEP_BATCH_TARGET")?;
+            let after = projected.resolve(&entity).ok_or("E_AEP_BATCH_TARGET")?;
+            if before.fields != after.fields
+                || ["externs", "tests", "benches"]
+                    .iter()
+                    .any(|slot| before.slots.get(*slot) != after.slots.get(*slot))
+            {
+                return Err("E_AEP_COMPONENT_PROTECTED_DECLARATION".into());
+            }
+            candidate.nodes.extend(projected.nodes);
+            candidate.heads.retain(|name, _| {
+                name != &entity
+                    && !name
+                        .strip_prefix(&entity)
+                        .is_some_and(|suffix| suffix.starts_with('/'))
+            });
+            candidate.heads.extend(projected.heads);
+        }
+        if candidate.semantic_hash() == self.graph.semantic_hash() {
+            return Err("E_AEP_BATCH_UNCHANGED".into());
+        }
+        let mut staged = EditSession::begin(candidate, self.base_hash.clone());
+        let errors = staged.check();
+        if !errors.is_empty() {
+            return Err(format!("E_AEP_BATCH_CHECK: {}", errors.join("; ")));
+        }
+        self.graph = staged.graph;
+        self.verified_revisions = staged.verified_revisions;
+        self.errors.clear();
+        Ok(())
+    }
+
     pub fn begin(graph: AirGraph, base_hash: String) -> Self {
         // Cache only revisions traversed by integrity verification. Older
         // revisions can be present without being part of the current program.
@@ -4202,6 +4322,16 @@ impl EditSession {
         query: &str,
         offset: usize,
     ) -> Result<serde_json::Value, String> {
+        self.declaration_search(query, offset, &[], None)
+    }
+
+    pub fn declaration_search(
+        &self,
+        query: &str,
+        offset: usize,
+        modules: &[String],
+        impact: Option<&str>,
+    ) -> Result<serde_json::Value, String> {
         fn words(text: &str) -> impl Iterator<Item = &str> {
             text.split(|c: char| !c.is_ascii_alphanumeric())
                 .filter(|word| !word.is_empty())
@@ -4217,6 +4347,9 @@ impl EditSession {
                 .resolve(entity)
                 .ok_or("E_AEP_SCOPE_MISSING_HEAD")?;
             let module_name = field_str(module, "name");
+            if !modules.is_empty() && !modules.contains(&module_name) {
+                continue;
+            }
             for rev in module.slots.get("functions").into_iter().flatten() {
                 let node = self.graph.get(rev).ok_or("E_AEP_SCOPE_DANGLING")?;
                 let qualified = format!("{module_name}.{}", field_str(node, "name"));
@@ -4224,6 +4357,7 @@ impl EditSession {
                     .filter(|word| terms.contains(&word.to_ascii_lowercase()))
                     .count();
                 let mut matched = HashSet::new();
+                let mut referenced = false;
                 let mut pending: Vec<_> = node.slots.values().flatten().collect();
                 let mut seen = HashSet::new();
                 while let Some(rev) = pending.pop() {
@@ -4231,6 +4365,28 @@ impl EditSession {
                         continue;
                     }
                     let child = self.graph.get(rev).ok_or("E_AEP_SCOPE_DANGLING")?;
+                    if let Some(kind) = impact {
+                        let value = match (kind, child.kind.as_str()) {
+                            ("function", "call") => field_str(child, "name"),
+                            ("type", "type_expr") if field_str(child, "shape") == "named" => {
+                                field_str(child, "name")
+                            }
+                            ("type", "record" | "record_update" | "match" | "variant") => {
+                                field_str(child, "type")
+                            }
+                            _ => String::new(),
+                        };
+                        if !value.is_empty()
+                            && (value == query
+                                || (!value.contains('.')
+                                    && format!("{module_name}.{value}") == query))
+                        {
+                            referenced = true;
+                            break;
+                        }
+                        pending.extend(child.slots.values().flatten());
+                        continue;
+                    }
                     for field in ["name", "type", "variant"] {
                         if let Some(Value::Str(value)) = child.fields.get(field) {
                             for word in words(value) {
@@ -4243,7 +4399,11 @@ impl EditSession {
                     }
                     pending.extend(child.slots.values().flatten());
                 }
-                let score = direct * 4 + matched.len();
+                let score = if impact.is_some() {
+                    usize::from(referenced)
+                } else {
+                    direct * 4 + matched.len()
+                };
                 if score > 0 {
                     matches.push((std::cmp::Reverse(score), qualified, rev));
                 }
@@ -4253,8 +4413,11 @@ impl EditSession {
         let mut rows = Vec::new();
         let mut bytes = 0;
         for (score, function, revision) in matches.iter().skip(offset).take(20) {
+            let f = fn_air_to_ast(&self.graph, revision)?;
+            let signature =
+                crate::compact::signature(&f.name, &f.params, &f.returns, f.pure, &f.eff);
             let row =
-                serde_json::json!({"function": function, "revision": revision, "score": score.0});
+                serde_json::json!({"function": function, "signature": signature, "score": score.0});
             bytes += row.to_string().len();
             if bytes > 12_000 {
                 break;

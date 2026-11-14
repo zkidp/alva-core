@@ -456,7 +456,7 @@ fn before_brace(e: &Expr) -> String {
     }
 }
 
-fn signature(
+pub(crate) fn signature(
     name: &str,
     params: &[(String, TypeExpr)],
     returns: &TypeExpr,

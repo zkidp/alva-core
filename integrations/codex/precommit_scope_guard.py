@@ -24,7 +24,8 @@ class GuardedNative:
             raise ValueError("Unsupported trusted snapshot transport")
         self._inner = inner
         self._policy = copy.deepcopy(policy)
-        self._authorized = frozenset(policy["authorized_functions"])
+        self._component = frozenset(policy.get("component_modules", ()))
+        self._authorized = frozenset(policy.get("authorized_functions", ()))
         self._allowed = frozenset(allowed_tools)
         self._sink = sink
         self._lock = threading.RLock()
@@ -44,6 +45,25 @@ class GuardedNative:
         return response["structuredContent"]
 
     def _snapshot(self, tx):
+        if self._component:
+            envelope = self._read(tx, "inspect_scope_heads")
+            order = envelope["module_order"]
+            roots = envelope["project"]["modules"]
+            if len(order) != len(roots) or set(order) != set(roots) or not {
+                "module:" + m for m in self._component
+            } <= set(roots):
+                raise Unverified("COMPONENT_COVERAGE_MISMATCH")
+            protected = {}
+            for name, revision in roots.items():
+                node = envelope["nodes"][revision]
+                if node["kind"] != "module" or node["revision"] != revision:
+                    raise Unverified("INVALID_MODULE_HEAD")
+                if name.removeprefix("module:") in self._component:
+                    protected[name] = [node["fields"], {k: v for k, v in node["slots"].items()
+                                                         if k not in ("functions", "types")}]
+                else:
+                    protected[name] = revision
+            return {"protected": protected, "order": order, "revision": envelope["project"]["project_revision"]}
         bulk = None
         module_order = None
         heads_only = self._snapshot_tool == "inspect_scope_heads"
@@ -132,6 +152,11 @@ class GuardedNative:
             return {"status": "SCOPE_UNVERIFIED", "reason": (baseline or {}).get("error", "NO_TRUSTED_BASELINE")}
         try:
             staged = self._snapshot(tx)
+            if self._component:
+                if staged["protected"] != baseline["protected"] or staged["order"] != baseline["order"]:
+                    raise Unverified("COMPONENT_BOUNDARY_CHANGED")
+                return {"status": "SCOPE_ALLOWED", "scope": "COMPONENT_DECLARATIONS",
+                        "staged_project_revision": staged["revision"]}
             if staged.get("module_order") != baseline.get("module_order"):
                 raise Unverified("MODULE_ORDER_CHANGED")
             if staged["modules"] != baseline["modules"]:

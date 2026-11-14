@@ -22,7 +22,7 @@ from integrations.codex.precommit_scope_guard import GuardedNative
 PRIVATE_OPERATIONS = frozenset(("begin_transaction", "read_function", "read_function_context",
     "replace_function_body", "inspect_project", "inspect_entity", "preview_semantic_diff",
     "check_transaction", "export_transaction", "inspect_scope_snapshot", "inspect_scope_heads", "search_functions",
-    "commit_transaction", "abort_transaction"))
+    "commit_transaction", "abort_transaction", "stage_declarations"))
 
 TOOLS = [
     {"name": "read_target", "description": "Read an authorized function's current body, declaration and direct context. Reuse its view_id for changes; Host owns transactions.",
@@ -161,6 +161,18 @@ class MaintenanceHost:
         self.lean_reads = lean_reads
         self.factory, self.project = native_factory, str(project)
         self.policy = copy.deepcopy(policy)
+        self.tools = copy.deepcopy(TOOLS)
+        if self.policy.get("component_modules"):
+            prepare = self.tools[1]
+            prepare["description"] = "Prepare atomic edits to compact bodies, function signatures or type declarations."
+            schema = prepare["inputSchema"]
+            schema["required"] = ["view_id", "edits"]
+            del schema["properties"]["body"]
+            schema["properties"]["edits"] = {"type": "array", "minItems": 1, "maxItems": 64,
+                "items": {"type": "object", "additionalProperties": False,
+                          "required": ["kind", "target", "source"], "properties": {
+                              "kind": {"enum": ["body", "function", "type"]},
+                              "target": {"type": "string"}, "source": {"type": "string"}}}}
         self.sources, self.evaluator = source_loader, evaluator
         self.ttl, self.clock = ttl_seconds, clock
         self.bulk_scope, self.digest_rechecks = bulk_scope, digest_rechecks
@@ -216,11 +228,11 @@ class MaintenanceHost:
         with self.lock:
             self.work["agent_tool_calls"] += 1
             if self.blocked: return {"status": "BLOCKED", "reason": self.blocked}
-            expected = {t["name"]: t["inputSchema"] for t in TOOLS}
+            expected = {t["name"]: t["inputSchema"] for t in self.tools}
             if not isinstance(name, str) or name not in expected: return {"status": "REJECTED", "reason": "TOOL_NOT_EXPOSED"}
             if name == "prepare_change": self.proposal = None
             schema = expected[name]
-            if not isinstance(arguments, dict) or set(arguments) != set(schema["required"]) or any(not isinstance(v, str) or not v for v in arguments.values()):
+            if not isinstance(arguments, dict) or set(arguments) != set(schema["required"]) or any(not isinstance(v, str) or not v for k, v in arguments.items() if k != "edits"):
                 return {"status": "REJECTED", "reason": "INVALID_ARGUMENTS"}
             if "body" in arguments and len(arguments["body"].encode()) > 65536:
                 return {"status": "REJECTED", "reason": "BODY_SOURCE_LIMIT"}
@@ -228,6 +240,8 @@ class MaintenanceHost:
                 self._reset()
                 if name != "read_target": return {"status": "REJECTED", "reason": "VIEW_EXPIRED_READ_TARGET"}
             try:
+                if name == "prepare_change" and "edits" in arguments:
+                    return copy.deepcopy(self._prepare_component(**arguments))
                 return copy.deepcopy(getattr(self, "_" + name)(**arguments))
             except ToolFailure as e:
                 return {"status": "REJECTED", "reason": str(e)[:2400], "recovery": "Revise the body using the same view_id, or read_target after a conflict."}
@@ -238,21 +252,32 @@ class MaintenanceHost:
                 return {"status": "BLOCKED", "reason": self.blocked}
 
     def _read_target(self, function):
-        if function not in self.policy["authorized_functions"]:
+        component = self.policy.get("component_modules")
+        authorized = (function.rpartition(".")[0] in component if component
+                      else function in self.policy["authorized_functions"])
+        if not authorized:
             return {"status": "REJECTED", "reason": "FUNCTION_NOT_AUTHORIZED"}
-        if not self.view or self.view["function"] != function:
+        if not self.view or (not component and self.view["function"] != function):
             self._reset()
             self.native = self._new_native()
             self.guard = GuardedNative(self.native, self.policy, PRIVATE_OPERATIONS, self._event,
                 snapshot_tool="inspect_scope_heads" if self.bulk_scope else None)
-            self.tx = self._call("begin_transaction", project=self.project)["transaction_id"]
+            begun = self._call("begin_transaction", project=self.project)
+            self.tx = begun["transaction_id"]
             self.view = {"id": "view_" + secrets.token_hex(12), "function": function, "expires": self.clock() + self.ttl,
-                         "source_digest": snapshot_digest(self._load_sources())}
+                         "source_digest": snapshot_digest(self._load_sources()),
+                         "base_revision": begun.get("project_revision")}
         projection = {"projection": self.projection} if self.projection == "compact" else {}
         info = self._call("read_function", function=function, **projection)
         context = self._call("read_function_context", function=function, **projection)
+        if component:
+            # Cross-component names in the selected source remain visible.
+            # Additional declarations require their own component authority.
+            context["callees"] = [row for row in context.get("callees", [])
+                                  if row["function"].rpartition(".")[0] in component]
+            context["types"] = []
         self.view.setdefault("initial_body_revision", info["body_revision"])
-        if self.lean_reads:
+        if self.lean_reads or component:
             context = {key: context[key] for key in ("types", "callees", "used_builtins")
                        if context.get(key)}
             return {"status": "READY", "view_id": self.view["id"], "function": function,
@@ -278,6 +303,42 @@ class MaintenanceHost:
         if scope["status"] != "SCOPE_ALLOWED": return {"status": scope["status"], "can_publish": False}
         if scope["changed_functions"] != [target]:
             return {"status": "REJECTED", "reason": "NO_SINGLE_TARGET_CHANGE", "can_publish": False}
+        return self._evaluate_candidate(changed["body_revision"])
+
+    def _prepare_component(self, view_id, edits):
+        if not self.view or self.view["id"] != view_id:
+            return {"status": "REJECTED", "reason": "UNKNOWN_VIEW_READ_TARGET"}
+        if (not isinstance(edits, list) or not 1 <= len(edits) <= 64 or any(
+            not isinstance(e, dict) or set(e) != {"kind", "target", "source"}
+            or any(not isinstance(v, str) or not v for v in e.values())
+            or e["kind"] not in ("body", "function", "type")
+            or len(e["source"].encode()) > 65536
+            or e["target"].rpartition(".")[0] not in self.policy["component_modules"]
+            for e in edits
+        ) or sum(len(e["source"].encode()) for e in edits) > 512 * 1024):
+            return {"status": "REJECTED", "reason": "INVALID_OR_OUT_OF_SCOPE_DECLARATION_BATCH"}
+        # Each proposal starts from authority, including after a passing but
+        # unpublished proposal. Compare both source and AIR before staging.
+        old_view = self.view
+        if old_view.get("staged"):
+            self._reset()
+            self._read_target(old_view["function"])
+            if self.view["source_digest"] != old_view["source_digest"] or self.view["base_revision"] != old_view["base_revision"]:
+                self._reset()
+                return {"status": "REJECTED", "reason": "BASE_CHANGED_READ_TARGET"}
+            self.view = old_view
+        self._call("stage_declarations", modules=self.policy["component_modules"], edits=edits)
+        self.view["staged"] = True
+        scope = self.guard.preview_scope(self.tx)
+        if scope["status"] != "SCOPE_ALLOWED":
+            self._reset()
+            return {"status": scope["status"], "can_publish": False}
+        result = self._evaluate_candidate()
+        if result["status"] != "PREPARED":
+            self._reset()
+        return result
+
+    def _evaluate_candidate(self, body_revision=None):
         exported, air = self._export()
         sources = self._load_sources()
         if snapshot_digest(sources) != self.view["source_digest"]:
@@ -301,7 +362,7 @@ class MaintenanceHost:
         if current != exported:
             return {"status": "DRAFT_CHANGED_DURING_EVALUATION", "can_publish": False}
         proposal = {"id": "proposal_" + secrets.token_hex(12), "export": exported,
-                    "snapshot_digest": digest, "test_identity": identity, "body_revision": changed["body_revision"],
+                    "snapshot_digest": digest, "test_identity": identity, "body_revision": body_revision,
                     "receipt_sha256": sha(canonical(result)), "expires": self.view["expires"]}
         self.proposal = proposal
         diff = self._call("preview_semantic_diff")["diff"]
@@ -341,9 +402,12 @@ class MaintenanceHost:
                 if answer.get("isError"): raise ToolFailure(answer)
                 return answer["structuredContent"]
             begun = read("begin_transaction", project=self.project)
-            info = read("read_function", transaction_id=begun["transaction_id"], function=target)
+            body_revision = proposal["body_revision"]
+            matches_body = body_revision is None or read(
+                "read_function", transaction_id=begun["transaction_id"], function=target
+            )["body_revision"] == body_revision
             read("abort_transaction", transaction_id=begun["transaction_id"])
-            verified = begun["project_revision"] == commit["revision"] == expected_revision and info["body_revision"] == proposal["body_revision"]
+            verified = begun["project_revision"] == commit["revision"] == expected_revision and matches_body
             fresh.close()
             fresh = None
         except Exception as e:
@@ -427,7 +491,7 @@ def serve(host, incoming, outgoing):
             result = {"protocolVersion":"2025-11-25","capabilities":{"tools":{}},
                       "serverInfo":{"name":"alva-maintenance-host","version":"0.1"},
                       "instructions":"Read target, prepare a body, review passing checks, publish its proposal. Host owns all transactions and tests."}
-        elif method == "tools/list": result = {"tools":TOOLS}
+        elif method == "tools/list": result = {"tools":getattr(host, "tools", TOOLS)}
         elif method == "ping": result = {}
         elif method == "tools/call":
             params = request.get("params", {})

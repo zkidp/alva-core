@@ -64,6 +64,7 @@ SEARCH_TOOL = {
     "description": "Find public function declarations by query words and referenced identifiers; returns up to 20 ranked results and a continuation offset.",
     "inputSchema": {"type": "object", "properties": {
         "query": {"type": "string", "minLength": 1, "maxLength": 256},
+        "impact": {"enum": ["function", "type"], "description": "Treat query as a qualified function or type name and find its users."},
         "offset": {"type": "integer", "minimum": 0, "maximum": 1000000},
     }, "required": ["query"], "additionalProperties": False},
 }
@@ -93,12 +94,18 @@ def source_read(files,args,authority='IMPORT_SOURCE_NOT_STAGED_AIR'):
 class ContextHost:
     def __init__(self,host,*,semantic_search=False):
         self.host=host;self.references=References();self.lock=threading.RLock()
-        self.tools = [*TOOLS, SEARCH_TOOL] if semantic_search else TOOLS
+        self.tools = [*getattr(host, "tools", MUTATIONS), *READ_TOOLS]
+        self.component_scoped = bool(getattr(host, "policy", {}).get("component_modules"))
+        if self.component_scoped:
+            self.tools = [tool for tool in self.tools if tool["name"] != "read_source"]
+        if semantic_search:
+            self.tools.append(SEARCH_TOOL)
         self.semantic_search = semantic_search
         self.work={'reference_reads':0,'source_reads':0,'context_reply_bytes':0}
 
     def _search(self, args):
-        if (not isinstance(args, dict) or set(args) - {"query", "offset"}
+        if (not isinstance(args, dict) or set(args) - {"query", "offset", "impact"}
+                or ("impact" in args and args["impact"] not in ("function", "type"))
                 or not isinstance(args.get("query"), str) or not 0 < len(args["query"].encode()) <= 256
                 or type(args.get("offset", 0)) is not int or not 0 <= args.get("offset", 0) <= 1_000_000):
             return {"status": "REJECTED", "reason": "INVALID_SEARCH_ARGUMENTS"}
@@ -112,7 +119,9 @@ class ContextHost:
                         raise ValueError(response["structuredContent"].get("error", "SEARCH_FAILED"))
                     return response["structuredContent"]
                 tx = call("begin_transaction", project=self.host.project)["transaction_id"]
-                return {"status": "SEARCH", **call("search_functions", transaction_id=tx, **args)}
+                modules = self.host.policy.get("component_modules")
+                scope = {"modules": modules} if modules else {}
+                return {"status": "SEARCH", **call("search_functions", transaction_id=tx, **scope, **args)}
             except ValueError as error:
                 return {"status": "REJECTED", "reason": str(error)}
             finally:
@@ -126,7 +135,10 @@ class ContextHost:
             if name=='read_reference':
                 result=self.references.read(args);self.work['reference_reads']+=1
             elif name=='read_source':
-                result=source_read(self.host._load_sources(),args);self.work['source_reads']+=1
+                if self.component_scoped:
+                    result = {"status": "REJECTED", "reason": "COMPONENT_SOURCE_READ_NOT_EXPOSED"}
+                else:
+                    result=source_read(self.host._load_sources(),args);self.work['source_reads']+=1
             elif name == "search_functions" and self.semantic_search:
                 result = self._search(args)
             else:

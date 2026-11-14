@@ -2724,18 +2724,72 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err(e) => resp!(false, "null", &e),
                 }
             }
+            "stage_declarations" => {
+                let s = need_session!();
+                let parsed = (|| {
+                    let Some(Json::Arr(modules)) = req.get("modules") else {
+                        return Err("E_AEP_COMPONENT_SCOPE");
+                    };
+                    let modules = modules
+                        .iter()
+                        .map(|m| m.as_str().map(str::to_owned).ok_or("E_AEP_COMPONENT_SCOPE"))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    let Some(Json::Arr(edits)) = req.get("edits") else {
+                        return Err("E_AEP_BATCH_SIZE");
+                    };
+                    let edits = edits
+                        .iter()
+                        .map(|edit| {
+                            let read = |key| {
+                                edit.get(key)
+                                    .and_then(Json::as_str)
+                                    .map(str::to_owned)
+                                    .ok_or("E_AEP_BATCH_TARGET")
+                            };
+                            Ok((read("kind")?, read("target")?, read("source")?))
+                        })
+                        .collect::<Result<Vec<_>, &str>>()?;
+                    Ok((modules, edits))
+                })();
+                match parsed
+                    .map_err(str::to_owned)
+                    .and_then(|(modules, edits)| s.stage_declarations(&modules, edits))
+                {
+                    Ok(()) => resp!(true, "{}", "atomic declaration candidate staged"),
+                    Err(error) => resp!(false, "null", &error),
+                }
+            }
             "search_functions" => {
                 let s = need_session!();
                 let query = req
                     .get("query")
                     .and_then(|value| value.as_str())
                     .unwrap_or("");
+                let impact = req.get("impact").and_then(Json::as_str);
+                let modules: Vec<String> = match req.get("modules") {
+                    Some(Json::Arr(values)) => values
+                        .iter()
+                        .filter_map(Json::as_str)
+                        .map(str::to_owned)
+                        .collect(),
+                    _ => Vec::new(),
+                };
+                let search = |offset| {
+                    if impact.is_some_and(|kind| !matches!(kind, "function" | "type")) {
+                        return Err("E_AEP_IMPACT_KIND".into());
+                    }
+                    if modules.is_empty() && impact.is_none() {
+                        s.search_functions(query, offset)
+                    } else {
+                        s.declaration_search(query, offset, &modules, impact)
+                    }
+                };
                 let result = match req.get("offset") {
-                    None => s.search_functions(query, 0),
+                    None => search(0),
                     Some(Json::Num(offset))
                         if (0.0..=1_000_000.0).contains(offset) && offset.fract() == 0.0 =>
                     {
-                        s.search_functions(query, *offset as usize)
+                        search(*offset as usize)
                     }
                     _ => Err("E_AEP_SEARCH_OFFSET: use an integer from 0 to 1000000".into()),
                 };

@@ -36,6 +36,59 @@ fn semantic_search_is_ranked_bounded_and_pageable() {
 }
 
 #[test]
+fn declaration_batch_requires_jointly_valid_changes() {
+    let source = r#"module demo version "1";
+fn target(x: i64) -> i64 pure { x }
+fn a() -> i64 pure { target(1) }
+fn b() -> i64 pure { target(2) }
+fn c() -> i64 pure { target(3) }
+fn d() -> i64 pure { target(4) }
+fn e() -> i64 pure { target(5) }
+fn f() -> i64 pure { target(6) }
+"#;
+    let module = crate::compact::parse_module(source, &Default::default()).unwrap();
+    let graph = air_from_module(&module);
+    let mut session = EditSession::begin(graph, String::new());
+    let initial = graph_to_bytes(&session.graph);
+    let modules = ["demo".to_owned()];
+    let signature = (
+        "function".into(),
+        "demo.target".into(),
+        "fn target(x: i64, y: i64) -> i64 pure { x + y }".into(),
+    );
+    assert!(session
+        .stage_declarations(&modules, vec![signature.clone()])
+        .is_err());
+    assert_eq!(graph_to_bytes(&session.graph), initial);
+    assert!(session
+        .stage_declarations(
+            &modules,
+            vec![("body".into(), "other.a".into(), "{ 1 }".into())]
+        )
+        .is_err());
+    assert_eq!(graph_to_bytes(&session.graph), initial);
+    let mut edits = vec![signature];
+    for (i, name) in ["a", "b", "c", "d", "e", "f"].iter().enumerate() {
+        edits.push((
+            "body".into(),
+            format!("demo.{name}"),
+            format!("{{ target({}, 2) }}", i + 1),
+        ));
+    }
+    session.stage_declarations(&modules, edits).unwrap();
+    assert_ne!(graph_to_bytes(&session.graph), initial);
+    assert_eq!(
+        session
+            .declaration_search("demo.target", 0, &modules, Some("function"))
+            .unwrap()["matches"]
+            .as_array()
+            .unwrap()
+            .len(),
+        6
+    );
+}
+
+#[test]
 fn compact_body_round_trips_calls_literals_and_legacy_expressions() {
     let graph = graph("demo", &["a", "b"]);
     let mut session = EditSession::begin(graph, "base".into());
