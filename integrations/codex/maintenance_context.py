@@ -94,7 +94,7 @@ class ContextHost:
                 result=source_read(self.host._load_sources(),args);self.work['source_reads']+=1
             else:
                 result=self.host.invoke(name,args)
-                if name=='read_target' and result.get('status')=='READY':
+                if name=='read_target' and result.get('status')=='READY' and not self.host.lean_reads:
                     result['body_syntax']=self.references.sections['language']['body']
             self.work['context_reply_bytes']+=len(json.dumps(result).encode())
             return result
@@ -133,6 +133,7 @@ if __name__=='__main__':
     config=json.loads(a.config.read_bytes());sdk=SDK(*(Path(config[k]).resolve() for k in ('alva','toolchain','registry')))
     host=ContextHost(MaintenanceHost(lambda:AgentProcess(sdk.alva),config['project'],config['policy'],
         project_source_loader(config['project'],config.get('inputs')),
-        LinuxProjectEvaluator(sdk,config['crate'],assertions=config.get('assertions',''))))
+        LinuxProjectEvaluator(sdk,config['crate'],assertions=config.get('assertions','')),
+        projection=config.get('projection','sexpr'),lean_reads=config.get('lean_reads',False)))
     try:serve(host,sys.stdin,sys.stdout)
     finally:host.close()

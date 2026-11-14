@@ -154,10 +154,11 @@ class CountedNative:
 
 class MaintenanceHost:
     def __init__(self, native_factory, project, policy, source_loader, evaluator, *, ttl_seconds=900, clock=time.monotonic,
-                 bulk_scope=True, digest_rechecks=True, projection="sexpr"):
+                 bulk_scope=True, digest_rechecks=True, projection="sexpr", lean_reads=False):
         if ttl_seconds <= 0: raise ValueError("Positive view TTL required")
         if projection not in ("sexpr", "compact"): raise ValueError("Unknown body projection")
         self.projection = projection
+        self.lean_reads = lean_reads
         self.factory, self.project = native_factory, str(project)
         self.policy = copy.deepcopy(policy)
         self.sources, self.evaluator = source_loader, evaluator
@@ -251,6 +252,12 @@ class MaintenanceHost:
         info = self._call("read_function", function=function, **projection)
         context = self._call("read_function_context", function=function, **projection)
         self.view.setdefault("initial_body_revision", info["body_revision"])
+        if self.lean_reads:
+            context = {key: context[key] for key in ("types", "callees", "used_builtins")
+                       if context.get(key)}
+            return {"status": "READY", "view_id": self.view["id"], "function": function,
+                    "declaration": info["declaration"], "body": info["body"],
+                    "context": context}
         return {"status": "READY", "view_id": self.view["id"], "function": function,
                 "declaration": info["declaration"], "body": info["body"], "context": context,
                 "view_state": "DRAFT" if info["body_revision"] != self.view["initial_body_revision"] else "BASE_SNAPSHOT",
@@ -447,6 +454,6 @@ if __name__ == "__main__":
     host = MaintenanceHost(lambda:AgentProcess(sdk.alva), config["project"], config["policy"],
         project_source_loader(config["project"], config.get("inputs")),
         LinuxProjectEvaluator(sdk, config["crate"], assertions=config.get("assertions", "")),
-        projection=config.get("projection", "sexpr"))
+        projection=config.get("projection", "sexpr"), lean_reads=config.get("lean_reads", False))
     try: serve(host, sys.stdin, sys.stdout)
     finally: host.close()

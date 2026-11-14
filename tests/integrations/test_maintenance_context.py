@@ -1,10 +1,25 @@
 """Context bounds/encoding and profile routing; zero models."""
 import io,json,unittest
-from integrations.codex.maintenance_context import References,sectioned,source_read,TOOLS,serve
-from integrations.codex.maintenance_host import TOOLS as BASE
+from integrations.codex.maintenance_context import ContextHost,References,sectioned,source_read,TOOLS,serve
+from integrations.codex.maintenance_host import MaintenanceHost,TOOLS as BASE
 
 
 class Context(unittest.TestCase):
+    def test_lean_target_preserves_edit_context_without_repeated_catalog(self):
+        class Host(MaintenanceHost):
+            def _call(self, tool, **args):
+                if tool == "read_function":
+                    return {"body": "{ 1 }", "body_revision": "revision", "declaration": "fn a() -> i64"}
+                return {"types": ["type I = i64"], "callees": [], "used_builtins": [],
+                        "available_builtins": [{"name": "len", "arity": "one"}], "boundary": "direct"}
+        host = Host(None, "alva.toml", {"authorized_functions": ["m.a"]}, None, None,
+                    projection="compact", lean_reads=True, clock=lambda: 0)
+        host.view = {"id": "view", "function": "m.a", "expires": 1}
+        value = ContextHost(host).invoke("read_target", {"function": "m.a"})
+        self.assertEqual(value, {"status": "READY", "view_id": "view", "function": "m.a",
+                                 "body": "{ 1 }", "declaration": "fn a() -> i64",
+                                 "context": {"types": ["type I = i64"]}})
+
     def test_sections_preserve_code_fences_and_exact_text(self):
         text='# Intro\n\n## one\nA\n```text\n## not-a-section\n```\n## two\nB\n'
         sections=sectioned(text)

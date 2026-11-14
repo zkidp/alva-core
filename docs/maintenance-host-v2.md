@@ -115,6 +115,10 @@ by `prepare_change`. Compact syntax supports infix operators such as
 `x + 1`, sequential bindings, and field access such as `p.name`.
 Use `projection=compact` with the Native maintenance `read_function` tool.
 
+Set `"lean_reads": true` to receive the editable declaration and body with
+direct context only. The context profile exposes the public builtin reference
+through `read_reference`. The default reply remains the established profile.
+
 The first draft export includes AIR and accepts up to 10 MiB of binary AIR.
 Later consistency checks request only its
 digest descriptor; Core still serializes and hashes the exact current AIR, so
