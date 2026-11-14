@@ -22,7 +22,10 @@ from integrations.codex.precommit_scope_guard import GuardedNative
 PRIVATE_OPERATIONS = frozenset(("begin_transaction", "read_function", "read_function_context",
     "replace_function_body", "inspect_project", "inspect_entity", "preview_semantic_diff",
     "check_transaction", "export_transaction", "inspect_scope_snapshot", "inspect_scope_heads", "search_functions",
-    "commit_transaction", "abort_transaction", "stage_declarations"))
+    "commit_transaction", "abort_transaction", "stage_declarations", "read_type"))
+
+DECLARATION_EDITS = ("body", "function", "type", "add_function", "add_type",
+                     "delete_function", "delete_type", "exports")
 
 TOOLS = [
     {"name": "read_target", "description": "Read an authorized function's current body, declaration and direct context. Reuse its view_id for changes; Host owns transactions.",
@@ -171,7 +174,7 @@ class MaintenanceHost:
             schema["properties"]["edits"] = {"type": "array", "minItems": 1, "maxItems": 64,
                 "items": {"type": "object", "additionalProperties": False,
                           "required": ["kind", "target", "source"], "properties": {
-                              "kind": {"enum": ["body", "function", "type"]},
+                              "kind": {"enum": list(DECLARATION_EDITS)},
                               "target": {"type": "string"}, "source": {"type": "string"}}}}
         self.sources, self.evaluator = source_loader, evaluator
         self.ttl, self.clock = ttl_seconds, clock
@@ -253,8 +256,7 @@ class MaintenanceHost:
 
     def _read_target(self, function):
         component = self.policy.get("component_modules")
-        authorized = (function.rpartition(".")[0] in component if component
-                      else function in self.policy["authorized_functions"])
+        authorized = bool(component) or function in self.policy["authorized_functions"]
         if not authorized:
             return {"status": "REJECTED", "reason": "FUNCTION_NOT_AUTHORIZED"}
         if not self.view or (not component and self.view["function"] != function):
@@ -264,18 +266,12 @@ class MaintenanceHost:
                 snapshot_tool="inspect_scope_heads" if self.bulk_scope else None)
             begun = self._call("begin_transaction", project=self.project)
             self.tx = begun["transaction_id"]
-            self.view = {"id": "view_" + secrets.token_hex(12), "function": function, "expires": self.clock() + self.ttl,
+            self.view = {"id": secrets.token_hex(6) if component else "view_" + secrets.token_hex(12), "function": function, "expires": self.clock() + self.ttl,
                          "source_digest": snapshot_digest(self._load_sources()),
                          "base_revision": begun.get("project_revision")}
         projection = {"projection": self.projection} if self.projection == "compact" else {}
         info = self._call("read_function", function=function, **projection)
         context = self._call("read_function_context", function=function, **projection)
-        if component:
-            # Cross-component names in the selected source remain visible.
-            # Additional declarations require their own component authority.
-            context["callees"] = [row for row in context.get("callees", [])
-                                  if row["function"].rpartition(".")[0] in component]
-            context["types"] = []
         self.view.setdefault("initial_body_revision", info["body_revision"])
         if self.lean_reads or component:
             context = {key: context[key] for key in ("types", "callees", "used_builtins")
@@ -314,10 +310,11 @@ class MaintenanceHost:
             return {"status": "REJECTED", "reason": "UNKNOWN_VIEW_READ_TARGET"}
         if (not isinstance(edits, list) or not 1 <= len(edits) <= 64 or any(
             not isinstance(e, dict) or set(e) != {"kind", "target", "source"}
-            or any(not isinstance(v, str) or not v for v in e.values())
-            or e["kind"] not in ("body", "function", "type")
+            or any(not isinstance(v, str) for v in e.values())
+            or not e["target"]
+            or e["kind"] not in DECLARATION_EDITS
             or len(e["source"].encode()) > 65536
-            or e["target"].rpartition(".")[0] not in self.policy["component_modules"]
+            or (e["target"] if e["kind"] == "exports" else e["target"].rpartition(".")[0]) not in self.policy["component_modules"]
             for e in edits
         ) or sum(len(e["source"].encode()) for e in edits) > 512 * 1024):
             return {"status": "REJECTED", "reason": "INVALID_OR_OUT_OF_SCOPE_DECLARATION_BATCH"}

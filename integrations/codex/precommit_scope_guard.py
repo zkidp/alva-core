@@ -59,7 +59,7 @@ class GuardedNative:
                 if node["kind"] != "module" or node["revision"] != revision:
                     raise Unverified("INVALID_MODULE_HEAD")
                 if name.removeprefix("module:") in self._component:
-                    protected[name] = [node["fields"], {k: v for k, v in node["slots"].items()
+                    protected[name] = [{k: v for k, v in node["fields"].items() if k != "exports"}, {k: v for k, v in node["slots"].items()
                                                          if k not in ("functions", "types")}]
                 else:
                     protected[name] = revision

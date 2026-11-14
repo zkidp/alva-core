@@ -96,10 +96,11 @@ class ContextHost:
         self.host=host;self.references=References();self.lock=threading.RLock()
         self.tools = [*getattr(host, "tools", MUTATIONS), *READ_TOOLS]
         self.component_scoped = bool(getattr(host, "policy", {}).get("component_modules"))
-        if self.component_scoped:
-            self.tools = [tool for tool in self.tools if tool["name"] != "read_source"]
         if semantic_search:
             self.tools.append(SEARCH_TOOL)
+            self.tools.append({"name": "read_type", "description": "Read a compact type declaration by qualified name.",
+                               "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}},
+                                               "required": ["name"], "additionalProperties": False}})
         self.semantic_search = semantic_search
         self.work={'reference_reads':0,'source_reads':0,'context_reply_bytes':0}
 
@@ -109,7 +110,15 @@ class ContextHost:
                 or not isinstance(args.get("query"), str) or not 0 < len(args["query"].encode()) <= 256
                 or type(args.get("offset", 0)) is not int or not 0 <= args.get("offset", 0) <= 1_000_000):
             return {"status": "REJECTED", "reason": "INVALID_SEARCH_ARGUMENTS"}
+        return self._inspect("search_functions", "SEARCH", args)
+
+    def _inspect(self, tool, status, args):
         with self.host.lock:
+            if self.host.tx:
+                try:
+                    return {"status": status, **self.host._call(tool, **args)}
+                except RuntimeError as error:
+                    return {"status": "REJECTED", "reason": str(error)}
             native = self.host._new_native()
             tx = None
             try:
@@ -119,9 +128,7 @@ class ContextHost:
                         raise ValueError(response["structuredContent"].get("error", "SEARCH_FAILED"))
                     return response["structuredContent"]
                 tx = call("begin_transaction", project=self.host.project)["transaction_id"]
-                modules = self.host.policy.get("component_modules")
-                scope = {"modules": modules} if modules else {}
-                return {"status": "SEARCH", **call("search_functions", transaction_id=tx, **scope, **args)}
+                return {"status": status, **call(tool, transaction_id=tx, **args)}
             except ValueError as error:
                 return {"status": "REJECTED", "reason": str(error)}
             finally:
@@ -135,12 +142,16 @@ class ContextHost:
             if name=='read_reference':
                 result=self.references.read(args);self.work['reference_reads']+=1
             elif name=='read_source':
-                if self.component_scoped:
-                    result = {"status": "REJECTED", "reason": "COMPONENT_SOURCE_READ_NOT_EXPOSED"}
-                else:
-                    result=source_read(self.host._load_sources(),args);self.work['source_reads']+=1
+                result=source_read(self.host._load_sources(),args);self.work['source_reads']+=1
+                if self.component_scoped and result.get("status") == "SOURCE":
+                    result.pop("source_sha256", None)
             elif name == "search_functions" and self.semantic_search:
                 result = self._search(args)
+            elif name == "read_type" and self.semantic_search:
+                if not isinstance(args, dict) or set(args) != {"name"} or not isinstance(args["name"], str) or len(args["name"]) > 256:
+                    result = {"status": "REJECTED", "reason": "INVALID_TYPE_ARGUMENTS"}
+                else:
+                    result = self._inspect("read_type", "TYPE", args)
             else:
                 result=self.host.invoke(name,args)
                 if name=='read_target' and result.get('status')=='READY' and not (
@@ -170,7 +181,7 @@ def serve(host,incoming,outgoing):
             params=req.get('params',{});params=params if isinstance(params,dict) else {}
             result=host.invoke(params.get('name'),params.get('arguments'))
             value=tool_result(result)
-            if result.get('status') in ('SOURCE','REFERENCE','SEARCH'):value['isError']=False
+            if result.get('status') in ('SOURCE','REFERENCE','SEARCH','TYPE'):value['isError']=False
         else:
             outgoing.write(json.dumps({'jsonrpc':'2.0','id':req['id'],'error':{'code':-32601,'message':'Method not found'}})+'\n');outgoing.flush();continue
         outgoing.write(json.dumps({'jsonrpc':'2.0','id':req['id'],'result':value})+'\n');outgoing.flush()

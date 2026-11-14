@@ -2724,6 +2724,18 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     Err(e) => resp!(false, "null", &e),
                 }
             }
+            "read_type" => {
+                let s = need_session!();
+                let name = req.get("name").and_then(Json::as_str).unwrap_or("");
+                match s.read_compact_type(name) {
+                    Ok(declaration) => resp!(
+                        true,
+                        &serde_json::json!({"declaration": declaration}).to_string(),
+                        "type declaration"
+                    ),
+                    Err(error) => resp!(false, "null", &error),
+                }
+            }
             "stage_declarations" => {
                 let s = need_session!();
                 let parsed = (|| {

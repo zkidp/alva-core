@@ -3917,11 +3917,18 @@ impl EditSession {
         let mut changed = BTreeMap::new();
         let mut seen = HashSet::new();
         for (kind, target, source) in edits {
-            let (module, name) = target.rsplit_once('.').ok_or("E_AEP_BATCH_TARGET")?;
+            let (module, name) = if kind == "exports" {
+                (target.as_str(), "")
+            } else {
+                target.rsplit_once('.').ok_or("E_AEP_BATCH_TARGET")?
+            };
             if !modules.iter().any(|m| m == module) {
                 return Err("E_AEP_COMPONENT_SCOPE".into());
             }
-            if !seen.insert((kind == "type", target.clone())) {
+            if !seen.insert((
+                matches!(kind.as_str(), "type" | "add_type" | "delete_type"),
+                target.clone(),
+            )) {
                 return Err("E_AEP_DUPLICATE_BATCH_TARGET".into());
             }
             let entity = format!("module:{module}");
@@ -3946,7 +3953,46 @@ impl EditSession {
                         .ok_or("E_AEP_BATCH_TARGET")?
                         .body = body;
                 }
-                "function" | "type" => {
+                "delete_function" | "delete_type" => {
+                    if !source.is_empty() {
+                        return Err("E_AEP_BATCH_TARGET".into());
+                    }
+                    if kind == "delete_function" {
+                        let i = base
+                            .fns
+                            .iter()
+                            .position(|f| f.name == name)
+                            .ok_or("E_AEP_BATCH_TARGET")?;
+                        base.fns.remove(i);
+                    } else {
+                        let i = base
+                            .types
+                            .iter()
+                            .position(|t| t.name == name)
+                            .ok_or("E_AEP_BATCH_TARGET")?;
+                        base.types.remove(i);
+                    }
+                }
+                "exports" => {
+                    let mut fragment = crate::compact::parse_module(
+                        &format!("module proposal version \"0.0.0\";\n{source}"),
+                        &limits,
+                    )
+                    .map_err(|e| format!("{}: {e}", e.code()))?;
+                    if !fragment.fns.is_empty()
+                        || !fragment.types.is_empty()
+                        || !fragment.exts.is_empty()
+                        || !fragment.tests.is_empty()
+                        || !fragment.benches.is_empty()
+                        || !fragment.deps.is_empty()
+                        || !fragment.rust_deps.is_empty()
+                        || !fragment.caps.is_empty()
+                    {
+                        return Err("E_AEP_BATCH_UNSUPPORTED_DECLARATION".into());
+                    }
+                    base.exports = std::mem::take(&mut fragment.exports);
+                }
+                "function" | "type" | "add_function" | "add_type" => {
                     let mut fragment = crate::compact::parse_module(
                         &format!("module proposal version \"0.0.0\";\n{source}"),
                         &limits,
@@ -3962,26 +4008,28 @@ impl EditSession {
                     {
                         return Err("E_AEP_BATCH_UNSUPPORTED_DECLARATION".into());
                     }
-                    if kind == "function"
+                    if matches!(kind.as_str(), "function" | "add_function")
                         && fragment.fns.len() == 1
                         && fragment.types.is_empty()
                         && fragment.fns[0].name == name
                     {
-                        *base
-                            .fns
-                            .iter_mut()
-                            .find(|f| f.name == name)
-                            .ok_or("E_AEP_BATCH_TARGET")? = fragment.fns.pop().unwrap();
-                    } else if kind == "type"
+                        let item = fragment.fns.pop().unwrap();
+                        match base.fns.iter().position(|f| f.name == name) {
+                            None if kind == "add_function" => base.fns.push(item),
+                            Some(i) if kind == "function" => base.fns[i] = item,
+                            _ => return Err("E_AEP_BATCH_TARGET".into()),
+                        }
+                    } else if matches!(kind.as_str(), "type" | "add_type")
                         && fragment.types.len() == 1
                         && fragment.fns.is_empty()
                         && fragment.types[0].name == name
                     {
-                        *base
-                            .types
-                            .iter_mut()
-                            .find(|t| t.name == name)
-                            .ok_or("E_AEP_BATCH_TARGET")? = fragment.types.pop().unwrap();
+                        let item = fragment.types.pop().unwrap();
+                        match base.types.iter().position(|t| t.name == name) {
+                            None if kind == "add_type" => base.types.push(item),
+                            Some(i) if kind == "type" => base.types[i] = item,
+                            _ => return Err("E_AEP_BATCH_TARGET".into()),
+                        }
                     } else {
                         return Err("E_AEP_BATCH_UNSUPPORTED_DECLARATION".into());
                     }
@@ -3994,7 +4042,11 @@ impl EditSession {
             let projected = air_from_module(&module);
             let before = self.graph.resolve(&entity).ok_or("E_AEP_BATCH_TARGET")?;
             let after = projected.resolve(&entity).ok_or("E_AEP_BATCH_TARGET")?;
-            if before.fields != after.fields
+            if before
+                .fields
+                .iter()
+                .filter(|(k, _)| *k != "exports")
+                .ne(after.fields.iter().filter(|(k, _)| *k != "exports"))
                 || ["externs", "tests", "benches"]
                     .iter()
                     .any(|slot| before.slots.get(*slot) != after.slots.get(*slot))
@@ -4387,8 +4439,15 @@ impl EditSession {
                         pending.extend(child.slots.values().flatten());
                         continue;
                     }
-                    for field in ["name", "type", "variant"] {
+                    for field in ["name", "type", "variant", "value"] {
                         if let Some(Value::Str(value)) = child.fields.get(field) {
+                            if query.starts_with('"')
+                                && value
+                                    .to_ascii_lowercase()
+                                    .contains(&query.trim_matches('"').to_ascii_lowercase())
+                            {
+                                matched.insert(query.to_owned());
+                            }
                             for word in words(value) {
                                 let word = word.to_ascii_lowercase();
                                 if terms.contains(&word) {
@@ -4451,6 +4510,22 @@ impl EditSession {
             ),
             crate::compact::declaration(&function),
         ))
+    }
+
+    pub fn read_compact_type(&self, name: &str) -> Result<String, String> {
+        let (module, local) = name
+            .rsplit_once('.')
+            .ok_or("E_AEP_QUALIFIED_TYPE_REQUIRED")?;
+        let entity = format!("module:{module}/type:{local}");
+        let node = self
+            .graph
+            .resolve(&entity)
+            .filter(|node| node.kind == "type")
+            .ok_or("E_AEP_TYPE_NOT_FOUND")?;
+        Ok(crate::compact::type_decl(&type_air_to_ast_def(
+            &self.graph,
+            &node.revision,
+        )?))
     }
 
     fn module_function_names(&self, module: &AirNode) -> Vec<&str> {
