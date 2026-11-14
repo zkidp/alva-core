@@ -202,7 +202,7 @@ class MaintenanceHost:
         if sum(map(len, files.values())) > 16 * 1024**2: raise RuntimeError("SOURCE_INPUT_LIMIT")
         return dict(files)
 
-    def _call(self, name, **args):
+    def _call(self, name, /, **args):
         if name != "begin_transaction": args["transaction_id"] = self.tx
         result = self.guard.tool(name, args)
         if result.get("isError"): raise ToolFailure(result)
@@ -271,6 +271,9 @@ class MaintenanceHost:
                          "base_revision": begun.get("project_revision")}
         projection = {"projection": self.projection} if self.projection == "compact" else {}
         info = self._call("read_function", function=function, **projection)
+        if component:
+            return {"status": "READY", "view_id": self.view["id"],
+                    "code": info["declaration"] + " " + info["body"]}
         context = self._call("read_function_context", function=function, **projection)
         self.view.setdefault("initial_body_revision", info["body_revision"])
         if self.lean_reads or component:

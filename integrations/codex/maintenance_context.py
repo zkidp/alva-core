@@ -122,7 +122,7 @@ class ContextHost:
             native = self.host._new_native()
             tx = None
             try:
-                def call(name, **arguments):
+                def call(name, /, **arguments):
                     response = native.request("tools/call", {"name": name, "arguments": arguments})
                     if response["isError"]:
                         raise ValueError(response["structuredContent"].get("error", "SEARCH_FAILED"))
