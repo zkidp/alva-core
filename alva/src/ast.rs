@@ -602,7 +602,7 @@ fn parse_field(n: &Node) -> Result<(String, TypeExpr), Vec<Diag>> {
     Ok((name, te))
 }
 
-fn parse_type_expr(n: &Node) -> Result<TypeExpr, Vec<Diag>> {
+pub(crate) fn parse_type_expr(n: &Node) -> Result<TypeExpr, Vec<Diag>> {
     match n {
         Node::Atom(Atom::Sym(s), _) => Ok(TypeExpr::Named(s.clone())),
         Node::Atom(Atom::Str(_), _) => {

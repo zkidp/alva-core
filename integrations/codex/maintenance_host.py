@@ -27,7 +27,7 @@ PRIVATE_OPERATIONS = frozenset(("begin_transaction", "read_function", "read_func
 TOOLS = [
     {"name": "read_target", "description": "Read an authorized function's current body, declaration and direct context. Reuse its view_id for changes; Host owns transactions.",
      "inputSchema": {"type": "object", "properties": {"function": {"type": "string", "minLength": 1}}, "required": ["function"], "additionalProperties": False}},
-    {"name": "prepare_change", "description": "Prepare an ALVA (body ...) fragment using view_id. Host checks scope and tests the isolated draft. Does not publish. On rejection revise using the same view_id.",
+    {"name": "prepare_change", "description": "Prepare an ALVA (body ...) or compact { ... } fragment using view_id. Host checks scope and tests the isolated draft. On rejection revise using the same view_id.",
      "inputSchema": {"type": "object", "properties": {"view_id": {"type": "string", "minLength": 1}, "body": {"type": "string", "minLength": 1, "maxLength": 65536}}, "required": ["view_id", "body"], "additionalProperties": False}},
     {"name": "publish_change", "description": "Publish one successfully prepared proposal_id. Host rechecks the exact draft, test identity, source base and authorization, then verifies fresh AIR. A proposal is single-use.",
      "inputSchema": {"type": "object", "properties": {"proposal_id": {"type": "string", "minLength": 1}}, "required": ["proposal_id"], "additionalProperties": False}},
@@ -154,8 +154,10 @@ class CountedNative:
 
 class MaintenanceHost:
     def __init__(self, native_factory, project, policy, source_loader, evaluator, *, ttl_seconds=900, clock=time.monotonic,
-                 bulk_scope=True, digest_rechecks=True):
+                 bulk_scope=True, digest_rechecks=True, projection="sexpr"):
         if ttl_seconds <= 0: raise ValueError("Positive view TTL required")
+        if projection not in ("sexpr", "compact"): raise ValueError("Unknown body projection")
+        self.projection = projection
         self.factory, self.project = native_factory, str(project)
         self.policy = copy.deepcopy(policy)
         self.sources, self.evaluator = source_loader, evaluator
@@ -245,8 +247,9 @@ class MaintenanceHost:
             self.tx = self._call("begin_transaction", project=self.project)["transaction_id"]
             self.view = {"id": "view_" + secrets.token_hex(12), "function": function, "expires": self.clock() + self.ttl,
                          "source_digest": snapshot_digest(self._load_sources())}
-        info = self._call("read_function", function=function)
-        context = self._call("read_function_context", function=function)
+        projection = {"projection": self.projection} if self.projection == "compact" else {}
+        info = self._call("read_function", function=function, **projection)
+        context = self._call("read_function_context", function=function, **projection)
         self.view.setdefault("initial_body_revision", info["body_revision"])
         return {"status": "READY", "view_id": self.view["id"], "function": function,
                 "declaration": info["declaration"], "body": info["body"], "context": context,
@@ -443,6 +446,7 @@ if __name__ == "__main__":
     sdk = SDK(*(Path(config[k]).resolve() for k in ("alva", "toolchain", "registry")))
     host = MaintenanceHost(lambda:AgentProcess(sdk.alva), config["project"], config["policy"],
         project_source_loader(config["project"], config.get("inputs")),
-        LinuxProjectEvaluator(sdk, config["crate"], assertions=config.get("assertions", "")))
+        LinuxProjectEvaluator(sdk, config["crate"], assertions=config.get("assertions", "")),
+        projection=config.get("projection", "sexpr"))
     try: serve(host, sys.stdin, sys.stdout)
     finally: host.close()

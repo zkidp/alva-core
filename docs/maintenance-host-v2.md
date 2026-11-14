@@ -109,6 +109,12 @@ It still recollects before publication under the Guard lock. Missing, extra,
 malformed or oversized batch coverage fails closed without a serial fallback.
 Neither Native MCP profile exposes this private inspection.
 
+Set `"projection": "compact"` in the Host configuration to read editable
+function bodies as `{ f(x, "/state"); g(2) }`. Both body formats are accepted
+by `prepare_change`. Compact syntax supports infix operators such as
+`x + 1`, sequential bindings, and field access such as `p.name`.
+Use `projection=compact` with the Native maintenance `read_function` tool.
+
 The first draft export includes AIR and accepts up to 10 MiB of binary AIR.
 Later consistency checks request only its
 digest descriptor; Core still serializes and hashes the exact current AIR, so

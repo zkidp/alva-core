@@ -154,7 +154,9 @@ fn schema_for_shape(shape: &'static str) -> ArgSchema {
         "bool" => ArgSchema::Bool(shape),
         "revision" | "record-construction revision" => ArgSchema::Revision(shape),
         "complete lowercase body revision" => ArgSchema::ExactRevision(shape),
-        "ALVA (body ...) fragment; maximum 65536 UTF-8 bytes" => ArgSchema::BodySource(shape),
+        "ALVA (body ...) or compact { ... } fragment; maximum 65536 UTF-8 bytes" => {
+            ArgSchema::BodySource(shape)
+        }
         "entity-id|name" | "entity-id|qualified fn" | "hole-id" => ArgSchema::EntityRef(shape),
         "symbol" | "field" | "field name" | "target" => ArgSchema::Symbol(shape),
         "type" | "type string" | "type name" | "record type name" => ArgSchema::TypeExpr(shape),
@@ -181,6 +183,7 @@ fn schema_for_shape(shape: &'static str) -> ArgSchema {
             ],
         ),
         "string(builtin|operator|all)" => ArgSchema::Enum(shape, &["builtin", "operator", "all"]),
+        "string (sexpr or compact)" => ArgSchema::Enum(shape, &["sexpr", "compact"]),
         "string|i64|bool|bytes|nil" => {
             ArgSchema::Enum(shape, &["string", "i64", "bool", "bytes", "nil"])
         }
@@ -378,7 +381,10 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             "read_function",
             vec![],
             vec!["function"],
-            vec![arg("function", "string(qualified module.fn)", true)],
+            vec![
+                arg("function", "string(qualified module.fn)", true),
+                arg("projection", "string (sexpr or compact)", false),
+            ],
             vec!["transaction"],
             "inspection",
             "entity",
@@ -616,7 +622,10 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
         ),
         spec(
             "read_function_context",
-            vec![], vec!["function"], vec![arg("function", "string(qualified module.fn)", true)],
+            vec![], vec!["function"], vec![
+                arg("function", "string(qualified module.fn)", true),
+                arg("projection", "string (sexpr or compact)", false),
+            ],
             vec!["transaction"], "inspection", "entity", "read_function_context function=demo.model.size_of", None,
         ),
         spec(
@@ -626,7 +635,7 @@ static REGISTRY: std::sync::LazyLock<Vec<OperationSpec>> = std::sync::LazyLock::
             vec![
                 arg("function", "fully qualified function name", true),
                 arg("expected_body_revision", "complete lowercase body revision", true),
-                arg("body", "ALVA (body ...) fragment; maximum 65536 UTF-8 bytes", true),
+                arg("body", "ALVA (body ...) or compact { ... } fragment; maximum 65536 UTF-8 bytes", true),
             ],
             vec!["transaction", "exact current body revision", "semantic check"],
             "mutation",

@@ -1060,7 +1060,7 @@ fn lit(g: &mut AirGraph, kind: &str, value: Value) -> String {
     g.add(kind, "", f, BTreeMap::new())
 }
 
-fn expr_to_air(g: &mut AirGraph, e: &ast::Expr) -> String {
+pub(crate) fn expr_to_air(g: &mut AirGraph, e: &ast::Expr) -> String {
     match e {
         ast::Expr::Int(v, _) => lit(g, "literal", Value::Int(*v)),
         ast::Expr::UInt(v, _) => lit(g, "literal", Value::UInt(*v)),
@@ -4195,6 +4195,40 @@ impl EditSession {
         Ok((revision, body_revision, body, declaration))
     }
 
+    pub fn read_compact_function(
+        &self,
+        function: &str,
+    ) -> Result<(String, String, String, String), String> {
+        let occurrence = self.function_occurrence(function)?;
+        let body = slot_first(&self.graph, &occurrence.original, "body")?;
+        let revision = occurrence.original.revision;
+        let function = fn_air_to_ast(&self.graph, &revision)?;
+        let names = self.module_function_names(&occurrence.module_node);
+        Ok((
+            revision,
+            body,
+            crate::compact::qualify_colliding_aliases(
+                &crate::compact::body(&function.body),
+                &names,
+            ),
+            crate::compact::declaration(&function),
+        ))
+    }
+
+    fn module_function_names(&self, module: &AirNode) -> Vec<&str> {
+        module
+            .slots
+            .get("functions")
+            .into_iter()
+            .flatten()
+            .filter_map(|revision| self.graph.get(revision))
+            .filter_map(|node| match node.fields.get("name") {
+                Some(Value::Str(name)) => Some(name.as_str()),
+                _ => None,
+            })
+            .collect()
+    }
+
     /// Inspect declaration occurrences and their Merkle links for Host scope
     /// checks. A child revision commits to the entire subtree below it.
     pub fn scope_heads(&self) -> Result<serde_json::Value, String> {
@@ -4283,7 +4317,11 @@ impl EditSession {
     }
 
     /// Trusted Host context, derived from the current graph, not task recipes.
-    pub fn function_context(&self, function: &str) -> Result<serde_json::Value, String> {
+    pub fn function_context(
+        &self,
+        function: &str,
+        compact: bool,
+    ) -> Result<serde_json::Value, String> {
         use std::collections::BTreeSet;
         let occurrence = self.function_occurrence(function)?;
         let mut pending = vec![occurrence.original.revision];
@@ -4329,7 +4367,12 @@ impl EditSession {
                     } else {
                         format!("{}.{name}", occurrence.module)
                     };
-                    if let Ok((_, _, _, header)) = self.read_function(&qualified) {
+                    let declaration = if compact {
+                        self.read_compact_function(&qualified)
+                    } else {
+                        self.read_function(&qualified)
+                    };
+                    if let Ok((_, _, _, header)) = declaration {
                         declarations
                             .push(serde_json::json!({"function":qualified,"declaration":header}));
                     }
@@ -4346,7 +4389,14 @@ impl EditSession {
             if let Some((module, local)) = qualified.rsplit_once('.') {
                 let entity = format!("module:{module}/type:{local}");
                 if let Some(node) = self.graph.resolve(&entity) {
-                    type_declarations.push(node_to_sexpr(&self.graph, &node.revision));
+                    type_declarations.push(if compact {
+                        crate::compact::type_decl(&type_air_to_ast_def(
+                            &self.graph,
+                            &node.revision,
+                        )?)
+                    } else {
+                        node_to_sexpr(&self.graph, &node.revision)
+                    });
                 }
             }
         }
@@ -4401,14 +4451,23 @@ impl EditSession {
             return Err("E_AEP_BODY_SOURCE_LIMIT: maximum 65536 UTF-8 bytes".into());
         }
         let limits = crate::s_expr::Limits::from_env();
-        let tree = crate::s_expr::parse_with_limits(source, &limits)
-            .map_err(|e| format!("E_AEP_BODY_PARSE: {}", e.message()))?;
-        let body = ast::body_from_tree(&tree).map_err(|ds| {
-            format!(
-                "E_AEP_BODY_PARSE: {}",
-                ds.iter().map(|d| d.render()).collect::<Vec<_>>().join("; ")
+        let body = if source.trim_start().starts_with('{') {
+            crate::compact::parse_body_with_functions(
+                source,
+                &limits,
+                &self.module_function_names(&module_node),
             )
-        })?;
+            .map_err(|e| format!("{}: {e}", e.code()))?
+        } else {
+            let tree = crate::s_expr::parse_with_limits(source, &limits)
+                .map_err(|e| format!("E_AEP_BODY_PARSE: {}", e.message()))?;
+            ast::body_from_tree(&tree).map_err(|ds| {
+                format!(
+                    "E_AEP_BODY_PARSE: {}",
+                    ds.iter().map(|d| d.render()).collect::<Vec<_>>().join("; ")
+                )
+            })?
+        };
         let mut staged = self.clone();
         let mut new_body = String::new();
         let mut new_function = String::new();

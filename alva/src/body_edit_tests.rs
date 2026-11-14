@@ -20,6 +20,35 @@ fn body(g: &AirGraph, entity: &str) -> String {
     g.resolve(entity).unwrap().slots["body"][0].clone()
 }
 
+#[test]
+fn compact_body_round_trips_calls_literals_and_legacy_expressions() {
+    let graph = graph("demo", &["a", "b"]);
+    let mut session = EditSession::begin(graph, "base".into());
+    let (_, old, compact, _) = session.read_compact_function("demo.a").unwrap();
+    assert_eq!(
+        session
+            .replace_function_body("demo.a", &old, &compact)
+            .unwrap()
+            .1,
+        old,
+    );
+    let (_, new) = session
+        .replace_function_body("demo.a", &old, "{ b(2); b(x) }")
+        .unwrap();
+    assert_ne!(new, old);
+    assert_eq!(
+        session.read_compact_function("demo.a").unwrap().2,
+        "{ b(2); b(x) }"
+    );
+    assert_rejected(
+        &mut session,
+        "demo.a",
+        &new,
+        "{ b(1 2) }",
+        "E_AEP_COMPACT_PARSE",
+    );
+}
+
 fn assert_rejected(s: &mut EditSession, target: &str, expected: &str, text: &str, code: &str) {
     let before = graph_to_bytes(&s.graph);
     let bindings = s.bindings.clone();

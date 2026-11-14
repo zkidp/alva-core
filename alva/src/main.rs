@@ -4,6 +4,7 @@ mod ast;
 mod capability;
 mod check;
 mod codegen;
+mod compact;
 mod construction;
 mod diag;
 mod manifest;
@@ -2162,7 +2163,12 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             "read_function" => {
                 let s = need_session!();
                 let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
-                match s.read_function(function) {
+                let projection = match req.get("projection").and_then(|v| v.as_str()) {
+                    None | Some("sexpr") => s.read_function(function),
+                    Some("compact") => s.read_compact_function(function),
+                    Some(_) => Err("E_AEP_UNKNOWN_PROJECTION".into()),
+                };
+                match projection {
                     Ok((revision, body_revision, body, declaration)) => {
                         resp!(true, &serde_json::json!({
                         "function": function, "revision": revision,
@@ -2730,7 +2736,12 @@ fn cmd_agent(_rest: &[String]) -> i32 {
             "read_function_context" => {
                 let s = need_session!();
                 let function = req.get("function").and_then(|v| v.as_str()).unwrap_or("");
-                match s.function_context(function) {
+                let context = match req.get("projection").and_then(|v| v.as_str()) {
+                    None | Some("sexpr") => s.function_context(function, false),
+                    Some("compact") => s.function_context(function, true),
+                    Some(_) => Err("E_AEP_UNKNOWN_PROJECTION".into()),
+                };
+                match context {
                     Ok(value) => resp!(
                         true,
                         &value.to_string(),
