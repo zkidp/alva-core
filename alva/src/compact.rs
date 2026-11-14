@@ -512,7 +512,6 @@ pub fn type_decl(t: &ast::TypeDef) -> String {
     format!("type {} = {value}", ident(&t.name))
 }
 
-#[cfg(test)]
 pub fn module(m: &ast::Module) -> String {
     let mut out = format!(
         "module {} version {};\n",
@@ -1414,7 +1413,6 @@ pub fn parse_body_with_functions(
     }
     Ok(body)
 }
-#[cfg(test)]
 impl Parser<'_> {
     fn params(&mut self) -> Result<Vec<(String, TypeExpr)>, Error> {
         self.need("(")?;
@@ -1586,7 +1584,6 @@ impl Parser<'_> {
     }
 }
 
-#[cfg(test)]
 pub fn parse_module(text: &str, limits: &Limits) -> Result<ast::Module, Error> {
     Parser::new(text, limits)?.module()
 }

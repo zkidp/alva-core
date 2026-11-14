@@ -94,7 +94,23 @@ fn load_one(path: &Path) -> Result<ast::Module, Vec<Diag>> {
     }
     let text = std::fs::read_to_string(path)
         .map_err(|e| vec![Diag::error(format!("cannot read {}: {e}", path.display()))])?;
-    let tree = crate::s_expr::parse_with_limits(&text, &limits)
+    parse_module_source(&text, &limits)
+}
+
+pub fn parse_module_source(
+    text: &str,
+    limits: &crate::s_expr::Limits,
+) -> Result<ast::Module, Vec<Diag>> {
+    let first = text
+        .lines()
+        .map(str::trim)
+        .find(|line| !line.is_empty() && !line.starts_with("//"));
+    if first.is_some_and(|line| line.split_whitespace().next() == Some("module")) {
+        return crate::compact::parse_module(text, limits).map_err(|error| {
+            vec![Diag::error_at(error.span.clone(), error.message.clone()).with_code(error.code())]
+        });
+    }
+    let tree = crate::s_expr::parse_with_limits(text, limits)
         .map_err(|e| vec![Diag::error_at(e.span(), e.message()).with_code(e.code())])?;
     ast::from_tree(&tree)
 }

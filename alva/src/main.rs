@@ -615,6 +615,25 @@ fn subgraph_for_root(g: &air::AirGraph, root: &str) -> air::AirGraph {
 fn cmd_air(rest: &[String]) -> i32 {
     let sub = rest.first().map(|s| s.as_str()).unwrap_or("");
     match sub {
+        "project-compact" => {
+            let (Some(file), Some(entity)) = (rest.get(1), rest.get(2)) else {
+                eprintln!("usage: alva air project-compact <air-file> <module>");
+                return 2;
+            };
+            let entity = format!("module:{}", entity.trim_start_matches("module:"));
+            match read_air_verify(Path::new(file))
+                .and_then(|graph| air::air_to_module(&graph, &entity))
+            {
+                Ok(module) => {
+                    print!("{}", compact::module(&module));
+                    0
+                }
+                Err(error) => {
+                    eprintln!("error: {error}");
+                    1
+                }
+            }
+        }
         "export" => {
             let file = rest.get(1).map(|s| s.as_str()).unwrap_or("");
             if file.is_empty() {
@@ -5132,19 +5151,7 @@ fn load(path: &Path, json: bool) -> Result<ast::Module, ()> {
             return Err(());
         }
     };
-    let tree = match s_expr::parse_with_limits(&text, &limits) {
-        Ok(t) => t,
-        Err(e) => {
-            let d = diag::Diag::error_at(e.span(), e.message()).with_code(e.code());
-            if json {
-                print_diags(&[d], true);
-            } else {
-                eprintln!("{}", d.render());
-            }
-            return Err(());
-        }
-    };
-    let module = match ast::from_tree(&tree) {
+    let module = match project::parse_module_source(&text, &limits) {
         Ok(m) => m,
         Err(ds) => {
             print_diags(&ds, json);
