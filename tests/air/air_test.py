@@ -227,10 +227,10 @@ def main():
          "--out-dir", os.path.join(work, "conc-base"), "--authoritative"])
     e1 = Edit(alva, os.path.join(conc_proj, "alva.toml"))
     r1 = e1.ok({"op": "begin", "project": os.path.join(conc_proj, "alva.toml")})
-    # session 2 commits a no-op change first (bumps generation)
+    # Session 2 commits a well-typed change and advances the project revision.
     e2 = Edit(alva, os.path.join(conc_proj, "alva.toml"))
     e2.ok({"op": "begin", "project": os.path.join(conc_proj, "alva.toml")})
-    r = e2.ok({"op": "create_node", "kind": "literal", "fields": {"value": "x"}})
+    r = e2.ok({"op": "create_node", "kind": "literal", "fields": {"value": 1}})
     lit = r["result"]["revision"]
     r = e2.ok({"op": "create_node", "kind": "block", "slots": {"steps": [lit]}})
     body = r["result"]["revision"]

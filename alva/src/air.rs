@@ -18,7 +18,7 @@
 use crate::ast;
 use crate::diag::json_escape;
 use sha2::{Digest, Sha256};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 pub const AIR_MAGIC: &[u8] = b"ALVA-AIR-1\n";
@@ -47,6 +47,13 @@ pub enum Value {
 }
 
 impl Value {
+    fn same_encoding(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Float(left), Self::Float(right)) => left.to_bits() == right.to_bits(),
+            _ => self == other,
+        }
+    }
+
     fn tag(&self) -> u8 {
         match self {
             Value::Str(_) => 0x01,
@@ -225,50 +232,75 @@ impl AirGraph {
         hex(&Sha256::digest(&buf))
     }
 
-    /// Immutable path-copy: recompute revisions bottom-up from the module heads
-    /// after any structural edit. Content addressing keeps unchanged subtrees
-    /// at identical revisions; only the edited node and its ancestors receive
-    /// new revisions. Heads are updated for every named entity along the way.
+    #[cfg(test)]
     pub fn rebuild_revisions(&mut self) {
-        if !detect_cycles(self).is_empty() {
-            return; // never recurse on a cyclic graph
-        }
-        let modules: Vec<String> = self.module_entities.clone();
-        for m in modules {
-            if let Some(head) = self.heads.get(&m).cloned() {
-                let new_rev = self.recompute_revision(&head);
-                self.heads.insert(m, new_rev);
-            }
+        let (order, cycles) = revision_order(self);
+        if cycles.is_empty() {
+            self.rebuild_changed_revisions(order, &Self::new());
         }
     }
 
-    fn recompute_revision(&mut self, rev: &str) -> String {
-        let Some(node) = self.nodes.get(rev).cloned() else {
-            return rev.to_string();
-        };
-        let mut slots = node.slots.clone();
-        for children in slots.values_mut() {
-            for c in children.iter_mut() {
-                let new_c = self.recompute_revision(c);
-                if &new_c != c {
-                    *c = new_c;
+    /// Visit each reachable revision once, children first. Only hash nodes
+    /// whose content changed or whose children received new revisions.
+    fn rebuild_changed_revisions(&mut self, order: Vec<String>, base: &Self) -> HashSet<String> {
+        let mut replacements = HashMap::new();
+        let mut updated = Vec::new();
+        let mut original_nodes = Vec::new();
+        let mut hashed = HashSet::new();
+        for revision in order {
+            let Some(node) = self.nodes.get(&revision) else {
+                continue;
+            };
+            let original = base.nodes.get(&revision);
+            let content_unchanged = original.is_some_and(|before| same_node_content(before, node));
+            if content_unchanged
+                && !node
+                    .slots
+                    .values()
+                    .flatten()
+                    .any(|child| replacements.contains_key(child))
+            {
+                continue;
+            }
+            let mut node = node.clone();
+            for child in node.slots.values_mut().flatten() {
+                if let Some(new_child) = replacements.get(child) {
+                    child.clone_from(new_child);
+                }
+            }
+            let new_revision = self.compute_revision(&node.kind, &node.fields, &node.slots);
+            hashed.insert(new_revision.clone());
+            if new_revision != revision {
+                node.revision.clone_from(&new_revision);
+                if let Some(original) = original.filter(|_| !content_unchanged) {
+                    original_nodes.push(original.clone());
+                }
+                replacements.insert(revision, new_revision);
+                updated.push(node);
+            }
+        }
+        // A revision may be shared by several entity heads. Each head moves
+        // from its original revision even when replacements overlap.
+        if !replacements.is_empty() {
+            let mut heads_by_revision: HashMap<String, Vec<&mut String>> = HashMap::new();
+            for head in self.heads.values_mut() {
+                if replacements.contains_key(head) {
+                    heads_by_revision
+                        .entry(head.clone())
+                        .or_default()
+                        .push(head);
+                }
+            }
+            for (revision, heads) in heads_by_revision {
+                for head in heads {
+                    head.clone_from(&replacements[&revision]);
                 }
             }
         }
-        let new_rev = self.compute_revision(&node.kind, &node.fields, &slots);
-        let mut n = node;
-        n.revision = new_rev.clone();
-        n.slots = slots;
-        self.nodes.insert(new_rev.clone(), n);
-        // content addressing: one revision may be shared by several entities
-        // (e.g. identical params in different functions); move ALL heads that
-        // pointed at the old revision to the new one.
-        for (entity, head) in self.heads.clone() {
-            if head == rev {
-                self.heads.insert(entity, new_rev.clone());
-            }
+        for node in original_nodes.into_iter().chain(updated) {
+            self.nodes.insert(node.revision.clone(), node);
         }
-        new_rev
+        hashed
     }
 
     /// Full integrity verification: every revision matches its content hash,
@@ -277,14 +309,20 @@ impl AirGraph {
     /// heads are part of the current program and are checked (older revisions
     /// may exist in the session history).
     pub fn verify(&self) -> Vec<String> {
+        self.verify_with(|_| false)
+    }
+
+    fn verify_with(&self, mut already_hashed: impl FnMut(&AirNode) -> bool) -> Vec<String> {
         let mut problems = Vec::new();
         for rev in self.reachable() {
             let Some(n) = self.nodes.get(&rev) else {
                 problems.push(format!("E_AIR_DANGLING_CHILD: parent_rev={rev}"));
                 continue;
             };
-            let expect = self.compute_revision(&n.kind, &n.fields, &n.slots);
-            if expect != rev {
+            if n.revision != rev
+                || (!already_hashed(n)
+                    && self.compute_revision(&n.kind, &n.fields, &n.slots) != rev)
+            {
                 problems.push(format!("revision mismatch: {rev} (kind {})", n.kind));
             }
             for (slot, children) in &n.slots {
@@ -340,58 +378,70 @@ impl AirGraph {
     }
 }
 
+fn same_node_content(before: &AirNode, node: &AirNode) -> bool {
+    before.kind == node.kind
+        && before.slots == node.slots
+        && before.fields.len() == node.fields.len()
+        && before
+            .fields
+            .iter()
+            .zip(&node.fields)
+            .all(|((key, value), (other_key, other_value))| {
+                key == other_key && value.same_encoding(other_value)
+            })
+}
+
 /// Iterative white/gray/black DFS cycle detection over the reachable graph.
 /// Returns cycle descriptions like "a -> b -> a". Shared DAGs (diamonds) are
 /// not misreported. Safe on large graphs (no recursion).
 pub fn detect_cycles(g: &AirGraph) -> Vec<String> {
-    let mut state: BTreeMap<String, u8> = BTreeMap::new();
+    walk_revisions(g, |_| {})
+}
+
+fn revision_order(g: &AirGraph) -> (Vec<String>, Vec<String>) {
+    let mut order = Vec::new();
+    let cycles = walk_revisions(g, |revision| order.push(revision.to_owned()));
+    (order, cycles)
+}
+
+fn walk_revisions(g: &AirGraph, mut on_exit: impl FnMut(&str)) -> Vec<String> {
+    let mut state = HashMap::new();
     let mut cycles = Vec::new();
-    let roots: Vec<String> = g
-        .module_entities
-        .iter()
-        .filter_map(|m| g.heads.get(m).cloned())
-        .collect();
-    let mut ri = 0;
-    while ri < roots.len() {
-        let root = roots[ri].clone();
-        ri += 1;
-        if state.get(&root) == Some(&2) {
+    let children = |revision: &str| {
+        g.get(revision)
+            .into_iter()
+            .flat_map(|node| node.slots.values().flatten().map(String::as_str))
+    };
+    for root in g.module_entities.iter().filter_map(|m| g.heads.get(m)) {
+        let root = root.as_str();
+        if state.get(root) == Some(&2) {
             continue;
         }
-        let mut stack: Vec<(String, usize)> = vec![(root.clone(), 0)];
-        let mut path = vec![root.clone()];
-        state.insert(root.clone(), 1);
-        while let Some((node, idx)) = stack.last() {
-            let node = node.clone();
-            let children: Vec<String> = g
-                .get(&node)
-                .map(|n| n.slots.values().flatten().cloned().collect())
-                .unwrap_or_default();
-            if *idx >= children.len() {
-                state.insert(node.clone(), 2);
+        let mut stack = vec![(root, children(root))];
+        state.insert(root, 1);
+        while let Some((node, edges)) = stack.last_mut() {
+            let Some(child) = edges.next() else {
+                state.insert(*node, 2);
+                on_exit(node);
                 stack.pop();
-                path.pop();
                 continue;
-            }
-            let child = children[*idx].clone();
-            let new_idx = *idx + 1;
-            if let Some((_, idx_slot)) = stack.last_mut() {
-                *idx_slot = new_idx;
-            }
-            match state.get(&child).copied() {
+            };
+            match state.get(child).copied() {
                 Some(2) => {}
                 Some(1) => {
-                    let pos = path.iter().position(|p| p == &child).unwrap_or(0);
-                    let mut s = path[pos..].join(" -> ");
-                    s.push_str(&format!(" -> {child}"));
-                    cycles.push(s);
+                    let path: Vec<_> = stack
+                        .iter()
+                        .map(|(revision, _)| *revision)
+                        .skip_while(|revision| *revision != child)
+                        .chain(std::iter::once(child))
+                        .collect();
+                    cycles.push(path.join(" -> "));
                     // mark black so the same cycle is not reported repeatedly
-                    state.insert(child.clone(), 2);
+                    state.insert(child, 2);
                 }
                 _ => {
-                    state.insert(child.clone(), 1);
-                    path.push(child.clone());
-                    stack.push((child.clone(), 0));
+                    state.insert(child, 1);
+                    stack.push((child, children(child)));
                 }
             }
         }
@@ -3804,7 +3854,11 @@ pub fn validate_node(
 }
 
 pub fn validate_graph(g: &AirGraph) -> Vec<String> {
-    let mut problems = g.verify();
+    validate_graph_with(g, |_| false)
+}
+
+fn validate_graph_with(g: &AirGraph, already_hashed: impl FnMut(&AirNode) -> bool) -> Vec<String> {
+    let mut problems = g.verify_with(already_hashed);
     for n in g.nodes.values() {
         if let Err(e) = validate_node(&n.kind, &n.fields, &n.slots) {
             problems.push(format!("{}: {e}", n.revision));
@@ -3837,6 +3891,7 @@ pub struct EditSession {
     pub base_hash: String,
     pub bindings: BTreeMap<String, BTreeMap<String, (String, String)>>, // scope -> (name -> (type, node))
     pub errors: Vec<String>,
+    verified_revisions: HashSet<String>,
 }
 
 struct FunctionOccurrence {
@@ -3850,11 +3905,19 @@ struct FunctionOccurrence {
 
 impl EditSession {
     pub fn begin(graph: AirGraph, base_hash: String) -> Self {
+        // Cache only revisions traversed by integrity verification. Older
+        // revisions can be present without being part of the current program.
+        let verified_revisions = if graph.verify().is_empty() {
+            graph.reachable().into_iter().collect()
+        } else {
+            HashSet::new()
+        };
         EditSession {
             graph,
             base_hash,
             bindings: BTreeMap::new(),
             errors: Vec::new(),
+            verified_revisions,
         }
     }
 
@@ -3868,18 +3931,27 @@ impl EditSession {
     ) -> Result<(), String> {
         let mut candidate = self.graph.clone();
         apply(&mut candidate)?;
-        let cycles = detect_cycles(&candidate);
+        let (order, cycles) = revision_order(&candidate);
         if !cycles.is_empty() {
             self.errors = vec![format!("E_AIR_CYCLE: {}", cycles[0])];
             return Err(format!("E_AIR_CYCLE: {}", cycles[0]));
         }
-        candidate.rebuild_revisions();
-        let problems = validate_graph(&candidate);
+        let hashed = candidate.rebuild_changed_revisions(order, &self.graph);
+        let problems = validate_graph_with(&candidate, |node| {
+            hashed.contains(&node.revision)
+                || (self.verified_revisions.contains(&node.revision)
+                    && self
+                        .graph
+                        .nodes
+                        .get(&node.revision)
+                        .is_some_and(|before| same_node_content(before, node)))
+        });
         if !problems.is_empty() {
             self.errors = problems.clone();
             return Err(format!("E_AIR_INVARIANT: {}", problems.join("; ")));
         }
         self.graph = candidate;
+        self.verified_revisions = self.graph.reachable().into_iter().collect();
         Ok(())
     }
 
@@ -4302,12 +4374,18 @@ impl EditSession {
             );
             let mut slots = original.slots.clone();
             slots.insert("body".into(), vec![new_body.clone()]);
-            // A content-shared function's stored entity label can belong to
-            // another declaration. Preserve that metadata without moving its
-            // head; only the selected occurrence's head is reconnected.
-            let heads = g.heads.clone();
+            // Preserve a shared function's stored label and its original head
+            // association. Only the selected declaration gets the new head.
+            let previous_head = g.heads.get(&original.entity).cloned();
             new_function = g.add("function", &original.entity, original.fields.clone(), slots);
-            g.heads = heads;
+            match previous_head {
+                Some(head) => {
+                    g.heads.insert(original.entity.clone(), head);
+                }
+                None => {
+                    g.heads.remove(&original.entity);
+                }
+            }
             if g.get(&new_function).map(|n| &n.entity) != Some(&original.entity) {
                 return Err(
                     "E_AEP_BODY_ENTITY_COLLISION: existing revision has different entity metadata"
@@ -5339,6 +5417,52 @@ mod tests {
         g.module_entities.push("module:m".to_string());
         g.heads.insert("module:m".to_string(), root);
         assert!(detect_cycles(&g).is_empty());
+    }
+
+    #[test]
+    fn staged_rebuild_updates_shared_paths_and_keeps_original_revisions() {
+        let mut graph = AirGraph::new();
+        let literal = graph.add(
+            "literal",
+            "",
+            BTreeMap::from([("value".into(), Value::Float(0.0))]),
+            BTreeMap::new(),
+        );
+        let shared = graph.add(
+            "block",
+            "first",
+            BTreeMap::new(),
+            BTreeMap::from([("steps".into(), vec![literal.clone()])]),
+        );
+        graph.heads.insert("second".into(), shared.clone());
+        let root = graph.add(
+            "block",
+            "module:m",
+            BTreeMap::new(),
+            BTreeMap::from([("steps".into(), vec![shared.clone(), shared.clone()])]),
+        );
+        graph.module_entities.push("module:m".into());
+
+        let mut session = EditSession::begin(graph, String::new());
+        let replacement = session
+            .set_field(&literal, "value", Value::Float(-0.0))
+            .unwrap();
+        let graph = &session.graph;
+        assert_ne!(literal, replacement);
+        assert_ne!(graph.heads["first"], shared);
+        assert_eq!(graph.heads["first"], graph.heads["second"]);
+        assert_eq!(graph.nodes[&root].slots["steps"], [shared.clone(), shared]);
+        assert_eq!(
+            graph.nodes[&graph.heads["module:m"]].slots["steps"],
+            [graph.heads["first"].clone(), graph.heads["second"].clone(),]
+        );
+        assert!(
+            matches!(graph.nodes[&literal].fields["value"], Value::Float(v) if v.to_bits() == 0.0f64.to_bits())
+        );
+        assert!(
+            matches!(graph.nodes[&replacement].fields["value"], Value::Float(v) if v.to_bits() == (-0.0f64).to_bits())
+        );
+        assert!(graph.verify().is_empty());
     }
 
     #[test]

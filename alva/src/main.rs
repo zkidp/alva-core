@@ -2616,7 +2616,7 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                     for (_, vid) in &updates {
                         value_revs.push(s.resolve_current(vid)?);
                     }
-                    let saved = s.graph.clone();
+                    let saved = s.clone();
                     let make_nodes =
                         |s: &mut air::EditSession| -> Result<(String, Vec<String>), String> {
                             let mut update_ids = Vec::new();
@@ -2636,7 +2636,13 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                             let rev = s.create_node("record_update", f, slots)?;
                             Ok((rev, update_ids))
                         };
-                    let (rev, _) = make_nodes(s)?;
+                    let (rev, _) = match make_nodes(s) {
+                        Ok(result) => result,
+                        Err(error) => {
+                            *s = saved;
+                            return Err(error);
+                        }
+                    };
                     // 找 base 所属函数的 body block（向上走 parent 链）
                     let parents = air::parent_index(&s.graph);
                     let mut cur = base_rev.clone();
@@ -2665,7 +2671,7 @@ fn cmd_agent(_rest: &[String]) -> i32 {
                         false
                     };
                     let errs = if temp_checked { s.check() } else { Vec::new() };
-                    s.graph = saved;
+                    *s = saved;
                     s.errors = Vec::new();
                     if !errs.is_empty() {
                         return Err(errs.join("; "));
