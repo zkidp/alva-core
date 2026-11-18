@@ -9,6 +9,7 @@ mod construction;
 mod diag;
 mod manifest;
 mod mcp;
+mod navigation;
 mod project;
 mod s_expr;
 
@@ -633,6 +634,44 @@ fn cmd_air(rest: &[String]) -> i32 {
             match result {
                 Ok(rows) => {
                     println!("{}", serde_json::json!(rows));
+                    0
+                }
+                Err(error) => {
+                    eprintln!("error: {error}");
+                    1
+                }
+            }
+        }
+        "project-index" => {
+            let Some(file) = rest.get(1) else {
+                eprintln!("usage: alva air project-index <alva.toml>");
+                return 2;
+            };
+            let manifest = Path::new(file);
+            let result = project::load_project(manifest).and_then(|project| {
+                let base = manifest.parent().unwrap_or(Path::new("."));
+                let paths = project
+                    .modules
+                    .iter()
+                    .map(|(name, path)| {
+                        (
+                            name.clone(),
+                            path.strip_prefix(base)
+                                .unwrap_or(path)
+                                .to_string_lossy()
+                                .replace('\\', "/"),
+                        )
+                    })
+                    .collect();
+                project::load_modules(&project)
+                    .map(|modules| navigation::index(&modules, &paths))
+                    .map_err(|errors| {
+                        format!("project parse failed with {} diagnostics", errors.len())
+                    })
+            });
+            match result {
+                Ok(index) => {
+                    println!("{index}");
                     0
                 }
                 Err(error) => {

@@ -25,7 +25,7 @@ PRIVATE_OPERATIONS = frozenset(("begin_transaction", "read_function", "read_func
     "commit_transaction", "abort_transaction", "stage_declarations", "read_type"))
 
 DECLARATION_EDITS = ("body", "function", "type", "add_function", "add_type",
-                     "delete_function", "delete_type", "exports")
+                     "delete_function", "delete_type", "exports", "module")
 
 TOOLS = [
     {"name": "read_target", "description": "Read an authorized function's current body, declaration and direct context. Reuse its view_id for changes; Host owns transactions.",
@@ -318,7 +318,7 @@ class MaintenanceHost:
             or not e["target"]
             or e["kind"] not in DECLARATION_EDITS
             or len(e["source"].encode()) > 65536
-            or (e["target"] if e["kind"] == "exports" else e["target"].rpartition(".")[0]) not in self.policy["component_modules"]
+            or (e["target"] if e["kind"] in ("exports", "module") else e["target"].rpartition(".")[0]) not in self.policy["component_modules"]
             for e in edits
         ) or sum(len(e["source"].encode()) for e in edits) > 512 * 1024):
             return {"status": "REJECTED", "reason": "INVALID_OR_OUT_OF_SCOPE_DECLARATION_BATCH"}

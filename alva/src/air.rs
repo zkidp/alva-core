@@ -3916,8 +3916,9 @@ impl EditSession {
         }
         let mut changed = BTreeMap::new();
         let mut seen = HashSet::new();
+        let mut replaced_modules = HashSet::new();
         for (kind, target, source) in edits {
-            let (module, name) = if kind == "exports" {
+            let (module, name) = if matches!(kind.as_str(), "exports" | "module") {
                 (target.as_str(), "")
             } else {
                 target.rsplit_once('.').ok_or("E_AEP_BATCH_TARGET")?
@@ -3932,6 +3933,24 @@ impl EditSession {
                 return Err("E_AEP_DUPLICATE_BATCH_TARGET".into());
             }
             let entity = format!("module:{module}");
+            if replaced_modules.contains(&entity) {
+                return Err("E_AEP_DUPLICATE_BATCH_MODULE".into());
+            }
+            if kind == "module" {
+                if changed.contains_key(&entity) {
+                    return Err("E_AEP_DUPLICATE_BATCH_MODULE".into());
+                }
+                let parsed =
+                    crate::compact::parse_module(&source, &crate::s_expr::Limits::from_env())
+                        .map_err(|e| format!("{}: {e}", e.code()))?;
+                if parsed.name != module {
+                    return Err("E_AEP_BATCH_MODULE_NAME".into());
+                }
+                self.graph.resolve(&entity).ok_or("E_AEP_BATCH_TARGET")?;
+                replaced_modules.insert(entity.clone());
+                changed.insert(entity, parsed);
+                continue;
+            }
             let base = match changed.entry(entity.clone()) {
                 std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
                 std::collections::btree_map::Entry::Vacant(entry) => {
