@@ -4066,9 +4066,13 @@ impl EditSession {
                 .iter()
                 .filter(|(k, _)| *k != "exports")
                 .ne(after.fields.iter().filter(|(k, _)| *k != "exports"))
-                || ["externs", "tests", "benches"]
-                    .iter()
-                    .any(|slot| before.slots.get(*slot) != after.slots.get(*slot))
+                || (if replaced_modules.contains(&entity) {
+                    &["tests", "benches"][..]
+                } else {
+                    &["externs", "tests", "benches"][..]
+                })
+                .iter()
+                .any(|slot| before.slots.get(*slot) != after.slots.get(*slot))
             {
                 return Err("E_AEP_COMPONENT_PROTECTED_DECLARATION".into());
             }

@@ -102,6 +102,30 @@ class Tests(unittest.TestCase):
         self.assertTrue(guard.tool('commit_transaction',{'transaction_id':'tx'})['isError'])
         self.assertNotIn('commit_transaction',inner.calls)
 
+    def test_component_extern_opt_in_keeps_tests_protected(self):
+        for enabled, slot, expected in (
+            (False, "externs", "SCOPE_UNVERIFIED"),
+            (True, "externs", "SCOPE_ALLOWED"),
+            (True, "tests", "SCOPE_UNVERIFIED"),
+        ):
+            with self.subTest(enabled=enabled, slot=slot):
+                inner, policy = fixture()
+                policy = {"component_modules": ["m"], "allow_component_externs": enabled}
+                original = inner.request
+                def request(method, params, **kwargs):
+                    if params.get("name") != "inspect_scope_heads":
+                        return original(method, params, **kwargs)
+                    return {"isError": False, "structuredContent": {
+                        "module_order": ["module:m"],
+                        "project": {"modules": {"module:m": "m"}, "project_revision": "project"},
+                        "nodes": {"m": copy.deepcopy(inner.graph["m"])},
+                    }}
+                inner.request = request
+                guard = GuardedNative(inner, policy, {"begin_transaction", "commit_transaction"})
+                guard.tool("begin_transaction", {})
+                inner.graph["m"]["slots"][slot] = ["new"]
+                self.assertEqual(guard.preview_scope("tx")["status"], expected)
+
     def test_no_fallback_or_model_transport_selection(self):
         inner,guard=new();inner.inspect_failure=True
         guard.tool('commit_transaction',{'transaction_id':'tx'})

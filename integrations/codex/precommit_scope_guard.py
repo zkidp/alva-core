@@ -25,6 +25,8 @@ class GuardedNative:
         self._inner = inner
         self._policy = copy.deepcopy(policy)
         self._component = frozenset(policy.get("component_modules", ()))
+        self._component_slots = frozenset(("functions", "types", "externs") if
+            policy.get("allow_component_externs") is True else ("functions", "types"))
         self._authorized = frozenset(policy.get("authorized_functions", ()))
         self._allowed = frozenset(allowed_tools)
         self._sink = sink
@@ -60,7 +62,7 @@ class GuardedNative:
                     raise Unverified("INVALID_MODULE_HEAD")
                 if name.removeprefix("module:") in self._component:
                     protected[name] = [{k: v for k, v in node["fields"].items() if k != "exports"}, {k: v for k, v in node["slots"].items()
-                                                         if k not in ("functions", "types")}]
+                                                         if k not in self._component_slots}]
                 else:
                     protected[name] = revision
             return {"protected": protected, "order": order, "revision": envelope["project"]["project_revision"]}
