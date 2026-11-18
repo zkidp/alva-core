@@ -67,7 +67,9 @@ if result['check']['exit']==0:
  if result['build']['exit']==0:
   crate=pathlib.Path('/work/generated')/CONFIG['crate']
   if CONFIG['assertions']:
-   with (crate/'src/lib.rs').open('a') as f:f.write(CONFIG['assertions'])
+   entry=crate/'src/main.rs'
+   if not entry.is_file():entry=crate/'src/lib.rs'
+   with entry.open('a') as f:f.write(CONFIG['assertions'])
   result['test']=run(['/sdk/toolchain/bin/cargo','test','--offline','--manifest-path',str(crate/'Cargo.toml')])
   result['work']['commands']+=1
   result['checks']['test']='PASS' if result['test']['exit']==0 else 'FAIL'

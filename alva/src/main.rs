@@ -615,6 +615,32 @@ fn subgraph_for_root(g: &air::AirGraph, root: &str) -> air::AirGraph {
 fn cmd_air(rest: &[String]) -> i32 {
     let sub = rest.first().map(|s| s.as_str()).unwrap_or("");
     match sub {
+        "project-declarations" => {
+            let Some(file) = rest.get(1) else {
+                eprintln!("usage: alva air project-declarations <air-file>");
+                return 2;
+            };
+            let result = read_air_verify(Path::new(file)).and_then(|graph| {
+                graph
+                    .module_entities
+                    .iter()
+                    .map(|entity| {
+                        air::air_to_module(&graph, entity)
+                            .map(|module| (module.name.clone(), compact::declarations(module)))
+                    })
+                    .collect::<Result<BTreeMap<_, _>, _>>()
+            });
+            match result {
+                Ok(rows) => {
+                    println!("{}", serde_json::json!(rows));
+                    0
+                }
+                Err(error) => {
+                    eprintln!("error: {error}");
+                    1
+                }
+            }
+        }
         "project-compact" => {
             let (Some(file), Some(entity)) = (rest.get(1), rest.get(2)) else {
                 eprintln!("usage: alva air project-compact <air-file> <module> [--multiline]");

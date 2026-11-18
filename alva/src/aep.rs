@@ -184,6 +184,9 @@ fn schema_for_shape(shape: &'static str) -> ArgSchema {
         ),
         "string(builtin|operator|all)" => ArgSchema::Enum(shape, &["builtin", "operator", "all"]),
         "string (sexpr or compact)" => ArgSchema::Enum(shape, &["sexpr", "compact"]),
+        "string (sexpr, compact, or compact_multiline)" => {
+            ArgSchema::Enum(shape, &["sexpr", "compact", "compact_multiline"])
+        }
         "string|i64|bool|bytes|nil" => {
             ArgSchema::Enum(shape, &["string", "i64", "bool", "bytes", "nil"])
         }

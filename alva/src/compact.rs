@@ -563,6 +563,33 @@ pub fn module_multiline(m: &ast::Module) -> String {
     render_module(m, true)
 }
 
+pub fn declarations(mut m: ast::Module) -> serde_json::Value {
+    let names: Vec<_> = m.fns.iter().map(|f| f.name.clone()).collect();
+    let names: Vec<_> = names.iter().map(String::as_str).collect();
+    let functions: std::collections::BTreeMap<_, _> = m
+        .fns
+        .drain(..)
+        .map(|f| {
+            let source = format!(
+                "{} {}",
+                declaration(&f),
+                qualify_colliding_aliases(&body(&f.body), &names)
+            );
+            (f.name, source)
+        })
+        .collect();
+    let types: std::collections::BTreeMap<_, _> = m
+        .types
+        .drain(..)
+        .map(|t| (t.name.clone(), type_decl(&t)))
+        .collect();
+    let exports = std::mem::take(&mut m.exports);
+    serde_json::json!({
+        "functions": functions, "types": types,
+        "exports": exports, "fixed_source": module(&m)
+    })
+}
+
 fn render_module(m: &ast::Module, multi: bool) -> String {
     let mut out = format!(
         "module {} version {};\n",
