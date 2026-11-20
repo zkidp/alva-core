@@ -564,6 +564,7 @@ pub fn module_multiline(m: &ast::Module) -> String {
 }
 
 pub fn declarations(mut m: ast::Module) -> serde_json::Value {
+    let source = module_multiline(&m);
     let names: Vec<_> = m.fns.iter().map(|f| f.name.clone()).collect();
     let names: Vec<_> = names.iter().map(String::as_str).collect();
     let functions: std::collections::BTreeMap<_, _> = m
@@ -586,7 +587,7 @@ pub fn declarations(mut m: ast::Module) -> serde_json::Value {
     let exports = std::mem::take(&mut m.exports);
     serde_json::json!({
         "functions": functions, "types": types,
-        "exports": exports, "fixed_source": module(&m)
+        "exports": exports, "fixed_source": module(&m), "source": source
     })
 }
 
