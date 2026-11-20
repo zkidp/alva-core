@@ -3432,7 +3432,11 @@ fn schema(
         ),
         "as" => (
             &[],
-            &[],
+            &[FieldSpec {
+                name: "cast",
+                vkind: Bool,
+                required: false,
+            }],
             &[
                 SlotSpec {
                     name: "type",

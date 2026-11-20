@@ -330,4 +330,20 @@ mod tests {
             .unwrap();
         assert_ne!(graph_to_bytes(&session.graph), before);
     }
+
+    #[test]
+    fn source_cast_nodes_remain_valid_during_unrelated_declaration_edits() {
+        let source = "module alpha version \"1\"; fn cast_value() -> i64 pure { 1u as i64 } fn other() -> i64 pure { 0 }";
+        let module = parse_module(source, &Limits::default()).unwrap();
+        let graph = air_from_module(&module);
+        assert!(crate::air::validate_graph(&graph).is_empty());
+        let mut session = EditSession::begin(graph, String::new());
+        session
+            .stage_declarations(
+                &["alpha".to_string()],
+                vec![("body".into(), "alpha.other".into(), "{ 2 }".into())],
+            )
+            .unwrap();
+        assert!(session.check().is_empty());
+    }
 }
